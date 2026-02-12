@@ -1,0 +1,28 @@
+# Пример конфигурации приложения
+server:
+  host: "0.0.0.0"
+  port: 8080
+  read_timeout: 15s
+  write_timeout: 15s
+  request_timeout: 30s
+
+database:
+  host: "localhost"
+  port: 5432
+  user: "postgres"
+  password: "postgres"
+  database: "my_english"
+  ssl_mode: "disable"
+  max_open_conns: 25
+  max_idle_conns: 5
+  conn_max_lifetime: 5m
+
+graphql:
+  enable_playground: true
+  enable_introspection: true
+  query_cache_size: 1000
+
+log:
+  level: "info"  # debug, info, warn, error
+  format: "text" # json или text
+

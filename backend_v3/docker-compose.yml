@@ -1,0 +1,126 @@
+services:
+  # PostgreSQL база данных
+  postgres:
+    image: postgres:16-alpine
+    container_name: my-english-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-my_english}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # Можно добавить init скрипты если нужно
+      # - ./init-db:/docker-entrypoint-initdb.d
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-my_english}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - my-english-network
+    # Оптимизация для production
+    command: >
+      postgres
+      -c shared_buffers=256MB
+      -c max_connections=200
+      -c effective_cache_size=1GB
+      -c maintenance_work_mem=64MB
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=16MB
+      -c default_statistics_target=100
+      -c random_page_cost=1.1
+      -c effective_io_concurrency=200
+      -c work_mem=4MB
+      -c min_wal_size=1GB
+      -c max_wal_size=4GB
+
+  # Миграции базы данных
+  # Запускается автоматически при старте, применяет только новые миграции
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile.migrate
+    container_name: my-english-migrate
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_NAME: ${DB_NAME:-my_english}
+      DB_SSLMODE: disable
+    networks:
+      - my-english-network
+    # Запускается только один раз при старте (не перезапускается)
+    restart: "no"
+
+  # Backend сервис
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: my-english-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      # Server config
+      SERVER_HOST: ${SERVER_HOST:-0.0.0.0}
+      SERVER_PORT: ${SERVER_PORT:-8080}
+      SERVER_READ_TIMEOUT: ${SERVER_READ_TIMEOUT:-15s}
+      SERVER_WRITE_TIMEOUT: ${SERVER_WRITE_TIMEOUT:-15s}
+      SERVER_REQUEST_TIMEOUT: ${SERVER_REQUEST_TIMEOUT:-30s}
+      
+      # Database config
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_NAME: ${DB_NAME:-my_english}
+      DB_SSLMODE: ${DB_SSLMODE:-disable}
+      DB_MAX_OPEN_CONNS: ${DB_MAX_OPEN_CONNS:-25}
+      DB_MAX_IDLE_CONNS: ${DB_MAX_IDLE_CONNS:-5}
+      DB_CONN_MAX_LIFETIME: ${DB_CONN_MAX_LIFETIME:-5m}
+      
+      # GraphQL config
+      GRAPHQL_PLAYGROUND: ${GRAPHQL_PLAYGROUND:-true}
+      GRAPHQL_INTROSPECTION: ${GRAPHQL_INTROSPECTION:-true}
+      GRAPHQL_QUERY_CACHE_SIZE: ${GRAPHQL_QUERY_CACHE_SIZE:-1000}
+      
+      # Log config
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      LOG_FORMAT: ${LOG_FORMAT:-json}
+    ports:
+      - "${SERVER_PORT:-8080}:8080"
+    networks:
+      - my-english-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  postgres_data:
+    driver: local
+    name: my-english-postgres-data
+
+networks:
+  my-english-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+          gateway: 172.28.0.1
+

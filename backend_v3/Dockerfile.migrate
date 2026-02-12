@@ -1,0 +1,41 @@
+# Dockerfile для запуска миграций
+FROM golang:1.24-alpine
+
+# Устанавливаем необходимые инструменты
+RUN apk add --no-cache git make
+
+WORKDIR /app
+
+# Копируем файлы зависимостей
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Копируем миграции
+COPY migrations ./migrations
+
+# Устанавливаем goose
+RUN go install github.com/pressly/goose/v3/cmd/goose@latest
+
+# Создаем скрипт для запуска миграций
+RUN echo '#!/bin/sh' > /app/run-migrations.sh && \
+    echo 'set -e' >> /app/run-migrations.sh && \
+    echo 'echo "Waiting for database to be ready..."' >> /app/run-migrations.sh && \
+    echo 'until pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER"; do' >> /app/run-migrations.sh && \
+    echo '  echo "Database is unavailable - sleeping"' >> /app/run-migrations.sh && \
+    echo '  sleep 2' >> /app/run-migrations.sh && \
+    echo 'done' >> /app/run-migrations.sh && \
+    echo 'echo "Database is ready!"' >> /app/run-migrations.sh && \
+    echo 'DB_URL="postgres://$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME?sslmode=$DB_SSLMODE"' >> /app/run-migrations.sh && \
+    echo 'echo "Running migrations..."' >> /app/run-migrations.sh && \
+    echo 'goose -dir migrations postgres "$DB_URL" up || exit 1' >> /app/run-migrations.sh && \
+    echo 'echo "Migrations completed successfully!"' >> /app/run-migrations.sh && \
+    chmod +x /app/run-migrations.sh
+
+# Устанавливаем postgresql-client для pg_isready
+# Используем postgresql15-client для совместимости с Alpine
+RUN apk add --no-cache postgresql15-client || \
+    apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/main postgresql-client || \
+    apk update && apk add --no-cache postgresql-client
+
+CMD ["/app/run-migrations.sh"]
+

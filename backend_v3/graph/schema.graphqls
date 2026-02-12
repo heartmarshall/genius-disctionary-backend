@@ -1,0 +1,506 @@
+scalar Time
+scalar JSON # Для хранения данных алгоритма SRS (stability, difficulty, ease_factor)
+scalar UUID
+scalar Upload # Для загрузки файлов (импорт словаря)
+
+# ==============================================================================
+# 1. ENUMS (Перечисления)
+# ==============================================================================
+
+enum LearningStatus {
+  NEW
+  LEARNING
+  REVIEW
+  MASTERED
+}
+
+enum PartOfSpeech {
+  NOUN
+  VERB
+  ADJECTIVE
+  ADVERB
+  PRONOUN
+  PREPOSITION
+  CONJUNCTION
+  INTERJECTION
+  PHRASE
+  IDIOM
+  OTHER
+}
+
+# Используется записи логов изменений - нужно указывать какая именно сущность была изменена. 
+enum EntityType {
+  ENTRY
+  SENSE
+  EXAMPLE
+  IMAGE
+  PRONUNCIATION
+  CARD
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+# ==============================================================================
+# 2. SUGGESTION LAYER (Подсказки)
+# Используется для получения данных из внешних источников. 
+# Данные Read-Only и не сохраняются в БД.
+# ==============================================================================
+
+"""
+Результат поиска во внешних источниках.
+"""
+type SuggestionResult {
+  sourceSlug: String!        # "freedict", "openai", "unsplash"
+  sourceName: String!        # "Free Dictionary API"
+  
+  # Провайдер может вернуть любые части слова
+  senses: [SuggestedSense!]!
+  images: [SuggestedImage!]!
+  pronunciations: [SuggestedPronunciation!]!
+  # Если в будущем в подсказке будет возвращаться что-то еще, то нужно будет добавить это здесь 
+}
+
+type SuggestedSense {
+  definition: String!
+  partOfSpeech: PartOfSpeech
+  examples: [SuggestedExample!]!
+  # Переводы, предложенные для этого смысла
+  translations: [String!]! 
+}
+
+type SuggestedExample {
+  sentence: String!
+  translation: String
+}
+
+type SuggestedImage {
+  url: String!
+  thumbnailUrl: String
+  caption: String
+}
+
+type SuggestedPronunciation {
+  audioUrl: String!
+  transcription: String
+  region: String # "US", "UK"
+}
+
+# ==============================================================================
+# 3. DOMAIN LAYER (Словарь и Контент)
+# Основные сущности, хранящиеся в БД.
+# ==============================================================================
+
+"""
+Запись в словаре. Главная доменная сущность.
+"""
+type DictionaryEntry {
+  id: UUID!
+  text: String!              # Оригинальное написание (например "London")
+  textNormalized: String!    # Нормализованное значение
+  notes: String              # Пользовательские заметки о слове (происхождение, этимология и т.д.)
+  
+  # Описание сущности
+  pronunciations: [Pronunciation!]!
+  images: [Image!]!
+  senses: [Sense!]!
+  topics: [Topic!]!           # Топики, к которым относится слово
+  
+  # Карточка, привязанная к слову (может быть null, если слово просто в справочнике)
+  # Это поле добавлено сюда, чтобы при запросе слова можно было сразу подгружать еще и карточку
+  card: Card
+  # Есть ли карточка для этого слова (Изучалось ли оно)
+  cardEnabled: Boolean!
+  # История изменений контента
+  auditLog: [AuditRecord!]!
+  
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+type Sense {
+  id: UUID!
+  entryId: UUID!
+  definition: String      # Может быть пустым, если есть только перевод
+  partOfSpeech: PartOfSpeech
+  sourceSlug: String      # Откуда взято определение ("freedict", "user")
+  
+  translations: [Translation!]!
+  examples: [Example!]!
+  cefrLevel: String
+  relations: [SenseRelation!]!
+  
+  createdAt: Time!
+}
+
+# Определение типа связи (MISSING PART)
+type SenseRelation {
+  id: UUID!
+  targetEntryId: UUID!
+  type: RelationType!
+}
+
+# Пока что не используется. В будущем стоит добавить связи между словами
+# чтобы можно было находить антонимы/синонимы для выбранного слова
+enum RelationType {
+  SYNONYM
+  ANTONYM
+  RELATED
+  COLLOCATION
+}
+
+type Translation {
+  id: UUID!
+  senseId: UUID!
+  text: String!
+  sourceSlug: String      # "google-translate", "user"
+}
+
+type Example {
+  id: UUID!
+  senseId: UUID!
+  sentence: String!
+  translation: String
+  sourceSlug: String      # "openai", "inbox"
+  createdAt: Time!
+}
+
+type Image {
+  id: UUID!
+  entryId: UUID!
+  url: String!
+  caption: String
+  sourceSlug: String      # "unsplash", "user-upload"
+}
+
+type Pronunciation {
+  id: UUID!
+  entryId: UUID!
+  audioUrl: String       # Опционально
+  transcription: String! # Обязательно
+  region: String
+  sourceSlug: String      # "forvo"
+}
+
+type AuditRecord {
+  id: UUID!
+  entityType: EntityType!
+  entityId: UUID
+  action: AuditAction!
+  changes: JSON!          # { "field": "def", "old": "...", "new": "..." }
+  createdAt: Time!
+}
+
+"""
+Топик для категоризации слов в словаре.
+"""
+type Topic {
+  id: UUID!
+  name: String!
+  description: String
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+# ==============================================================================
+# 4. STUDY LAYER (Обучение)
+# ==============================================================================
+
+"""
+Карточка для интервального повторения.
+Жестко привязана к DictionaryEntry (1:1).
+"""
+type Card {
+  id: UUID!
+  entryId: UUID!
+  # Текущее состояние SRS
+  status: LearningStatus!
+  nextReviewAt: Time      # Когда показывать снова
+  intervalDays: Int!      # Текущий интервал в днях
+  easeFactor: Float!      # Множитель легкости (SM-2)
+  
+  # История ответов (для графиков)
+  reviewHistory(limit: Int = 10): [ReviewLog!]!
+  
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+type ReviewLog {
+  id: UUID!
+  cardId: UUID!
+  grade: ReviewGrade!     # 1-5
+  durationMs: Int
+  reviewedAt: Time!
+}
+
+# ==============================================================================
+# 5. INBOX LAYER (Входящие)
+# ==============================================================================
+
+type InboxItem {
+  id: UUID!
+  text: String!
+  context: String
+  createdAt: Time!
+}
+
+# ==============================================================================
+# 6. INPUTS & FILTERS (Входные данные)
+# ==============================================================================
+
+input WordFilter {
+  search: String          # Нечеткий поиск
+  hasCard: Boolean        # true: только те, что учу; false: только справочник
+  partOfSpeech: PartOfSpeech
+  topicIDs: [UUID!]       # Фильтр по топикам (слова должны иметь хотя бы один из указанных топиков)
+  
+  limit: Int = 20
+  offset: Int = 0
+  
+  sortBy: WordSortField   # CREATED_AT, TEXT, UPDATED_AT
+  sortDir: SortDirection  # ASC, DESC
+}
+
+enum WordSortField {
+  CREATED_AT
+  TEXT
+  UPDATED_AT
+}
+
+enum SortDirection {
+  ASC
+  DESC
+}
+
+"""
+Основной инпут для создания слова.
+Позволяет доставать данные из разных источников.
+"""
+input CreateWordInput {
+  text: String!
+  notes: String            # Пользовательские заметки о слове
+  
+  senses: [SenseInput!]!
+  images: [ImageInput!]
+  pronunciations: [PronunciationInput!]
+  topicIDs: [UUID!]        # Список ID топиков для привязки к слову
+  
+  createCard: Boolean!     # Сразу создать карточку для изучения?
+}
+
+input SenseInput {
+  definition: String
+  partOfSpeech: PartOfSpeech
+  sourceSlug: String       # Важно: фронтенд шлет slug источника (или "user")
+  
+  translations: [TranslationInput!]
+  examples: [ExampleInput!]
+}
+
+input TranslationInput {
+  text: String!
+  sourceSlug: String
+}
+
+input ExampleInput {
+  sentence: String!
+  translation: String
+  sourceSlug: String
+}
+
+input ImageInput {
+  url: String!
+  caption: String
+  sourceSlug: String
+}
+
+input PronunciationInput {
+  audioUrl: String       # Опционально, может быть пустой строкой
+  transcription: String! # Обязательно
+  region: String
+  sourceSlug: String
+}
+
+input UpdateWordInput {
+  text: String
+  notes: String            # Пользовательские заметки о слове
+  # Для обновления вложенных сущностей можно использовать разные стратегии.
+  # Самая простая для MVP: полная замена списка (senses, images, pronunciations) 
+  # или отдельные мутации add/remove. 
+  # Ниже - упрощенный вариант (только основные поля).
+  senses: [SenseInput!]
+  images: [ImageInput!]
+  pronunciations: [PronunciationInput!]
+  topicIDs: [UUID!]        # Список ID топиков. null = не трогать, [] = удалить все, [id1, id2] = заменить на новые
+}
+
+# ==============================================================================
+# 7. ROOT OPERATIONS
+# ==============================================================================
+
+type Query {
+  # --- Constructor Flow ---
+  """
+  Запрашивает подсказки у внешних провайдеров.
+  Stateless операция (не пишет в БД).
+  """
+  fetchSuggestions(text: String!, sources: [String!]!): [SuggestionResult!]!
+
+  # --- Dictionary Access ---
+  """
+  Поиск по локальному словарю.
+  Используется и для проверки дублей, и для навигации.
+  """
+  dictionary(filter: WordFilter): [DictionaryEntry!]!
+  
+  dictionaryEntry(id: UUID!): DictionaryEntry
+
+  # --- Topics ---
+  """
+  Возвращает список всех топиков.
+  """
+  topics: [Topic!]!
+  
+  topic(id: UUID!): Topic
+
+  # --- Inbox ---
+  inboxItems: [InboxItem!]!
+
+  # --- Study Mode ---
+  """
+  Очередь на изучение.
+  Возвращает слова, у которых Card.stats.nextReviewAt <= Now.
+  """
+  studyQueue(limit: Int = 20): [DictionaryEntry!]!
+  
+  dashboardStats: DashboardStats!
+  
+  # --- Import/Export ---
+  """
+  Экспортирует весь словарь в формате JSON.
+  Возвращает JSON строку с массивом записей словаря.
+  """
+  exportDictionary: String!
+}
+
+type Mutation {
+  # --- Word Ops ---
+  """
+  Создает слово со всем контентом и (опционально) карточкой.
+  Транзакционно. Проверяет дубликаты перед вставкой.
+  """
+  createWord(input: CreateWordInput!): DictionaryEntry!
+  
+  updateWord(id: UUID!, input: UpdateWordInput!): DictionaryEntry!
+  
+  deleteWord(id: UUID!): Boolean!
+
+  # --- Topic Ops ---
+  """
+  Создает новый топик.
+  """
+  createTopic(input: CreateTopicInput!): Topic!
+  
+  """
+  Обновляет топик.
+  """
+  updateTopic(input: UpdateTopicInput!): Topic!
+  
+  """
+  Удаляет топик.
+  """
+  deleteTopic(id: UUID!): Boolean!
+  
+  """
+  Добавляет топики к записи словаря без удаления существующих.
+  """
+  addTopics(entryId: UUID!, topicIDs: [UUID!]!): DictionaryEntry!
+  
+  """
+  Удаляет топики у записи словаря.
+  """
+  removeTopics(entryId: UUID!, topicIDs: [UUID!]!): DictionaryEntry!
+
+  # --- Inbox Ops ---
+  addToInbox(text: String!, context: String): InboxItem!
+  deleteInboxItem(id: UUID!): Boolean!
+  
+  """
+  Превращает элемент Inbox в Слово. 
+  Текст из Inbox обычно попадает в ExampleInput нового слова.
+  Удаляет InboxItem при успехе.
+  """
+  convertInboxToWord(inboxId: UUID!, input: CreateWordInput!): DictionaryEntry!
+
+
+  # --- Study Ops ---
+  """
+  Создает карточку для существующей записи словаря.
+  """
+  createCard(entryId: UUID!): Card!
+  
+  """
+  Ответ на карточку. Обновляет SRS алгоритм.
+  """
+  reviewCard(
+    cardId: UUID!, 
+    grade: ReviewGrade!
+    timeTakenMs: Int
+  ): ReviewResult!
+  
+  # --- Import/Export ---
+  """
+  Импортирует словарь из JSON файла.
+  Стратегия: SKIP_EXISTING - пропускает существующие слова.
+  """
+  importDictionary(file: Upload!): ImportReport!
+}
+
+type DashboardStats {
+  totalWords: Int!
+  totalCards: Int!
+  newCards: Int!
+  learningCards: Int!
+  reviewCards: Int!
+  masteredCards: Int!
+  dueToday: Int!
+}
+
+enum ReviewGrade {
+  AGAIN
+  HARD
+  GOOD
+  EASY
+}
+
+type ReviewResult {
+  entry: DictionaryEntry! # Возвращаем всё слово, чтобы обновить UI
+  nextReviewAt: Time!
+}
+
+type ImportReport {
+  totalProcessed: Int!
+  successCount: Int!
+  skippedCount: Int!
+  failedCount: Int!
+  errors: [String!]!
+}
+
+# ==============================================================================
+# TOPIC INPUTS
+# ==============================================================================
+
+input CreateTopicInput {
+  name: String!
+  description: String
+}
+
+input UpdateTopicInput {
+  id: UUID!
+  name: String
+  description: String
+}
