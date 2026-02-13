@@ -1,0 +1,71 @@
+package config
+
+import "time"
+
+// Config is the root application configuration.
+type Config struct {
+	Server   ServerConfig   `yaml:"server"`
+	Database DatabaseConfig `yaml:"database"`
+	Auth     AuthConfig     `yaml:"auth"`
+	GraphQL  GraphQLConfig  `yaml:"graphql"`
+	Log      LogConfig      `yaml:"log"`
+	SRS      SRSConfig      `yaml:"srs"`
+}
+
+// ServerConfig holds HTTP server settings.
+type ServerConfig struct {
+	Host            string        `yaml:"host"             env:"SERVER_HOST"             env-default:"0.0.0.0"`
+	Port            int           `yaml:"port"             env:"SERVER_PORT"             env-default:"8080"`
+	ReadTimeout     time.Duration `yaml:"read_timeout"     env:"SERVER_READ_TIMEOUT"     env-default:"10s"`
+	WriteTimeout    time.Duration `yaml:"write_timeout"    env:"SERVER_WRITE_TIMEOUT"    env-default:"30s"`
+	IdleTimeout     time.Duration `yaml:"idle_timeout"     env:"SERVER_IDLE_TIMEOUT"     env-default:"60s"`
+	ShutdownTimeout time.Duration `yaml:"shutdown_timeout" env:"SERVER_SHUTDOWN_TIMEOUT" env-default:"10s"`
+}
+
+// DatabaseConfig holds PostgreSQL connection settings.
+type DatabaseConfig struct {
+	DSN             string        `yaml:"dsn"                env:"DATABASE_DSN"                env-required:"true"`
+	MaxConns        int32         `yaml:"max_conns"          env:"DATABASE_MAX_CONNS"          env-default:"25"`
+	MinConns        int32         `yaml:"min_conns"          env:"DATABASE_MIN_CONNS"          env-default:"5"`
+	MaxConnLifetime time.Duration `yaml:"max_conn_lifetime"  env:"DATABASE_MAX_CONN_LIFETIME"  env-default:"1h"`
+	MaxConnIdleTime time.Duration `yaml:"max_conn_idle_time" env:"DATABASE_MAX_CONN_IDLE_TIME" env-default:"30m"`
+}
+
+// AuthConfig holds authentication and OAuth settings.
+type AuthConfig struct {
+	JWTSecret         string        `yaml:"jwt_secret"           env:"AUTH_JWT_SECRET"           env-required:"true"`
+	AccessTokenTTL    time.Duration `yaml:"access_token_ttl"     env:"AUTH_ACCESS_TOKEN_TTL"     env-default:"15m"`
+	RefreshTokenTTL   time.Duration `yaml:"refresh_token_ttl"    env:"AUTH_REFRESH_TOKEN_TTL"    env-default:"720h"`
+	GoogleClientID    string        `yaml:"google_client_id"     env:"AUTH_GOOGLE_CLIENT_ID"`
+	GoogleClientSecret string       `yaml:"google_client_secret" env:"AUTH_GOOGLE_CLIENT_SECRET"`
+	AppleKeyID        string        `yaml:"apple_key_id"         env:"AUTH_APPLE_KEY_ID"`
+	AppleTeamID       string        `yaml:"apple_team_id"        env:"AUTH_APPLE_TEAM_ID"`
+	ApplePrivateKey   string        `yaml:"apple_private_key"    env:"AUTH_APPLE_PRIVATE_KEY"`
+}
+
+// GraphQLConfig holds GraphQL server settings.
+type GraphQLConfig struct {
+	PlaygroundEnabled     bool `yaml:"playground_enabled"     env:"GRAPHQL_PLAYGROUND_ENABLED"     env-default:"false"`
+	IntrospectionEnabled  bool `yaml:"introspection_enabled"  env:"GRAPHQL_INTROSPECTION_ENABLED"  env-default:"false"`
+	ComplexityLimit       int  `yaml:"complexity_limit"       env:"GRAPHQL_COMPLEXITY_LIMIT"       env-default:"300"`
+}
+
+// LogConfig holds logging settings.
+type LogConfig struct {
+	Level  string `yaml:"level"  env:"LOG_LEVEL"  env-default:"info"`
+	Format string `yaml:"format" env:"LOG_FORMAT" env-default:"json"`
+}
+
+// SRSConfig holds spaced-repetition system parameters.
+type SRSConfig struct {
+	DefaultEaseFactor  float64       `yaml:"default_ease_factor"  env:"SRS_DEFAULT_EASE"          env-default:"2.5"`
+	MinEaseFactor      float64       `yaml:"min_ease_factor"      env:"SRS_MIN_EASE"              env-default:"1.3"`
+	MaxIntervalDays    int           `yaml:"max_interval_days"    env:"SRS_MAX_INTERVAL"          env-default:"365"`
+	GraduatingInterval int           `yaml:"graduating_interval"  env:"SRS_GRADUATING_INTERVAL"   env-default:"1"`
+	LearningStepsRaw   string        `yaml:"learning_steps"       env:"SRS_LEARNING_STEPS"        env-default:"1m,10m"`
+	NewCardsPerDay     int           `yaml:"new_cards_per_day"    env:"SRS_NEW_CARDS_DAY"         env-default:"20"`
+	ReviewsPerDay      int           `yaml:"reviews_per_day"      env:"SRS_REVIEWS_DAY"           env-default:"200"`
+
+	// LearningSteps is parsed from LearningStepsRaw during validation.
+	LearningSteps []time.Duration `yaml:"-" env:"-"`
+}
