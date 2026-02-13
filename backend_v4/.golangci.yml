@@ -1,0 +1,45 @@
+run:
+  go: "1.23"
+  timeout: 3m
+
+linters:
+  enable:
+    - errcheck
+    - govet
+    - staticcheck
+    - unused
+    - gosimple
+    - ineffassign
+    - revive
+
+linters-settings:
+  revive:
+    rules:
+      - name: exported
+        disabled: true
+
+issues:
+  exclude-dirs:
+    - internal/adapter/postgres/sqlc
+    - internal/transport/graphql/schema
+
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - errcheck
+        - revive
+
+    - linters:
+        - staticcheck
+      text: "SA1019:"
+      path: _test\.go
+
+    - text: "generated"
+      linters:
+        - revive
+        - govet
+        - errcheck
+        - unused
+        - gosimple
+        - ineffassign
+        - staticcheck
