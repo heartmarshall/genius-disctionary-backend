@@ -1,11 +1,5 @@
 # MyEnglish Backend v4 — Data Model
 
-> **Статус:** Draft v1.0
-> **Дата:** 2026-02-12
-> **Зависимости:** code_conventions_v4.md
-
----
-
 ## 1. Архитектурное решение: Reference Catalog + User Dictionary
 
 ### Проблема
