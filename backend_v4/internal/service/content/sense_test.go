@@ -87,18 +87,33 @@ func (m *mockSenseRepo) Reorder(ctx context.Context, items []ReorderItem) error 
 }
 
 type mockTranslationRepo struct {
+	getByIDFunc      func(ctx context.Context, translationID uuid.UUID) (*domain.Translation, error)
+	getBySenseIDFunc func(ctx context.Context, senseID uuid.UUID) ([]domain.Translation, error)
+	countBySenseFunc func(ctx context.Context, senseID uuid.UUID) (int, error)
 	createCustomFunc func(ctx context.Context, senseID uuid.UUID, text string, sourceSlug string) (*domain.Translation, error)
+	updateFunc       func(ctx context.Context, translationID uuid.UUID, text string) (*domain.Translation, error)
+	deleteFunc       func(ctx context.Context, translationID uuid.UUID) error
+	reorderFunc      func(ctx context.Context, items []ReorderItem) error
 }
 
 func (m *mockTranslationRepo) GetByID(ctx context.Context, translationID uuid.UUID) (*domain.Translation, error) {
+	if m.getByIDFunc != nil {
+		return m.getByIDFunc(ctx, translationID)
+	}
 	return nil, domain.ErrNotFound
 }
 
 func (m *mockTranslationRepo) GetBySenseID(ctx context.Context, senseID uuid.UUID) ([]domain.Translation, error) {
+	if m.getBySenseIDFunc != nil {
+		return m.getBySenseIDFunc(ctx, senseID)
+	}
 	return nil, nil
 }
 
 func (m *mockTranslationRepo) CountBySense(ctx context.Context, senseID uuid.UUID) (int, error) {
+	if m.countBySenseFunc != nil {
+		return m.countBySenseFunc(ctx, senseID)
+	}
 	return 0, nil
 }
 
@@ -110,14 +125,23 @@ func (m *mockTranslationRepo) CreateCustom(ctx context.Context, senseID uuid.UUI
 }
 
 func (m *mockTranslationRepo) Update(ctx context.Context, translationID uuid.UUID, text string) (*domain.Translation, error) {
-	return nil, nil
+	if m.updateFunc != nil {
+		return m.updateFunc(ctx, translationID, text)
+	}
+	return &domain.Translation{ID: translationID}, nil
 }
 
 func (m *mockTranslationRepo) Delete(ctx context.Context, translationID uuid.UUID) error {
+	if m.deleteFunc != nil {
+		return m.deleteFunc(ctx, translationID)
+	}
 	return nil
 }
 
 func (m *mockTranslationRepo) Reorder(ctx context.Context, items []ReorderItem) error {
+	if m.reorderFunc != nil {
+		return m.reorderFunc(ctx, items)
+	}
 	return nil
 }
 
