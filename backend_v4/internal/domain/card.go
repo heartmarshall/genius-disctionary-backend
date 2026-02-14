@@ -21,13 +21,9 @@ type Card struct {
 }
 
 // IsDue returns true if the card needs review at the given time.
-//   - MASTERED cards are never due.
 //   - NEW cards with no NextReviewAt are always due.
-//   - LEARNING / REVIEW cards are due when NextReviewAt <= now.
+//   - LEARNING / REVIEW / MASTERED cards are due when NextReviewAt <= now.
 func (c *Card) IsDue(now time.Time) bool {
-	if c.Status == LearningStatusMastered {
-		return false
-	}
 	if c.Status == LearningStatusNew && c.NextReviewAt == nil {
 		return true
 	}
@@ -65,10 +61,29 @@ type SRSResult struct {
 
 // StudySession tracks a user's study session from start to finish.
 type StudySession struct {
-	ID           uuid.UUID
-	UserID       uuid.UUID
-	StartedAt    time.Time
-	FinishedAt   *time.Time
-	CardsStudied int
-	AbandonedAt  *time.Time
+	ID         uuid.UUID
+	UserID     uuid.UUID
+	Status     SessionStatus
+	StartedAt  time.Time
+	FinishedAt *time.Time
+	Result     *SessionResult
+	CreatedAt  time.Time
+}
+
+// GradeCounts holds per-grade counters for a study session.
+type GradeCounts struct {
+	Again int
+	Hard  int
+	Good  int
+	Easy  int
+}
+
+// SessionResult holds aggregated results of a completed study session.
+type SessionResult struct {
+	TotalReviewed int
+	NewReviewed   int
+	DueReviewed   int
+	GradeCounts   GradeCounts
+	DurationMs    int64
+	AccuracyRate  float64
 }

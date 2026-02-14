@@ -452,6 +452,214 @@ func TestParseLearningSteps_SingleStep(t *testing.T) {
 	}
 }
 
+func TestValidate_SRS_EasyIntervalZero(t *testing.T) {
+	cfg := validConfig()
+	cfg.SRS.EasyInterval = 0
+
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("expected error for EasyInterval = 0")
+	}
+}
+
+func TestValidate_SRS_EasyIntervalNegative(t *testing.T) {
+	cfg := validConfig()
+	cfg.SRS.EasyInterval = -1
+
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("expected error for negative EasyInterval")
+	}
+}
+
+func TestValidate_SRS_IntervalModifierZero(t *testing.T) {
+	cfg := validConfig()
+	cfg.SRS.IntervalModifier = 0
+
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("expected error for IntervalModifier = 0")
+	}
+}
+
+func TestValidate_SRS_IntervalModifierNegative(t *testing.T) {
+	cfg := validConfig()
+	cfg.SRS.IntervalModifier = -0.5
+
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("expected error for negative IntervalModifier")
+	}
+}
+
+func TestValidate_SRS_HardIntervalModifierZero(t *testing.T) {
+	cfg := validConfig()
+	cfg.SRS.HardIntervalModifier = 0
+
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("expected error for HardIntervalModifier = 0")
+	}
+}
+
+func TestValidate_SRS_HardIntervalModifierNegative(t *testing.T) {
+	cfg := validConfig()
+	cfg.SRS.HardIntervalModifier = -1.2
+
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("expected error for negative HardIntervalModifier")
+	}
+}
+
+func TestValidate_SRS_EasyBonusZero(t *testing.T) {
+	cfg := validConfig()
+	cfg.SRS.EasyBonus = 0
+
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("expected error for EasyBonus = 0")
+	}
+}
+
+func TestValidate_SRS_EasyBonusNegative(t *testing.T) {
+	cfg := validConfig()
+	cfg.SRS.EasyBonus = -1.3
+
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("expected error for negative EasyBonus")
+	}
+}
+
+func TestValidate_SRS_LapseNewIntervalNegative(t *testing.T) {
+	cfg := validConfig()
+	cfg.SRS.LapseNewInterval = -0.1
+
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("expected error for LapseNewInterval < 0")
+	}
+}
+
+func TestValidate_SRS_LapseNewIntervalTooHigh(t *testing.T) {
+	cfg := validConfig()
+	cfg.SRS.LapseNewInterval = 1.1
+
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("expected error for LapseNewInterval > 1.0")
+	}
+}
+
+func TestValidate_SRS_LapseNewIntervalValid(t *testing.T) {
+	cfg := validConfig()
+	cfg.SRS.LapseNewInterval = 0.0
+
+	if err := cfg.Validate(); err != nil {
+		t.Fatalf("unexpected error for LapseNewInterval = 0.0: %v", err)
+	}
+
+	cfg.SRS.LapseNewInterval = 1.0
+	if err := cfg.Validate(); err != nil {
+		t.Fatalf("unexpected error for LapseNewInterval = 1.0: %v", err)
+	}
+
+	cfg.SRS.LapseNewInterval = 0.5
+	if err := cfg.Validate(); err != nil {
+		t.Fatalf("unexpected error for LapseNewInterval = 0.5: %v", err)
+	}
+}
+
+func TestValidate_SRS_UndoWindowMinutesZero(t *testing.T) {
+	cfg := validConfig()
+	cfg.SRS.UndoWindowMinutes = 0
+
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("expected error for UndoWindowMinutes = 0")
+	}
+}
+
+func TestValidate_SRS_UndoWindowMinutesNegative(t *testing.T) {
+	cfg := validConfig()
+	cfg.SRS.UndoWindowMinutes = -5
+
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("expected error for negative UndoWindowMinutes")
+	}
+}
+
+func TestValidate_SRS_RelearningStepsValid(t *testing.T) {
+	cfg := validConfig()
+	cfg.SRS.RelearningStepsRaw = "10m,30m"
+
+	if err := cfg.Validate(); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(cfg.SRS.RelearningSteps) != 2 {
+		t.Fatalf("relearning_steps len = %d, want 2", len(cfg.SRS.RelearningSteps))
+	}
+	if cfg.SRS.RelearningSteps[0] != 10*time.Minute {
+		t.Errorf("relearning_steps[0] = %v, want 10m", cfg.SRS.RelearningSteps[0])
+	}
+	if cfg.SRS.RelearningSteps[1] != 30*time.Minute {
+		t.Errorf("relearning_steps[1] = %v, want 30m", cfg.SRS.RelearningSteps[1])
+	}
+}
+
+func TestValidate_SRS_RelearningStepsInvalid(t *testing.T) {
+	cfg := validConfig()
+	cfg.SRS.RelearningStepsRaw = "10m,invalid"
+
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("expected error for invalid relearning_steps")
+	}
+}
+
+func TestValidate_SRS_RelearningStepsEmpty(t *testing.T) {
+	cfg := validConfig()
+	cfg.SRS.RelearningStepsRaw = ""
+
+	if err := cfg.Validate(); err != nil {
+		t.Fatalf("unexpected error for empty relearning_steps: %v", err)
+	}
+
+	if cfg.SRS.RelearningSteps != nil {
+		t.Errorf("expected nil for empty relearning_steps, got %v", cfg.SRS.RelearningSteps)
+	}
+}
+
+func TestValidate_SRS_AllNewFieldsValid(t *testing.T) {
+	cfg := validConfig()
+	cfg.SRS.EasyInterval = 4
+	cfg.SRS.RelearningStepsRaw = "10m"
+	cfg.SRS.IntervalModifier = 1.0
+	cfg.SRS.HardIntervalModifier = 1.2
+	cfg.SRS.EasyBonus = 1.3
+	cfg.SRS.LapseNewInterval = 0.0
+	cfg.SRS.UndoWindowMinutes = 10
+
+	if err := cfg.Validate(); err != nil {
+		t.Fatalf("unexpected error with all new fields: %v", err)
+	}
+
+	if cfg.SRS.EasyInterval != 4 {
+		t.Errorf("EasyInterval = %d, want 4", cfg.SRS.EasyInterval)
+	}
+	if cfg.SRS.IntervalModifier != 1.0 {
+		t.Errorf("IntervalModifier = %v, want 1.0", cfg.SRS.IntervalModifier)
+	}
+	if cfg.SRS.HardIntervalModifier != 1.2 {
+		t.Errorf("HardIntervalModifier = %v, want 1.2", cfg.SRS.HardIntervalModifier)
+	}
+	if cfg.SRS.EasyBonus != 1.3 {
+		t.Errorf("EasyBonus = %v, want 1.3", cfg.SRS.EasyBonus)
+	}
+	if cfg.SRS.LapseNewInterval != 0.0 {
+		t.Errorf("LapseNewInterval = %v, want 0.0", cfg.SRS.LapseNewInterval)
+	}
+	if cfg.SRS.UndoWindowMinutes != 10 {
+		t.Errorf("UndoWindowMinutes = %d, want 10", cfg.SRS.UndoWindowMinutes)
+	}
+	if len(cfg.SRS.RelearningSteps) != 1 {
+		t.Fatalf("RelearningSteps len = %d, want 1", len(cfg.SRS.RelearningSteps))
+	}
+	if cfg.SRS.RelearningSteps[0] != 10*time.Minute {
+		t.Errorf("RelearningSteps[0] = %v, want 10m", cfg.SRS.RelearningSteps[0])
+	}
+}
+
 // validConfig returns a Config that passes all validation checks.
 func validConfig() Config {
 	return Config{
@@ -468,13 +676,20 @@ func validConfig() Config {
 			HardDeleteRetentionDays: 30,
 		},
 		SRS: SRSConfig{
-			DefaultEaseFactor:  2.5,
-			MinEaseFactor:      1.3,
-			MaxIntervalDays:    365,
-			GraduatingInterval: 1,
-			LearningStepsRaw:   "1m,10m",
-			NewCardsPerDay:     20,
-			ReviewsPerDay:      200,
+			DefaultEaseFactor:    2.5,
+			MinEaseFactor:        1.3,
+			MaxIntervalDays:      365,
+			GraduatingInterval:   1,
+			LearningStepsRaw:     "1m,10m",
+			NewCardsPerDay:       20,
+			ReviewsPerDay:        200,
+			EasyInterval:         4,
+			RelearningStepsRaw:   "10m",
+			IntervalModifier:     1.0,
+			HardIntervalModifier: 1.2,
+			EasyBonus:            1.3,
+			LapseNewInterval:     0.0,
+			UndoWindowMinutes:    10,
 		},
 	}
 }

@@ -162,3 +162,48 @@ func TestOAuthProvider_String(t *testing.T) {
 		t.Errorf("got %q, want google", got)
 	}
 }
+
+func TestSessionStatus_IsValid(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		status SessionStatus
+		want   bool
+	}{
+		{SessionStatusActive, true},
+		{SessionStatusFinished, true},
+		{SessionStatusAbandoned, true},
+		{SessionStatus("INVALID"), false},
+		{SessionStatus(""), false},
+		{SessionStatus("PENDING"), false},
+	}
+	for _, tt := range tests {
+		t.Run(string(tt.status), func(t *testing.T) {
+			t.Parallel()
+			if got := tt.status.IsValid(); got != tt.want {
+				t.Errorf("SessionStatus(%q).IsValid() = %v, want %v", tt.status, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestSessionStatus_String(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		status SessionStatus
+		want   string
+	}{
+		{SessionStatusActive, "ACTIVE"},
+		{SessionStatusFinished, "FINISHED"},
+		{SessionStatusAbandoned, "ABANDONED"},
+	}
+	for _, tt := range tests {
+		t.Run(string(tt.status), func(t *testing.T) {
+			t.Parallel()
+			if got := tt.status.String(); got != tt.want {
+				t.Errorf("SessionStatus(%q).String() = %q, want %q", tt.status, got, tt.want)
+			}
+		})
+	}
+}
