@@ -592,7 +592,7 @@ func TestService_ReviewCard_Success_LearningToReview(t *testing.T) {
 				LearningStep: params.LearningStep,
 				IntervalDays: params.IntervalDays,
 				EaseFactor:   params.EaseFactor,
-				NextReviewAt: ptr(params.NextReviewAt),
+				NextReviewAt: params.NextReviewAt,
 			}, nil
 		},
 	}

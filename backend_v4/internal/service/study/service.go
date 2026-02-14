@@ -235,10 +235,11 @@ func (s *Service) ReviewCard(ctx context.Context, input ReviewCardInput) (*domai
 	// Transaction: update card + create log + audit
 	err = s.tx.RunInTx(ctx, func(txCtx context.Context) error {
 		// Update card
+		nextReviewAt := srsResult.NextReviewAt
 		var updateErr error
 		updatedCard, updateErr = s.cards.UpdateSRS(txCtx, userID, card.ID, domain.SRSUpdateParams{
 			Status:       srsResult.NewStatus,
-			NextReviewAt: srsResult.NextReviewAt,
+			NextReviewAt: &nextReviewAt,
 			IntervalDays: srsResult.NewInterval,
 			EaseFactor:   srsResult.NewEase,
 			LearningStep: srsResult.NewLearningStep,
@@ -287,6 +288,11 @@ func (s *Service) ReviewCard(ctx context.Context, input ReviewCardInput) (*domai
 
 	if err != nil {
 		return nil, err
+	}
+
+	// Safety check: ensure card was actually updated
+	if updatedCard == nil {
+		return nil, fmt.Errorf("card update failed: no result returned")
 	}
 
 	s.log.InfoContext(ctx, "card reviewed",
@@ -344,10 +350,11 @@ func (s *Service) UndoReview(ctx context.Context, input UndoReviewInput) (*domai
 
 	// Transaction: restore card + delete log + audit
 	err = s.tx.RunInTx(ctx, func(txCtx context.Context) error {
-		// Restore prev state
-		nextReview := time.Time{}
+		// Restore prev state (NextReviewAt might be nil for NEW cards)
+		var nextReview *time.Time
 		if lastLog.PrevState.NextReviewAt != nil {
-			nextReview = *lastLog.PrevState.NextReviewAt
+			t := *lastLog.PrevState.NextReviewAt
+			nextReview = &t
 		}
 
 		var restoreErr error
@@ -390,6 +397,11 @@ func (s *Service) UndoReview(ctx context.Context, input UndoReviewInput) (*domai
 
 	if err != nil {
 		return nil, err
+	}
+
+	// Safety check: ensure card was actually restored
+	if restoredCard == nil {
+		return nil, fmt.Errorf("card restore failed: no result returned")
 	}
 
 	s.log.InfoContext(ctx, "review undone",

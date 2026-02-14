@@ -28,7 +28,7 @@ type SRSConfig struct {
 // SRSUpdateParams holds the fields to update on a card after SRS calculation.
 type SRSUpdateParams struct {
 	Status       LearningStatus
-	NextReviewAt time.Time
+	NextReviewAt *time.Time // Pointer to properly represent NULL for NEW cards
 	IntervalDays int
 	EaseFactor   float64
 	LearningStep int
