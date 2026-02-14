@@ -2,11 +2,14 @@ package study
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
+	"github.com/heartmarshall/myenglish-backend/pkg/ctxutil"
 )
 
 // ---------------------------------------------------------------------------
@@ -111,4 +114,290 @@ func NewService(
 		log:       log.With("service", "study"),
 		srsConfig: srsConfig,
 	}
+}
+
+// ---------------------------------------------------------------------------
+// Queue, Review & Undo Operations
+// ---------------------------------------------------------------------------
+
+// GetStudyQueue returns cards ready for review (due cards + new cards respecting daily limit).
+func (s *Service) GetStudyQueue(ctx context.Context, input GetQueueInput) ([]*domain.Card, error) {
+	userID, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	if err := input.Validate(); err != nil {
+		return nil, err
+	}
+
+	limit := input.Limit
+	if limit == 0 {
+		limit = 50
+	}
+
+	now := time.Now()
+
+	// Load user settings for limits and timezone
+	settings, err := s.settings.GetByUserID(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("load settings: %w", err)
+	}
+
+	tz := ParseTimezone(settings.Timezone)
+	dayStart := DayStart(now, tz)
+
+	// Count new cards reviewed today
+	newToday, err := s.reviews.CountNewToday(ctx, userID, dayStart)
+	if err != nil {
+		return nil, fmt.Errorf("count new today: %w", err)
+	}
+
+	newRemaining := max(0, settings.NewCardsPerDay-newToday)
+
+	// Get due cards (overdue not limited by reviews_per_day)
+	dueCards, err := s.cards.GetDueCards(ctx, userID, now, limit)
+	if err != nil {
+		return nil, fmt.Errorf("get due cards: %w", err)
+	}
+
+	// Fill remaining slots with new cards
+	queue := dueCards
+	if len(dueCards) < limit && newRemaining > 0 {
+		newLimit := min(limit-len(dueCards), newRemaining)
+		newCards, err := s.cards.GetNewCards(ctx, userID, newLimit)
+		if err != nil {
+			return nil, fmt.Errorf("get new cards: %w", err)
+		}
+		queue = append(queue, newCards...)
+	}
+
+	s.log.InfoContext(ctx, "study queue generated",
+		slog.String("user_id", userID.String()),
+		slog.Int("due_count", len(dueCards)),
+		slog.Int("new_count", len(queue)-len(dueCards)),
+		slog.Int("total", len(queue)),
+	)
+
+	return queue, nil
+}
+
+// ReviewCard records a review and updates the card's SRS state.
+func (s *Service) ReviewCard(ctx context.Context, input ReviewCardInput) (*domain.Card, error) {
+	userID, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	if err := input.Validate(); err != nil {
+		return nil, err
+	}
+
+	now := time.Now()
+
+	// Load card
+	card, err := s.cards.GetByID(ctx, userID, input.CardID)
+	if err != nil {
+		return nil, fmt.Errorf("get card: %w", err)
+	}
+
+	// Load settings
+	settings, err := s.settings.GetByUserID(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("get settings: %w", err)
+	}
+
+	maxInterval := min(s.srsConfig.MaxIntervalDays, settings.MaxIntervalDays)
+
+	// Snapshot state before review
+	snapshot := &domain.CardSnapshot{
+		Status:       card.Status,
+		LearningStep: card.LearningStep,
+		IntervalDays: card.IntervalDays,
+		EaseFactor:   card.EaseFactor,
+		NextReviewAt: card.NextReviewAt,
+	}
+
+	// Calculate new SRS state
+	srsResult := CalculateSRS(SRSInput{
+		CurrentStatus:   card.Status,
+		CurrentInterval: card.IntervalDays,
+		CurrentEase:     card.EaseFactor,
+		LearningStep:    card.LearningStep,
+		Grade:           input.Grade,
+		Now:             now,
+		Config:          s.srsConfig,
+		MaxIntervalDays: maxInterval,
+	})
+
+	var updatedCard *domain.Card
+
+	// Transaction: update card + create log + audit
+	err = s.tx.RunInTx(ctx, func(txCtx context.Context) error {
+		// Update card
+		var updateErr error
+		updatedCard, updateErr = s.cards.UpdateSRS(txCtx, userID, card.ID, domain.SRSUpdateParams{
+			Status:       srsResult.NewStatus,
+			NextReviewAt: srsResult.NextReviewAt,
+			IntervalDays: srsResult.NewInterval,
+			EaseFactor:   srsResult.NewEase,
+			LearningStep: srsResult.NewLearningStep,
+		})
+		if updateErr != nil {
+			return fmt.Errorf("update card: %w", updateErr)
+		}
+
+		// Create review log
+		_, logErr := s.reviews.Create(txCtx, &domain.ReviewLog{
+			ID:         uuid.New(),
+			CardID:     card.ID,
+			Grade:      input.Grade,
+			PrevState:  snapshot,
+			DurationMs: input.DurationMs,
+			ReviewedAt: now,
+		})
+		if logErr != nil {
+			return fmt.Errorf("create review log: %w", logErr)
+		}
+
+		// Audit
+		auditErr := s.audit.Log(txCtx, domain.AuditRecord{
+			UserID:     userID,
+			EntityType: domain.EntityTypeCard,
+			EntityID:   &card.ID,
+			Action:     domain.AuditActionUpdate,
+			Changes: map[string]any{
+				"grade": map[string]any{"new": input.Grade},
+				"status": map[string]any{
+					"old": card.Status,
+					"new": srsResult.NewStatus,
+				},
+				"interval": map[string]any{
+					"old": card.IntervalDays,
+					"new": srsResult.NewInterval,
+				},
+			},
+		})
+		if auditErr != nil {
+			return fmt.Errorf("audit log: %w", auditErr)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	s.log.InfoContext(ctx, "card reviewed",
+		slog.String("user_id", userID.String()),
+		slog.String("card_id", card.ID.String()),
+		slog.String("grade", string(input.Grade)),
+		slog.String("old_status", string(card.Status)),
+		slog.String("new_status", string(srsResult.NewStatus)),
+		slog.Int("new_interval", srsResult.NewInterval),
+	)
+
+	return updatedCard, nil
+}
+
+// UndoReview reverts the last review of a card within the undo window.
+func (s *Service) UndoReview(ctx context.Context, input UndoReviewInput) (*domain.Card, error) {
+	userID, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	if err := input.Validate(); err != nil {
+		return nil, err
+	}
+
+	now := time.Now()
+
+	// Load card
+	card, err := s.cards.GetByID(ctx, userID, input.CardID)
+	if err != nil {
+		return nil, fmt.Errorf("get card: %w", err)
+	}
+
+	// Load last review log
+	lastLog, err := s.reviews.GetLastByCardID(ctx, input.CardID)
+	if err != nil {
+		if errors.Is(err, domain.ErrNotFound) {
+			return nil, domain.NewValidationError("card_id", "card has no reviews to undo")
+		}
+		return nil, fmt.Errorf("get last review: %w", err)
+	}
+
+	// Check prev_state exists
+	if lastLog.PrevState == nil {
+		return nil, domain.NewValidationError("review", "review cannot be undone")
+	}
+
+	// Check undo window
+	undoWindow := time.Duration(s.srsConfig.UndoWindowMinutes) * time.Minute
+	if now.Sub(lastLog.ReviewedAt) > undoWindow {
+		return nil, domain.NewValidationError("review", "undo window expired")
+	}
+
+	var restoredCard *domain.Card
+
+	// Transaction: restore card + delete log + audit
+	err = s.tx.RunInTx(ctx, func(txCtx context.Context) error {
+		// Restore prev state
+		nextReview := time.Time{}
+		if lastLog.PrevState.NextReviewAt != nil {
+			nextReview = *lastLog.PrevState.NextReviewAt
+		}
+
+		var restoreErr error
+		restoredCard, restoreErr = s.cards.UpdateSRS(txCtx, userID, card.ID, domain.SRSUpdateParams{
+			Status:       lastLog.PrevState.Status,
+			NextReviewAt: nextReview,
+			IntervalDays: lastLog.PrevState.IntervalDays,
+			EaseFactor:   lastLog.PrevState.EaseFactor,
+			LearningStep: lastLog.PrevState.LearningStep,
+		})
+		if restoreErr != nil {
+			return fmt.Errorf("restore card: %w", restoreErr)
+		}
+
+		// Delete review log
+		if deleteErr := s.reviews.Delete(txCtx, lastLog.ID); deleteErr != nil {
+			return fmt.Errorf("delete review log: %w", deleteErr)
+		}
+
+		// Audit
+		auditErr := s.audit.Log(txCtx, domain.AuditRecord{
+			UserID:     userID,
+			EntityType: domain.EntityTypeCard,
+			EntityID:   &card.ID,
+			Action:     domain.AuditActionUpdate,
+			Changes: map[string]any{
+				"undo": map[string]any{"old": lastLog.Grade},
+				"status": map[string]any{
+					"old": card.Status,
+					"new": lastLog.PrevState.Status,
+				},
+			},
+		})
+		if auditErr != nil {
+			return fmt.Errorf("audit log: %w", auditErr)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	s.log.InfoContext(ctx, "review undone",
+		slog.String("user_id", userID.String()),
+		slog.String("card_id", card.ID.String()),
+		slog.String("undone_grade", string(lastLog.Grade)),
+		slog.String("restored_status", string(lastLog.PrevState.Status)),
+	)
+
+	return restoredCard, nil
 }
