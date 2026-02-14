@@ -29,7 +29,7 @@ type entryRepo interface {
 	UpdateNotes(ctx context.Context, userID, entryID uuid.UUID, notes *string) (*domain.Entry, error)
 	SoftDelete(ctx context.Context, userID, entryID uuid.UUID) error
 	Restore(ctx context.Context, userID, entryID uuid.UUID) (*domain.Entry, error)
-	HardDeleteOld(ctx context.Context, threshold time.Time) (int, error)
+	HardDeleteOld(ctx context.Context, threshold time.Time) (int64, error)
 }
 
 type senseRepo interface {

@@ -184,7 +184,7 @@ func TestService_Search_LimitClampedToMin(t *testing.T) {
 	_, err := svc.Search(context.Background(), "test", 0)
 
 	require.NoError(t, err)
-	assert.Equal(t, 1, capturedLimit)
+	assert.Equal(t, 20, capturedLimit)
 }
 
 // ---------------------------------------------------------------------------

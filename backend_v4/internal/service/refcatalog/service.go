@@ -152,10 +152,10 @@ func (s *Service) GetRefEntry(ctx context.Context, refEntryID uuid.UUID) (*domai
 // clampLimit ensures the limit is within [1, 50], defaulting 0 to 20.
 func clampLimit(limit int) int {
 	if limit <= 0 {
-		limit = 1
+		return 20
 	}
 	if limit > 50 {
-		limit = 50
+		return 50
 	}
 	return limit
 }

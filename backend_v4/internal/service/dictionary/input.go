@@ -1,6 +1,8 @@
 package dictionary
 
 import (
+	"strconv"
+
 	"github.com/google/uuid"
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
 )
@@ -117,6 +119,12 @@ func (i *CreateCustomInput) Validate() error {
 				errs = append(errs, domain.FieldError{
 					Field:   fieldIndex2("senses", si, "examples", ei),
 					Message: "sentence too long (max 2000)",
+				})
+			}
+			if ex.Translation != nil && len(*ex.Translation) > 2000 {
+				errs = append(errs, domain.FieldError{
+					Field:   fieldIndex2("senses", si, "examples", ei) + ".translation",
+					Message: "too long (max 2000)",
 				})
 			}
 		}
@@ -256,39 +264,15 @@ func (i *ImportInput) Validate() error {
 
 // fieldIndex formats a nested field path like "senses[0].definition".
 func fieldIndex(parent string, idx int, field string) string {
-	return parent + "[" + itoa(idx) + "]." + field
+	return parent + "[" + strconv.Itoa(idx) + "]." + field
 }
 
 // fieldIndex2 formats a deeply nested field path like "senses[0].translations[1]".
 func fieldIndex2(parent string, idx int, child string, childIdx int) string {
-	return parent + "[" + itoa(idx) + "]." + child + "[" + itoa(childIdx) + "]"
+	return parent + "[" + strconv.Itoa(idx) + "]." + child + "[" + strconv.Itoa(childIdx) + "]"
 }
 
 // fieldIdx formats a nested field path like "items[0].text".
 func fieldIdx(parent string, idx int, field string) string {
-	return parent + "[" + itoa(idx) + "]." + field
-}
-
-// itoa converts an int to a string without importing strconv.
-func itoa(i int) string {
-	if i == 0 {
-		return "0"
-	}
-	neg := false
-	if i < 0 {
-		neg = true
-		i = -i
-	}
-	var buf [20]byte
-	pos := len(buf)
-	for i > 0 {
-		pos--
-		buf[pos] = byte('0' + i%10)
-		i /= 10
-	}
-	if neg {
-		pos--
-		buf[pos] = '-'
-	}
-	return string(buf[pos:])
+	return parent + "[" + strconv.Itoa(idx) + "]." + field
 }

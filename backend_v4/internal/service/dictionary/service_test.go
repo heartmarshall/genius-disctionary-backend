@@ -31,7 +31,7 @@ type mockEntryRepo struct {
 	UpdateNotesFunc func(ctx context.Context, userID, entryID uuid.UUID, notes *string) (*domain.Entry, error)
 	SoftDeleteFunc  func(ctx context.Context, userID, entryID uuid.UUID) error
 	RestoreFunc     func(ctx context.Context, userID, entryID uuid.UUID) (*domain.Entry, error)
-	HardDeleteOldFunc func(ctx context.Context, threshold time.Time) (int, error)
+	HardDeleteOldFunc func(ctx context.Context, threshold time.Time) (int64, error)
 }
 
 func (m *mockEntryRepo) GetByID(ctx context.Context, userID, entryID uuid.UUID) (*domain.Entry, error) {
@@ -112,7 +112,7 @@ func (m *mockEntryRepo) Restore(ctx context.Context, userID, entryID uuid.UUID) 
 	return nil, nil
 }
 
-func (m *mockEntryRepo) HardDeleteOld(ctx context.Context, threshold time.Time) (int, error) {
+func (m *mockEntryRepo) HardDeleteOld(ctx context.Context, threshold time.Time) (int64, error) {
 	return 0, nil
 }
 
