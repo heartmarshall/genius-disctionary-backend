@@ -4,12 +4,13 @@ import "time"
 
 // Config is the root application configuration.
 type Config struct {
-	Server   ServerConfig   `yaml:"server"`
-	Database DatabaseConfig `yaml:"database"`
-	Auth     AuthConfig     `yaml:"auth"`
-	GraphQL  GraphQLConfig  `yaml:"graphql"`
-	Log      LogConfig      `yaml:"log"`
-	SRS      SRSConfig      `yaml:"srs"`
+	Server     ServerConfig     `yaml:"server"`
+	Database   DatabaseConfig   `yaml:"database"`
+	Auth       AuthConfig       `yaml:"auth"`
+	Dictionary DictionaryConfig `yaml:"dictionary"`
+	GraphQL    GraphQLConfig    `yaml:"graphql"`
+	Log        LogConfig        `yaml:"log"`
+	SRS        SRSConfig        `yaml:"srs"`
 }
 
 // ServerConfig holds HTTP server settings.
@@ -41,6 +42,15 @@ type AuthConfig struct {
 	AppleKeyID        string        `yaml:"apple_key_id"         env:"AUTH_APPLE_KEY_ID"`
 	AppleTeamID       string        `yaml:"apple_team_id"        env:"AUTH_APPLE_TEAM_ID"`
 	ApplePrivateKey   string        `yaml:"apple_private_key"    env:"AUTH_APPLE_PRIVATE_KEY"`
+}
+
+// DictionaryConfig holds dictionary service settings.
+type DictionaryConfig struct {
+	MaxEntriesPerUser       int     `yaml:"max_entries_per_user"        env:"DICT_MAX_ENTRIES_PER_USER"       env-default:"10000"`
+	DefaultEaseFactor       float64 `yaml:"default_ease_factor"         env:"DICT_DEFAULT_EASE_FACTOR"        env-default:"2.5"`
+	ImportChunkSize         int     `yaml:"import_chunk_size"           env:"DICT_IMPORT_CHUNK_SIZE"          env-default:"50"`
+	ExportMaxEntries        int     `yaml:"export_max_entries"          env:"DICT_EXPORT_MAX_ENTRIES"         env-default:"10000"`
+	HardDeleteRetentionDays int     `yaml:"hard_delete_retention_days"  env:"DICT_HARD_DELETE_RETENTION_DAYS" env-default:"30"`
 }
 
 // GraphQLConfig holds GraphQL server settings.

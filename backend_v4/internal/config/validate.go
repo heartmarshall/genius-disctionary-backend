@@ -17,10 +17,33 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("at least one OAuth provider must be configured (Google or Apple)")
 	}
 
+	if err := c.Dictionary.validate(); err != nil {
+		return fmt.Errorf("dictionary: %w", err)
+	}
+
 	if err := c.SRS.validate(); err != nil {
 		return fmt.Errorf("srs: %w", err)
 	}
 
+	return nil
+}
+
+func (d *DictionaryConfig) validate() error {
+	if d.MaxEntriesPerUser <= 0 {
+		return fmt.Errorf("max_entries_per_user must be positive (got %d)", d.MaxEntriesPerUser)
+	}
+	if d.DefaultEaseFactor < 1.0 || d.DefaultEaseFactor > 5.0 {
+		return fmt.Errorf("default_ease_factor must be between 1.0 and 5.0 (got %v)", d.DefaultEaseFactor)
+	}
+	if d.ImportChunkSize <= 0 || d.ImportChunkSize > 1000 {
+		return fmt.Errorf("import_chunk_size must be between 1 and 1000 (got %d)", d.ImportChunkSize)
+	}
+	if d.ExportMaxEntries <= 0 {
+		return fmt.Errorf("export_max_entries must be positive (got %d)", d.ExportMaxEntries)
+	}
+	if d.HardDeleteRetentionDays <= 0 {
+		return fmt.Errorf("hard_delete_retention_days must be positive (got %d)", d.HardDeleteRetentionDays)
+	}
 	return nil
 }
 

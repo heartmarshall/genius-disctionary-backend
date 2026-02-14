@@ -45,6 +45,13 @@ auth:
   google_client_id: "gid"
   google_client_secret: "gsecret"
 
+dictionary:
+  max_entries_per_user: 5000
+  default_ease_factor: 2.5
+  import_chunk_size: 100
+  export_max_entries: 8000
+  hard_delete_retention_days: 60
+
 graphql:
   playground_enabled: true
   introspection_enabled: true
@@ -96,6 +103,23 @@ func TestLoad_ValidYAML(t *testing.T) {
 	// Auth
 	if cfg.Auth.GoogleClientID != "gid" {
 		t.Errorf("auth.google_client_id = %q", cfg.Auth.GoogleClientID)
+	}
+
+	// Dictionary
+	if cfg.Dictionary.MaxEntriesPerUser != 5000 {
+		t.Errorf("dictionary.max_entries_per_user = %d, want 5000", cfg.Dictionary.MaxEntriesPerUser)
+	}
+	if cfg.Dictionary.DefaultEaseFactor != 2.5 {
+		t.Errorf("dictionary.default_ease_factor = %v, want 2.5", cfg.Dictionary.DefaultEaseFactor)
+	}
+	if cfg.Dictionary.ImportChunkSize != 100 {
+		t.Errorf("dictionary.import_chunk_size = %d, want 100", cfg.Dictionary.ImportChunkSize)
+	}
+	if cfg.Dictionary.ExportMaxEntries != 8000 {
+		t.Errorf("dictionary.export_max_entries = %d, want 8000", cfg.Dictionary.ExportMaxEntries)
+	}
+	if cfg.Dictionary.HardDeleteRetentionDays != 60 {
+		t.Errorf("dictionary.hard_delete_retention_days = %d, want 60", cfg.Dictionary.HardDeleteRetentionDays)
 	}
 
 	// GraphQL
@@ -271,6 +295,104 @@ func TestValidate_SRS_NewCardsPerDayNegative(t *testing.T) {
 	}
 }
 
+func TestValidate_Dictionary_MaxEntriesPerUserZero(t *testing.T) {
+	cfg := validConfig()
+	cfg.Dictionary.MaxEntriesPerUser = 0
+
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("expected error for MaxEntriesPerUser = 0")
+	}
+}
+
+func TestValidate_Dictionary_MaxEntriesPerUserNegative(t *testing.T) {
+	cfg := validConfig()
+	cfg.Dictionary.MaxEntriesPerUser = -1
+
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("expected error for negative MaxEntriesPerUser")
+	}
+}
+
+func TestValidate_Dictionary_DefaultEaseFactorTooLow(t *testing.T) {
+	cfg := validConfig()
+	cfg.Dictionary.DefaultEaseFactor = 0.5
+
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("expected error for DefaultEaseFactor < 1.0")
+	}
+}
+
+func TestValidate_Dictionary_DefaultEaseFactorTooHigh(t *testing.T) {
+	cfg := validConfig()
+	cfg.Dictionary.DefaultEaseFactor = 5.1
+
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("expected error for DefaultEaseFactor > 5.0")
+	}
+}
+
+func TestValidate_Dictionary_ImportChunkSizeZero(t *testing.T) {
+	cfg := validConfig()
+	cfg.Dictionary.ImportChunkSize = 0
+
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("expected error for ImportChunkSize = 0")
+	}
+}
+
+func TestValidate_Dictionary_ImportChunkSizeTooLarge(t *testing.T) {
+	cfg := validConfig()
+	cfg.Dictionary.ImportChunkSize = 1001
+
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("expected error for ImportChunkSize > 1000")
+	}
+}
+
+func TestValidate_Dictionary_ExportMaxEntriesZero(t *testing.T) {
+	cfg := validConfig()
+	cfg.Dictionary.ExportMaxEntries = 0
+
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("expected error for ExportMaxEntries = 0")
+	}
+}
+
+func TestValidate_Dictionary_HardDeleteRetentionDaysZero(t *testing.T) {
+	cfg := validConfig()
+	cfg.Dictionary.HardDeleteRetentionDays = 0
+
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("expected error for HardDeleteRetentionDays = 0")
+	}
+}
+
+func TestValidate_Dictionary_HardDeleteRetentionDaysNegative(t *testing.T) {
+	cfg := validConfig()
+	cfg.Dictionary.HardDeleteRetentionDays = -7
+
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("expected error for negative HardDeleteRetentionDays")
+	}
+}
+
+func TestValidate_Dictionary_ValidBoundaryValues(t *testing.T) {
+	cfg := validConfig()
+	cfg.Dictionary.DefaultEaseFactor = 1.0
+	cfg.Dictionary.ImportChunkSize = 1
+
+	if err := cfg.Validate(); err != nil {
+		t.Fatalf("unexpected error for boundary values: %v", err)
+	}
+
+	cfg.Dictionary.DefaultEaseFactor = 5.0
+	cfg.Dictionary.ImportChunkSize = 1000
+
+	if err := cfg.Validate(); err != nil {
+		t.Fatalf("unexpected error for upper boundary values: %v", err)
+	}
+}
+
 func TestParseLearningSteps_Valid(t *testing.T) {
 	steps, err := ParseLearningSteps("1m,10m")
 	if err != nil {
@@ -337,6 +459,13 @@ func validConfig() Config {
 			JWTSecret:          "this-is-a-very-long-jwt-secret-for-testing-32+",
 			GoogleClientID:     "gid",
 			GoogleClientSecret: "gsecret",
+		},
+		Dictionary: DictionaryConfig{
+			MaxEntriesPerUser:       10000,
+			DefaultEaseFactor:       2.5,
+			ImportChunkSize:         50,
+			ExportMaxEntries:        10000,
+			HardDeleteRetentionDays: 30,
 		},
 		SRS: SRSConfig{
 			DefaultEaseFactor:  2.5,
