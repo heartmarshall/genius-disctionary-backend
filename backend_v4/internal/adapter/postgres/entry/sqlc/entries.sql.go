@@ -7,9 +7,109 @@ package sqlc
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
+
+const countEntriesByUser = `-- name: CountEntriesByUser :one
+SELECT count(*) FROM entries
+WHERE user_id = $1 AND deleted_at IS NULL
+`
+
+func (q *Queries) CountEntriesByUser(ctx context.Context, userID uuid.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, countEntriesByUser, userID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const createEntry = `-- name: CreateEntry :one
+INSERT INTO entries (id, user_id, ref_entry_id, text, text_normalized, notes, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING id, user_id, ref_entry_id, text, text_normalized, notes, created_at, updated_at, deleted_at
+`
+
+type CreateEntryParams struct {
+	ID             uuid.UUID
+	UserID         uuid.UUID
+	RefEntryID     pgtype.UUID
+	Text           string
+	TextNormalized string
+	Notes          pgtype.Text
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
+func (q *Queries) CreateEntry(ctx context.Context, arg CreateEntryParams) (Entry, error) {
+	row := q.db.QueryRow(ctx, createEntry,
+		arg.ID,
+		arg.UserID,
+		arg.RefEntryID,
+		arg.Text,
+		arg.TextNormalized,
+		arg.Notes,
+		arg.CreatedAt,
+		arg.UpdatedAt,
+	)
+	var i Entry
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.RefEntryID,
+		&i.Text,
+		&i.TextNormalized,
+		&i.Notes,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const getEntriesByIDs = `-- name: GetEntriesByIDs :many
+SELECT id, user_id, ref_entry_id, text, text_normalized, notes,
+       created_at, updated_at, deleted_at
+FROM entries
+WHERE user_id = $1 AND id = ANY($2::uuid[]) AND deleted_at IS NULL
+ORDER BY created_at DESC
+`
+
+type GetEntriesByIDsParams struct {
+	UserID uuid.UUID
+	Ids    []uuid.UUID
+}
+
+func (q *Queries) GetEntriesByIDs(ctx context.Context, arg GetEntriesByIDsParams) ([]Entry, error) {
+	rows, err := q.db.Query(ctx, getEntriesByIDs, arg.UserID, arg.Ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Entry{}
+	for rows.Next() {
+		var i Entry
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.RefEntryID,
+			&i.Text,
+			&i.TextNormalized,
+			&i.Notes,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
 
 const getEntryByID = `-- name: GetEntryByID :one
 SELECT id, user_id, ref_entry_id, text, text_normalized, notes,
@@ -25,6 +125,125 @@ type GetEntryByIDParams struct {
 
 func (q *Queries) GetEntryByID(ctx context.Context, arg GetEntryByIDParams) (Entry, error) {
 	row := q.db.QueryRow(ctx, getEntryByID, arg.ID, arg.UserID)
+	var i Entry
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.RefEntryID,
+		&i.Text,
+		&i.TextNormalized,
+		&i.Notes,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const getEntryByText = `-- name: GetEntryByText :one
+SELECT id, user_id, ref_entry_id, text, text_normalized, notes,
+       created_at, updated_at, deleted_at
+FROM entries
+WHERE user_id = $1 AND text_normalized = $2 AND deleted_at IS NULL
+`
+
+type GetEntryByTextParams struct {
+	UserID         uuid.UUID
+	TextNormalized string
+}
+
+func (q *Queries) GetEntryByText(ctx context.Context, arg GetEntryByTextParams) (Entry, error) {
+	row := q.db.QueryRow(ctx, getEntryByText, arg.UserID, arg.TextNormalized)
+	var i Entry
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.RefEntryID,
+		&i.Text,
+		&i.TextNormalized,
+		&i.Notes,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const hardDeleteOldEntries = `-- name: HardDeleteOldEntries :execrows
+DELETE FROM entries
+WHERE id IN (
+    SELECT e.id FROM entries e WHERE e.deleted_at < $1 LIMIT 100
+)
+`
+
+func (q *Queries) HardDeleteOldEntries(ctx context.Context, deletedAt *time.Time) (int64, error) {
+	result, err := q.db.Exec(ctx, hardDeleteOldEntries, deletedAt)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const restoreEntry = `-- name: RestoreEntry :one
+UPDATE entries
+SET deleted_at = NULL, updated_at = now()
+WHERE id = $1 AND user_id = $2 AND deleted_at IS NOT NULL
+RETURNING id, user_id, ref_entry_id, text, text_normalized, notes, created_at, updated_at, deleted_at
+`
+
+type RestoreEntryParams struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+func (q *Queries) RestoreEntry(ctx context.Context, arg RestoreEntryParams) (Entry, error) {
+	row := q.db.QueryRow(ctx, restoreEntry, arg.ID, arg.UserID)
+	var i Entry
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.RefEntryID,
+		&i.Text,
+		&i.TextNormalized,
+		&i.Notes,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const softDeleteEntry = `-- name: SoftDeleteEntry :exec
+UPDATE entries
+SET deleted_at = now(), updated_at = now()
+WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL
+`
+
+type SoftDeleteEntryParams struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+func (q *Queries) SoftDeleteEntry(ctx context.Context, arg SoftDeleteEntryParams) error {
+	_, err := q.db.Exec(ctx, softDeleteEntry, arg.ID, arg.UserID)
+	return err
+}
+
+const updateEntryNotes = `-- name: UpdateEntryNotes :one
+UPDATE entries
+SET notes = $3, updated_at = now()
+WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL
+RETURNING id, user_id, ref_entry_id, text, text_normalized, notes, created_at, updated_at, deleted_at
+`
+
+type UpdateEntryNotesParams struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+	Notes  pgtype.Text
+}
+
+func (q *Queries) UpdateEntryNotes(ctx context.Context, arg UpdateEntryNotesParams) (Entry, error) {
+	row := q.db.QueryRow(ctx, updateEntryNotes, arg.ID, arg.UserID, arg.Notes)
 	var i Entry
 	err := row.Scan(
 		&i.ID,

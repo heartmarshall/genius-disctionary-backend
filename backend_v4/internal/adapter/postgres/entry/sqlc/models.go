@@ -66,6 +66,7 @@ const (
 	EntityTypePRONUNCIATION EntityType = "PRONUNCIATION"
 	EntityTypeCARD          EntityType = "CARD"
 	EntityTypeTOPIC         EntityType = "TOPIC"
+	EntityTypeUSER          EntityType = "USER"
 )
 
 func (e *EntityType) Scan(src interface{}) error {
