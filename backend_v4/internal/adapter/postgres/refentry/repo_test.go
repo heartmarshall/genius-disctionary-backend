@@ -428,8 +428,7 @@ func TestRepo_GetOrCreate_Concurrent(t *testing.T) {
 	resultIDs := make([]uuid.UUID, goroutines)
 	errs := make([]error, goroutines)
 
-	for i := 0; i < goroutines; i++ {
-		i := i
+	for i := range goroutines {
 		go func() {
 			defer wg.Done()
 			id := uuid.New()
