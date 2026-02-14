@@ -1793,6 +1793,484 @@ func TestService_UndoReview_AuditError_TxRollback(t *testing.T) {
 }
 
 // ---------------------------------------------------------------------------
+// Session Operations Tests (8 tests)
+// ---------------------------------------------------------------------------
+
+func TestService_StartSession_Success_CreatesNew(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+
+	mockSessions := &sessionRepoMock{
+		GetActiveFunc: func(ctx context.Context, uid uuid.UUID) (*domain.StudySession, error) {
+			if uid != userID {
+				t.Errorf("userID: got %v, want %v", uid, userID)
+			}
+			return nil, domain.ErrNotFound // No active session
+		},
+		CreateFunc: func(ctx context.Context, session *domain.StudySession) (*domain.StudySession, error) {
+			if session.UserID != userID {
+				t.Errorf("session.UserID: got %v, want %v", session.UserID, userID)
+			}
+			if session.Status != domain.SessionStatusActive {
+				t.Errorf("session.Status: got %v, want ACTIVE", session.Status)
+			}
+			return session, nil
+		},
+	}
+
+	svc := &Service{
+		sessions: mockSessions,
+		log:      slog.Default(),
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	result, err := svc.StartSession(ctx)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if result == nil {
+		t.Fatal("result is nil")
+	}
+	if result.UserID != userID {
+		t.Errorf("result.UserID: got %v, want %v", result.UserID, userID)
+	}
+	if result.Status != domain.SessionStatusActive {
+		t.Errorf("result.Status: got %v, want ACTIVE", result.Status)
+	}
+
+	// Verify calls
+	if len(mockSessions.GetActiveCalls()) != 1 {
+		t.Errorf("GetActive calls: got %d, want 1", len(mockSessions.GetActiveCalls()))
+	}
+	if len(mockSessions.CreateCalls()) != 1 {
+		t.Errorf("Create calls: got %d, want 1", len(mockSessions.CreateCalls()))
+	}
+}
+
+func TestService_StartSession_ReturnsExisting_Idempotent(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	sessionID := uuid.New()
+	now := time.Now()
+
+	existingSession := &domain.StudySession{
+		ID:        sessionID,
+		UserID:    userID,
+		Status:    domain.SessionStatusActive,
+		StartedAt: now.Add(-10 * time.Minute),
+	}
+
+	mockSessions := &sessionRepoMock{
+		GetActiveFunc: func(ctx context.Context, uid uuid.UUID) (*domain.StudySession, error) {
+			return existingSession, nil
+		},
+		CreateFunc: func(ctx context.Context, session *domain.StudySession) (*domain.StudySession, error) {
+			t.Error("Create should not be called when active session exists")
+			return nil, nil
+		},
+	}
+
+	svc := &Service{
+		sessions: mockSessions,
+		log:      slog.Default(),
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	result, err := svc.StartSession(ctx)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if result.ID != sessionID {
+		t.Errorf("result.ID: got %v, want %v", result.ID, sessionID)
+	}
+	if result.Status != domain.SessionStatusActive {
+		t.Errorf("result.Status: got %v, want ACTIVE", result.Status)
+	}
+
+	// Verify only GetActive was called
+	if len(mockSessions.GetActiveCalls()) != 1 {
+		t.Errorf("GetActive calls: got %d, want 1", len(mockSessions.GetActiveCalls()))
+	}
+	if len(mockSessions.CreateCalls()) != 0 {
+		t.Error("Create should not be called")
+	}
+}
+
+func TestService_FinishSession_Success(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	sessionID := uuid.New()
+	cardID1 := uuid.New()
+	cardID2 := uuid.New()
+	now := time.Now()
+	startedAt := now.Add(-30 * time.Minute)
+
+	session := &domain.StudySession{
+		ID:        sessionID,
+		UserID:    userID,
+		Status:    domain.SessionStatusActive,
+		StartedAt: startedAt,
+	}
+
+	// 2 reviews: 1 NEW → LEARNING (GOOD), 1 REVIEW → REVIEW (EASY)
+	logs := []*domain.ReviewLog{
+		{
+			ID:     uuid.New(),
+			CardID: cardID1,
+			Grade:  domain.ReviewGradeGood,
+			PrevState: &domain.CardSnapshot{
+				Status: domain.LearningStatusNew,
+			},
+			ReviewedAt: now.Add(-20 * time.Minute),
+		},
+		{
+			ID:     uuid.New(),
+			CardID: cardID2,
+			Grade:  domain.ReviewGradeEasy,
+			PrevState: &domain.CardSnapshot{
+				Status: domain.LearningStatusReview,
+			},
+			ReviewedAt: now.Add(-10 * time.Minute),
+		},
+	}
+
+	finishedSession := &domain.StudySession{
+		ID:         sessionID,
+		UserID:     userID,
+		Status:     domain.SessionStatusFinished,
+		StartedAt:  startedAt,
+		FinishedAt: &now,
+		Result: &domain.SessionResult{
+			TotalReviewed: 2,
+			NewReviewed:   1,
+			DueReviewed:   1,
+			GradeCounts: domain.GradeCounts{
+				Good: 1,
+				Easy: 1,
+			},
+			DurationMs:   30 * 60 * 1000, // 30 minutes
+			AccuracyRate: 100.0,          // (1+1)/2 * 100
+		},
+	}
+
+	mockSessions := &sessionRepoMock{
+		GetByIDFunc: func(ctx context.Context, uid, sid uuid.UUID) (*domain.StudySession, error) {
+			if uid != userID || sid != sessionID {
+				t.Errorf("unexpected IDs: got (%v, %v), want (%v, %v)", uid, sid, userID, sessionID)
+			}
+			return session, nil
+		},
+		FinishFunc: func(ctx context.Context, uid, sid uuid.UUID, result domain.SessionResult) (*domain.StudySession, error) {
+			if result.TotalReviewed != 2 {
+				t.Errorf("TotalReviewed: got %d, want 2", result.TotalReviewed)
+			}
+			if result.NewReviewed != 1 {
+				t.Errorf("NewReviewed: got %d, want 1", result.NewReviewed)
+			}
+			if result.DueReviewed != 1 {
+				t.Errorf("DueReviewed: got %d, want 1", result.DueReviewed)
+			}
+			if result.GradeCounts.Good != 1 {
+				t.Errorf("GradeCounts.Good: got %d, want 1", result.GradeCounts.Good)
+			}
+			if result.GradeCounts.Easy != 1 {
+				t.Errorf("GradeCounts.Easy: got %d, want 1", result.GradeCounts.Easy)
+			}
+			if result.AccuracyRate != 100.0 {
+				t.Errorf("AccuracyRate: got %.2f, want 100.00", result.AccuracyRate)
+			}
+			return finishedSession, nil
+		},
+	}
+
+	mockReviews := &reviewLogRepoMock{
+		GetByPeriodFunc: func(ctx context.Context, uid uuid.UUID, from, to time.Time) ([]*domain.ReviewLog, error) {
+			if uid != userID {
+				t.Errorf("userID: got %v, want %v", uid, userID)
+			}
+			if !from.Equal(startedAt) {
+				t.Errorf("from: got %v, want %v", from, startedAt)
+			}
+			return logs, nil
+		},
+	}
+
+	svc := &Service{
+		sessions: mockSessions,
+		reviews:  mockReviews,
+		log:      slog.Default(),
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+	input := FinishSessionInput{SessionID: sessionID}
+
+	result, err := svc.FinishSession(ctx, input)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if result.Status != domain.SessionStatusFinished {
+		t.Errorf("result.Status: got %v, want FINISHED", result.Status)
+	}
+	if result.Result == nil {
+		t.Fatal("result.Result is nil")
+	}
+	if result.Result.TotalReviewed != 2 {
+		t.Errorf("result.Result.TotalReviewed: got %d, want 2", result.Result.TotalReviewed)
+	}
+
+	// Verify calls
+	if len(mockSessions.GetByIDCalls()) != 1 {
+		t.Errorf("GetByID calls: got %d, want 1", len(mockSessions.GetByIDCalls()))
+	}
+	if len(mockReviews.GetByPeriodCalls()) != 1 {
+		t.Errorf("GetByPeriod calls: got %d, want 1", len(mockReviews.GetByPeriodCalls()))
+	}
+	if len(mockSessions.FinishCalls()) != 1 {
+		t.Errorf("Finish calls: got %d, want 1", len(mockSessions.FinishCalls()))
+	}
+}
+
+func TestService_FinishSession_AlreadyFinished_ValidationError(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	sessionID := uuid.New()
+	now := time.Now()
+
+	finishedSession := &domain.StudySession{
+		ID:         sessionID,
+		UserID:     userID,
+		Status:     domain.SessionStatusFinished,
+		StartedAt:  now.Add(-1 * time.Hour),
+		FinishedAt: &now,
+	}
+
+	mockSessions := &sessionRepoMock{
+		GetByIDFunc: func(ctx context.Context, uid, sid uuid.UUID) (*domain.StudySession, error) {
+			return finishedSession, nil
+		},
+		FinishFunc: func(ctx context.Context, uid, sid uuid.UUID, result domain.SessionResult) (*domain.StudySession, error) {
+			t.Error("Finish should not be called for already finished session")
+			return nil, nil
+		},
+	}
+
+	svc := &Service{
+		sessions: mockSessions,
+		log:      slog.Default(),
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+	input := FinishSessionInput{SessionID: sessionID}
+
+	_, err := svc.FinishSession(ctx, input)
+	if !errors.Is(err, domain.ErrValidation) {
+		t.Errorf("error: got %v, want ErrValidation", err)
+	}
+
+	// Verify Finish was not called
+	if len(mockSessions.FinishCalls()) != 0 {
+		t.Error("Finish should not be called")
+	}
+}
+
+func TestService_FinishSession_EmptySession_NoReviews(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	sessionID := uuid.New()
+	now := time.Now()
+	startedAt := now.Add(-10 * time.Minute)
+
+	session := &domain.StudySession{
+		ID:        sessionID,
+		UserID:    userID,
+		Status:    domain.SessionStatusActive,
+		StartedAt: startedAt,
+	}
+
+	emptyLogs := []*domain.ReviewLog{}
+
+	finishedSession := &domain.StudySession{
+		ID:         sessionID,
+		UserID:     userID,
+		Status:     domain.SessionStatusFinished,
+		StartedAt:  startedAt,
+		FinishedAt: &now,
+		Result: &domain.SessionResult{
+			TotalReviewed: 0,
+			NewReviewed:   0,
+			DueReviewed:   0,
+			GradeCounts:   domain.GradeCounts{},
+			DurationMs:    10 * 60 * 1000,
+			AccuracyRate:  0.0,
+		},
+	}
+
+	mockSessions := &sessionRepoMock{
+		GetByIDFunc: func(ctx context.Context, uid, sid uuid.UUID) (*domain.StudySession, error) {
+			return session, nil
+		},
+		FinishFunc: func(ctx context.Context, uid, sid uuid.UUID, result domain.SessionResult) (*domain.StudySession, error) {
+			if result.TotalReviewed != 0 {
+				t.Errorf("TotalReviewed: got %d, want 0", result.TotalReviewed)
+			}
+			if result.AccuracyRate != 0.0 {
+				t.Errorf("AccuracyRate: got %.2f, want 0.00", result.AccuracyRate)
+			}
+			return finishedSession, nil
+		},
+	}
+
+	mockReviews := &reviewLogRepoMock{
+		GetByPeriodFunc: func(ctx context.Context, uid uuid.UUID, from, to time.Time) ([]*domain.ReviewLog, error) {
+			return emptyLogs, nil
+		},
+	}
+
+	svc := &Service{
+		sessions: mockSessions,
+		reviews:  mockReviews,
+		log:      slog.Default(),
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+	input := FinishSessionInput{SessionID: sessionID}
+
+	result, err := svc.FinishSession(ctx, input)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if result.Result.TotalReviewed != 0 {
+		t.Errorf("result.Result.TotalReviewed: got %d, want 0", result.Result.TotalReviewed)
+	}
+	if result.Result.AccuracyRate != 0.0 {
+		t.Errorf("result.Result.AccuracyRate: got %.2f, want 0.00", result.Result.AccuracyRate)
+	}
+}
+
+func TestService_FinishSession_NotFound(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	sessionID := uuid.New()
+
+	mockSessions := &sessionRepoMock{
+		GetByIDFunc: func(ctx context.Context, uid, sid uuid.UUID) (*domain.StudySession, error) {
+			return nil, domain.ErrNotFound
+		},
+	}
+
+	svc := &Service{
+		sessions: mockSessions,
+		log:      slog.Default(),
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+	input := FinishSessionInput{SessionID: sessionID}
+
+	_, err := svc.FinishSession(ctx, input)
+	if !errors.Is(err, domain.ErrNotFound) {
+		t.Errorf("error: got %v, want ErrNotFound", err)
+	}
+}
+
+func TestService_AbandonSession_Success(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	sessionID := uuid.New()
+	now := time.Now()
+
+	activeSession := &domain.StudySession{
+		ID:        sessionID,
+		UserID:    userID,
+		Status:    domain.SessionStatusActive,
+		StartedAt: now.Add(-15 * time.Minute),
+	}
+
+	mockSessions := &sessionRepoMock{
+		GetActiveFunc: func(ctx context.Context, uid uuid.UUID) (*domain.StudySession, error) {
+			if uid != userID {
+				t.Errorf("userID: got %v, want %v", uid, userID)
+			}
+			return activeSession, nil
+		},
+		AbandonFunc: func(ctx context.Context, uid, sid uuid.UUID) error {
+			if uid != userID || sid != sessionID {
+				t.Errorf("unexpected IDs: got (%v, %v), want (%v, %v)", uid, sid, userID, sessionID)
+			}
+			return nil
+		},
+	}
+
+	svc := &Service{
+		sessions: mockSessions,
+		log:      slog.Default(),
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	err := svc.AbandonSession(ctx)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// Verify calls
+	if len(mockSessions.GetActiveCalls()) != 1 {
+		t.Errorf("GetActive calls: got %d, want 1", len(mockSessions.GetActiveCalls()))
+	}
+	if len(mockSessions.AbandonCalls()) != 1 {
+		t.Errorf("Abandon calls: got %d, want 1", len(mockSessions.AbandonCalls()))
+	}
+}
+
+func TestService_AbandonSession_NoActive_IdempotentNoop(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+
+	mockSessions := &sessionRepoMock{
+		GetActiveFunc: func(ctx context.Context, uid uuid.UUID) (*domain.StudySession, error) {
+			return nil, domain.ErrNotFound
+		},
+		AbandonFunc: func(ctx context.Context, uid, sid uuid.UUID) error {
+			t.Error("Abandon should not be called when no active session")
+			return nil
+		},
+	}
+
+	svc := &Service{
+		sessions: mockSessions,
+		log:      slog.Default(),
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	err := svc.AbandonSession(ctx)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// Verify only GetActive was called
+	if len(mockSessions.GetActiveCalls()) != 1 {
+		t.Errorf("GetActive calls: got %d, want 1", len(mockSessions.GetActiveCalls()))
+	}
+	if len(mockSessions.AbandonCalls()) != 0 {
+		t.Error("Abandon should not be called")
+	}
+}
+
+// ---------------------------------------------------------------------------
 // Test Helpers
 // ---------------------------------------------------------------------------
 
