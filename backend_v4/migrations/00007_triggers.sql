@@ -1,4 +1,6 @@
 -- +goose Up
+
+-- +goose StatementBegin
 CREATE OR REPLACE FUNCTION fn_preserve_sense_on_ref_delete()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -10,12 +12,14 @@ BEGIN
     RETURN OLD;
 END;
 $$ LANGUAGE plpgsql;
+-- +goose StatementEnd
 
 CREATE TRIGGER trg_preserve_sense_on_ref_delete
     BEFORE DELETE ON ref_senses
     FOR EACH ROW
     EXECUTE FUNCTION fn_preserve_sense_on_ref_delete();
 
+-- +goose StatementBegin
 CREATE OR REPLACE FUNCTION fn_preserve_translation_on_ref_delete()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -25,12 +29,14 @@ BEGIN
     RETURN OLD;
 END;
 $$ LANGUAGE plpgsql;
+-- +goose StatementEnd
 
 CREATE TRIGGER trg_preserve_translation_on_ref_delete
     BEFORE DELETE ON ref_translations
     FOR EACH ROW
     EXECUTE FUNCTION fn_preserve_translation_on_ref_delete();
 
+-- +goose StatementBegin
 CREATE OR REPLACE FUNCTION fn_preserve_example_on_ref_delete()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -41,6 +47,7 @@ BEGIN
     RETURN OLD;
 END;
 $$ LANGUAGE plpgsql;
+-- +goose StatementEnd
 
 CREATE TRIGGER trg_preserve_example_on_ref_delete
     BEFORE DELETE ON ref_examples
