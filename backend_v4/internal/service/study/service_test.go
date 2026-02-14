@@ -2271,6 +2271,1790 @@ func TestService_AbandonSession_NoActive_IdempotentNoop(t *testing.T) {
 }
 
 // ---------------------------------------------------------------------------
+// CreateCard Tests (6 tests)
+// ---------------------------------------------------------------------------
+
+func TestService_CreateCard_Success(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	entryID := uuid.New()
+	cardID := uuid.New()
+
+	entry := &domain.Entry{
+		ID:     entryID,
+		UserID: userID,
+		Text:   "hello",
+	}
+
+	createdCard := &domain.Card{
+		ID:           cardID,
+		UserID:       userID,
+		EntryID:      entryID,
+		Status:       domain.LearningStatusNew,
+		LearningStep: 0,
+		IntervalDays: 0,
+		EaseFactor:   2.5,
+		NextReviewAt: nil,
+	}
+
+	mockEntries := &entryRepoMock{
+		GetByIDFunc: func(ctx context.Context, uid, eid uuid.UUID) (*domain.Entry, error) {
+			if uid != userID || eid != entryID {
+				t.Errorf("unexpected IDs: got (%v, %v), want (%v, %v)", uid, eid, userID, entryID)
+			}
+			return entry, nil
+		},
+	}
+
+	mockSenses := &senseRepoMock{
+		CountByEntryIDFunc: func(ctx context.Context, eid uuid.UUID) (int, error) {
+			if eid != entryID {
+				t.Errorf("entryID: got %v, want %v", eid, entryID)
+			}
+			return 3, nil // Entry has 3 senses
+		},
+	}
+
+	mockCards := &cardRepoMock{
+		CreateFunc: func(ctx context.Context, uid uuid.UUID, card *domain.Card) (*domain.Card, error) {
+			if uid != userID {
+				t.Errorf("userID: got %v, want %v", uid, userID)
+			}
+			if card.EntryID != entryID {
+				t.Errorf("card.EntryID: got %v, want %v", card.EntryID, entryID)
+			}
+			if card.Status != domain.LearningStatusNew {
+				t.Errorf("card.Status: got %v, want New", card.Status)
+			}
+			if card.EaseFactor != 2.5 {
+				t.Errorf("card.EaseFactor: got %v, want 2.5", card.EaseFactor)
+			}
+			return createdCard, nil
+		},
+	}
+
+	mockAudit := &auditLoggerMock{
+		LogFunc: func(ctx context.Context, record domain.AuditRecord) error {
+			if record.EntityType != domain.EntityTypeCard {
+				t.Errorf("EntityType: got %v, want Card", record.EntityType)
+			}
+			if record.Action != domain.AuditActionCreate {
+				t.Errorf("Action: got %v, want Create", record.Action)
+			}
+			return nil
+		},
+	}
+
+	mockTx := &txManagerMock{
+		RunInTxFunc: func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		},
+	}
+
+	svc := &Service{
+		entries: mockEntries,
+		senses:  mockSenses,
+		cards:   mockCards,
+		audit:   mockAudit,
+		tx:      mockTx,
+		log:     slog.Default(),
+		srsConfig: domain.SRSConfig{
+			DefaultEaseFactor: 2.5,
+		},
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+	input := CreateCardInput{EntryID: entryID}
+
+	result, err := svc.CreateCard(ctx, input)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if result.ID != cardID {
+		t.Errorf("result.ID: got %v, want %v", result.ID, cardID)
+	}
+	if result.Status != domain.LearningStatusNew {
+		t.Errorf("result.Status: got %v, want New", result.Status)
+	}
+
+	// Verify calls
+	if len(mockEntries.GetByIDCalls()) != 1 {
+		t.Errorf("GetByID calls: got %d, want 1", len(mockEntries.GetByIDCalls()))
+	}
+	if len(mockSenses.CountByEntryIDCalls()) != 1 {
+		t.Errorf("CountByEntryID calls: got %d, want 1", len(mockSenses.CountByEntryIDCalls()))
+	}
+	if len(mockCards.CreateCalls()) != 1 {
+		t.Errorf("Create calls: got %d, want 1", len(mockCards.CreateCalls()))
+	}
+	if len(mockAudit.LogCalls()) != 1 {
+		t.Errorf("Audit Log calls: got %d, want 1", len(mockAudit.LogCalls()))
+	}
+}
+
+func TestService_CreateCard_EntryNotFound(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	entryID := uuid.New()
+
+	mockEntries := &entryRepoMock{
+		GetByIDFunc: func(ctx context.Context, uid, eid uuid.UUID) (*domain.Entry, error) {
+			return nil, domain.ErrNotFound
+		},
+	}
+
+	svc := &Service{
+		entries: mockEntries,
+		log:     slog.Default(),
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+	input := CreateCardInput{EntryID: entryID}
+
+	_, err := svc.CreateCard(ctx, input)
+	if !errors.Is(err, domain.ErrNotFound) {
+		t.Errorf("error: got %v, want ErrNotFound", err)
+	}
+}
+
+func TestService_CreateCard_EntryHasNoSenses(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	entryID := uuid.New()
+
+	entry := &domain.Entry{
+		ID:     entryID,
+		UserID: userID,
+		Text:   "hello",
+	}
+
+	mockEntries := &entryRepoMock{
+		GetByIDFunc: func(ctx context.Context, uid, eid uuid.UUID) (*domain.Entry, error) {
+			return entry, nil
+		},
+	}
+
+	mockSenses := &senseRepoMock{
+		CountByEntryIDFunc: func(ctx context.Context, eid uuid.UUID) (int, error) {
+			return 0, nil // No senses
+		},
+	}
+
+	svc := &Service{
+		entries: mockEntries,
+		senses:  mockSenses,
+		log:     slog.Default(),
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+	input := CreateCardInput{EntryID: entryID}
+
+	_, err := svc.CreateCard(ctx, input)
+	if !errors.Is(err, domain.ErrValidation) {
+		t.Errorf("error: got %v, want ErrValidation", err)
+	}
+
+	var validationErr *domain.ValidationError
+	if errors.As(err, &validationErr) {
+		if len(validationErr.Errors) == 0 {
+			t.Error("validation error has no errors")
+		} else if validationErr.Errors[0].Field != "entry_id" {
+			t.Errorf("validation error field: got %v, want entry_id", validationErr.Errors[0].Field)
+		}
+	}
+}
+
+func TestService_CreateCard_CardAlreadyExists(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	entryID := uuid.New()
+
+	entry := &domain.Entry{
+		ID:     entryID,
+		UserID: userID,
+		Text:   "hello",
+	}
+
+	mockEntries := &entryRepoMock{
+		GetByIDFunc: func(ctx context.Context, uid, eid uuid.UUID) (*domain.Entry, error) {
+			return entry, nil
+		},
+	}
+
+	mockSenses := &senseRepoMock{
+		CountByEntryIDFunc: func(ctx context.Context, eid uuid.UUID) (int, error) {
+			return 2, nil
+		},
+	}
+
+	mockCards := &cardRepoMock{
+		CreateFunc: func(ctx context.Context, uid uuid.UUID, card *domain.Card) (*domain.Card, error) {
+			return nil, domain.ErrAlreadyExists
+		},
+	}
+
+	mockTx := &txManagerMock{
+		RunInTxFunc: func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		},
+	}
+
+	svc := &Service{
+		entries: mockEntries,
+		senses:  mockSenses,
+		cards:   mockCards,
+		tx:      mockTx,
+		log:     slog.Default(),
+		srsConfig: domain.SRSConfig{
+			DefaultEaseFactor: 2.5,
+		},
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+	input := CreateCardInput{EntryID: entryID}
+
+	_, err := svc.CreateCard(ctx, input)
+	if !errors.Is(err, domain.ErrAlreadyExists) {
+		t.Errorf("error: got %v, want ErrAlreadyExists", err)
+	}
+}
+
+func TestService_CreateCard_TransactionRollback_AuditError(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	entryID := uuid.New()
+
+	entry := &domain.Entry{
+		ID:     entryID,
+		UserID: userID,
+		Text:   "hello",
+	}
+
+	createdCard := &domain.Card{
+		ID:           uuid.New(),
+		UserID:       userID,
+		EntryID:      entryID,
+		Status:       domain.LearningStatusNew,
+		LearningStep: 0,
+		IntervalDays: 0,
+		EaseFactor:   2.5,
+	}
+
+	mockEntries := &entryRepoMock{
+		GetByIDFunc: func(ctx context.Context, uid, eid uuid.UUID) (*domain.Entry, error) {
+			return entry, nil
+		},
+	}
+
+	mockSenses := &senseRepoMock{
+		CountByEntryIDFunc: func(ctx context.Context, eid uuid.UUID) (int, error) {
+			return 1, nil
+		},
+	}
+
+	mockCards := &cardRepoMock{
+		CreateFunc: func(ctx context.Context, uid uuid.UUID, card *domain.Card) (*domain.Card, error) {
+			return createdCard, nil
+		},
+	}
+
+	mockAudit := &auditLoggerMock{
+		LogFunc: func(ctx context.Context, record domain.AuditRecord) error {
+			return errors.New("audit error")
+		},
+	}
+
+	mockTx := &txManagerMock{
+		RunInTxFunc: func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		},
+	}
+
+	svc := &Service{
+		entries: mockEntries,
+		senses:  mockSenses,
+		cards:   mockCards,
+		audit:   mockAudit,
+		tx:      mockTx,
+		log:     slog.Default(),
+		srsConfig: domain.SRSConfig{
+			DefaultEaseFactor: 2.5,
+		},
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+	input := CreateCardInput{EntryID: entryID}
+
+	_, err := svc.CreateCard(ctx, input)
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+}
+
+func TestService_CreateCard_NoUserID(t *testing.T) {
+	t.Parallel()
+
+	svc := &Service{
+		log: slog.Default(),
+	}
+
+	ctx := context.Background() // No user ID
+	input := CreateCardInput{EntryID: uuid.New()}
+
+	_, err := svc.CreateCard(ctx, input)
+	if !errors.Is(err, domain.ErrUnauthorized) {
+		t.Errorf("error: got %v, want ErrUnauthorized", err)
+	}
+}
+
+// ---------------------------------------------------------------------------
+// DeleteCard Tests (4 tests)
+// ---------------------------------------------------------------------------
+
+func TestService_DeleteCard_Success(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	cardID := uuid.New()
+	entryID := uuid.New()
+
+	card := &domain.Card{
+		ID:      cardID,
+		UserID:  userID,
+		EntryID: entryID,
+		Status:  domain.LearningStatusReview,
+	}
+
+	mockCards := &cardRepoMock{
+		GetByIDFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
+			if uid != userID || cid != cardID {
+				t.Errorf("unexpected IDs: got (%v, %v), want (%v, %v)", uid, cid, userID, cardID)
+			}
+			return card, nil
+		},
+		DeleteFunc: func(ctx context.Context, uid, cid uuid.UUID) error {
+			if uid != userID || cid != cardID {
+				t.Errorf("unexpected IDs: got (%v, %v), want (%v, %v)", uid, cid, userID, cardID)
+			}
+			return nil
+		},
+	}
+
+	mockAudit := &auditLoggerMock{
+		LogFunc: func(ctx context.Context, record domain.AuditRecord) error {
+			if record.EntityType != domain.EntityTypeCard {
+				t.Errorf("EntityType: got %v, want Card", record.EntityType)
+			}
+			if record.Action != domain.AuditActionDelete {
+				t.Errorf("Action: got %v, want Delete", record.Action)
+			}
+			return nil
+		},
+	}
+
+	mockTx := &txManagerMock{
+		RunInTxFunc: func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		},
+	}
+
+	svc := &Service{
+		cards: mockCards,
+		audit: mockAudit,
+		tx:    mockTx,
+		log:   slog.Default(),
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+	input := DeleteCardInput{CardID: cardID}
+
+	err := svc.DeleteCard(ctx, input)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// Verify calls
+	if len(mockCards.GetByIDCalls()) != 1 {
+		t.Errorf("GetByID calls: got %d, want 1", len(mockCards.GetByIDCalls()))
+	}
+	if len(mockCards.DeleteCalls()) != 1 {
+		t.Errorf("Delete calls: got %d, want 1", len(mockCards.DeleteCalls()))
+	}
+	if len(mockAudit.LogCalls()) != 1 {
+		t.Errorf("Audit Log calls: got %d, want 1", len(mockAudit.LogCalls()))
+	}
+}
+
+func TestService_DeleteCard_CardNotFound(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	cardID := uuid.New()
+
+	mockCards := &cardRepoMock{
+		GetByIDFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
+			return nil, domain.ErrNotFound
+		},
+	}
+
+	svc := &Service{
+		cards: mockCards,
+		log:   slog.Default(),
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+	input := DeleteCardInput{CardID: cardID}
+
+	err := svc.DeleteCard(ctx, input)
+	if !errors.Is(err, domain.ErrNotFound) {
+		t.Errorf("error: got %v, want ErrNotFound", err)
+	}
+}
+
+func TestService_DeleteCard_TransactionRollback(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	cardID := uuid.New()
+
+	card := &domain.Card{
+		ID:     cardID,
+		UserID: userID,
+	}
+
+	mockCards := &cardRepoMock{
+		GetByIDFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
+			return card, nil
+		},
+		DeleteFunc: func(ctx context.Context, uid, cid uuid.UUID) error {
+			return errors.New("delete error")
+		},
+	}
+
+	mockAudit := &auditLoggerMock{
+		LogFunc: func(ctx context.Context, record domain.AuditRecord) error {
+			t.Error("Audit should not be called after delete error")
+			return nil
+		},
+	}
+
+	mockTx := &txManagerMock{
+		RunInTxFunc: func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		},
+	}
+
+	svc := &Service{
+		cards: mockCards,
+		audit: mockAudit,
+		tx:    mockTx,
+		log:   slog.Default(),
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+	input := DeleteCardInput{CardID: cardID}
+
+	err := svc.DeleteCard(ctx, input)
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+
+	// Verify Audit was not called
+	if len(mockAudit.LogCalls()) != 0 {
+		t.Error("Audit should not be called after delete error")
+	}
+}
+
+func TestService_DeleteCard_NoUserID(t *testing.T) {
+	t.Parallel()
+
+	svc := &Service{
+		log: slog.Default(),
+	}
+
+	ctx := context.Background() // No user ID
+	input := DeleteCardInput{CardID: uuid.New()}
+
+	err := svc.DeleteCard(ctx, input)
+	if !errors.Is(err, domain.ErrUnauthorized) {
+		t.Errorf("error: got %v, want ErrUnauthorized", err)
+	}
+}
+
+// ---------------------------------------------------------------------------
+// BatchCreateCards Tests (6 tests)
+// ---------------------------------------------------------------------------
+
+func TestService_BatchCreateCards_Success_AllCreated(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	entryID1 := uuid.New()
+	entryID2 := uuid.New()
+
+	mockEntries := &entryRepoMock{
+		ExistByIDsFunc: func(ctx context.Context, uid uuid.UUID, ids []uuid.UUID) (map[uuid.UUID]bool, error) {
+			return map[uuid.UUID]bool{
+				entryID1: true,
+				entryID2: true,
+			}, nil
+		},
+	}
+
+	mockCards := &cardRepoMock{
+		ExistsByEntryIDsFunc: func(ctx context.Context, uid uuid.UUID, entryIDs []uuid.UUID) (map[uuid.UUID]bool, error) {
+			return map[uuid.UUID]bool{
+				entryID1: false,
+				entryID2: false,
+			}, nil
+		},
+		CreateFunc: func(ctx context.Context, uid uuid.UUID, card *domain.Card) (*domain.Card, error) {
+			return card, nil
+		},
+	}
+
+	mockSenses := &senseRepoMock{
+		CountByEntryIDFunc: func(ctx context.Context, eid uuid.UUID) (int, error) {
+			return 1, nil // All entries have senses
+		},
+	}
+
+	mockAudit := &auditLoggerMock{
+		LogFunc: func(ctx context.Context, record domain.AuditRecord) error {
+			return nil
+		},
+	}
+
+	mockTx := &txManagerMock{
+		RunInTxFunc: func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		},
+	}
+
+	svc := &Service{
+		entries: mockEntries,
+		cards:   mockCards,
+		senses:  mockSenses,
+		audit:   mockAudit,
+		tx:      mockTx,
+		log:     slog.Default(),
+		srsConfig: domain.SRSConfig{
+			DefaultEaseFactor: 2.5,
+		},
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+	input := BatchCreateCardsInput{EntryIDs: []uuid.UUID{entryID1, entryID2}}
+
+	result, err := svc.BatchCreateCards(ctx, input)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if result.Created != 2 {
+		t.Errorf("Created: got %d, want 2", result.Created)
+	}
+	if result.SkippedExisting != 0 {
+		t.Errorf("SkippedExisting: got %d, want 0", result.SkippedExisting)
+	}
+	if result.SkippedNoSenses != 0 {
+		t.Errorf("SkippedNoSenses: got %d, want 0", result.SkippedNoSenses)
+	}
+	if len(result.Errors) != 0 {
+		t.Errorf("Errors: got %d, want 0", len(result.Errors))
+	}
+}
+
+func TestService_BatchCreateCards_SomeEntriesNotExist(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	entryID1 := uuid.New()
+	entryID2 := uuid.New()
+	entryID3 := uuid.New()
+
+	mockEntries := &entryRepoMock{
+		ExistByIDsFunc: func(ctx context.Context, uid uuid.UUID, ids []uuid.UUID) (map[uuid.UUID]bool, error) {
+			return map[uuid.UUID]bool{
+				entryID1: true,
+				entryID2: false, // Does not exist
+				entryID3: true,
+			}, nil
+		},
+	}
+
+	mockCards := &cardRepoMock{
+		ExistsByEntryIDsFunc: func(ctx context.Context, uid uuid.UUID, entryIDs []uuid.UUID) (map[uuid.UUID]bool, error) {
+			return map[uuid.UUID]bool{
+				entryID1: false,
+				entryID3: false,
+			}, nil
+		},
+		CreateFunc: func(ctx context.Context, uid uuid.UUID, card *domain.Card) (*domain.Card, error) {
+			return card, nil
+		},
+	}
+
+	mockSenses := &senseRepoMock{
+		CountByEntryIDFunc: func(ctx context.Context, eid uuid.UUID) (int, error) {
+			return 1, nil
+		},
+	}
+
+	mockAudit := &auditLoggerMock{
+		LogFunc: func(ctx context.Context, record domain.AuditRecord) error {
+			return nil
+		},
+	}
+
+	mockTx := &txManagerMock{
+		RunInTxFunc: func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		},
+	}
+
+	svc := &Service{
+		entries: mockEntries,
+		cards:   mockCards,
+		senses:  mockSenses,
+		audit:   mockAudit,
+		tx:      mockTx,
+		log:     slog.Default(),
+		srsConfig: domain.SRSConfig{
+			DefaultEaseFactor: 2.5,
+		},
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+	input := BatchCreateCardsInput{EntryIDs: []uuid.UUID{entryID1, entryID2, entryID3}}
+
+	result, err := svc.BatchCreateCards(ctx, input)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if result.Created != 2 {
+		t.Errorf("Created: got %d, want 2", result.Created)
+	}
+	if len(result.Errors) != 1 {
+		t.Errorf("Errors: got %d, want 1", len(result.Errors))
+	} else if result.Errors[0].EntryID != entryID2 {
+		t.Errorf("Error EntryID: got %v, want %v", result.Errors[0].EntryID, entryID2)
+	}
+}
+
+func TestService_BatchCreateCards_SomeEntriesNoSenses(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	entryID1 := uuid.New()
+	entryID2 := uuid.New()
+
+	mockEntries := &entryRepoMock{
+		ExistByIDsFunc: func(ctx context.Context, uid uuid.UUID, ids []uuid.UUID) (map[uuid.UUID]bool, error) {
+			return map[uuid.UUID]bool{
+				entryID1: true,
+				entryID2: true,
+			}, nil
+		},
+	}
+
+	mockCards := &cardRepoMock{
+		ExistsByEntryIDsFunc: func(ctx context.Context, uid uuid.UUID, entryIDs []uuid.UUID) (map[uuid.UUID]bool, error) {
+			return map[uuid.UUID]bool{
+				entryID1: false,
+				entryID2: false,
+			}, nil
+		},
+		CreateFunc: func(ctx context.Context, uid uuid.UUID, card *domain.Card) (*domain.Card, error) {
+			return card, nil
+		},
+	}
+
+	mockSenses := &senseRepoMock{
+		CountByEntryIDFunc: func(ctx context.Context, eid uuid.UUID) (int, error) {
+			if eid == entryID1 {
+				return 1, nil
+			}
+			return 0, nil // entryID2 has no senses
+		},
+	}
+
+	mockAudit := &auditLoggerMock{
+		LogFunc: func(ctx context.Context, record domain.AuditRecord) error {
+			return nil
+		},
+	}
+
+	mockTx := &txManagerMock{
+		RunInTxFunc: func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		},
+	}
+
+	svc := &Service{
+		entries: mockEntries,
+		cards:   mockCards,
+		senses:  mockSenses,
+		audit:   mockAudit,
+		tx:      mockTx,
+		log:     slog.Default(),
+		srsConfig: domain.SRSConfig{
+			DefaultEaseFactor: 2.5,
+		},
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+	input := BatchCreateCardsInput{EntryIDs: []uuid.UUID{entryID1, entryID2}}
+
+	result, err := svc.BatchCreateCards(ctx, input)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if result.Created != 1 {
+		t.Errorf("Created: got %d, want 1", result.Created)
+	}
+	if result.SkippedNoSenses != 1 {
+		t.Errorf("SkippedNoSenses: got %d, want 1", result.SkippedNoSenses)
+	}
+}
+
+func TestService_BatchCreateCards_SomeEntriesAlreadyHaveCards(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	entryID1 := uuid.New()
+	entryID2 := uuid.New()
+
+	mockEntries := &entryRepoMock{
+		ExistByIDsFunc: func(ctx context.Context, uid uuid.UUID, ids []uuid.UUID) (map[uuid.UUID]bool, error) {
+			return map[uuid.UUID]bool{
+				entryID1: true,
+				entryID2: true,
+			}, nil
+		},
+	}
+
+	mockCards := &cardRepoMock{
+		ExistsByEntryIDsFunc: func(ctx context.Context, uid uuid.UUID, entryIDs []uuid.UUID) (map[uuid.UUID]bool, error) {
+			return map[uuid.UUID]bool{
+				entryID1: true,  // Already has card
+				entryID2: false, // No card yet
+			}, nil
+		},
+		CreateFunc: func(ctx context.Context, uid uuid.UUID, card *domain.Card) (*domain.Card, error) {
+			return card, nil
+		},
+	}
+
+	mockSenses := &senseRepoMock{
+		CountByEntryIDFunc: func(ctx context.Context, eid uuid.UUID) (int, error) {
+			return 1, nil
+		},
+	}
+
+	mockAudit := &auditLoggerMock{
+		LogFunc: func(ctx context.Context, record domain.AuditRecord) error {
+			return nil
+		},
+	}
+
+	mockTx := &txManagerMock{
+		RunInTxFunc: func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		},
+	}
+
+	svc := &Service{
+		entries: mockEntries,
+		cards:   mockCards,
+		senses:  mockSenses,
+		audit:   mockAudit,
+		tx:      mockTx,
+		log:     slog.Default(),
+		srsConfig: domain.SRSConfig{
+			DefaultEaseFactor: 2.5,
+		},
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+	input := BatchCreateCardsInput{EntryIDs: []uuid.UUID{entryID1, entryID2}}
+
+	result, err := svc.BatchCreateCards(ctx, input)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if result.Created != 1 {
+		t.Errorf("Created: got %d, want 1", result.Created)
+	}
+	if result.SkippedExisting != 1 {
+		t.Errorf("SkippedExisting: got %d, want 1", result.SkippedExisting)
+	}
+}
+
+func TestService_BatchCreateCards_MixedScenario(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	entryID1 := uuid.New()
+	entryID2 := uuid.New()
+	entryID3 := uuid.New()
+	entryID4 := uuid.New()
+
+	mockEntries := &entryRepoMock{
+		ExistByIDsFunc: func(ctx context.Context, uid uuid.UUID, ids []uuid.UUID) (map[uuid.UUID]bool, error) {
+			return map[uuid.UUID]bool{
+				entryID1: true,
+				entryID2: false, // Not exist
+				entryID3: true,
+				entryID4: true,
+			}, nil
+		},
+	}
+
+	mockCards := &cardRepoMock{
+		ExistsByEntryIDsFunc: func(ctx context.Context, uid uuid.UUID, entryIDs []uuid.UUID) (map[uuid.UUID]bool, error) {
+			return map[uuid.UUID]bool{
+				entryID1: true,  // Already has card
+				entryID3: false, // No card
+				entryID4: false, // No card
+			}, nil
+		},
+		CreateFunc: func(ctx context.Context, uid uuid.UUID, card *domain.Card) (*domain.Card, error) {
+			return card, nil
+		},
+	}
+
+	mockSenses := &senseRepoMock{
+		CountByEntryIDFunc: func(ctx context.Context, eid uuid.UUID) (int, error) {
+			if eid == entryID3 {
+				return 1, nil
+			}
+			return 0, nil // entryID4 has no senses
+		},
+	}
+
+	mockAudit := &auditLoggerMock{
+		LogFunc: func(ctx context.Context, record domain.AuditRecord) error {
+			return nil
+		},
+	}
+
+	mockTx := &txManagerMock{
+		RunInTxFunc: func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		},
+	}
+
+	svc := &Service{
+		entries: mockEntries,
+		cards:   mockCards,
+		senses:  mockSenses,
+		audit:   mockAudit,
+		tx:      mockTx,
+		log:     slog.Default(),
+		srsConfig: domain.SRSConfig{
+			DefaultEaseFactor: 2.5,
+		},
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+	input := BatchCreateCardsInput{EntryIDs: []uuid.UUID{entryID1, entryID2, entryID3, entryID4}}
+
+	result, err := svc.BatchCreateCards(ctx, input)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if result.Created != 1 {
+		t.Errorf("Created: got %d, want 1", result.Created)
+	}
+	if result.SkippedExisting != 1 {
+		t.Errorf("SkippedExisting: got %d, want 1", result.SkippedExisting)
+	}
+	if result.SkippedNoSenses != 1 {
+		t.Errorf("SkippedNoSenses: got %d, want 1", result.SkippedNoSenses)
+	}
+	if len(result.Errors) != 1 {
+		t.Errorf("Errors: got %d, want 1 (entry not found)", len(result.Errors))
+	}
+}
+
+func TestService_BatchCreateCards_ValidationError(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+
+	svc := &Service{
+		log: slog.Default(),
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	// Test empty list
+	input1 := BatchCreateCardsInput{EntryIDs: []uuid.UUID{}}
+	_, err := svc.BatchCreateCards(ctx, input1)
+	if !errors.Is(err, domain.ErrValidation) {
+		t.Errorf("error: got %v, want ErrValidation", err)
+	}
+
+	// Test > 100 entries
+	tooManyIDs := make([]uuid.UUID, 101)
+	for i := 0; i < 101; i++ {
+		tooManyIDs[i] = uuid.New()
+	}
+	input2 := BatchCreateCardsInput{EntryIDs: tooManyIDs}
+	_, err = svc.BatchCreateCards(ctx, input2)
+	if !errors.Is(err, domain.ErrValidation) {
+		t.Errorf("error: got %v, want ErrValidation", err)
+	}
+}
+
+// ---------------------------------------------------------------------------
+// GetDashboard Tests (7 tests)
+// ---------------------------------------------------------------------------
+
+func TestService_GetDashboard_Success_AllCountersCorrect(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	sessionID := uuid.New()
+
+	settings := &domain.UserSettings{
+		UserID:   userID,
+		Timezone: "UTC",
+	}
+
+	statusCounts := domain.CardStatusCounts{
+		New:      10,
+		Learning: 5,
+		Review:   20,
+		Mastered: 15,
+		Total:    50,
+	}
+
+	// Use current date for streak data (use UTC to match service)
+	now := time.Now().UTC()
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+
+	streakDays := []domain.DayReviewCount{
+		{Date: today, Count: 5},
+		{Date: today.AddDate(0, 0, -1), Count: 3},
+		{Date: today.AddDate(0, 0, -2), Count: 7},
+	}
+
+	activeSession := &domain.StudySession{
+		ID:     sessionID,
+		UserID: userID,
+		Status: domain.SessionStatusActive,
+	}
+
+	mockSettings := &settingsRepoMock{
+		GetByUserIDFunc: func(ctx context.Context, uid uuid.UUID) (*domain.UserSettings, error) {
+			return settings, nil
+		},
+	}
+
+	mockCards := &cardRepoMock{
+		CountDueFunc: func(ctx context.Context, uid uuid.UUID, nowTime time.Time) (int, error) {
+			return 8, nil
+		},
+		CountNewFunc: func(ctx context.Context, uid uuid.UUID) (int, error) {
+			return 10, nil
+		},
+		CountByStatusFunc: func(ctx context.Context, uid uuid.UUID) (domain.CardStatusCounts, error) {
+			return statusCounts, nil
+		},
+	}
+
+	mockReviews := &reviewLogRepoMock{
+		CountTodayFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
+			return 5, nil
+		},
+		CountNewTodayFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
+			return 2, nil
+		},
+		GetStreakDaysFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time, lastNDays int) ([]domain.DayReviewCount, error) {
+			return streakDays, nil
+		},
+	}
+
+	mockSessions := &sessionRepoMock{
+		GetActiveFunc: func(ctx context.Context, uid uuid.UUID) (*domain.StudySession, error) {
+			return activeSession, nil
+		},
+	}
+
+	svc := &Service{
+		settings: mockSettings,
+		cards:    mockCards,
+		reviews:  mockReviews,
+		sessions: mockSessions,
+		log:      slog.Default(),
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	dashboard, err := svc.GetDashboard(ctx)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if dashboard.DueCount != 8 {
+		t.Errorf("DueCount: got %d, want 8", dashboard.DueCount)
+	}
+	if dashboard.NewCount != 10 {
+		t.Errorf("NewCount: got %d, want 10", dashboard.NewCount)
+	}
+	if dashboard.ReviewedToday != 5 {
+		t.Errorf("ReviewedToday: got %d, want 5", dashboard.ReviewedToday)
+	}
+	if dashboard.NewToday != 2 {
+		t.Errorf("NewToday: got %d, want 2", dashboard.NewToday)
+	}
+	if dashboard.Streak != 3 {
+		t.Errorf("Streak: got %d, want 3", dashboard.Streak)
+	}
+	if dashboard.StatusCounts.Total != 50 {
+		t.Errorf("StatusCounts.Total: got %d, want 50", dashboard.StatusCounts.Total)
+	}
+	if dashboard.ActiveSession == nil {
+		t.Error("ActiveSession should not be nil")
+	} else if *dashboard.ActiveSession != sessionID {
+		t.Errorf("ActiveSession: got %v, want %v", *dashboard.ActiveSession, sessionID)
+	}
+}
+
+func TestService_GetDashboard_NoCards_AllZeros(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+
+	settings := &domain.UserSettings{
+		UserID:   userID,
+		Timezone: "UTC",
+	}
+
+	mockSettings := &settingsRepoMock{
+		GetByUserIDFunc: func(ctx context.Context, uid uuid.UUID) (*domain.UserSettings, error) {
+			return settings, nil
+		},
+	}
+
+	mockCards := &cardRepoMock{
+		CountDueFunc: func(ctx context.Context, uid uuid.UUID, nowTime time.Time) (int, error) {
+			return 0, nil
+		},
+		CountNewFunc: func(ctx context.Context, uid uuid.UUID) (int, error) {
+			return 0, nil
+		},
+		CountByStatusFunc: func(ctx context.Context, uid uuid.UUID) (domain.CardStatusCounts, error) {
+			return domain.CardStatusCounts{}, nil
+		},
+	}
+
+	mockReviews := &reviewLogRepoMock{
+		CountTodayFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
+			return 0, nil
+		},
+		CountNewTodayFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
+			return 0, nil
+		},
+		GetStreakDaysFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time, lastNDays int) ([]domain.DayReviewCount, error) {
+			return []domain.DayReviewCount{}, nil
+		},
+	}
+
+	mockSessions := &sessionRepoMock{
+		GetActiveFunc: func(ctx context.Context, uid uuid.UUID) (*domain.StudySession, error) {
+			return nil, domain.ErrNotFound
+		},
+	}
+
+	svc := &Service{
+		settings: mockSettings,
+		cards:    mockCards,
+		reviews:  mockReviews,
+		sessions: mockSessions,
+		log:      slog.Default(),
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	dashboard, err := svc.GetDashboard(ctx)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if dashboard.DueCount != 0 {
+		t.Errorf("DueCount: got %d, want 0", dashboard.DueCount)
+	}
+	if dashboard.NewCount != 0 {
+		t.Errorf("NewCount: got %d, want 0", dashboard.NewCount)
+	}
+	if dashboard.Streak != 0 {
+		t.Errorf("Streak: got %d, want 0", dashboard.Streak)
+	}
+	if dashboard.ActiveSession != nil {
+		t.Error("ActiveSession should be nil")
+	}
+}
+
+func TestService_GetDashboard_StreakCalculation_FiveDays(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	// Use current date for streak data (use UTC to match service)
+	now := time.Now().UTC()
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+
+	settings := &domain.UserSettings{
+		UserID:   userID,
+		Timezone: "UTC",
+	}
+
+	// 5 consecutive days including today
+	streakDays := []domain.DayReviewCount{
+		{Date: today, Count: 5},
+		{Date: today.AddDate(0, 0, -1), Count: 3},
+		{Date: today.AddDate(0, 0, -2), Count: 7},
+		{Date: today.AddDate(0, 0, -3), Count: 2},
+		{Date: today.AddDate(0, 0, -4), Count: 4},
+		{Date: today.AddDate(0, 0, -6), Count: 1}, // Gap here
+	}
+
+	mockSettings := &settingsRepoMock{
+		GetByUserIDFunc: func(ctx context.Context, uid uuid.UUID) (*domain.UserSettings, error) {
+			return settings, nil
+		},
+	}
+
+	mockCards := &cardRepoMock{
+		CountDueFunc: func(ctx context.Context, uid uuid.UUID, nowTime time.Time) (int, error) {
+			return 0, nil
+		},
+		CountNewFunc: func(ctx context.Context, uid uuid.UUID) (int, error) {
+			return 0, nil
+		},
+		CountByStatusFunc: func(ctx context.Context, uid uuid.UUID) (domain.CardStatusCounts, error) {
+			return domain.CardStatusCounts{}, nil
+		},
+	}
+
+	mockReviews := &reviewLogRepoMock{
+		CountTodayFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
+			return 0, nil
+		},
+		CountNewTodayFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
+			return 0, nil
+		},
+		GetStreakDaysFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time, lastNDays int) ([]domain.DayReviewCount, error) {
+			return streakDays, nil
+		},
+	}
+
+	mockSessions := &sessionRepoMock{
+		GetActiveFunc: func(ctx context.Context, uid uuid.UUID) (*domain.StudySession, error) {
+			return nil, domain.ErrNotFound
+		},
+	}
+
+	svc := &Service{
+		settings: mockSettings,
+		cards:    mockCards,
+		reviews:  mockReviews,
+		sessions: mockSessions,
+		log:      slog.Default(),
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	dashboard, err := svc.GetDashboard(ctx)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if dashboard.Streak != 5 {
+		t.Errorf("Streak: got %d, want 5", dashboard.Streak)
+	}
+}
+
+func TestService_GetDashboard_StreakBroken_Gap(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	// Use current date for streak data (use UTC to match service)
+	now := time.Now().UTC()
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+
+	settings := &domain.UserSettings{
+		UserID:   userID,
+		Timezone: "UTC",
+	}
+
+	// Gap between day -1 and day -3
+	streakDays := []domain.DayReviewCount{
+		{Date: today, Count: 5},
+		{Date: today.AddDate(0, 0, -1), Count: 3},
+		// Missing day -2
+		{Date: today.AddDate(0, 0, -3), Count: 7},
+	}
+
+	mockSettings := &settingsRepoMock{
+		GetByUserIDFunc: func(ctx context.Context, uid uuid.UUID) (*domain.UserSettings, error) {
+			return settings, nil
+		},
+	}
+
+	mockCards := &cardRepoMock{
+		CountDueFunc: func(ctx context.Context, uid uuid.UUID, nowTime time.Time) (int, error) {
+			return 0, nil
+		},
+		CountNewFunc: func(ctx context.Context, uid uuid.UUID) (int, error) {
+			return 0, nil
+		},
+		CountByStatusFunc: func(ctx context.Context, uid uuid.UUID) (domain.CardStatusCounts, error) {
+			return domain.CardStatusCounts{}, nil
+		},
+	}
+
+	mockReviews := &reviewLogRepoMock{
+		CountTodayFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
+			return 0, nil
+		},
+		CountNewTodayFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
+			return 0, nil
+		},
+		GetStreakDaysFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time, lastNDays int) ([]domain.DayReviewCount, error) {
+			return streakDays, nil
+		},
+	}
+
+	mockSessions := &sessionRepoMock{
+		GetActiveFunc: func(ctx context.Context, uid uuid.UUID) (*domain.StudySession, error) {
+			return nil, domain.ErrNotFound
+		},
+	}
+
+	svc := &Service{
+		settings: mockSettings,
+		cards:    mockCards,
+		reviews:  mockReviews,
+		sessions: mockSessions,
+		log:      slog.Default(),
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	dashboard, err := svc.GetDashboard(ctx)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// Streak should be 2 (today + yesterday)
+	if dashboard.Streak != 2 {
+		t.Errorf("Streak: got %d, want 2", dashboard.Streak)
+	}
+}
+
+func TestService_GetDashboard_StreakStartsFromYesterday(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	// Use current date for streak data (use UTC to match service)
+	now := time.Now().UTC()
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+
+	settings := &domain.UserSettings{
+		UserID:   userID,
+		Timezone: "UTC",
+	}
+
+	// No review today, but yesterday and before
+	streakDays := []domain.DayReviewCount{
+		// Today missing
+		{Date: today.AddDate(0, 0, -1), Count: 3},
+		{Date: today.AddDate(0, 0, -2), Count: 7},
+		{Date: today.AddDate(0, 0, -3), Count: 2},
+	}
+
+	mockSettings := &settingsRepoMock{
+		GetByUserIDFunc: func(ctx context.Context, uid uuid.UUID) (*domain.UserSettings, error) {
+			return settings, nil
+		},
+	}
+
+	mockCards := &cardRepoMock{
+		CountDueFunc: func(ctx context.Context, uid uuid.UUID, nowTime time.Time) (int, error) {
+			return 0, nil
+		},
+		CountNewFunc: func(ctx context.Context, uid uuid.UUID) (int, error) {
+			return 0, nil
+		},
+		CountByStatusFunc: func(ctx context.Context, uid uuid.UUID) (domain.CardStatusCounts, error) {
+			return domain.CardStatusCounts{}, nil
+		},
+	}
+
+	mockReviews := &reviewLogRepoMock{
+		CountTodayFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
+			return 0, nil
+		},
+		CountNewTodayFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
+			return 0, nil
+		},
+		GetStreakDaysFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time, lastNDays int) ([]domain.DayReviewCount, error) {
+			return streakDays, nil
+		},
+	}
+
+	mockSessions := &sessionRepoMock{
+		GetActiveFunc: func(ctx context.Context, uid uuid.UUID) (*domain.StudySession, error) {
+			return nil, domain.ErrNotFound
+		},
+	}
+
+	svc := &Service{
+		settings: mockSettings,
+		cards:    mockCards,
+		reviews:  mockReviews,
+		sessions: mockSessions,
+		log:      slog.Default(),
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	dashboard, err := svc.GetDashboard(ctx)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// Streak should be 3 (yesterday + 2 days before)
+	if dashboard.Streak != 3 {
+		t.Errorf("Streak: got %d, want 3", dashboard.Streak)
+	}
+}
+
+func TestService_GetDashboard_OverdueCount(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+
+	settings := &domain.UserSettings{
+		UserID:   userID,
+		Timezone: "UTC",
+	}
+
+	mockSettings := &settingsRepoMock{
+		GetByUserIDFunc: func(ctx context.Context, uid uuid.UUID) (*domain.UserSettings, error) {
+			return settings, nil
+		},
+	}
+
+	mockCards := &cardRepoMock{
+		CountDueFunc: func(ctx context.Context, uid uuid.UUID, nowTime time.Time) (int, error) {
+			return 25, nil // 25 due cards
+		},
+		CountNewFunc: func(ctx context.Context, uid uuid.UUID) (int, error) {
+			return 0, nil
+		},
+		CountByStatusFunc: func(ctx context.Context, uid uuid.UUID) (domain.CardStatusCounts, error) {
+			return domain.CardStatusCounts{}, nil
+		},
+	}
+
+	mockReviews := &reviewLogRepoMock{
+		CountTodayFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
+			return 0, nil
+		},
+		CountNewTodayFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
+			return 0, nil
+		},
+		GetStreakDaysFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time, lastNDays int) ([]domain.DayReviewCount, error) {
+			return []domain.DayReviewCount{}, nil
+		},
+	}
+
+	mockSessions := &sessionRepoMock{
+		GetActiveFunc: func(ctx context.Context, uid uuid.UUID) (*domain.StudySession, error) {
+			return nil, domain.ErrNotFound
+		},
+	}
+
+	svc := &Service{
+		settings: mockSettings,
+		cards:    mockCards,
+		reviews:  mockReviews,
+		sessions: mockSessions,
+		log:      slog.Default(),
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	dashboard, err := svc.GetDashboard(ctx)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// Overdue count should be 0 (placeholder until proper CountOverdue is implemented)
+	if dashboard.OverdueCount != 0 {
+		t.Errorf("OverdueCount: got %d, want 0 (placeholder)", dashboard.OverdueCount)
+	}
+}
+
+func TestService_GetDashboard_ActiveSessionPresent(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	sessionID := uuid.New()
+
+	settings := &domain.UserSettings{
+		UserID:   userID,
+		Timezone: "UTC",
+	}
+
+	activeSession := &domain.StudySession{
+		ID:     sessionID,
+		UserID: userID,
+		Status: domain.SessionStatusActive,
+	}
+
+	mockSettings := &settingsRepoMock{
+		GetByUserIDFunc: func(ctx context.Context, uid uuid.UUID) (*domain.UserSettings, error) {
+			return settings, nil
+		},
+	}
+
+	mockCards := &cardRepoMock{
+		CountDueFunc: func(ctx context.Context, uid uuid.UUID, nowTime time.Time) (int, error) {
+			return 0, nil
+		},
+		CountNewFunc: func(ctx context.Context, uid uuid.UUID) (int, error) {
+			return 0, nil
+		},
+		CountByStatusFunc: func(ctx context.Context, uid uuid.UUID) (domain.CardStatusCounts, error) {
+			return domain.CardStatusCounts{}, nil
+		},
+	}
+
+	mockReviews := &reviewLogRepoMock{
+		CountTodayFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
+			return 0, nil
+		},
+		CountNewTodayFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
+			return 0, nil
+		},
+		GetStreakDaysFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time, lastNDays int) ([]domain.DayReviewCount, error) {
+			return []domain.DayReviewCount{}, nil
+		},
+	}
+
+	mockSessions := &sessionRepoMock{
+		GetActiveFunc: func(ctx context.Context, uid uuid.UUID) (*domain.StudySession, error) {
+			return activeSession, nil
+		},
+	}
+
+	svc := &Service{
+		settings: mockSettings,
+		cards:    mockCards,
+		reviews:  mockReviews,
+		sessions: mockSessions,
+		log:      slog.Default(),
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	dashboard, err := svc.GetDashboard(ctx)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if dashboard.ActiveSession == nil {
+		t.Error("ActiveSession should not be nil")
+	} else if *dashboard.ActiveSession != sessionID {
+		t.Errorf("ActiveSession: got %v, want %v", *dashboard.ActiveSession, sessionID)
+	}
+}
+
+// ---------------------------------------------------------------------------
+// GetCardHistory Tests (3 tests)
+// ---------------------------------------------------------------------------
+
+func TestService_GetCardHistory_Success_WithPagination(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	cardID := uuid.New()
+
+	card := &domain.Card{
+		ID:     cardID,
+		UserID: userID,
+		Status: domain.LearningStatusReview,
+	}
+
+	logs := []*domain.ReviewLog{
+		{ID: uuid.New(), CardID: cardID, Grade: domain.ReviewGradeGood},
+		{ID: uuid.New(), CardID: cardID, Grade: domain.ReviewGradeEasy},
+	}
+
+	mockCards := &cardRepoMock{
+		GetByIDFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
+			if uid != userID || cid != cardID {
+				t.Errorf("unexpected IDs: got (%v, %v), want (%v, %v)", uid, cid, userID, cardID)
+			}
+			return card, nil
+		},
+	}
+
+	mockReviews := &reviewLogRepoMock{
+		GetByCardIDFunc: func(ctx context.Context, cid uuid.UUID, limit, offset int) ([]*domain.ReviewLog, int, error) {
+			if cid != cardID {
+				t.Errorf("cardID: got %v, want %v", cid, cardID)
+			}
+			if limit != 10 {
+				t.Errorf("limit: got %d, want 10", limit)
+			}
+			if offset != 5 {
+				t.Errorf("offset: got %d, want 5", offset)
+			}
+			return logs, 25, nil // 2 logs, 25 total
+		},
+	}
+
+	svc := &Service{
+		cards:   mockCards,
+		reviews: mockReviews,
+		log:     slog.Default(),
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+	input := GetCardHistoryInput{
+		CardID: cardID,
+		Limit:  10,
+		Offset: 5,
+	}
+
+	result, total, err := svc.GetCardHistory(ctx, input)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(result) != 2 {
+		t.Errorf("result length: got %d, want 2", len(result))
+	}
+	if total != 25 {
+		t.Errorf("total: got %d, want 25", total)
+	}
+
+	// Verify calls
+	if len(mockCards.GetByIDCalls()) != 1 {
+		t.Errorf("GetByID calls: got %d, want 1", len(mockCards.GetByIDCalls()))
+	}
+	if len(mockReviews.GetByCardIDCalls()) != 1 {
+		t.Errorf("GetByCardID calls: got %d, want 1", len(mockReviews.GetByCardIDCalls()))
+	}
+}
+
+func TestService_GetCardHistory_CardNotFound_OwnershipCheck(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	cardID := uuid.New()
+
+	mockCards := &cardRepoMock{
+		GetByIDFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
+			return nil, domain.ErrNotFound
+		},
+	}
+
+	svc := &Service{
+		cards: mockCards,
+		log:   slog.Default(),
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+	input := GetCardHistoryInput{
+		CardID: cardID,
+		Limit:  50,
+		Offset: 0,
+	}
+
+	_, _, err := svc.GetCardHistory(ctx, input)
+	if !errors.Is(err, domain.ErrNotFound) {
+		t.Errorf("error: got %v, want ErrNotFound", err)
+	}
+}
+
+func TestService_GetCardHistory_NoUserID(t *testing.T) {
+	t.Parallel()
+
+	svc := &Service{
+		log: slog.Default(),
+	}
+
+	ctx := context.Background() // No user ID
+	input := GetCardHistoryInput{
+		CardID: uuid.New(),
+		Limit:  50,
+		Offset: 0,
+	}
+
+	_, _, err := svc.GetCardHistory(ctx, input)
+	if !errors.Is(err, domain.ErrUnauthorized) {
+		t.Errorf("error: got %v, want ErrUnauthorized", err)
+	}
+}
+
+// ---------------------------------------------------------------------------
+// GetCardStats Tests (2 tests)
+// ---------------------------------------------------------------------------
+
+func TestService_GetCardStats_Success_WithStats(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	cardID := uuid.New()
+
+	card := &domain.Card{
+		ID:           cardID,
+		UserID:       userID,
+		Status:       domain.LearningStatusReview,
+		IntervalDays: 14,
+		EaseFactor:   2.6,
+	}
+
+	logs := []*domain.ReviewLog{
+		{ID: uuid.New(), CardID: cardID, Grade: domain.ReviewGradeGood, DurationMs: ptr(5000)},
+		{ID: uuid.New(), CardID: cardID, Grade: domain.ReviewGradeEasy, DurationMs: ptr(3000)},
+		{ID: uuid.New(), CardID: cardID, Grade: domain.ReviewGradeAgain, DurationMs: ptr(8000)},
+		{ID: uuid.New(), CardID: cardID, Grade: domain.ReviewGradeGood, DurationMs: nil}, // No duration
+	}
+
+	mockCards := &cardRepoMock{
+		GetByIDFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
+			return card, nil
+		},
+	}
+
+	mockReviews := &reviewLogRepoMock{
+		GetByCardIDFunc: func(ctx context.Context, cid uuid.UUID, limit, offset int) ([]*domain.ReviewLog, int, error) {
+			if limit != 0 || offset != 0 {
+				t.Errorf("limit/offset: got (%d, %d), want (0, 0)", limit, offset)
+			}
+			return logs, 4, nil
+		},
+	}
+
+	svc := &Service{
+		cards:   mockCards,
+		reviews: mockReviews,
+		log:     slog.Default(),
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+	input := GetCardHistoryInput{
+		CardID: cardID,
+		Limit:  0, // Get all
+		Offset: 0,
+	}
+
+	stats, err := svc.GetCardStats(ctx, input)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if stats.TotalReviews != 4 {
+		t.Errorf("TotalReviews: got %d, want 4", stats.TotalReviews)
+	}
+	// AccuracyRate = (2 GOOD + 1 EASY) / 4 * 100 = 75%
+	if stats.AccuracyRate != 75.0 {
+		t.Errorf("AccuracyRate: got %.2f, want 75.00", stats.AccuracyRate)
+	}
+	// AverageTimeMs = (5000 + 3000 + 8000) / 3 = 5333
+	if stats.AverageTimeMs == nil {
+		t.Error("AverageTimeMs should not be nil")
+	} else if *stats.AverageTimeMs != 5333 {
+		t.Errorf("AverageTimeMs: got %d, want 5333", *stats.AverageTimeMs)
+	}
+	if stats.CurrentStatus != domain.LearningStatusReview {
+		t.Errorf("CurrentStatus: got %v, want Review", stats.CurrentStatus)
+	}
+	if stats.IntervalDays != 14 {
+		t.Errorf("IntervalDays: got %d, want 14", stats.IntervalDays)
+	}
+	if stats.EaseFactor != 2.6 {
+		t.Errorf("EaseFactor: got %.1f, want 2.6", stats.EaseFactor)
+	}
+}
+
+func TestService_GetCardStats_NoReviews_ZerosAndNil(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	cardID := uuid.New()
+
+	card := &domain.Card{
+		ID:           cardID,
+		UserID:       userID,
+		Status:       domain.LearningStatusNew,
+		IntervalDays: 0,
+		EaseFactor:   2.5,
+	}
+
+	mockCards := &cardRepoMock{
+		GetByIDFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
+			return card, nil
+		},
+	}
+
+	mockReviews := &reviewLogRepoMock{
+		GetByCardIDFunc: func(ctx context.Context, cid uuid.UUID, limit, offset int) ([]*domain.ReviewLog, int, error) {
+			return []*domain.ReviewLog{}, 0, nil
+		},
+	}
+
+	svc := &Service{
+		cards:   mockCards,
+		reviews: mockReviews,
+		log:     slog.Default(),
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+	input := GetCardHistoryInput{
+		CardID: cardID,
+		Limit:  0,
+		Offset: 0,
+	}
+
+	stats, err := svc.GetCardStats(ctx, input)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if stats.TotalReviews != 0 {
+		t.Errorf("TotalReviews: got %d, want 0", stats.TotalReviews)
+	}
+	if stats.AccuracyRate != 0.0 {
+		t.Errorf("AccuracyRate: got %.2f, want 0.00", stats.AccuracyRate)
+	}
+	if stats.AverageTimeMs != nil {
+		t.Errorf("AverageTimeMs should be nil, got %d", *stats.AverageTimeMs)
+	}
+	if stats.CurrentStatus != domain.LearningStatusNew {
+		t.Errorf("CurrentStatus: got %v, want New", stats.CurrentStatus)
+	}
+}
+
+// ---------------------------------------------------------------------------
 // Test Helpers
 // ---------------------------------------------------------------------------
 

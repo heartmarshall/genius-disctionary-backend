@@ -591,3 +591,521 @@ func (s *Service) AbandonSession(ctx context.Context) error {
 
 	return nil
 }
+
+// ---------------------------------------------------------------------------
+// Card CRUD Operations
+// ---------------------------------------------------------------------------
+
+// CreateCard creates a study card for an entry. Entry must have at least one sense.
+func (s *Service) CreateCard(ctx context.Context, input CreateCardInput) (*domain.Card, error) {
+	userID, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	if err := input.Validate(); err != nil {
+		return nil, err
+	}
+
+	// Check entry exists
+	_, err := s.entries.GetByID(ctx, userID, input.EntryID)
+	if err != nil {
+		return nil, fmt.Errorf("get entry: %w", err)
+	}
+
+	// Check entry has senses
+	senseCount, err := s.senses.CountByEntryID(ctx, input.EntryID)
+	if err != nil {
+		return nil, fmt.Errorf("count senses: %w", err)
+	}
+	if senseCount == 0 {
+		return nil, domain.NewValidationError("entry_id", "entry must have at least one sense to create a card")
+	}
+
+	var card *domain.Card
+
+	// Transaction: create card + audit
+	err = s.tx.RunInTx(ctx, func(txCtx context.Context) error {
+		// Create card with default SRS state
+		newCard := &domain.Card{
+			ID:           uuid.New(),
+			UserID:       userID,
+			EntryID:      input.EntryID,
+			Status:       domain.LearningStatusNew,
+			LearningStep: 0,
+			IntervalDays: 0,
+			EaseFactor:   s.srsConfig.DefaultEaseFactor,
+			NextReviewAt: nil, // NEW cards have no next review
+			CreatedAt:    time.Now(),
+		}
+
+		var createErr error
+		card, createErr = s.cards.Create(txCtx, userID, newCard)
+		if createErr != nil {
+			return fmt.Errorf("create card: %w", createErr)
+		}
+
+		// Audit
+		auditErr := s.audit.Log(txCtx, domain.AuditRecord{
+			UserID:     userID,
+			EntityType: domain.EntityTypeCard,
+			EntityID:   &card.ID,
+			Action:     domain.AuditActionCreate,
+			Changes: map[string]any{
+				"entry_id": map[string]any{"new": input.EntryID},
+			},
+		})
+		if auditErr != nil {
+			return fmt.Errorf("audit log: %w", auditErr)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	s.log.InfoContext(ctx, "card created",
+		slog.String("user_id", userID.String()),
+		slog.String("card_id", card.ID.String()),
+		slog.String("entry_id", input.EntryID.String()),
+	)
+
+	return card, nil
+}
+
+// DeleteCard deletes a study card. Entry remains in dictionary.
+func (s *Service) DeleteCard(ctx context.Context, input DeleteCardInput) error {
+	userID, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return domain.ErrUnauthorized
+	}
+
+	if err := input.Validate(); err != nil {
+		return err
+	}
+
+	// Load card to check ownership
+	card, err := s.cards.GetByID(ctx, userID, input.CardID)
+	if err != nil {
+		return fmt.Errorf("get card: %w", err)
+	}
+
+	// Transaction: delete card + audit
+	err = s.tx.RunInTx(ctx, func(txCtx context.Context) error {
+		// Delete card (CASCADE deletes review_logs)
+		if deleteErr := s.cards.Delete(txCtx, userID, input.CardID); deleteErr != nil {
+			return fmt.Errorf("delete card: %w", deleteErr)
+		}
+
+		// Audit
+		auditErr := s.audit.Log(txCtx, domain.AuditRecord{
+			UserID:     userID,
+			EntityType: domain.EntityTypeCard,
+			EntityID:   &card.ID,
+			Action:     domain.AuditActionDelete,
+			Changes: map[string]any{
+				"entry_id": map[string]any{"old": card.EntryID},
+			},
+		})
+		if auditErr != nil {
+			return fmt.Errorf("audit log: %w", auditErr)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return err
+	}
+
+	s.log.InfoContext(ctx, "card deleted",
+		slog.String("user_id", userID.String()),
+		slog.String("card_id", card.ID.String()),
+		slog.String("entry_id", card.EntryID.String()),
+	)
+
+	return nil
+}
+
+// BatchCreateCards creates cards for multiple entries in batch with partial success.
+func (s *Service) BatchCreateCards(ctx context.Context, input BatchCreateCardsInput) (BatchCreateResult, error) {
+	userID, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return BatchCreateResult{}, domain.ErrUnauthorized
+	}
+
+	if err := input.Validate(); err != nil {
+		return BatchCreateResult{}, err
+	}
+
+	result := BatchCreateResult{
+		Errors: []BatchCreateError{},
+	}
+
+	// Check which entries exist
+	existMap, err := s.entries.ExistByIDs(ctx, userID, input.EntryIDs)
+	if err != nil {
+		return result, fmt.Errorf("check entries exist: %w", err)
+	}
+
+	// Filter to existing entries only
+	existingEntryIDs := []uuid.UUID{}
+	for _, entryID := range input.EntryIDs {
+		if exists, ok := existMap[entryID]; !ok || !exists {
+			result.Errors = append(result.Errors, BatchCreateError{
+				EntryID: entryID,
+				Reason:  "entry not found",
+			})
+		} else {
+			existingEntryIDs = append(existingEntryIDs, entryID)
+		}
+	}
+
+	if len(existingEntryIDs) == 0 {
+		// All entries not found - return result with errors
+		return result, nil
+	}
+
+	// Check which entries already have cards
+	cardExistsMap, err := s.cards.ExistsByEntryIDs(ctx, userID, existingEntryIDs)
+	if err != nil {
+		return result, fmt.Errorf("check cards exist: %w", err)
+	}
+
+	// Filter to entries without cards
+	entriesToCreate := []uuid.UUID{}
+	for _, entryID := range existingEntryIDs {
+		if exists, ok := cardExistsMap[entryID]; ok && exists {
+			result.SkippedExisting++
+		} else {
+			entriesToCreate = append(entriesToCreate, entryID)
+		}
+	}
+
+	if len(entriesToCreate) == 0 {
+		// All entries already have cards
+		return result, nil
+	}
+
+	// Check sense counts for each entry
+	// TODO: Performance optimization - add CountByEntryIDs batch method to senseRepo interface
+	// to avoid N queries. For now, we accept the sequential queries as the interface doesn't
+	// support batching yet.
+	finalEntriesToCreate := []uuid.UUID{}
+	for _, entryID := range entriesToCreate {
+		senseCount, err := s.senses.CountByEntryID(ctx, entryID)
+		if err != nil {
+			result.Errors = append(result.Errors, BatchCreateError{
+				EntryID: entryID,
+				Reason:  "failed to count senses",
+			})
+			continue
+		}
+		if senseCount == 0 {
+			result.SkippedNoSenses++
+		} else {
+			finalEntriesToCreate = append(finalEntriesToCreate, entryID)
+		}
+	}
+
+	// Create cards for valid entries
+	for _, entryID := range finalEntriesToCreate {
+		err := s.tx.RunInTx(ctx, func(txCtx context.Context) error {
+			// Create card
+			newCard := &domain.Card{
+				ID:           uuid.New(),
+				UserID:       userID,
+				EntryID:      entryID,
+				Status:       domain.LearningStatusNew,
+				LearningStep: 0,
+				IntervalDays: 0,
+				EaseFactor:   s.srsConfig.DefaultEaseFactor,
+				NextReviewAt: nil,
+				CreatedAt:    time.Now(),
+			}
+
+			_, createErr := s.cards.Create(txCtx, userID, newCard)
+			if createErr != nil {
+				return fmt.Errorf("create card: %w", createErr)
+			}
+
+			// Audit
+			auditErr := s.audit.Log(txCtx, domain.AuditRecord{
+				UserID:     userID,
+				EntityType: domain.EntityTypeCard,
+				EntityID:   &newCard.ID,
+				Action:     domain.AuditActionCreate,
+				Changes: map[string]any{
+					"entry_id": map[string]any{"new": entryID},
+				},
+			})
+			if auditErr != nil {
+				return fmt.Errorf("audit log: %w", auditErr)
+			}
+
+			return nil
+		})
+
+		if err != nil {
+			result.Errors = append(result.Errors, BatchCreateError{
+				EntryID: entryID,
+				Reason:  err.Error(),
+			})
+		} else {
+			result.Created++
+		}
+	}
+
+	s.log.InfoContext(ctx, "batch card creation completed",
+		slog.String("user_id", userID.String()),
+		slog.Int("created", result.Created),
+		slog.Int("skipped_existing", result.SkippedExisting),
+		slog.Int("skipped_no_senses", result.SkippedNoSenses),
+		slog.Int("errors", len(result.Errors)),
+	)
+
+	return result, nil
+}
+
+// ---------------------------------------------------------------------------
+// Dashboard & Statistics
+// ---------------------------------------------------------------------------
+
+// GetDashboard returns aggregated study statistics for the user.
+func (s *Service) GetDashboard(ctx context.Context) (domain.Dashboard, error) {
+	userID, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return domain.Dashboard{}, domain.ErrUnauthorized
+	}
+
+	now := time.Now()
+
+	// Load settings for timezone
+	settings, err := s.settings.GetByUserID(ctx, userID)
+	if err != nil {
+		return domain.Dashboard{}, fmt.Errorf("load settings: %w", err)
+	}
+
+	tz := ParseTimezone(settings.Timezone)
+	dayStart := DayStart(now, tz)
+
+	// Make 7 repo calls to gather all data
+	dueCount, err := s.cards.CountDue(ctx, userID, now)
+	if err != nil {
+		return domain.Dashboard{}, fmt.Errorf("count due cards: %w", err)
+	}
+
+	newCount, err := s.cards.CountNew(ctx, userID)
+	if err != nil {
+		return domain.Dashboard{}, fmt.Errorf("count new cards: %w", err)
+	}
+
+	reviewedToday, err := s.reviews.CountToday(ctx, userID, dayStart)
+	if err != nil {
+		return domain.Dashboard{}, fmt.Errorf("count reviewed today: %w", err)
+	}
+
+	newToday, err := s.reviews.CountNewToday(ctx, userID, dayStart)
+	if err != nil {
+		return domain.Dashboard{}, fmt.Errorf("count new today: %w", err)
+	}
+
+	statusCounts, err := s.cards.CountByStatus(ctx, userID)
+	if err != nil {
+		return domain.Dashboard{}, fmt.Errorf("count by status: %w", err)
+	}
+
+	streakDays, err := s.reviews.GetStreakDays(ctx, userID, dayStart, 365)
+	if err != nil {
+		return domain.Dashboard{}, fmt.Errorf("get streak days: %w", err)
+	}
+
+	// Active session (may be nil)
+	var activeSessionID *uuid.UUID
+	activeSession, err := s.sessions.GetActive(ctx, userID)
+	if err == nil && activeSession != nil {
+		activeSessionID = &activeSession.ID
+	} else if err != nil && !errors.Is(err, domain.ErrNotFound) {
+		return domain.Dashboard{}, fmt.Errorf("get active session: %w", err)
+	}
+
+	// Calculate streak using helper function
+	// Convert now to user's timezone and get date at midnight
+	nowInTz := now.In(tz)
+	today := time.Date(nowInTz.Year(), nowInTz.Month(), nowInTz.Day(), 0, 0, 0, 0, tz)
+	streak := calculateStreak(streakDays, today)
+
+	// Calculate overdue count
+	// TODO: Implement proper overdue calculation via cardRepo.CountOverdue(ctx, userID, dayStart)
+	// For now, we return 0 as placeholder since we cannot accurately calculate without a dedicated repo method
+	overdueCount := 0
+
+	dashboard := domain.Dashboard{
+		DueCount:      dueCount,
+		NewCount:      newCount,
+		ReviewedToday: reviewedToday,
+		NewToday:      newToday,
+		Streak:        streak,
+		StatusCounts:  statusCounts,
+		OverdueCount:  overdueCount,
+		ActiveSession: activeSessionID,
+	}
+
+	s.log.InfoContext(ctx, "dashboard loaded",
+		slog.String("user_id", userID.String()),
+		slog.Int("due_count", dueCount),
+		slog.Int("new_count", newCount),
+		slog.Int("streak", streak),
+	)
+
+	return dashboard, nil
+}
+
+// GetCardHistory returns the review history of a card with pagination.
+func (s *Service) GetCardHistory(ctx context.Context, input GetCardHistoryInput) ([]*domain.ReviewLog, int, error) {
+	userID, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, 0, domain.ErrUnauthorized
+	}
+
+	if err := input.Validate(); err != nil {
+		return nil, 0, err
+	}
+
+	// Check ownership
+	_, err := s.cards.GetByID(ctx, userID, input.CardID)
+	if err != nil {
+		return nil, 0, fmt.Errorf("get card: %w", err)
+	}
+
+	limit := input.Limit
+	if limit == 0 {
+		limit = 50
+	}
+
+	// Get history
+	logs, total, err := s.reviews.GetByCardID(ctx, input.CardID, limit, input.Offset)
+	if err != nil {
+		return nil, 0, fmt.Errorf("get review logs: %w", err)
+	}
+
+	s.log.InfoContext(ctx, "card history retrieved",
+		slog.String("user_id", userID.String()),
+		slog.String("card_id", input.CardID.String()),
+		slog.Int("count", len(logs)),
+		slog.Int("total", total),
+	)
+
+	return logs, total, nil
+}
+
+// GetCardStats returns aggregated statistics for a card.
+func (s *Service) GetCardStats(ctx context.Context, input GetCardHistoryInput) (domain.CardStats, error) {
+	userID, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return domain.CardStats{}, domain.ErrUnauthorized
+	}
+
+	if err := input.Validate(); err != nil {
+		return domain.CardStats{}, err
+	}
+
+	// Load card
+	card, err := s.cards.GetByID(ctx, userID, input.CardID)
+	if err != nil {
+		return domain.CardStats{}, fmt.Errorf("get card: %w", err)
+	}
+
+	// Load ALL review logs (limit=0 means no limit)
+	logs, total, err := s.reviews.GetByCardID(ctx, input.CardID, 0, 0)
+	if err != nil {
+		return domain.CardStats{}, fmt.Errorf("get review logs: %w", err)
+	}
+
+	// Calculate stats
+	stats := domain.CardStats{
+		TotalReviews:  total,
+		AccuracyRate:  0.0,
+		AverageTimeMs: nil,
+		CurrentStatus: card.Status,
+		IntervalDays:  card.IntervalDays,
+		EaseFactor:    card.EaseFactor,
+	}
+
+	if total == 0 {
+		return stats, nil
+	}
+
+	// Calculate accuracy rate
+	goodCount := 0
+	easyCount := 0
+	for _, log := range logs {
+		if log.Grade == domain.ReviewGradeGood {
+			goodCount++
+		} else if log.Grade == domain.ReviewGradeEasy {
+			easyCount++
+		}
+	}
+	stats.AccuracyRate = float64(goodCount+easyCount) / float64(total) * 100
+
+	// Calculate average time
+	totalDuration := 0
+	durationCount := 0
+	for _, log := range logs {
+		if log.DurationMs != nil {
+			totalDuration += *log.DurationMs
+			durationCount++
+		}
+	}
+	if durationCount > 0 {
+		avgTime := totalDuration / durationCount
+		stats.AverageTimeMs = &avgTime
+	}
+
+	s.log.InfoContext(ctx, "card stats calculated",
+		slog.String("user_id", userID.String()),
+		slog.String("card_id", input.CardID.String()),
+		slog.Int("total_reviews", total),
+		slog.Float64("accuracy_rate", stats.AccuracyRate),
+	)
+
+	return stats, nil
+}
+
+// ---------------------------------------------------------------------------
+// Helper Functions
+// ---------------------------------------------------------------------------
+
+// calculateStreak calculates the current review streak in days.
+// days must be sorted DESC by date (most recent first).
+// Returns the number of consecutive days with reviews, starting from today or yesterday.
+func calculateStreak(days []domain.DayReviewCount, today time.Time) int {
+	if len(days) == 0 {
+		return 0
+	}
+
+	streak := 0
+	expectedDate := today
+
+	// Helper to compare only date parts (ignore time)
+	sameDay := func(a, b time.Time) bool {
+		return a.Year() == b.Year() && a.Month() == b.Month() && a.Day() == b.Day()
+	}
+
+	// If today has no reviews, start from yesterday
+	if len(days) > 0 && !sameDay(days[0].Date, today) {
+		expectedDate = today.AddDate(0, 0, -1)
+	}
+
+	for _, d := range days {
+		if sameDay(d.Date, expectedDate) {
+			streak++
+			expectedDate = expectedDate.AddDate(0, 0, -1)
+		} else {
+			break // Gap in streak or unexpected date order
+		}
+	}
+	return streak
+}
