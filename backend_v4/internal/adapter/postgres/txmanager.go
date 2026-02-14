@@ -41,7 +41,7 @@ func (m *TxManager) RunInTx(ctx context.Context, fn func(ctx context.Context) er
 
 	if err := fn(txCtx); err != nil {
 		if rbErr := tx.Rollback(ctx); rbErr != nil {
-			return fmt.Errorf("rollback failed: %w (original error: %v)", rbErr, err)
+			return fmt.Errorf("rollback failed (%v), original: %w", rbErr, err)
 		}
 		return err
 	}

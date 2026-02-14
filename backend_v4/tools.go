@@ -12,7 +12,3 @@ package tools
 // Tools will be added as they are needed:
 // - github.com/matryer/moq (Phase 3)
 // - github.com/99designs/gqlgen (Phase 9)
-
-import (
-	_ "github.com/pressly/goose/v3"
-)
