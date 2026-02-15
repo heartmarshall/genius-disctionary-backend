@@ -13,7 +13,7 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("auth.jwt_secret must be at least 32 characters (got %d)", len(c.Auth.JWTSecret))
 	}
 
-	if !c.hasGoogleOAuth() && !c.hasAppleOAuth() {
+	if len(c.Auth.AllowedProviders()) == 0 {
 		return fmt.Errorf("at least one OAuth provider must be configured (Google or Apple)")
 	}
 
@@ -45,14 +45,6 @@ func (d *DictionaryConfig) validate() error {
 		return fmt.Errorf("hard_delete_retention_days must be positive (got %d)", d.HardDeleteRetentionDays)
 	}
 	return nil
-}
-
-func (c *Config) hasGoogleOAuth() bool {
-	return c.Auth.GoogleClientID != "" && c.Auth.GoogleClientSecret != ""
-}
-
-func (c *Config) hasAppleOAuth() bool {
-	return c.Auth.AppleKeyID != "" && c.Auth.AppleTeamID != "" && c.Auth.ApplePrivateKey != ""
 }
 
 func (s *SRSConfig) validate() error {

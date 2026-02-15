@@ -1,6 +1,9 @@
 package config
 
-import "time"
+import (
+	"slices"
+	"time"
+)
 
 // Config is the root application configuration.
 type Config struct {
@@ -34,14 +37,16 @@ type DatabaseConfig struct {
 
 // AuthConfig holds authentication and OAuth settings.
 type AuthConfig struct {
-	JWTSecret         string        `yaml:"jwt_secret"           env:"AUTH_JWT_SECRET"           env-required:"true"`
-	AccessTokenTTL    time.Duration `yaml:"access_token_ttl"     env:"AUTH_ACCESS_TOKEN_TTL"     env-default:"15m"`
-	RefreshTokenTTL   time.Duration `yaml:"refresh_token_ttl"    env:"AUTH_REFRESH_TOKEN_TTL"    env-default:"720h"`
-	GoogleClientID    string        `yaml:"google_client_id"     env:"AUTH_GOOGLE_CLIENT_ID"`
-	GoogleClientSecret string       `yaml:"google_client_secret" env:"AUTH_GOOGLE_CLIENT_SECRET"`
-	AppleKeyID        string        `yaml:"apple_key_id"         env:"AUTH_APPLE_KEY_ID"`
-	AppleTeamID       string        `yaml:"apple_team_id"        env:"AUTH_APPLE_TEAM_ID"`
-	ApplePrivateKey   string        `yaml:"apple_private_key"    env:"AUTH_APPLE_PRIVATE_KEY"`
+	JWTSecret          string        `yaml:"jwt_secret"           env:"AUTH_JWT_SECRET"           env-required:"true"`
+	JWTIssuer          string        `yaml:"jwt_issuer"           env:"AUTH_JWT_ISSUER"           env-default:"myenglish"`
+	AccessTokenTTL     time.Duration `yaml:"access_token_ttl"     env:"AUTH_ACCESS_TOKEN_TTL"     env-default:"15m"`
+	RefreshTokenTTL    time.Duration `yaml:"refresh_token_ttl"    env:"AUTH_REFRESH_TOKEN_TTL"    env-default:"720h"`
+	GoogleClientID     string        `yaml:"google_client_id"     env:"AUTH_GOOGLE_CLIENT_ID"`
+	GoogleClientSecret string        `yaml:"google_client_secret" env:"AUTH_GOOGLE_CLIENT_SECRET"`
+	GoogleRedirectURI  string        `yaml:"google_redirect_uri"  env:"AUTH_GOOGLE_REDIRECT_URI"`
+	AppleKeyID         string        `yaml:"apple_key_id"         env:"AUTH_APPLE_KEY_ID"`
+	AppleTeamID        string        `yaml:"apple_team_id"        env:"AUTH_APPLE_TEAM_ID"`
+	ApplePrivateKey    string        `yaml:"apple_private_key"    env:"AUTH_APPLE_PRIVATE_KEY"`
 }
 
 // DictionaryConfig holds dictionary service settings.
@@ -87,4 +92,22 @@ type SRSConfig struct {
 	LearningSteps []time.Duration `yaml:"-" env:"-"`
 	// RelearningSteps is parsed from RelearningStepsRaw during validation.
 	RelearningSteps []time.Duration `yaml:"-" env:"-"`
+}
+
+// AllowedProviders returns the list of configured OAuth providers.
+// A provider is considered configured if ALL its required credentials are present.
+func (c AuthConfig) AllowedProviders() []string {
+	var providers []string
+	if c.GoogleClientID != "" && c.GoogleClientSecret != "" {
+		providers = append(providers, "google")
+	}
+	if c.AppleKeyID != "" && c.AppleTeamID != "" && c.ApplePrivateKey != "" {
+		providers = append(providers, "apple")
+	}
+	return providers
+}
+
+// IsProviderAllowed checks if the given provider string is configured.
+func (c AuthConfig) IsProviderAllowed(provider string) bool {
+	return slices.Contains(c.AllowedProviders(), provider)
 }
