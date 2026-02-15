@@ -1,0 +1,154 @@
+schema:
+  - internal/transport/graphql/schema/*.graphql
+
+exec:
+  filename: internal/transport/graphql/generated/generated.go
+  package: generated
+
+model:
+  filename: internal/transport/graphql/generated/models_gen.go
+  package: generated
+
+resolver:
+  layout: follow-schema
+  dir: internal/transport/graphql/resolver
+  package: resolver
+  filename_template: "{name}.resolvers.go"
+
+autobind:
+  - "github.com/heartmarshall/myenglish-backend/internal/domain"
+
+models:
+  # Custom Scalars
+  UUID:
+    model:
+      - github.com/google/uuid.UUID
+  DateTime:
+    model:
+      - time.Time
+
+  # Domain type bindings
+  DictionaryEntry:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.Entry"
+    fields:
+      senses:
+        resolver: true
+      pronunciations:
+        resolver: true
+      catalogImages:
+        resolver: true
+      userImages:
+        resolver: true
+      card:
+        resolver: true
+      topics:
+        resolver: true
+  Sense:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.Sense"
+    fields:
+      translations:
+        resolver: true
+      examples:
+        resolver: true
+  Translation:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.Translation"
+  Example:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.Example"
+  UserImage:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.UserImage"
+  Pronunciation:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.RefPronunciation"
+  CatalogImage:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.RefImage"
+  Card:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.Card"
+  ReviewLog:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.ReviewLog"
+  StudySession:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.StudySession"
+  SessionResult:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.SessionResult"
+  GradeCounts:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.GradeCounts"
+  Dashboard:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.Dashboard"
+  CardStatusCounts:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.CardStatusCounts"
+  CardStats:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.CardStats"
+  Topic:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.Topic"
+  InboxItem:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.InboxItem"
+  User:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.User"
+    fields:
+      settings:
+        resolver: true
+  UserSettings:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.UserSettings"
+  RefEntry:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.RefEntry"
+  RefSense:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.RefSense"
+  RefTranslation:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.RefTranslation"
+  RefExample:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.RefExample"
+  RefPronunciation:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.RefPronunciation"
+  RefImage:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.RefImage"
+
+  # Enum bindings
+  LearningStatus:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.LearningStatus"
+  ReviewGrade:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.ReviewGrade"
+  PartOfSpeech:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.PartOfSpeech"
+  SessionStatus:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.SessionStatus"
+
+  # Export types binding
+  ExportResult:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/service/dictionary.ExportResult"
+  ExportItem:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/service/dictionary.ExportItem"
+  ExportSense:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/service/dictionary.ExportSense"
+  ExportExample:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/service/dictionary.ExportExample"

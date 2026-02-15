@@ -1,0 +1,57 @@
+# ============================================================
+#  OUTPUT TYPES — User
+# ============================================================
+
+type User {
+  id: UUID!
+  email: String!
+  name: String
+  avatarUrl: String
+  oauthProvider: String!
+  createdAt: DateTime!
+  """Field resolver — загружает настройки пользователя."""
+  settings: UserSettings!
+}
+
+type UserSettings {
+  newCardsPerDay: Int!
+  reviewsPerDay: Int!
+  maxIntervalDays: Int!
+  timezone: String!
+}
+
+# ============================================================
+#  INPUT TYPES — User
+# ============================================================
+
+input UpdateSettingsInput {
+  newCardsPerDay: Int
+  reviewsPerDay: Int
+  maxIntervalDays: Int
+  timezone: String
+}
+
+# ============================================================
+#  PAYLOAD TYPES — User
+# ============================================================
+
+type UpdateSettingsPayload {
+  settings: UserSettings!
+}
+
+# ============================================================
+#  QUERIES — User
+# ============================================================
+
+extend type Query {
+  """Текущий пользователь (требует авторизации)."""
+  me: User!
+}
+
+# ============================================================
+#  MUTATIONS — User
+# ============================================================
+
+extend type Mutation {
+  updateSettings(input: UpdateSettingsInput!): UpdateSettingsPayload!
+}

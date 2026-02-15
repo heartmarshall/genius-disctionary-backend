@@ -33,3 +33,6 @@ tmp/
 # OS
 .DS_Store
 Thumbs.db
+
+# gqlgen duplicate generated code
+internal/transport/graphql/internal/

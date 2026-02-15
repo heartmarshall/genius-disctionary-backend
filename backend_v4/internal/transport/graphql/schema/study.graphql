@@ -1,0 +1,163 @@
+# ============================================================
+#  OUTPUT TYPES — Study
+# ============================================================
+
+type Card {
+  id: UUID!
+  entryId: UUID!
+  status: LearningStatus!
+  nextReviewAt: DateTime
+  intervalDays: Int!
+  easeFactor: Float!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type ReviewLog {
+  id: UUID!
+  cardId: UUID!
+  grade: ReviewGrade!
+  durationMs: Int
+  reviewedAt: DateTime!
+}
+
+type StudySession {
+  id: UUID!
+  status: SessionStatus!
+  startedAt: DateTime!
+  finishedAt: DateTime
+  result: SessionResult
+}
+
+type SessionResult {
+  totalReviews: Int!
+  gradeCounts: GradeCounts!
+  averageDurationMs: Int!
+}
+
+type GradeCounts {
+  again: Int!
+  hard: Int!
+  good: Int!
+  easy: Int!
+}
+
+type Dashboard {
+  dueCount: Int!
+  newCount: Int!
+  reviewedToday: Int!
+  streak: Int!
+  statusCounts: CardStatusCounts!
+  overdueCount: Int!
+  activeSession: StudySession
+}
+
+type CardStatusCounts {
+  new: Int!
+  learning: Int!
+  review: Int!
+  mastered: Int!
+}
+
+type CardStats {
+  totalReviews: Int!
+  averageDurationMs: Int!
+  accuracy: Float!
+  gradeDistribution: GradeCounts!
+}
+
+# ============================================================
+#  INPUT TYPES — Study
+# ============================================================
+
+input ReviewCardInput {
+  cardId: UUID!
+  grade: ReviewGrade!
+  durationMs: Int
+}
+
+input FinishSessionInput {
+  sessionId: UUID!
+}
+
+input GetCardHistoryInput {
+  cardId: UUID!
+  limit: Int
+  offset: Int
+}
+
+# ============================================================
+#  PAYLOAD TYPES — Study
+# ============================================================
+
+type ReviewCardPayload {
+  card: Card!
+}
+
+type UndoReviewPayload {
+  card: Card!
+}
+
+type CreateCardPayload {
+  card: Card!
+}
+
+type DeleteCardPayload {
+  cardId: UUID!
+}
+
+type BatchCreateCardsPayload {
+  createdCount: Int!
+  skippedCount: Int!
+  errors: [BatchCreateCardError!]!
+}
+
+type BatchCreateCardError {
+  entryId: UUID!
+  message: String!
+}
+
+type StartSessionPayload {
+  session: StudySession!
+}
+
+type FinishSessionPayload {
+  session: StudySession!
+}
+
+type AbandonSessionPayload {
+  success: Boolean!
+}
+
+# ============================================================
+#  QUERIES — Study
+# ============================================================
+
+extend type Query {
+  """Очередь повторения: карточки → entries (с лимитом)."""
+  studyQueue(limit: Int): [DictionaryEntry!]!
+
+  """Dashboard: статистика, due counts, streak."""
+  dashboard: Dashboard!
+
+  """История повторений карточки."""
+  cardHistory(input: GetCardHistoryInput!): [ReviewLog!]!
+
+  """Статистика карточки: accuracy, grade distribution."""
+  cardStats(cardId: UUID!): CardStats!
+}
+
+# ============================================================
+#  MUTATIONS — Study
+# ============================================================
+
+extend type Mutation {
+  reviewCard(input: ReviewCardInput!): ReviewCardPayload!
+  undoReview(cardId: UUID!): UndoReviewPayload!
+  createCard(entryId: UUID!): CreateCardPayload!
+  deleteCard(id: UUID!): DeleteCardPayload!
+  batchCreateCards(entryIds: [UUID!]!): BatchCreateCardsPayload!
+  startStudySession: StartSessionPayload!
+  finishStudySession(input: FinishSessionInput!): FinishSessionPayload!
+  abandonStudySession: AbandonSessionPayload!
+}

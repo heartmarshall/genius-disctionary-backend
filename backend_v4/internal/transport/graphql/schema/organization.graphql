@@ -1,0 +1,135 @@
+# ============================================================
+#  OUTPUT TYPES — Organization
+# ============================================================
+
+type Topic {
+  id: UUID!
+  name: String!
+  description: String
+  entryCount: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type InboxItem {
+  id: UUID!
+  text: String!
+  context: String
+  createdAt: DateTime!
+}
+
+# ============================================================
+#  INPUT TYPES — Topic
+# ============================================================
+
+input CreateTopicInput {
+  name: String!
+  description: String
+}
+
+input UpdateTopicInput {
+  topicId: UUID!
+  name: String
+  description: String
+}
+
+input LinkEntryInput {
+  topicId: UUID!
+  entryId: UUID!
+}
+
+input UnlinkEntryInput {
+  topicId: UUID!
+  entryId: UUID!
+}
+
+input BatchLinkEntriesInput {
+  topicId: UUID!
+  entryIds: [UUID!]!
+}
+
+# ============================================================
+#  INPUT TYPES — Inbox
+# ============================================================
+
+input CreateInboxItemInput {
+  text: String!
+  context: String
+}
+
+# ============================================================
+#  PAYLOAD TYPES — Topic
+# ============================================================
+
+type CreateTopicPayload {
+  topic: Topic!
+}
+
+type UpdateTopicPayload {
+  topic: Topic!
+}
+
+type DeleteTopicPayload {
+  topicId: UUID!
+}
+
+type LinkEntryPayload {
+  success: Boolean!
+}
+
+type UnlinkEntryPayload {
+  success: Boolean!
+}
+
+type BatchLinkPayload {
+  linked: Int!
+  skipped: Int!
+}
+
+# ============================================================
+#  PAYLOAD TYPES — Inbox
+# ============================================================
+
+type CreateInboxItemPayload {
+  item: InboxItem!
+}
+
+type DeleteInboxItemPayload {
+  itemId: UUID!
+}
+
+type ClearInboxPayload {
+  deletedCount: Int!
+}
+
+# ============================================================
+#  QUERIES — Organization
+# ============================================================
+
+extend type Query {
+  """Все темы пользователя (сортировка по имени, с EntryCount)."""
+  topics: [Topic!]!
+
+  """Список inbox items с пагинацией."""
+  inboxItems(limit: Int, offset: Int): InboxItemList!
+
+  """Один inbox item по ID."""
+  inboxItem(id: UUID!): InboxItem
+}
+
+# ============================================================
+#  MUTATIONS — Organization
+# ============================================================
+
+extend type Mutation {
+  createTopic(input: CreateTopicInput!): CreateTopicPayload!
+  updateTopic(input: UpdateTopicInput!): UpdateTopicPayload!
+  deleteTopic(id: UUID!): DeleteTopicPayload!
+  linkEntryToTopic(input: LinkEntryInput!): LinkEntryPayload!
+  unlinkEntryFromTopic(input: UnlinkEntryInput!): UnlinkEntryPayload!
+  batchLinkEntriesToTopic(input: BatchLinkEntriesInput!): BatchLinkPayload!
+
+  createInboxItem(input: CreateInboxItemInput!): CreateInboxItemPayload!
+  deleteInboxItem(id: UUID!): DeleteInboxItemPayload!
+  clearInbox: ClearInboxPayload!
+}

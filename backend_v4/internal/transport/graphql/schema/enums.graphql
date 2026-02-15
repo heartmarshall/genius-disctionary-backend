@@ -1,0 +1,44 @@
+enum LearningStatus {
+  NEW
+  LEARNING
+  REVIEW
+  MASTERED
+}
+
+enum ReviewGrade {
+  AGAIN
+  HARD
+  GOOD
+  EASY
+}
+
+enum PartOfSpeech {
+  NOUN
+  VERB
+  ADJECTIVE
+  ADVERB
+  PRONOUN
+  PREPOSITION
+  CONJUNCTION
+  INTERJECTION
+  PHRASE
+  IDIOM
+  OTHER
+}
+
+enum SessionStatus {
+  ACTIVE
+  FINISHED
+  ABANDONED
+}
+
+enum EntrySortField {
+  TEXT
+  CREATED_AT
+  UPDATED_AT
+}
+
+enum SortDirection {
+  ASC
+  DESC
+}

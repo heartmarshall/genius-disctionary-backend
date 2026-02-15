@@ -1,0 +1,28 @@
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+type DictionaryConnection {
+  edges: [DictionaryEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type DictionaryEdge {
+  node: DictionaryEntry!
+  cursor: String!
+}
+
+"""Простой список с общим количеством (для offset-пагинации)."""
+type DeletedEntriesList {
+  entries: [DictionaryEntry!]!
+  totalCount: Int!
+}
+
+type InboxItemList {
+  items: [InboxItem!]!
+  totalCount: Int!
+}

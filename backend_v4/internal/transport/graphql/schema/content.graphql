@@ -1,0 +1,142 @@
+# ============================================================
+#  INPUT TYPES — Content
+# ============================================================
+
+input AddSenseInput {
+  entryId: UUID!
+  definition: String
+  partOfSpeech: PartOfSpeech
+  cefrLevel: String
+  translations: [String!]
+}
+
+input UpdateSenseInput {
+  senseId: UUID!
+  definition: String
+  partOfSpeech: PartOfSpeech
+  cefrLevel: String
+}
+
+input ReorderSensesInput {
+  entryId: UUID!
+  items: [ReorderItemInput!]!
+}
+
+input ReorderItemInput {
+  id: UUID!
+  position: Int!
+}
+
+input AddTranslationInput {
+  senseId: UUID!
+  text: String!
+}
+
+input UpdateTranslationInput {
+  translationId: UUID!
+  text: String!
+}
+
+input ReorderTranslationsInput {
+  senseId: UUID!
+  items: [ReorderItemInput!]!
+}
+
+input AddExampleInput {
+  senseId: UUID!
+  sentence: String!
+  translation: String
+}
+
+input UpdateExampleInput {
+  exampleId: UUID!
+  sentence: String
+  translation: String
+}
+
+input ReorderExamplesInput {
+  senseId: UUID!
+  items: [ReorderItemInput!]!
+}
+
+input AddUserImageInput {
+  entryId: UUID!
+  url: String!
+  caption: String
+}
+
+# ============================================================
+#  PAYLOAD TYPES — Content
+# ============================================================
+
+type AddSensePayload {
+  sense: Sense!
+}
+
+type UpdateSensePayload {
+  sense: Sense!
+}
+
+type DeleteSensePayload {
+  senseId: UUID!
+}
+
+type ReorderPayload {
+  success: Boolean!
+}
+
+type AddTranslationPayload {
+  translation: Translation!
+}
+
+type UpdateTranslationPayload {
+  translation: Translation!
+}
+
+type DeleteTranslationPayload {
+  translationId: UUID!
+}
+
+type AddExamplePayload {
+  example: Example!
+}
+
+type UpdateExamplePayload {
+  example: Example!
+}
+
+type DeleteExamplePayload {
+  exampleId: UUID!
+}
+
+type AddUserImagePayload {
+  image: UserImage!
+}
+
+type DeleteUserImagePayload {
+  imageId: UUID!
+}
+
+# ============================================================
+#  MUTATIONS — Content
+# ============================================================
+
+extend type Mutation {
+  addSense(input: AddSenseInput!): AddSensePayload!
+  updateSense(input: UpdateSenseInput!): UpdateSensePayload!
+  deleteSense(id: UUID!): DeleteSensePayload!
+  reorderSenses(input: ReorderSensesInput!): ReorderPayload!
+
+  addTranslation(input: AddTranslationInput!): AddTranslationPayload!
+  updateTranslation(input: UpdateTranslationInput!): UpdateTranslationPayload!
+  deleteTranslation(id: UUID!): DeleteTranslationPayload!
+  reorderTranslations(input: ReorderTranslationsInput!): ReorderPayload!
+
+  addExample(input: AddExampleInput!): AddExamplePayload!
+  updateExample(input: UpdateExampleInput!): UpdateExamplePayload!
+  deleteExample(id: UUID!): DeleteExamplePayload!
+  reorderExamples(input: ReorderExamplesInput!): ReorderPayload!
+
+  addUserImage(input: AddUserImageInput!): AddUserImagePayload!
+  deleteUserImage(id: UUID!): DeleteUserImagePayload!
+}

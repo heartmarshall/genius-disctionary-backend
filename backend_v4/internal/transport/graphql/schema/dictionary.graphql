@@ -1,0 +1,304 @@
+# ============================================================
+#  OUTPUT TYPES — Dictionary
+# ============================================================
+
+type DictionaryEntry {
+  id: UUID!
+  text: String!
+  textNormalized: String!
+  notes: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  deletedAt: DateTime
+  # Field resolvers (DataLoaders):
+  senses: [Sense!]!
+  pronunciations: [Pronunciation!]!
+  catalogImages: [CatalogImage!]!
+  userImages: [UserImage!]!
+  card: Card
+  topics: [Topic!]!
+}
+
+type Sense {
+  id: UUID!
+  definition: String
+  partOfSpeech: PartOfSpeech
+  cefrLevel: String
+  sourceSlug: String!
+  position: Int!
+  # Field resolvers (DataLoaders):
+  translations: [Translation!]!
+  examples: [Example!]!
+}
+
+type Translation {
+  id: UUID!
+  text: String
+  sourceSlug: String!
+  position: Int!
+}
+
+type Example {
+  id: UUID!
+  sentence: String
+  translation: String
+  sourceSlug: String!
+  position: Int!
+}
+
+type Pronunciation {
+  id: UUID!
+  transcription: String!
+  audioUrl: String
+  region: String
+}
+
+type CatalogImage {
+  id: UUID!
+  url: String!
+  caption: String
+}
+
+type UserImage {
+  id: UUID!
+  url: String!
+  caption: String
+  createdAt: DateTime!
+}
+
+# ============================================================
+#  OUTPUT TYPES — Reference Catalog
+# ============================================================
+
+type RefEntry {
+  id: UUID!
+  text: String!
+  textNormalized: String!
+  senses: [RefSense!]!
+  pronunciations: [RefPronunciation!]!
+  images: [RefImage!]!
+}
+
+type RefSense {
+  id: UUID!
+  definition: String
+  partOfSpeech: PartOfSpeech
+  cefrLevel: String
+  sourceSlug: String!
+  position: Int!
+  translations: [RefTranslation!]!
+  examples: [RefExample!]!
+}
+
+type RefTranslation {
+  id: UUID!
+  text: String!
+  sourceSlug: String!
+}
+
+type RefExample {
+  id: UUID!
+  sentence: String!
+  translation: String
+  sourceSlug: String!
+}
+
+type RefPronunciation {
+  id: UUID!
+  transcription: String!
+  audioUrl: String
+  region: String
+}
+
+type RefImage {
+  id: UUID!
+  url: String!
+  caption: String
+}
+
+# ============================================================
+#  OUTPUT TYPES — Export
+# ============================================================
+
+type ExportResult {
+  items: [ExportItem!]!
+  exportedAt: DateTime!
+}
+
+type ExportItem {
+  text: String!
+  notes: String
+  senses: [ExportSense!]!
+  cardStatus: LearningStatus
+  createdAt: DateTime!
+}
+
+type ExportSense {
+  definition: String
+  partOfSpeech: PartOfSpeech
+  translations: [String!]!
+  examples: [ExportExample!]!
+}
+
+type ExportExample {
+  sentence: String!
+  translation: String
+}
+
+# ============================================================
+#  INPUT TYPES
+# ============================================================
+
+input DictionaryFilterInput {
+  search: String
+  hasCard: Boolean
+  partOfSpeech: PartOfSpeech
+  topicId: UUID
+  status: LearningStatus
+  sortField: EntrySortField
+  sortDirection: SortDirection
+  """Cursor-based: количество записей."""
+  first: Int
+  """Cursor-based: курсор после которого загружать."""
+  after: String
+  """Offset-based: лимит записей."""
+  limit: Int
+  """Offset-based: смещение."""
+  offset: Int
+}
+
+input CreateEntryFromCatalogInput {
+  refEntryId: UUID!
+  senseIds: [UUID!]!
+  notes: String
+  createCard: Boolean
+}
+
+input CreateEntryCustomInput {
+  text: String!
+  senses: [CustomSenseInput!]!
+  notes: String
+  createCard: Boolean
+  topicId: UUID
+}
+
+input CustomSenseInput {
+  definition: String
+  partOfSpeech: PartOfSpeech
+  translations: [String!]
+  examples: [CustomExampleInput!]
+}
+
+input CustomExampleInput {
+  sentence: String!
+  translation: String
+}
+
+input UpdateEntryNotesInput {
+  entryId: UUID!
+  notes: String
+}
+
+input ImportEntriesInput {
+  items: [ImportItemInput!]!
+}
+
+input ImportItemInput {
+  text: String!
+  translations: [String!]
+  notes: String
+  topicName: String
+}
+
+# ============================================================
+#  PAYLOAD TYPES
+# ============================================================
+
+type CreateEntryPayload {
+  entry: DictionaryEntry!
+}
+
+type UpdateEntryPayload {
+  entry: DictionaryEntry!
+}
+
+type DeleteEntryPayload {
+  entryId: UUID!
+}
+
+type RestoreEntryPayload {
+  entry: DictionaryEntry!
+}
+
+type BatchDeletePayload {
+  deletedCount: Int!
+  errors: [BatchError!]!
+}
+
+type BatchError {
+  id: UUID!
+  message: String!
+}
+
+type ImportPayload {
+  importedCount: Int!
+  skippedCount: Int!
+  errors: [ImportError!]!
+}
+
+type ImportError {
+  index: Int!
+  text: String!
+  message: String!
+}
+
+# ============================================================
+#  QUERIES
+# ============================================================
+
+extend type Query {
+  """Поиск в Reference Catalog (автокомплит). Не требует авторизации."""
+  searchCatalog(query: String!, limit: Int): [RefEntry!]!
+
+  """Полный preview слова из каталога. Не требует авторизации."""
+  previewRefEntry(text: String!): RefEntry
+
+  """Поиск/фильтрация словаря пользователя. Поддерживает cursor и offset."""
+  dictionary(input: DictionaryFilterInput!): DictionaryConnection!
+
+  """Одна запись словаря по ID (вложенные данные через DataLoaders)."""
+  dictionaryEntry(id: UUID!): DictionaryEntry
+
+  """Корзина: soft-deleted записи."""
+  deletedEntries(limit: Int, offset: Int): DeletedEntriesList!
+
+  """Экспорт всего словаря в структурированном формате."""
+  exportEntries: ExportResult!
+}
+
+# ============================================================
+#  MUTATIONS
+# ============================================================
+
+extend type Mutation {
+  """Создание записи из Reference Catalog."""
+  createEntryFromCatalog(input: CreateEntryFromCatalogInput!): CreateEntryPayload!
+
+  """Создание пользовательской записи (без каталога)."""
+  createEntryCustom(input: CreateEntryCustomInput!): CreateEntryPayload!
+
+  """Обновление заметок записи."""
+  updateEntryNotes(input: UpdateEntryNotesInput!): UpdateEntryPayload!
+
+  """Soft delete записи."""
+  deleteEntry(id: UUID!): DeleteEntryPayload!
+
+  """Восстановление из корзины."""
+  restoreEntry(id: UUID!): RestoreEntryPayload!
+
+  """Массовое soft delete."""
+  batchDeleteEntries(ids: [UUID!]!): BatchDeletePayload!
+
+  """Импорт записей (chunked)."""
+  importEntries(input: ImportEntriesInput!): ImportPayload!
+}
