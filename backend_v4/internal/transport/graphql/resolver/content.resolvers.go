@@ -1,5 +1,7 @@
 package resolver
 
+//go:generate moq -out content_service_mock_test.go -pkg resolver . contentService
+
 // This file will be automatically regenerated based on the schema, any resolver
 // implementations
 // will be copied through when generating and any unknown code will be moved to the end.
@@ -7,78 +9,332 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/heartmarshall/myenglish-backend/internal/domain"
+	"github.com/heartmarshall/myenglish-backend/internal/service/content"
 	"github.com/heartmarshall/myenglish-backend/internal/transport/graphql/generated"
+	"github.com/heartmarshall/myenglish-backend/pkg/ctxutil"
 )
+
+// ============================================================================
+// Sense operations
+// ============================================================================
 
 // AddSense is the resolver for the addSense field.
 func (r *mutationResolver) AddSense(ctx context.Context, input generated.AddSenseInput) (*generated.AddSensePayload, error) {
-	panic(fmt.Errorf("not implemented: AddSense - addSense"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	var translations []string
+	if input.Translations != nil {
+		translations = input.Translations
+	}
+
+	serviceInput := content.AddSenseInput{
+		EntryID:      input.EntryID,
+		Definition:   input.Definition,
+		PartOfSpeech: input.PartOfSpeech,
+		CEFRLevel:    input.CefrLevel,
+		Translations: translations,
+	}
+
+	sense, err := r.Resolver.content.AddSense(ctx, serviceInput)
+	if err != nil {
+		return nil, err
+	}
+
+	return &generated.AddSensePayload{Sense: sense}, nil
 }
 
 // UpdateSense is the resolver for the updateSense field.
 func (r *mutationResolver) UpdateSense(ctx context.Context, input generated.UpdateSenseInput) (*generated.UpdateSensePayload, error) {
-	panic(fmt.Errorf("not implemented: UpdateSense - updateSense"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	serviceInput := content.UpdateSenseInput{
+		SenseID:      input.SenseID,
+		Definition:   input.Definition,
+		PartOfSpeech: input.PartOfSpeech,
+		CEFRLevel:    input.CefrLevel,
+	}
+
+	sense, err := r.Resolver.content.UpdateSense(ctx, serviceInput)
+	if err != nil {
+		return nil, err
+	}
+
+	return &generated.UpdateSensePayload{Sense: sense}, nil
 }
 
 // DeleteSense is the resolver for the deleteSense field.
 func (r *mutationResolver) DeleteSense(ctx context.Context, id uuid.UUID) (*generated.DeleteSensePayload, error) {
-	panic(fmt.Errorf("not implemented: DeleteSense - deleteSense"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	err := r.Resolver.content.DeleteSense(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &generated.DeleteSensePayload{SenseID: id}, nil
 }
 
 // ReorderSenses is the resolver for the reorderSenses field.
 func (r *mutationResolver) ReorderSenses(ctx context.Context, input generated.ReorderSensesInput) (*generated.ReorderPayload, error) {
-	panic(fmt.Errorf("not implemented: ReorderSenses - reorderSenses"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	// Map GraphQL reorder items to service reorder items
+	items := make([]content.ReorderItem, len(input.Items))
+	for i, item := range input.Items {
+		items[i] = content.ReorderItem{
+			ID:       item.ID,
+			Position: item.Position,
+		}
+	}
+
+	serviceInput := content.ReorderSensesInput{
+		EntryID: input.EntryID,
+		Items:   items,
+	}
+
+	err := r.Resolver.content.ReorderSenses(ctx, serviceInput)
+	if err != nil {
+		return nil, err
+	}
+
+	return &generated.ReorderPayload{Success: true}, nil
 }
+
+// ============================================================================
+// Translation operations
+// ============================================================================
 
 // AddTranslation is the resolver for the addTranslation field.
 func (r *mutationResolver) AddTranslation(ctx context.Context, input generated.AddTranslationInput) (*generated.AddTranslationPayload, error) {
-	panic(fmt.Errorf("not implemented: AddTranslation - addTranslation"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	serviceInput := content.AddTranslationInput{
+		SenseID: input.SenseID,
+		Text:    input.Text,
+	}
+
+	translation, err := r.Resolver.content.AddTranslation(ctx, serviceInput)
+	if err != nil {
+		return nil, err
+	}
+
+	return &generated.AddTranslationPayload{Translation: translation}, nil
 }
 
 // UpdateTranslation is the resolver for the updateTranslation field.
 func (r *mutationResolver) UpdateTranslation(ctx context.Context, input generated.UpdateTranslationInput) (*generated.UpdateTranslationPayload, error) {
-	panic(fmt.Errorf("not implemented: UpdateTranslation - updateTranslation"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	serviceInput := content.UpdateTranslationInput{
+		TranslationID: input.TranslationID,
+		Text:          input.Text,
+	}
+
+	translation, err := r.Resolver.content.UpdateTranslation(ctx, serviceInput)
+	if err != nil {
+		return nil, err
+	}
+
+	return &generated.UpdateTranslationPayload{Translation: translation}, nil
 }
 
 // DeleteTranslation is the resolver for the deleteTranslation field.
 func (r *mutationResolver) DeleteTranslation(ctx context.Context, id uuid.UUID) (*generated.DeleteTranslationPayload, error) {
-	panic(fmt.Errorf("not implemented: DeleteTranslation - deleteTranslation"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	err := r.Resolver.content.DeleteTranslation(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &generated.DeleteTranslationPayload{TranslationID: id}, nil
 }
 
 // ReorderTranslations is the resolver for the reorderTranslations field.
 func (r *mutationResolver) ReorderTranslations(ctx context.Context, input generated.ReorderTranslationsInput) (*generated.ReorderPayload, error) {
-	panic(fmt.Errorf("not implemented: ReorderTranslations - reorderTranslations"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	// Map GraphQL reorder items to service reorder items
+	items := make([]content.ReorderItem, len(input.Items))
+	for i, item := range input.Items {
+		items[i] = content.ReorderItem{
+			ID:       item.ID,
+			Position: item.Position,
+		}
+	}
+
+	serviceInput := content.ReorderTranslationsInput{
+		SenseID: input.SenseID,
+		Items:   items,
+	}
+
+	err := r.Resolver.content.ReorderTranslations(ctx, serviceInput)
+	if err != nil {
+		return nil, err
+	}
+
+	return &generated.ReorderPayload{Success: true}, nil
 }
+
+// ============================================================================
+// Example operations
+// ============================================================================
 
 // AddExample is the resolver for the addExample field.
 func (r *mutationResolver) AddExample(ctx context.Context, input generated.AddExampleInput) (*generated.AddExamplePayload, error) {
-	panic(fmt.Errorf("not implemented: AddExample - addExample"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	serviceInput := content.AddExampleInput{
+		SenseID:     input.SenseID,
+		Sentence:    input.Sentence,
+		Translation: input.Translation,
+	}
+
+	example, err := r.Resolver.content.AddExample(ctx, serviceInput)
+	if err != nil {
+		return nil, err
+	}
+
+	return &generated.AddExamplePayload{Example: example}, nil
 }
 
 // UpdateExample is the resolver for the updateExample field.
 func (r *mutationResolver) UpdateExample(ctx context.Context, input generated.UpdateExampleInput) (*generated.UpdateExamplePayload, error) {
-	panic(fmt.Errorf("not implemented: UpdateExample - updateExample"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	// Sentence is required in service layer but optional in GraphQL
+	sentence := ""
+	if input.Sentence != nil {
+		sentence = *input.Sentence
+	}
+
+	serviceInput := content.UpdateExampleInput{
+		ExampleID:   input.ExampleID,
+		Sentence:    sentence,
+		Translation: input.Translation,
+	}
+
+	example, err := r.Resolver.content.UpdateExample(ctx, serviceInput)
+	if err != nil {
+		return nil, err
+	}
+
+	return &generated.UpdateExamplePayload{Example: example}, nil
 }
 
 // DeleteExample is the resolver for the deleteExample field.
 func (r *mutationResolver) DeleteExample(ctx context.Context, id uuid.UUID) (*generated.DeleteExamplePayload, error) {
-	panic(fmt.Errorf("not implemented: DeleteExample - deleteExample"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	err := r.Resolver.content.DeleteExample(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &generated.DeleteExamplePayload{ExampleID: id}, nil
 }
 
 // ReorderExamples is the resolver for the reorderExamples field.
 func (r *mutationResolver) ReorderExamples(ctx context.Context, input generated.ReorderExamplesInput) (*generated.ReorderPayload, error) {
-	panic(fmt.Errorf("not implemented: ReorderExamples - reorderExamples"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	// Map GraphQL reorder items to service reorder items
+	items := make([]content.ReorderItem, len(input.Items))
+	for i, item := range input.Items {
+		items[i] = content.ReorderItem{
+			ID:       item.ID,
+			Position: item.Position,
+		}
+	}
+
+	serviceInput := content.ReorderExamplesInput{
+		SenseID: input.SenseID,
+		Items:   items,
+	}
+
+	err := r.Resolver.content.ReorderExamples(ctx, serviceInput)
+	if err != nil {
+		return nil, err
+	}
+
+	return &generated.ReorderPayload{Success: true}, nil
 }
+
+// ============================================================================
+// UserImage operations
+// ============================================================================
 
 // AddUserImage is the resolver for the addUserImage field.
 func (r *mutationResolver) AddUserImage(ctx context.Context, input generated.AddUserImageInput) (*generated.AddUserImagePayload, error) {
-	panic(fmt.Errorf("not implemented: AddUserImage - addUserImage"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	serviceInput := content.AddUserImageInput{
+		EntryID: input.EntryID,
+		URL:     input.URL,
+		Caption: input.Caption,
+	}
+
+	image, err := r.Resolver.content.AddUserImage(ctx, serviceInput)
+	if err != nil {
+		return nil, err
+	}
+
+	return &generated.AddUserImagePayload{Image: image}, nil
 }
 
 // DeleteUserImage is the resolver for the deleteUserImage field.
 func (r *mutationResolver) DeleteUserImage(ctx context.Context, id uuid.UUID) (*generated.DeleteUserImagePayload, error) {
-	panic(fmt.Errorf("not implemented: DeleteUserImage - deleteUserImage"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	err := r.Resolver.content.DeleteUserImage(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &generated.DeleteUserImagePayload{ImageID: id}, nil
 }
