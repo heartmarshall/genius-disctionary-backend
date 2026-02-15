@@ -14,6 +14,7 @@ import (
 	"github.com/heartmarshall/myenglish-backend/internal/service/dictionary"
 	"github.com/heartmarshall/myenglish-backend/internal/transport/graphql/dataloader"
 	"github.com/heartmarshall/myenglish-backend/internal/transport/graphql/generated"
+	"github.com/heartmarshall/myenglish-backend/pkg/ctxutil"
 )
 
 // Senses is the resolver for the senses field.
@@ -110,67 +111,366 @@ func (r *dictionaryEntryResolver) Topics(ctx context.Context, obj *domain.Entry)
 
 // CreateEntryFromCatalog is the resolver for the createEntryFromCatalog field.
 func (r *mutationResolver) CreateEntryFromCatalog(ctx context.Context, input generated.CreateEntryFromCatalogInput) (*generated.CreateEntryPayload, error) {
-	panic(fmt.Errorf("not implemented: CreateEntryFromCatalog - createEntryFromCatalog"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	createCard := false
+	if input.CreateCard != nil {
+		createCard = *input.CreateCard
+	}
+
+	serviceInput := dictionary.CreateFromCatalogInput{
+		RefEntryID: input.RefEntryID,
+		SenseIDs:   input.SenseIds,
+		CreateCard: createCard,
+		Notes:      input.Notes,
+	}
+
+	entry, err := r.dictionary.CreateEntryFromCatalog(ctx, serviceInput)
+	if err != nil {
+		return nil, err
+	}
+
+	return &generated.CreateEntryPayload{Entry: entry}, nil
 }
 
 // CreateEntryCustom is the resolver for the createEntryCustom field.
 func (r *mutationResolver) CreateEntryCustom(ctx context.Context, input generated.CreateEntryCustomInput) (*generated.CreateEntryPayload, error) {
-	panic(fmt.Errorf("not implemented: CreateEntryCustom - createEntryCustom"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	createCard := false
+	if input.CreateCard != nil {
+		createCard = *input.CreateCard
+	}
+
+	// Map GraphQL input to service input
+	senses := make([]dictionary.SenseInput, len(input.Senses))
+	for i, s := range input.Senses {
+		examples := make([]dictionary.ExampleInput, len(s.Examples))
+		for j, ex := range s.Examples {
+			examples[j] = dictionary.ExampleInput{
+				Sentence:    ex.Sentence,
+				Translation: ex.Translation,
+			}
+		}
+
+		senses[i] = dictionary.SenseInput{
+			Definition:   s.Definition,
+			PartOfSpeech: s.PartOfSpeech,
+			Translations: s.Translations,
+			Examples:     examples,
+		}
+	}
+
+	serviceInput := dictionary.CreateCustomInput{
+		Text:       input.Text,
+		Senses:     senses,
+		CreateCard: createCard,
+		Notes:      input.Notes,
+	}
+
+	entry, err := r.dictionary.CreateEntryCustom(ctx, serviceInput)
+	if err != nil {
+		return nil, err
+	}
+
+	return &generated.CreateEntryPayload{Entry: entry}, nil
 }
 
 // UpdateEntryNotes is the resolver for the updateEntryNotes field.
 func (r *mutationResolver) UpdateEntryNotes(ctx context.Context, input generated.UpdateEntryNotesInput) (*generated.UpdateEntryPayload, error) {
-	panic(fmt.Errorf("not implemented: UpdateEntryNotes - updateEntryNotes"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	serviceInput := dictionary.UpdateNotesInput{
+		EntryID: input.EntryID,
+		Notes:   input.Notes,
+	}
+
+	entry, err := r.dictionary.UpdateNotes(ctx, serviceInput)
+	if err != nil {
+		return nil, err
+	}
+
+	return &generated.UpdateEntryPayload{Entry: entry}, nil
 }
 
 // DeleteEntry is the resolver for the deleteEntry field.
 func (r *mutationResolver) DeleteEntry(ctx context.Context, id uuid.UUID) (*generated.DeleteEntryPayload, error) {
-	panic(fmt.Errorf("not implemented: DeleteEntry - deleteEntry"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	err := r.dictionary.DeleteEntry(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &generated.DeleteEntryPayload{EntryID: id}, nil
 }
 
 // RestoreEntry is the resolver for the restoreEntry field.
 func (r *mutationResolver) RestoreEntry(ctx context.Context, id uuid.UUID) (*generated.RestoreEntryPayload, error) {
-	panic(fmt.Errorf("not implemented: RestoreEntry - restoreEntry"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	entry, err := r.dictionary.RestoreEntry(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &generated.RestoreEntryPayload{Entry: entry}, nil
 }
 
 // BatchDeleteEntries is the resolver for the batchDeleteEntries field.
 func (r *mutationResolver) BatchDeleteEntries(ctx context.Context, ids []uuid.UUID) (*generated.BatchDeletePayload, error) {
-	panic(fmt.Errorf("not implemented: BatchDeleteEntries - batchDeleteEntries"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	result, err := r.dictionary.BatchDeleteEntries(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+
+	// Map service errors to GraphQL errors
+	errors := make([]*generated.BatchError, len(result.Errors))
+	for i, e := range result.Errors {
+		errors[i] = &generated.BatchError{
+			ID:      e.EntryID,
+			Message: e.Error,
+		}
+	}
+
+	return &generated.BatchDeletePayload{
+		DeletedCount: result.Deleted,
+		Errors:       errors,
+	}, nil
 }
 
 // ImportEntries is the resolver for the importEntries field.
 func (r *mutationResolver) ImportEntries(ctx context.Context, input generated.ImportEntriesInput) (*generated.ImportPayload, error) {
-	panic(fmt.Errorf("not implemented: ImportEntries - importEntries"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	// Map GraphQL input to service input
+	items := make([]dictionary.ImportItem, len(input.Items))
+	for i, item := range input.Items {
+		items[i] = dictionary.ImportItem{
+			Text:         item.Text,
+			Translations: item.Translations,
+			Notes:        item.Notes,
+			TopicName:    item.TopicName,
+		}
+	}
+
+	serviceInput := dictionary.ImportInput{
+		Items: items,
+	}
+
+	result, err := r.dictionary.ImportEntries(ctx, serviceInput)
+	if err != nil {
+		return nil, err
+	}
+
+	// Map service errors to GraphQL errors
+	errors := make([]*generated.ImportError, len(result.Errors))
+	for i, e := range result.Errors {
+		errors[i] = &generated.ImportError{
+			Index:   e.LineNumber,
+			Text:    e.Text,
+			Message: e.Reason,
+		}
+	}
+
+	return &generated.ImportPayload{
+		ImportedCount: result.Imported,
+		SkippedCount:  result.Skipped,
+		Errors:        errors,
+	}, nil
 }
 
 // SearchCatalog is the resolver for the searchCatalog field.
 func (r *queryResolver) SearchCatalog(ctx context.Context, query string, limit *int) ([]*domain.RefEntry, error) {
-	panic(fmt.Errorf("not implemented: SearchCatalog - searchCatalog"))
+	// No auth required - public RefCatalog
+	l := 10 // default
+	if limit != nil {
+		l = *limit
+	}
+
+	entries, err := r.dictionary.SearchCatalog(ctx, query, l)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert []domain.RefEntry to []*domain.RefEntry
+	result := make([]*domain.RefEntry, len(entries))
+	for i := range entries {
+		result[i] = &entries[i]
+	}
+	return result, nil
 }
 
 // PreviewRefEntry is the resolver for the previewRefEntry field.
 func (r *queryResolver) PreviewRefEntry(ctx context.Context, text string) (*domain.RefEntry, error) {
-	panic(fmt.Errorf("not implemented: PreviewRefEntry - previewRefEntry"))
+	// No auth required - public RefCatalog
+	return r.dictionary.PreviewRefEntry(ctx, text)
 }
 
 // Dictionary is the resolver for the dictionary field.
 func (r *queryResolver) Dictionary(ctx context.Context, input generated.DictionaryFilterInput) (*generated.DictionaryConnection, error) {
-	panic(fmt.Errorf("not implemented: Dictionary - dictionary"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	// Map GraphQL input to service input
+	serviceInput := dictionary.FindInput{
+		Search:       input.Search,
+		HasCard:      input.HasCard,
+		PartOfSpeech: input.PartOfSpeech,
+		TopicID:      input.TopicID,
+		Status:       input.Status,
+	}
+
+	// Map sort fields
+	if input.SortField != nil {
+		switch *input.SortField {
+		case generated.EntrySortFieldText:
+			serviceInput.SortBy = "text"
+		case generated.EntrySortFieldCreatedAt:
+			serviceInput.SortBy = "created_at"
+		case generated.EntrySortFieldUpdatedAt:
+			serviceInput.SortBy = "updated_at"
+		}
+	}
+
+	if input.SortDirection != nil {
+		switch *input.SortDirection {
+		case generated.SortDirectionAsc:
+			serviceInput.SortOrder = "ASC"
+		case generated.SortDirectionDesc:
+			serviceInput.SortOrder = "DESC"
+		}
+	}
+
+	// Prioritize cursor-based pagination if after is provided
+	if input.After != nil {
+		serviceInput.Cursor = input.After
+		if input.First != nil {
+			serviceInput.Limit = *input.First
+		} else {
+			serviceInput.Limit = 20 // default for cursor-based
+		}
+	} else {
+		// Offset-based pagination
+		if input.Limit != nil {
+			serviceInput.Limit = *input.Limit
+		} else {
+			serviceInput.Limit = 20 // default
+		}
+		if input.Offset != nil {
+			serviceInput.Offset = input.Offset
+		}
+	}
+
+	result, err := r.dictionary.FindEntries(ctx, serviceInput)
+	if err != nil {
+		return nil, err
+	}
+
+	// Build Connection (edges, pageInfo, totalCount)
+	edges := make([]*generated.DictionaryEdge, len(result.Entries))
+	for i := range result.Entries {
+		edges[i] = &generated.DictionaryEdge{
+			Node:   &result.Entries[i],
+			Cursor: encodeCursor(result.Entries[i].ID.String()),
+		}
+	}
+
+	pageInfo := &generated.PageInfo{
+		HasNextPage:     result.HasNextPage,
+		HasPreviousPage: false, // backward pagination not supported
+	}
+
+	// Use service-provided cursors if available
+	if result.PageInfo != nil {
+		pageInfo.StartCursor = result.PageInfo.StartCursor
+		pageInfo.EndCursor = result.PageInfo.EndCursor
+	}
+
+	return &generated.DictionaryConnection{
+		Edges:      edges,
+		PageInfo:   pageInfo,
+		TotalCount: result.TotalCount,
+	}, nil
 }
 
 // DictionaryEntry is the resolver for the dictionaryEntry field.
 func (r *queryResolver) DictionaryEntry(ctx context.Context, id uuid.UUID) (*domain.Entry, error) {
-	panic(fmt.Errorf("not implemented: DictionaryEntry - dictionaryEntry"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	return r.dictionary.GetEntry(ctx, id)
 }
 
 // DeletedEntries is the resolver for the deletedEntries field.
 func (r *queryResolver) DeletedEntries(ctx context.Context, limit *int, offset *int) (*generated.DeletedEntriesList, error) {
-	panic(fmt.Errorf("not implemented: DeletedEntries - deletedEntries"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	l := 50 // default limit
+	if limit != nil {
+		l = *limit
+	}
+
+	o := 0 // default offset
+	if offset != nil {
+		o = *offset
+	}
+
+	entries, totalCount, err := r.dictionary.FindDeletedEntries(ctx, l, o)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert []domain.Entry to []*domain.Entry
+	result := make([]*domain.Entry, len(entries))
+	for i := range entries {
+		result[i] = &entries[i]
+	}
+
+	return &generated.DeletedEntriesList{
+		Entries:    result,
+		TotalCount: totalCount,
+	}, nil
 }
 
 // ExportEntries is the resolver for the exportEntries field.
 func (r *queryResolver) ExportEntries(ctx context.Context) (*dictionary.ExportResult, error) {
-	panic(fmt.Errorf("not implemented: ExportEntries - exportEntries"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	return r.dictionary.ExportEntries(ctx)
 }
 
 // Translations is the resolver for the translations field.
