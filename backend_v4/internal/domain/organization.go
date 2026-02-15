@@ -36,3 +36,10 @@ type AuditRecord struct {
 	Changes    map[string]any
 	CreatedAt  time.Time
 }
+
+// TopicUpdateParams holds fields for partial topic update.
+// nil = don't change. For Description: ptr("") = clear (set NULL in DB).
+type TopicUpdateParams struct {
+	Name        *string // nil = don't change; must be non-empty if present
+	Description *string // nil = don't change; ptr("") = clear
+}
