@@ -129,3 +129,22 @@ func (p OAuthProvider) IsValid() bool {
 	}
 	return false
 }
+
+// SessionStatus represents the state of a study session.
+type SessionStatus string
+
+const (
+	SessionStatusActive    SessionStatus = "ACTIVE"
+	SessionStatusFinished  SessionStatus = "FINISHED"
+	SessionStatusAbandoned SessionStatus = "ABANDONED"
+)
+
+func (s SessionStatus) String() string { return string(s) }
+
+func (s SessionStatus) IsValid() bool {
+	switch s {
+	case SessionStatusActive, SessionStatusFinished, SessionStatusAbandoned:
+		return true
+	}
+	return false
+}

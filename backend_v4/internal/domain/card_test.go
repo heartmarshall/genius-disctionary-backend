@@ -18,12 +18,17 @@ func TestCard_IsDue(t *testing.T) {
 		want   bool
 	}{
 		{
-			name: "MASTERED is never due",
+			name: "MASTERED card due when next_review_at in past",
 			card: Card{Status: LearningStatusMastered, NextReviewAt: &past},
+			want: true,
+		},
+		{
+			name: "MASTERED card not due when next_review_at in future",
+			card: Card{Status: LearningStatusMastered, NextReviewAt: &future},
 			want: false,
 		},
 		{
-			name: "MASTERED with nil NextReviewAt is never due",
+			name: "MASTERED with nil NextReviewAt is not due",
 			card: Card{Status: LearningStatusMastered, NextReviewAt: nil},
 			want: false,
 		},

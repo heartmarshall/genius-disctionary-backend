@@ -72,6 +72,35 @@ func (s *SRSConfig) validate() error {
 	}
 	s.LearningSteps = steps
 
+	// New SRS fields validation
+	if s.EasyInterval < 1 {
+		return fmt.Errorf("easy_interval must be >= 1")
+	}
+	if s.IntervalModifier <= 0 {
+		return fmt.Errorf("interval_modifier must be positive")
+	}
+	if s.HardIntervalModifier <= 0 {
+		return fmt.Errorf("hard_interval_modifier must be positive")
+	}
+	if s.EasyBonus <= 0 {
+		return fmt.Errorf("easy_bonus must be positive")
+	}
+	if s.LapseNewInterval < 0 || s.LapseNewInterval > 1 {
+		return fmt.Errorf("lapse_new_interval must be between 0.0 and 1.0")
+	}
+	if s.UndoWindowMinutes < 1 {
+		return fmt.Errorf("undo_window_minutes must be >= 1")
+	}
+
+	// Parse RelearningStepsRaw → RelearningSteps (similar to LearningSteps)
+	if s.RelearningStepsRaw != "" {
+		relearningSteps, err := ParseLearningSteps(s.RelearningStepsRaw)
+		if err != nil {
+			return fmt.Errorf("relearning_steps: %w", err)
+		}
+		s.RelearningSteps = relearningSteps
+	}
+
 	return nil
 }
 
