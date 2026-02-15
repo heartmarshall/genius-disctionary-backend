@@ -1,5 +1,7 @@
 package resolver
 
+//go:generate moq -out user_service_mock_test.go -pkg resolver . userService
+
 // This file will be automatically regenerated based on the schema, any resolver
 // implementations
 // will be copied through when generating and any unknown code will be moved to the end.
@@ -7,25 +9,53 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
+	"github.com/heartmarshall/myenglish-backend/internal/service/user"
 	"github.com/heartmarshall/myenglish-backend/internal/transport/graphql/generated"
+	"github.com/heartmarshall/myenglish-backend/pkg/ctxutil"
 )
 
 // UpdateSettings is the resolver for the updateSettings field.
 func (r *mutationResolver) UpdateSettings(ctx context.Context, input generated.UpdateSettingsInput) (*generated.UpdateSettingsPayload, error) {
-	panic(fmt.Errorf("not implemented: UpdateSettings - updateSettings"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	serviceInput := user.UpdateSettingsInput{
+		NewCardsPerDay:  input.NewCardsPerDay,
+		ReviewsPerDay:   input.ReviewsPerDay,
+		MaxIntervalDays: input.MaxIntervalDays,
+		Timezone:        input.Timezone,
+	}
+
+	settings, err := r.user.UpdateSettings(ctx, serviceInput)
+	if err != nil {
+		return nil, err
+	}
+
+	return &generated.UpdateSettingsPayload{Settings: settings}, nil
 }
 
 // Me is the resolver for the me field.
 func (r *queryResolver) Me(ctx context.Context) (*domain.User, error) {
-	panic(fmt.Errorf("not implemented: Me - me"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	user, err := r.user.GetProfile(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
 // OauthProvider is the resolver for the oauthProvider field.
 func (r *userResolver) OauthProvider(ctx context.Context, obj *domain.User) (string, error) {
-	panic(fmt.Errorf("not implemented: OauthProvider - oauthProvider"))
+	return obj.OAuthProvider.String(), nil
 }
 
 // Settings is the resolver for the settings field.

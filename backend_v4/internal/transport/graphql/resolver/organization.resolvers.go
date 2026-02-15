@@ -1,5 +1,8 @@
 package resolver
 
+//go:generate moq -out topic_service_mock_test.go -pkg resolver . topicService
+//go:generate moq -out inbox_service_mock_test.go -pkg resolver . inboxService
+
 // This file will be automatically regenerated based on the schema, any resolver
 // implementations
 // will be copied through when generating and any unknown code will be moved to the end.
@@ -7,69 +10,250 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
+	"github.com/heartmarshall/myenglish-backend/internal/service/inbox"
+	"github.com/heartmarshall/myenglish-backend/internal/service/topic"
 	"github.com/heartmarshall/myenglish-backend/internal/transport/graphql/generated"
+	"github.com/heartmarshall/myenglish-backend/pkg/ctxutil"
 )
 
 // CreateTopic is the resolver for the createTopic field.
 func (r *mutationResolver) CreateTopic(ctx context.Context, input generated.CreateTopicInput) (*generated.CreateTopicPayload, error) {
-	panic(fmt.Errorf("not implemented: CreateTopic - createTopic"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	serviceInput := topic.CreateTopicInput{
+		Name:        input.Name,
+		Description: input.Description,
+	}
+
+	topic, err := r.topic.CreateTopic(ctx, serviceInput)
+	if err != nil {
+		return nil, err
+	}
+
+	return &generated.CreateTopicPayload{Topic: topic}, nil
 }
 
 // UpdateTopic is the resolver for the updateTopic field.
 func (r *mutationResolver) UpdateTopic(ctx context.Context, input generated.UpdateTopicInput) (*generated.UpdateTopicPayload, error) {
-	panic(fmt.Errorf("not implemented: UpdateTopic - updateTopic"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	serviceInput := topic.UpdateTopicInput{
+		TopicID:     input.TopicID,
+		Name:        input.Name,
+		Description: input.Description,
+	}
+
+	topic, err := r.topic.UpdateTopic(ctx, serviceInput)
+	if err != nil {
+		return nil, err
+	}
+
+	return &generated.UpdateTopicPayload{Topic: topic}, nil
 }
 
 // DeleteTopic is the resolver for the deleteTopic field.
 func (r *mutationResolver) DeleteTopic(ctx context.Context, id uuid.UUID) (*generated.DeleteTopicPayload, error) {
-	panic(fmt.Errorf("not implemented: DeleteTopic - deleteTopic"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	serviceInput := topic.DeleteTopicInput{
+		TopicID: id,
+	}
+
+	err := r.topic.DeleteTopic(ctx, serviceInput)
+	if err != nil {
+		return nil, err
+	}
+
+	return &generated.DeleteTopicPayload{TopicID: id}, nil
 }
 
 // LinkEntryToTopic is the resolver for the linkEntryToTopic field.
 func (r *mutationResolver) LinkEntryToTopic(ctx context.Context, input generated.LinkEntryInput) (*generated.LinkEntryPayload, error) {
-	panic(fmt.Errorf("not implemented: LinkEntryToTopic - linkEntryToTopic"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	serviceInput := topic.LinkEntryInput{
+		TopicID: input.TopicID,
+		EntryID: input.EntryID,
+	}
+
+	err := r.topic.LinkEntry(ctx, serviceInput)
+	if err != nil {
+		return nil, err
+	}
+
+	return &generated.LinkEntryPayload{Success: true}, nil
 }
 
 // UnlinkEntryFromTopic is the resolver for the unlinkEntryFromTopic field.
 func (r *mutationResolver) UnlinkEntryFromTopic(ctx context.Context, input generated.UnlinkEntryInput) (*generated.UnlinkEntryPayload, error) {
-	panic(fmt.Errorf("not implemented: UnlinkEntryFromTopic - unlinkEntryFromTopic"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	serviceInput := topic.UnlinkEntryInput{
+		TopicID: input.TopicID,
+		EntryID: input.EntryID,
+	}
+
+	err := r.topic.UnlinkEntry(ctx, serviceInput)
+	if err != nil {
+		return nil, err
+	}
+
+	return &generated.UnlinkEntryPayload{Success: true}, nil
 }
 
 // BatchLinkEntriesToTopic is the resolver for the batchLinkEntriesToTopic field.
 func (r *mutationResolver) BatchLinkEntriesToTopic(ctx context.Context, input generated.BatchLinkEntriesInput) (*generated.BatchLinkPayload, error) {
-	panic(fmt.Errorf("not implemented: BatchLinkEntriesToTopic - batchLinkEntriesToTopic"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	serviceInput := topic.BatchLinkEntriesInput{
+		TopicID:  input.TopicID,
+		EntryIDs: input.EntryIds,
+	}
+
+	result, err := r.topic.BatchLinkEntries(ctx, serviceInput)
+	if err != nil {
+		return nil, err
+	}
+
+	return &generated.BatchLinkPayload{
+		Linked:  result.Linked,
+		Skipped: result.Skipped,
+	}, nil
 }
 
 // CreateInboxItem is the resolver for the createInboxItem field.
 func (r *mutationResolver) CreateInboxItem(ctx context.Context, input generated.CreateInboxItemInput) (*generated.CreateInboxItemPayload, error) {
-	panic(fmt.Errorf("not implemented: CreateInboxItem - createInboxItem"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	serviceInput := inbox.CreateItemInput{
+		Text:    input.Text,
+		Context: input.Context,
+	}
+
+	item, err := r.inbox.CreateItem(ctx, serviceInput)
+	if err != nil {
+		return nil, err
+	}
+
+	return &generated.CreateInboxItemPayload{Item: item}, nil
 }
 
 // DeleteInboxItem is the resolver for the deleteInboxItem field.
 func (r *mutationResolver) DeleteInboxItem(ctx context.Context, id uuid.UUID) (*generated.DeleteInboxItemPayload, error) {
-	panic(fmt.Errorf("not implemented: DeleteInboxItem - deleteInboxItem"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	serviceInput := inbox.DeleteItemInput{
+		ItemID: id,
+	}
+
+	err := r.inbox.DeleteItem(ctx, serviceInput)
+	if err != nil {
+		return nil, err
+	}
+
+	return &generated.DeleteInboxItemPayload{ItemID: id}, nil
 }
 
 // ClearInbox is the resolver for the clearInbox field.
 func (r *mutationResolver) ClearInbox(ctx context.Context) (*generated.ClearInboxPayload, error) {
-	panic(fmt.Errorf("not implemented: ClearInbox - clearInbox"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	count, err := r.inbox.DeleteAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &generated.ClearInboxPayload{DeletedCount: count}, nil
 }
 
 // Topics is the resolver for the topics field.
 func (r *queryResolver) Topics(ctx context.Context) ([]*domain.Topic, error) {
-	panic(fmt.Errorf("not implemented: Topics - topics"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	topics, err := r.topic.ListTopics(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return topics, nil
 }
 
 // InboxItems is the resolver for the inboxItems field.
 func (r *queryResolver) InboxItems(ctx context.Context, limit *int, offset *int) (*generated.InboxItemList, error) {
-	panic(fmt.Errorf("not implemented: InboxItems - inboxItems"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	l := 50
+	if limit != nil {
+		l = *limit
+	}
+	o := 0
+	if offset != nil {
+		o = *offset
+	}
+
+	serviceInput := inbox.ListItemsInput{
+		Limit:  l,
+		Offset: o,
+	}
+
+	items, totalCount, err := r.inbox.ListItems(ctx, serviceInput)
+	if err != nil {
+		return nil, err
+	}
+
+	return &generated.InboxItemList{
+		Items:      items,
+		TotalCount: totalCount,
+	}, nil
 }
 
 // InboxItem is the resolver for the inboxItem field.
 func (r *queryResolver) InboxItem(ctx context.Context, id uuid.UUID) (*domain.InboxItem, error) {
-	panic(fmt.Errorf("not implemented: InboxItem - inboxItem"))
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	item, err := r.inbox.GetItem(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return item, nil
 }
