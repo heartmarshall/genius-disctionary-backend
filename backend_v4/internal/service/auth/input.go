@@ -54,4 +54,3 @@ func (i RefreshInput) Validate() error {
 	}
 	return nil
 }
-
