@@ -203,6 +203,81 @@ func (s *Service) Login(ctx context.Context, input LoginInput) (*AuthResult, err
 	}, nil
 }
 
+// Refresh performs token rotation and returns new access/refresh tokens.
+// If the refresh token is not found (revoked or reused), logs a warning and returns ErrUnauthorized.
+// If the token is expired or the user is deleted, returns ErrUnauthorized.
+func (s *Service) Refresh(ctx context.Context, input RefreshInput) (*AuthResult, error) {
+	// Step 1: Validate input
+	if err := input.Validate(); err != nil {
+		return nil, err
+	}
+
+	// Step 2: Hash the refresh token
+	hash := auth.HashToken(input.RefreshToken)
+
+	// Step 3: Get token from DB
+	token, err := s.tokens.GetByHash(ctx, hash)
+	if err != nil {
+		if errors.Is(err, domain.ErrNotFound) {
+			// Token not found (reuse detection)
+			s.log.WarnContext(ctx, "refresh token reuse attempted")
+			return nil, domain.ErrUnauthorized
+		}
+		return nil, fmt.Errorf("auth.Refresh get token: %w", err)
+	}
+
+	// Step 4: Check if token is expired
+	if token.IsExpired(time.Now()) {
+		return nil, domain.ErrUnauthorized
+	}
+
+	// Step 5: Get user
+	user, err := s.users.GetByID(ctx, token.UserID)
+	if err != nil {
+		if errors.Is(err, domain.ErrNotFound) {
+			// User deleted
+			s.log.WarnContext(ctx, "refresh for deleted user",
+				slog.String("user_id", token.UserID.String()))
+			return nil, domain.ErrUnauthorized
+		}
+		return nil, fmt.Errorf("auth.Refresh get user: %w", err)
+	}
+
+	// Step 6: Revoke old token
+	if err := s.tokens.RevokeByID(ctx, token.ID); err != nil {
+		return nil, fmt.Errorf("auth.Refresh revoke token: %w", err)
+	}
+
+	// Step 7: Generate new access token
+	accessToken, err := s.jwt.GenerateAccessToken(user.ID)
+	if err != nil {
+		return nil, fmt.Errorf("auth.Refresh generate access token: %w", err)
+	}
+
+	// Step 8: Generate new refresh token
+	rawRefresh, hashRefresh, err := s.jwt.GenerateRefreshToken()
+	if err != nil {
+		return nil, fmt.Errorf("auth.Refresh generate refresh token: %w", err)
+	}
+
+	// Step 9: Store new refresh token hash in DB
+	refreshToken := &domain.RefreshToken{
+		UserID:    user.ID,
+		TokenHash: hashRefresh,
+		ExpiresAt: time.Now().Add(s.cfg.RefreshTokenTTL),
+	}
+	if err := s.tokens.Create(ctx, refreshToken); err != nil {
+		return nil, fmt.Errorf("auth.Refresh store refresh token: %w", err)
+	}
+
+	// Step 10: Return result
+	return &AuthResult{
+		AccessToken:  accessToken,
+		RefreshToken: rawRefresh,
+		User:         user,
+	}, nil
+}
+
 // registerNewUser creates a new user and default settings in a transaction.
 // Handles race condition: if Create returns ErrAlreadyExists, retries GetByOAuth.
 // If retry also returns ErrNotFound, it's an email collision → returns ErrAlreadyExists.

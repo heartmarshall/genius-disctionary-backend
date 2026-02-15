@@ -922,6 +922,656 @@ func TestService_Login_TokensGeneratedCorrectly(t *testing.T) {
 	}
 }
 
+func TestService_Refresh_Success(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	userID := uuid.New()
+	tokenID := uuid.New()
+	oldRefreshRaw := "old_refresh_raw"
+	oldRefreshHash := auth.HashToken(oldRefreshRaw)
+
+	existingToken := &domain.RefreshToken{
+		ID:        tokenID,
+		UserID:    userID,
+		TokenHash: oldRefreshHash,
+		ExpiresAt: time.Now().Add(24 * time.Hour),
+		CreatedAt: time.Now().Add(-1 * time.Hour),
+	}
+
+	existingUser := &domain.User{
+		ID:            userID,
+		Email:         "test@example.com",
+		Name:          "Test User",
+		OAuthProvider: domain.OAuthProviderGoogle,
+		OAuthID:       "google_123",
+	}
+
+	oldTokenRevoked := false
+	newTokenCreated := false
+
+	// Setup mocks
+	tokensMock := &tokenRepoMock{
+		GetByHashFunc: func(ctx context.Context, hash string) (*domain.RefreshToken, error) {
+			if hash != oldRefreshHash {
+				t.Errorf("GetByHash called with wrong hash: got=%s, want=%s", hash, oldRefreshHash)
+			}
+			return existingToken, nil
+		},
+		RevokeByIDFunc: func(ctx context.Context, id uuid.UUID) error {
+			if id != tokenID {
+				t.Errorf("RevokeByID called with wrong ID: got=%s, want=%s", id, tokenID)
+			}
+			oldTokenRevoked = true
+			return nil
+		},
+		CreateFunc: func(ctx context.Context, token *domain.RefreshToken) error {
+			if token.UserID != userID {
+				t.Errorf("tokens.Create: UserID: got=%s, want=%s", token.UserID, userID)
+			}
+			if token.TokenHash == oldRefreshHash {
+				t.Errorf("tokens.Create: TokenHash should be different from old hash")
+			}
+			newTokenCreated = true
+			return nil
+		},
+	}
+
+	usersMock := &userRepoMock{
+		GetByIDFunc: func(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+			if id != userID {
+				t.Errorf("GetByID called with wrong ID: got=%s, want=%s", id, userID)
+			}
+			return existingUser, nil
+		},
+	}
+
+	jwtMock := &jwtManagerMock{
+		GenerateAccessTokenFunc: func(uid uuid.UUID) (string, error) {
+			if uid != userID {
+				t.Errorf("GenerateAccessToken called with wrong userID: got=%s, want=%s", uid, userID)
+			}
+			return "new_access_token", nil
+		},
+		GenerateRefreshTokenFunc: func() (string, string, error) {
+			return "new_refresh_raw", "new_refresh_hash", nil
+		},
+	}
+
+	cfg := config.AuthConfig{
+		RefreshTokenTTL: 30 * 24 * time.Hour,
+	}
+
+	svc := NewService(
+		slog.Default(),
+		usersMock,
+		&settingsRepoMock{},
+		tokensMock,
+		&txManagerMock{},
+		&oauthVerifierMock{},
+		jwtMock,
+		cfg,
+	)
+
+	// Execute
+	input := RefreshInput{RefreshToken: oldRefreshRaw}
+	result, err := svc.Refresh(ctx, input)
+
+	// Assert
+	if err != nil {
+		t.Fatalf("Refresh returned error: %v", err)
+	}
+	if result == nil {
+		t.Fatal("Refresh returned nil result")
+	}
+	if result.AccessToken != "new_access_token" {
+		t.Errorf("AccessToken: got=%s, want=%s", result.AccessToken, "new_access_token")
+	}
+	if result.RefreshToken != "new_refresh_raw" {
+		t.Errorf("RefreshToken: got=%s, want=%s (should be raw, not hash)", result.RefreshToken, "new_refresh_raw")
+	}
+	if result.User == nil {
+		t.Fatal("User is nil")
+	}
+	if result.User.ID != userID {
+		t.Errorf("User.ID: got=%s, want=%s", result.User.ID, userID)
+	}
+
+	// Verify token rotation
+	if !oldTokenRevoked {
+		t.Error("Old token was not revoked")
+	}
+	if !newTokenCreated {
+		t.Error("New token was not created")
+	}
+
+	// Verify mock calls
+	if len(tokensMock.GetByHashCalls()) != 1 {
+		t.Errorf("GetByHash called %d times, want 1", len(tokensMock.GetByHashCalls()))
+	}
+	if len(tokensMock.RevokeByIDCalls()) != 1 {
+		t.Errorf("RevokeByID called %d times, want 1", len(tokensMock.RevokeByIDCalls()))
+	}
+	if len(tokensMock.CreateCalls()) != 1 {
+		t.Errorf("Create called %d times, want 1", len(tokensMock.CreateCalls()))
+	}
+	if len(usersMock.GetByIDCalls()) != 1 {
+		t.Errorf("GetByID called %d times, want 1", len(usersMock.GetByIDCalls()))
+	}
+}
+
+func TestService_Refresh_TokenNotFound(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	// Setup mocks
+	tokensMock := &tokenRepoMock{
+		GetByHashFunc: func(ctx context.Context, hash string) (*domain.RefreshToken, error) {
+			return nil, domain.ErrNotFound
+		},
+	}
+
+	cfg := config.AuthConfig{
+		RefreshTokenTTL: 30 * 24 * time.Hour,
+	}
+
+	svc := NewService(
+		slog.Default(),
+		&userRepoMock{},
+		&settingsRepoMock{},
+		tokensMock,
+		&txManagerMock{},
+		&oauthVerifierMock{},
+		&jwtManagerMock{},
+		cfg,
+	)
+
+	// Execute
+	input := RefreshInput{RefreshToken: "invalid_token"}
+	result, err := svc.Refresh(ctx, input)
+
+	// Assert
+	if !errors.Is(err, domain.ErrUnauthorized) {
+		t.Fatalf("Refresh error: got=%v, want=ErrUnauthorized", err)
+	}
+	if result != nil {
+		t.Fatal("Refresh should return nil result on token not found")
+	}
+
+	// Verify GetByHash was called
+	if len(tokensMock.GetByHashCalls()) != 1 {
+		t.Errorf("GetByHash called %d times, want 1", len(tokensMock.GetByHashCalls()))
+	}
+}
+
+func TestService_Refresh_TokenExpired(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	userID := uuid.New()
+	tokenID := uuid.New()
+
+	expiredToken := &domain.RefreshToken{
+		ID:        tokenID,
+		UserID:    userID,
+		TokenHash: "some_hash",
+		ExpiresAt: time.Now().Add(-1 * time.Hour), // expired
+		CreatedAt: time.Now().Add(-2 * time.Hour),
+	}
+
+	// Setup mocks
+	tokensMock := &tokenRepoMock{
+		GetByHashFunc: func(ctx context.Context, hash string) (*domain.RefreshToken, error) {
+			return expiredToken, nil
+		},
+	}
+
+	cfg := config.AuthConfig{
+		RefreshTokenTTL: 30 * 24 * time.Hour,
+	}
+
+	svc := NewService(
+		slog.Default(),
+		&userRepoMock{},
+		&settingsRepoMock{},
+		tokensMock,
+		&txManagerMock{},
+		&oauthVerifierMock{},
+		&jwtManagerMock{},
+		cfg,
+	)
+
+	// Execute
+	input := RefreshInput{RefreshToken: "expired_token"}
+	result, err := svc.Refresh(ctx, input)
+
+	// Assert
+	if !errors.Is(err, domain.ErrUnauthorized) {
+		t.Fatalf("Refresh error: got=%v, want=ErrUnauthorized", err)
+	}
+	if result != nil {
+		t.Fatal("Refresh should return nil result on expired token")
+	}
+}
+
+func TestService_Refresh_UserDeleted(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	userID := uuid.New()
+	tokenID := uuid.New()
+
+	validToken := &domain.RefreshToken{
+		ID:        tokenID,
+		UserID:    userID,
+		TokenHash: "some_hash",
+		ExpiresAt: time.Now().Add(24 * time.Hour),
+		CreatedAt: time.Now().Add(-1 * time.Hour),
+	}
+
+	// Setup mocks
+	tokensMock := &tokenRepoMock{
+		GetByHashFunc: func(ctx context.Context, hash string) (*domain.RefreshToken, error) {
+			return validToken, nil
+		},
+	}
+
+	usersMock := &userRepoMock{
+		GetByIDFunc: func(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+			return nil, domain.ErrNotFound
+		},
+	}
+
+	cfg := config.AuthConfig{
+		RefreshTokenTTL: 30 * 24 * time.Hour,
+	}
+
+	svc := NewService(
+		slog.Default(),
+		usersMock,
+		&settingsRepoMock{},
+		tokensMock,
+		&txManagerMock{},
+		&oauthVerifierMock{},
+		&jwtManagerMock{},
+		cfg,
+	)
+
+	// Execute
+	input := RefreshInput{RefreshToken: "valid_token_deleted_user"}
+	result, err := svc.Refresh(ctx, input)
+
+	// Assert
+	if !errors.Is(err, domain.ErrUnauthorized) {
+		t.Fatalf("Refresh error: got=%v, want=ErrUnauthorized", err)
+	}
+	if result != nil {
+		t.Fatal("Refresh should return nil result when user is deleted")
+	}
+}
+
+func TestService_Refresh_ValidationEmptyToken(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	cfg := config.AuthConfig{
+		RefreshTokenTTL: 30 * 24 * time.Hour,
+	}
+
+	svc := NewService(
+		slog.Default(),
+		&userRepoMock{},
+		&settingsRepoMock{},
+		&tokenRepoMock{},
+		&txManagerMock{},
+		&oauthVerifierMock{},
+		&jwtManagerMock{},
+		cfg,
+	)
+
+	// Execute
+	input := RefreshInput{RefreshToken: ""}
+	result, err := svc.Refresh(ctx, input)
+
+	// Assert
+	if result != nil {
+		t.Error("Refresh should return nil result on validation error")
+	}
+
+	var valErr *domain.ValidationError
+	if !errors.As(err, &valErr) {
+		t.Fatalf("Refresh error: got=%v, want=ValidationError", err)
+	}
+
+	found := false
+	for _, fieldErr := range valErr.Errors {
+		if fieldErr.Field == "refresh_token" && fieldErr.Message == "required" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Errorf("ValidationError missing: field=refresh_token, message=required. Got: %v", valErr.Errors)
+	}
+}
+
+func TestService_Refresh_ValidationTooLong(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	cfg := config.AuthConfig{
+		RefreshTokenTTL: 30 * 24 * time.Hour,
+	}
+
+	svc := NewService(
+		slog.Default(),
+		&userRepoMock{},
+		&settingsRepoMock{},
+		&tokenRepoMock{},
+		&txManagerMock{},
+		&oauthVerifierMock{},
+		&jwtManagerMock{},
+		cfg,
+	)
+
+	// Execute with token > 512 characters
+	longToken := string(make([]byte, 513))
+	input := RefreshInput{RefreshToken: longToken}
+	result, err := svc.Refresh(ctx, input)
+
+	// Assert
+	if result != nil {
+		t.Error("Refresh should return nil result on validation error")
+	}
+
+	var valErr *domain.ValidationError
+	if !errors.As(err, &valErr) {
+		t.Fatalf("Refresh error: got=%v, want=ValidationError", err)
+	}
+
+	found := false
+	for _, fieldErr := range valErr.Errors {
+		if fieldErr.Field == "refresh_token" && fieldErr.Message == "too long" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Errorf("ValidationError missing: field=refresh_token, message=too long. Got: %v", valErr.Errors)
+	}
+}
+
+func TestService_Refresh_OldTokenRevoked(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	userID := uuid.New()
+	tokenID := uuid.New()
+	oldRefreshRaw := "old_refresh_raw"
+
+	existingToken := &domain.RefreshToken{
+		ID:        tokenID,
+		UserID:    userID,
+		TokenHash: auth.HashToken(oldRefreshRaw),
+		ExpiresAt: time.Now().Add(24 * time.Hour),
+		CreatedAt: time.Now().Add(-1 * time.Hour),
+	}
+
+	existingUser := &domain.User{
+		ID:            userID,
+		Email:         "test@example.com",
+		Name:          "Test User",
+		OAuthProvider: domain.OAuthProviderGoogle,
+		OAuthID:       "google_123",
+	}
+
+	revokeCalledWithID := uuid.Nil
+
+	// Setup mocks
+	tokensMock := &tokenRepoMock{
+		GetByHashFunc: func(ctx context.Context, hash string) (*domain.RefreshToken, error) {
+			return existingToken, nil
+		},
+		RevokeByIDFunc: func(ctx context.Context, id uuid.UUID) error {
+			revokeCalledWithID = id
+			return nil
+		},
+		CreateFunc: func(ctx context.Context, token *domain.RefreshToken) error {
+			return nil
+		},
+	}
+
+	usersMock := &userRepoMock{
+		GetByIDFunc: func(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+			return existingUser, nil
+		},
+	}
+
+	jwtMock := &jwtManagerMock{
+		GenerateAccessTokenFunc: func(uid uuid.UUID) (string, error) {
+			return "new_access_token", nil
+		},
+		GenerateRefreshTokenFunc: func() (string, string, error) {
+			return "new_refresh_raw", "new_refresh_hash", nil
+		},
+	}
+
+	cfg := config.AuthConfig{
+		RefreshTokenTTL: 30 * 24 * time.Hour,
+	}
+
+	svc := NewService(
+		slog.Default(),
+		usersMock,
+		&settingsRepoMock{},
+		tokensMock,
+		&txManagerMock{},
+		&oauthVerifierMock{},
+		jwtMock,
+		cfg,
+	)
+
+	// Execute
+	input := RefreshInput{RefreshToken: oldRefreshRaw}
+	_, err := svc.Refresh(ctx, input)
+
+	// Assert
+	if err != nil {
+		t.Fatalf("Refresh returned error: %v", err)
+	}
+
+	if revokeCalledWithID != tokenID {
+		t.Errorf("RevokeByID called with ID: got=%s, want=%s", revokeCalledWithID, tokenID)
+	}
+}
+
+func TestService_Refresh_NewTokenDifferentFromOld(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	userID := uuid.New()
+	tokenID := uuid.New()
+	oldRefreshRaw := "old_refresh_raw"
+	oldRefreshHash := auth.HashToken(oldRefreshRaw)
+
+	existingToken := &domain.RefreshToken{
+		ID:        tokenID,
+		UserID:    userID,
+		TokenHash: oldRefreshHash,
+		ExpiresAt: time.Now().Add(24 * time.Hour),
+		CreatedAt: time.Now().Add(-1 * time.Hour),
+	}
+
+	existingUser := &domain.User{
+		ID:            userID,
+		Email:         "test@example.com",
+		Name:          "Test User",
+		OAuthProvider: domain.OAuthProviderGoogle,
+		OAuthID:       "google_123",
+	}
+
+	var createdTokenHash string
+
+	// Setup mocks
+	tokensMock := &tokenRepoMock{
+		GetByHashFunc: func(ctx context.Context, hash string) (*domain.RefreshToken, error) {
+			return existingToken, nil
+		},
+		RevokeByIDFunc: func(ctx context.Context, id uuid.UUID) error {
+			return nil
+		},
+		CreateFunc: func(ctx context.Context, token *domain.RefreshToken) error {
+			createdTokenHash = token.TokenHash
+			return nil
+		},
+	}
+
+	usersMock := &userRepoMock{
+		GetByIDFunc: func(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+			return existingUser, nil
+		},
+	}
+
+	jwtMock := &jwtManagerMock{
+		GenerateAccessTokenFunc: func(uid uuid.UUID) (string, error) {
+			return "new_access_token", nil
+		},
+		GenerateRefreshTokenFunc: func() (string, string, error) {
+			return "new_refresh_raw", "new_refresh_hash", nil
+		},
+	}
+
+	cfg := config.AuthConfig{
+		RefreshTokenTTL: 30 * 24 * time.Hour,
+	}
+
+	svc := NewService(
+		slog.Default(),
+		usersMock,
+		&settingsRepoMock{},
+		tokensMock,
+		&txManagerMock{},
+		&oauthVerifierMock{},
+		jwtMock,
+		cfg,
+	)
+
+	// Execute
+	input := RefreshInput{RefreshToken: oldRefreshRaw}
+	result, err := svc.Refresh(ctx, input)
+
+	// Assert
+	if err != nil {
+		t.Fatalf("Refresh returned error: %v", err)
+	}
+
+	// Verify new token is different from old
+	if result.RefreshToken == oldRefreshRaw {
+		t.Error("New refresh token should be different from old")
+	}
+
+	// Verify stored hash is different from old hash
+	if createdTokenHash == oldRefreshHash {
+		t.Error("New token hash should be different from old token hash")
+	}
+
+	// Verify stored hash matches the new hash
+	if createdTokenHash != "new_refresh_hash" {
+		t.Errorf("Stored token hash: got=%s, want=%s", createdTokenHash, "new_refresh_hash")
+	}
+}
+
+func TestService_Refresh_UserDataInResponse(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	userID := uuid.New()
+	tokenID := uuid.New()
+	oldRefreshRaw := "old_refresh_raw"
+
+	existingToken := &domain.RefreshToken{
+		ID:        tokenID,
+		UserID:    userID,
+		TokenHash: auth.HashToken(oldRefreshRaw),
+		ExpiresAt: time.Now().Add(24 * time.Hour),
+		CreatedAt: time.Now().Add(-1 * time.Hour),
+	}
+
+	existingUser := &domain.User{
+		ID:            userID,
+		Email:         "john@example.com",
+		Name:          "John Doe",
+		AvatarURL:     ptrString("https://example.com/john.jpg"),
+		OAuthProvider: domain.OAuthProviderGoogle,
+		OAuthID:       "google_456",
+	}
+
+	// Setup mocks
+	tokensMock := &tokenRepoMock{
+		GetByHashFunc: func(ctx context.Context, hash string) (*domain.RefreshToken, error) {
+			return existingToken, nil
+		},
+		RevokeByIDFunc: func(ctx context.Context, id uuid.UUID) error {
+			return nil
+		},
+		CreateFunc: func(ctx context.Context, token *domain.RefreshToken) error {
+			return nil
+		},
+	}
+
+	usersMock := &userRepoMock{
+		GetByIDFunc: func(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+			return existingUser, nil
+		},
+	}
+
+	jwtMock := &jwtManagerMock{
+		GenerateAccessTokenFunc: func(uid uuid.UUID) (string, error) {
+			return "new_access_token", nil
+		},
+		GenerateRefreshTokenFunc: func() (string, string, error) {
+			return "new_refresh_raw", "new_refresh_hash", nil
+		},
+	}
+
+	cfg := config.AuthConfig{
+		RefreshTokenTTL: 30 * 24 * time.Hour,
+	}
+
+	svc := NewService(
+		slog.Default(),
+		usersMock,
+		&settingsRepoMock{},
+		tokensMock,
+		&txManagerMock{},
+		&oauthVerifierMock{},
+		jwtMock,
+		cfg,
+	)
+
+	// Execute
+	input := RefreshInput{RefreshToken: oldRefreshRaw}
+	result, err := svc.Refresh(ctx, input)
+
+	// Assert
+	if err != nil {
+		t.Fatalf("Refresh returned error: %v", err)
+	}
+
+	if result.User == nil {
+		t.Fatal("User is nil")
+	}
+	if result.User.Name != "John Doe" {
+		t.Errorf("User.Name: got=%s, want=%s", result.User.Name, "John Doe")
+	}
+	if result.User.Email != "john@example.com" {
+		t.Errorf("User.Email: got=%s, want=%s", result.User.Email, "john@example.com")
+	}
+}
+
 // Helper function to create *string
 func ptrString(s string) *string {
 	return &s
