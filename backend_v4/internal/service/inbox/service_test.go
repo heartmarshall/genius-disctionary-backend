@@ -13,9 +13,6 @@ import (
 	"github.com/heartmarshall/myenglish-backend/pkg/ctxutil"
 )
 
-// ptr returns a pointer to the given value.
-func ptr[T any](v T) *T { return &v }
-
 // newTestService creates a Service with the given mock and a discard logger.
 func newTestService(t *testing.T, mock *inboxRepoMock) *Service {
 	t.Helper()
