@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 const createRefreshToken = `-- name: CreateRefreshToken :one
@@ -38,15 +39,14 @@ func (q *Queries) CreateRefreshToken(ctx context.Context, arg CreateRefreshToken
 	return i, err
 }
 
-const deleteExpiredRefreshTokens = `-- name: DeleteExpiredRefreshTokens :exec
+const deleteExpiredRefreshTokens = `-- name: DeleteExpiredRefreshTokens :execresult
 DELETE FROM refresh_tokens
 WHERE expires_at < now()
    OR revoked_at IS NOT NULL
 `
 
-func (q *Queries) DeleteExpiredRefreshTokens(ctx context.Context) error {
-	_, err := q.db.Exec(ctx, deleteExpiredRefreshTokens)
-	return err
+func (q *Queries) DeleteExpiredRefreshTokens(ctx context.Context) (pgconn.CommandTag, error) {
+	return q.db.Exec(ctx, deleteExpiredRefreshTokens)
 }
 
 const getRefreshTokenByHash = `-- name: GetRefreshTokenByHash :one

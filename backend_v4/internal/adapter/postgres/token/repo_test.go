@@ -355,7 +355,8 @@ func TestRepo_DeleteExpired_RemovesExpiredTokens(t *testing.T) {
 	}
 
 	// Run cleanup.
-	if err := repo.DeleteExpired(ctx); err != nil {
+	_, err = repo.DeleteExpired(ctx)
+	if err != nil {
 		t.Fatalf("DeleteExpired: unexpected error: %v", err)
 	}
 
@@ -370,16 +371,16 @@ func TestRepo_DeleteExpired_RemovesExpiredTokens(t *testing.T) {
 
 	// Expired token should be deleted (not just not-found by query, but actually gone).
 	// Verify via raw query that the row doesn't exist at all.
-	var count int
+	var rowCount int
 	err = pool.QueryRow(ctx,
 		`SELECT count(*) FROM refresh_tokens WHERE token_hash = $1`,
 		expiredHash,
-	).Scan(&count)
+	).Scan(&rowCount)
 	if err != nil {
 		t.Fatalf("count query: %v", err)
 	}
-	if count != 0 {
-		t.Errorf("expected expired token to be deleted, but found %d rows", count)
+	if rowCount != 0 {
+		t.Errorf("expected expired token to be deleted, but found %d rows", rowCount)
 	}
 }
 
@@ -401,21 +402,22 @@ func TestRepo_DeleteExpired_RemovesRevokedTokens(t *testing.T) {
 	}
 
 	// Run cleanup.
-	if err := repo.DeleteExpired(ctx); err != nil {
+	_, err = repo.DeleteExpired(ctx)
+	if err != nil {
 		t.Fatalf("DeleteExpired: %v", err)
 	}
 
 	// Revoked token should be physically deleted.
-	var count int
+	var rowCount int
 	err = pool.QueryRow(ctx,
 		`SELECT count(*) FROM refresh_tokens WHERE token_hash = $1`,
 		revokedHash,
-	).Scan(&count)
+	).Scan(&rowCount)
 	if err != nil {
 		t.Fatalf("count query: %v", err)
 	}
-	if count != 0 {
-		t.Errorf("expected revoked token to be deleted, but found %d rows", count)
+	if rowCount != 0 {
+		t.Errorf("expected revoked token to be deleted, but found %d rows", rowCount)
 	}
 }
 
@@ -425,7 +427,8 @@ func TestRepo_DeleteExpired_NoOp(t *testing.T) {
 	ctx := context.Background()
 
 	// DeleteExpired on empty/clean table should not error.
-	if err := repo.DeleteExpired(ctx); err != nil {
+	_, err := repo.DeleteExpired(ctx)
+	if err != nil {
 		t.Fatalf("DeleteExpired: expected no error, got %v", err)
 	}
 }

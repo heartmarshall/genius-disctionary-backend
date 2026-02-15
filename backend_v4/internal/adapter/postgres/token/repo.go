@@ -82,16 +82,17 @@ func (r *Repo) RevokeAllByUser(ctx context.Context, userID uuid.UUID) error {
 }
 
 // DeleteExpired removes all expired or revoked tokens from the database.
+// Returns the count of deleted tokens.
 // May delete many records; does not use a transaction.
-func (r *Repo) DeleteExpired(ctx context.Context) error {
+func (r *Repo) DeleteExpired(ctx context.Context) (int, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
-	err := q.DeleteExpiredRefreshTokens(ctx)
+	tag, err := q.DeleteExpiredRefreshTokens(ctx)
 	if err != nil {
-		return mapError(err, "refresh_token", uuid.Nil)
+		return 0, mapError(err, "refresh_token", uuid.Nil)
 	}
 
-	return nil
+	return int(tag.RowsAffected()), nil
 }
 
 // ---------------------------------------------------------------------------
