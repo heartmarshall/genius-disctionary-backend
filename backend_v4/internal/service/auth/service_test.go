@@ -11,6 +11,7 @@ import (
 	"github.com/heartmarshall/myenglish-backend/internal/auth"
 	"github.com/heartmarshall/myenglish-backend/internal/config"
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
+	"github.com/heartmarshall/myenglish-backend/pkg/ctxutil"
 )
 
 //go:generate moq -out user_repo_mock_test.go -pkg auth . userRepo
@@ -1569,6 +1570,390 @@ func TestService_Refresh_UserDataInResponse(t *testing.T) {
 	}
 	if result.User.Email != "john@example.com" {
 		t.Errorf("User.Email: got=%s, want=%s", result.User.Email, "john@example.com")
+	}
+}
+
+func TestService_Logout_Success(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	revokedForUserID := uuid.Nil
+
+	// Setup mocks
+	tokensMock := &tokenRepoMock{
+		RevokeAllByUserFunc: func(ctx context.Context, uid uuid.UUID) error {
+			revokedForUserID = uid
+			return nil
+		},
+	}
+
+	cfg := config.AuthConfig{
+		RefreshTokenTTL: 30 * 24 * time.Hour,
+	}
+
+	svc := NewService(
+		slog.Default(),
+		&userRepoMock{},
+		&settingsRepoMock{},
+		tokensMock,
+		&txManagerMock{},
+		&oauthVerifierMock{},
+		&jwtManagerMock{},
+		cfg,
+	)
+
+	// Execute
+	err := svc.Logout(ctx)
+
+	// Assert
+	if err != nil {
+		t.Fatalf("Logout returned error: %v", err)
+	}
+
+	if revokedForUserID != userID {
+		t.Errorf("RevokeAllByUser called with userID: got=%s, want=%s", revokedForUserID, userID)
+	}
+
+	// Verify mock was called
+	if len(tokensMock.RevokeAllByUserCalls()) != 1 {
+		t.Errorf("RevokeAllByUser called %d times, want 1", len(tokensMock.RevokeAllByUserCalls()))
+	}
+}
+
+func TestService_Logout_NoUserID(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background() // No userID in context
+
+	// Setup mocks
+	tokensMock := &tokenRepoMock{}
+
+	cfg := config.AuthConfig{
+		RefreshTokenTTL: 30 * 24 * time.Hour,
+	}
+
+	svc := NewService(
+		slog.Default(),
+		&userRepoMock{},
+		&settingsRepoMock{},
+		tokensMock,
+		&txManagerMock{},
+		&oauthVerifierMock{},
+		&jwtManagerMock{},
+		cfg,
+	)
+
+	// Execute
+	err := svc.Logout(ctx)
+
+	// Assert
+	if !errors.Is(err, domain.ErrUnauthorized) {
+		t.Fatalf("Logout error: got=%v, want=ErrUnauthorized", err)
+	}
+
+	// Verify RevokeAllByUser was NOT called
+	if len(tokensMock.RevokeAllByUserCalls()) != 0 {
+		t.Errorf("RevokeAllByUser called %d times, want 0", len(tokensMock.RevokeAllByUserCalls()))
+	}
+}
+
+func TestService_Logout_RevokeError(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	revokeErr := errors.New("database error")
+
+	// Setup mocks
+	tokensMock := &tokenRepoMock{
+		RevokeAllByUserFunc: func(ctx context.Context, uid uuid.UUID) error {
+			return revokeErr
+		},
+	}
+
+	cfg := config.AuthConfig{
+		RefreshTokenTTL: 30 * 24 * time.Hour,
+	}
+
+	svc := NewService(
+		slog.Default(),
+		&userRepoMock{},
+		&settingsRepoMock{},
+		tokensMock,
+		&txManagerMock{},
+		&oauthVerifierMock{},
+		&jwtManagerMock{},
+		cfg,
+	)
+
+	// Execute
+	err := svc.Logout(ctx)
+
+	// Assert
+	if err == nil {
+		t.Fatal("Logout should return error when revoke fails")
+	}
+	if !errors.Is(err, revokeErr) {
+		t.Errorf("Logout error should wrap revoke error: got=%v, want=%v", err, revokeErr)
+	}
+}
+
+func TestService_ValidateToken_ValidToken(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	userID := uuid.New()
+	token := "valid_access_token"
+
+	// Setup mocks
+	jwtMock := &jwtManagerMock{
+		ValidateAccessTokenFunc: func(t string) (uuid.UUID, error) {
+			if t != token {
+				return uuid.Nil, errors.New("invalid token")
+			}
+			return userID, nil
+		},
+	}
+
+	cfg := config.AuthConfig{
+		RefreshTokenTTL: 30 * 24 * time.Hour,
+	}
+
+	svc := NewService(
+		slog.Default(),
+		&userRepoMock{},
+		&settingsRepoMock{},
+		&tokenRepoMock{},
+		&txManagerMock{},
+		&oauthVerifierMock{},
+		jwtMock,
+		cfg,
+	)
+
+	// Execute
+	resultUserID, err := svc.ValidateToken(ctx, token)
+
+	// Assert
+	if err != nil {
+		t.Fatalf("ValidateToken returned error: %v", err)
+	}
+	if resultUserID != userID {
+		t.Errorf("ValidateToken userID: got=%s, want=%s", resultUserID, userID)
+	}
+
+	// Verify mock was called
+	if len(jwtMock.ValidateAccessTokenCalls()) != 1 {
+		t.Errorf("ValidateAccessToken called %d times, want 1", len(jwtMock.ValidateAccessTokenCalls()))
+	}
+}
+
+func TestService_ValidateToken_InvalidToken(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	token := "invalid_token"
+
+	// Setup mocks
+	jwtMock := &jwtManagerMock{
+		ValidateAccessTokenFunc: func(t string) (uuid.UUID, error) {
+			return uuid.Nil, errors.New("jwt validation failed")
+		},
+	}
+
+	cfg := config.AuthConfig{
+		RefreshTokenTTL: 30 * 24 * time.Hour,
+	}
+
+	svc := NewService(
+		slog.Default(),
+		&userRepoMock{},
+		&settingsRepoMock{},
+		&tokenRepoMock{},
+		&txManagerMock{},
+		&oauthVerifierMock{},
+		jwtMock,
+		cfg,
+	)
+
+	// Execute
+	resultUserID, err := svc.ValidateToken(ctx, token)
+
+	// Assert
+	if !errors.Is(err, domain.ErrUnauthorized) {
+		t.Fatalf("ValidateToken error: got=%v, want=ErrUnauthorized", err)
+	}
+	if resultUserID != uuid.Nil {
+		t.Errorf("ValidateToken should return uuid.Nil for invalid token, got=%s", resultUserID)
+	}
+}
+
+func TestService_ValidateToken_MalformedToken(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	token := "malformed.jwt.token"
+
+	// Setup mocks
+	jwtMock := &jwtManagerMock{
+		ValidateAccessTokenFunc: func(t string) (uuid.UUID, error) {
+			return uuid.Nil, errors.New("malformed token")
+		},
+	}
+
+	cfg := config.AuthConfig{
+		RefreshTokenTTL: 30 * 24 * time.Hour,
+	}
+
+	svc := NewService(
+		slog.Default(),
+		&userRepoMock{},
+		&settingsRepoMock{},
+		&tokenRepoMock{},
+		&txManagerMock{},
+		&oauthVerifierMock{},
+		jwtMock,
+		cfg,
+	)
+
+	// Execute
+	resultUserID, err := svc.ValidateToken(ctx, token)
+
+	// Assert
+	if !errors.Is(err, domain.ErrUnauthorized) {
+		t.Fatalf("ValidateToken error: got=%v, want=ErrUnauthorized", err)
+	}
+	if resultUserID != uuid.Nil {
+		t.Errorf("ValidateToken should return uuid.Nil for malformed token, got=%s", resultUserID)
+	}
+}
+
+func TestService_CleanupExpiredTokens_TokensDeleted(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	// Setup mocks
+	tokensMock := &tokenRepoMock{
+		DeleteExpiredFunc: func(ctx context.Context) (int, error) {
+			return 5, nil
+		},
+	}
+
+	cfg := config.AuthConfig{
+		RefreshTokenTTL: 30 * 24 * time.Hour,
+	}
+
+	svc := NewService(
+		slog.Default(),
+		&userRepoMock{},
+		&settingsRepoMock{},
+		tokensMock,
+		&txManagerMock{},
+		&oauthVerifierMock{},
+		&jwtManagerMock{},
+		cfg,
+	)
+
+	// Execute
+	count, err := svc.CleanupExpiredTokens(ctx)
+
+	// Assert
+	if err != nil {
+		t.Fatalf("CleanupExpiredTokens returned error: %v", err)
+	}
+	if count != 5 {
+		t.Errorf("CleanupExpiredTokens count: got=%d, want=%d", count, 5)
+	}
+
+	// Verify mock was called
+	if len(tokensMock.DeleteExpiredCalls()) != 1 {
+		t.Errorf("DeleteExpired called %d times, want 1", len(tokensMock.DeleteExpiredCalls()))
+	}
+}
+
+func TestService_CleanupExpiredTokens_NoTokensDeleted(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	// Setup mocks
+	tokensMock := &tokenRepoMock{
+		DeleteExpiredFunc: func(ctx context.Context) (int, error) {
+			return 0, nil
+		},
+	}
+
+	cfg := config.AuthConfig{
+		RefreshTokenTTL: 30 * 24 * time.Hour,
+	}
+
+	svc := NewService(
+		slog.Default(),
+		&userRepoMock{},
+		&settingsRepoMock{},
+		tokensMock,
+		&txManagerMock{},
+		&oauthVerifierMock{},
+		&jwtManagerMock{},
+		cfg,
+	)
+
+	// Execute
+	count, err := svc.CleanupExpiredTokens(ctx)
+
+	// Assert
+	if err != nil {
+		t.Fatalf("CleanupExpiredTokens returned error: %v", err)
+	}
+	if count != 0 {
+		t.Errorf("CleanupExpiredTokens count: got=%d, want=%d", count, 0)
+	}
+}
+
+func TestService_CleanupExpiredTokens_Error(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	deleteErr := errors.New("database error")
+
+	// Setup mocks
+	tokensMock := &tokenRepoMock{
+		DeleteExpiredFunc: func(ctx context.Context) (int, error) {
+			return 0, deleteErr
+		},
+	}
+
+	cfg := config.AuthConfig{
+		RefreshTokenTTL: 30 * 24 * time.Hour,
+	}
+
+	svc := NewService(
+		slog.Default(),
+		&userRepoMock{},
+		&settingsRepoMock{},
+		tokensMock,
+		&txManagerMock{},
+		&oauthVerifierMock{},
+		&jwtManagerMock{},
+		cfg,
+	)
+
+	// Execute
+	count, err := svc.CleanupExpiredTokens(ctx)
+
+	// Assert
+	if err == nil {
+		t.Fatal("CleanupExpiredTokens should return error when delete fails")
+	}
+	if !errors.Is(err, deleteErr) {
+		t.Errorf("CleanupExpiredTokens error should wrap delete error: got=%v, want=%v", err, deleteErr)
+	}
+	if count != 0 {
+		t.Errorf("CleanupExpiredTokens count: got=%d, want=%d (should be 0 on error)", count, 0)
 	}
 }
 
