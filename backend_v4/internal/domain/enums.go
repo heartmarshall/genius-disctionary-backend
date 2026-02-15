@@ -80,6 +80,7 @@ const (
 	EntityTypePronunciation EntityType = "PRONUNCIATION"
 	EntityTypeCard          EntityType = "CARD"
 	EntityTypeTopic         EntityType = "TOPIC"
+	EntityTypeUser          EntityType = "USER"
 )
 
 func (e EntityType) String() string { return string(e) }
@@ -87,7 +88,7 @@ func (e EntityType) String() string { return string(e) }
 func (e EntityType) IsValid() bool {
 	switch e {
 	case EntityTypeEntry, EntityTypeSense, EntityTypeExample, EntityTypeImage,
-		EntityTypePronunciation, EntityTypeCard, EntityTypeTopic:
+		EntityTypePronunciation, EntityTypeCard, EntityTypeTopic, EntityTypeUser:
 		return true
 	}
 	return false

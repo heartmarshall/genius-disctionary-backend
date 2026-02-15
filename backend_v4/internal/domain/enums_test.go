@@ -94,7 +94,7 @@ func TestEntityType_IsValid(t *testing.T) {
 
 	valid := []EntityType{
 		EntityTypeEntry, EntityTypeSense, EntityTypeExample, EntityTypeImage,
-		EntityTypePronunciation, EntityTypeCard, EntityTypeTopic,
+		EntityTypePronunciation, EntityTypeCard, EntityTypeTopic, EntityTypeUser,
 	}
 	for _, e := range valid {
 		if !e.IsValid() {
