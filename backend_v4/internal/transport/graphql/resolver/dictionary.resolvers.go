@@ -12,37 +12,100 @@ import (
 	"github.com/google/uuid"
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
 	"github.com/heartmarshall/myenglish-backend/internal/service/dictionary"
+	"github.com/heartmarshall/myenglish-backend/internal/transport/graphql/dataloader"
 	"github.com/heartmarshall/myenglish-backend/internal/transport/graphql/generated"
 )
 
 // Senses is the resolver for the senses field.
 func (r *dictionaryEntryResolver) Senses(ctx context.Context, obj *domain.Entry) ([]*domain.Sense, error) {
-	panic(fmt.Errorf("not implemented: Senses - senses"))
+	if len(obj.Senses) > 0 {
+		return toSensePointers(obj.Senses), nil
+	}
+	loaders := dataloader.FromContext(ctx)
+	if loaders == nil {
+		return nil, fmt.Errorf("dataloaders not in context")
+	}
+	senses, err := loaders.SensesByEntryID.Load(ctx, obj.ID)()
+	if err != nil {
+		return nil, err
+	}
+	return toSensePointers(senses), nil
 }
 
 // Pronunciations is the resolver for the pronunciations field.
 func (r *dictionaryEntryResolver) Pronunciations(ctx context.Context, obj *domain.Entry) ([]*domain.RefPronunciation, error) {
-	panic(fmt.Errorf("not implemented: Pronunciations - pronunciations"))
+	if len(obj.Pronunciations) > 0 {
+		return toPronunciationPointers(obj.Pronunciations), nil
+	}
+	loaders := dataloader.FromContext(ctx)
+	if loaders == nil {
+		return nil, fmt.Errorf("dataloaders not in context")
+	}
+	prons, err := loaders.PronunciationsByEntryID.Load(ctx, obj.ID)()
+	if err != nil {
+		return nil, err
+	}
+	return toPronunciationPointers(prons), nil
 }
 
 // CatalogImages is the resolver for the catalogImages field.
 func (r *dictionaryEntryResolver) CatalogImages(ctx context.Context, obj *domain.Entry) ([]*domain.RefImage, error) {
-	panic(fmt.Errorf("not implemented: CatalogImages - catalogImages"))
+	if len(obj.CatalogImages) > 0 {
+		return toRefImagePointers(obj.CatalogImages), nil
+	}
+	loaders := dataloader.FromContext(ctx)
+	if loaders == nil {
+		return nil, fmt.Errorf("dataloaders not in context")
+	}
+	images, err := loaders.CatalogImagesByEntryID.Load(ctx, obj.ID)()
+	if err != nil {
+		return nil, err
+	}
+	return toRefImagePointers(images), nil
 }
 
 // UserImages is the resolver for the userImages field.
 func (r *dictionaryEntryResolver) UserImages(ctx context.Context, obj *domain.Entry) ([]*domain.UserImage, error) {
-	panic(fmt.Errorf("not implemented: UserImages - userImages"))
+	if len(obj.UserImages) > 0 {
+		return toUserImagePointers(obj.UserImages), nil
+	}
+	loaders := dataloader.FromContext(ctx)
+	if loaders == nil {
+		return nil, fmt.Errorf("dataloaders not in context")
+	}
+	images, err := loaders.UserImagesByEntryID.Load(ctx, obj.ID)()
+	if err != nil {
+		return nil, err
+	}
+	return toUserImagePointers(images), nil
 }
 
 // Card is the resolver for the card field.
 func (r *dictionaryEntryResolver) Card(ctx context.Context, obj *domain.Entry) (*domain.Card, error) {
-	panic(fmt.Errorf("not implemented: Card - card"))
+	if obj.Card != nil {
+		return obj.Card, nil
+	}
+	loaders := dataloader.FromContext(ctx)
+	if loaders == nil {
+		return nil, fmt.Errorf("dataloaders not in context")
+	}
+	return loaders.CardByEntryID.Load(ctx, obj.ID)()
 }
 
 // Topics is the resolver for the topics field.
 func (r *dictionaryEntryResolver) Topics(ctx context.Context, obj *domain.Entry) ([]*domain.Topic, error) {
-	panic(fmt.Errorf("not implemented: Topics - topics"))
+	if len(obj.Topics) > 0 {
+		return toTopicPointers(obj.Topics), nil
+	}
+	loaders := dataloader.FromContext(ctx)
+	if loaders == nil {
+		return nil, fmt.Errorf("dataloaders not in context")
+	}
+	topics, err := loaders.TopicsByEntryID.Load(ctx, obj.ID)()
+	if err != nil {
+		return nil, err
+	}
+	return toTopicPointers(topics), nil
 }
 
 // CreateEntryFromCatalog is the resolver for the createEntryFromCatalog field.
@@ -112,12 +175,34 @@ func (r *queryResolver) ExportEntries(ctx context.Context) (*dictionary.ExportRe
 
 // Translations is the resolver for the translations field.
 func (r *senseResolver) Translations(ctx context.Context, obj *domain.Sense) ([]*domain.Translation, error) {
-	panic(fmt.Errorf("not implemented: Translations - translations"))
+	if len(obj.Translations) > 0 {
+		return toTranslationPointers(obj.Translations), nil
+	}
+	loaders := dataloader.FromContext(ctx)
+	if loaders == nil {
+		return nil, fmt.Errorf("dataloaders not in context")
+	}
+	translations, err := loaders.TranslationsBySenseID.Load(ctx, obj.ID)()
+	if err != nil {
+		return nil, err
+	}
+	return toTranslationPointers(translations), nil
 }
 
 // Examples is the resolver for the examples field.
 func (r *senseResolver) Examples(ctx context.Context, obj *domain.Sense) ([]*domain.Example, error) {
-	panic(fmt.Errorf("not implemented: Examples - examples"))
+	if len(obj.Examples) > 0 {
+		return toExamplePointers(obj.Examples), nil
+	}
+	loaders := dataloader.FromContext(ctx)
+	if loaders == nil {
+		return nil, fmt.Errorf("dataloaders not in context")
+	}
+	examples, err := loaders.ExamplesBySenseID.Load(ctx, obj.ID)()
+	if err != nil {
+		return nil, err
+	}
+	return toExamplePointers(examples), nil
 }
 
 // DictionaryEntry returns generated.DictionaryEntryResolver implementation.
@@ -130,3 +215,61 @@ func (r *Resolver) Sense() generated.SenseResolver { return &senseResolver{r} }
 
 type dictionaryEntryResolver struct{ *Resolver }
 type senseResolver struct{ *Resolver }
+
+// Helper functions to convert value slices to pointer slices
+
+func toSensePointers(senses []domain.Sense) []*domain.Sense {
+	result := make([]*domain.Sense, len(senses))
+	for i := range senses {
+		result[i] = &senses[i]
+	}
+	return result
+}
+
+func toTranslationPointers(translations []domain.Translation) []*domain.Translation {
+	result := make([]*domain.Translation, len(translations))
+	for i := range translations {
+		result[i] = &translations[i]
+	}
+	return result
+}
+
+func toExamplePointers(examples []domain.Example) []*domain.Example {
+	result := make([]*domain.Example, len(examples))
+	for i := range examples {
+		result[i] = &examples[i]
+	}
+	return result
+}
+
+func toPronunciationPointers(prons []domain.RefPronunciation) []*domain.RefPronunciation {
+	result := make([]*domain.RefPronunciation, len(prons))
+	for i := range prons {
+		result[i] = &prons[i]
+	}
+	return result
+}
+
+func toRefImagePointers(images []domain.RefImage) []*domain.RefImage {
+	result := make([]*domain.RefImage, len(images))
+	for i := range images {
+		result[i] = &images[i]
+	}
+	return result
+}
+
+func toUserImagePointers(images []domain.UserImage) []*domain.UserImage {
+	result := make([]*domain.UserImage, len(images))
+	for i := range images {
+		result[i] = &images[i]
+	}
+	return result
+}
+
+func toTopicPointers(topics []domain.Topic) []*domain.Topic {
+	result := make([]*domain.Topic, len(topics))
+	for i := range topics {
+		result[i] = &topics[i]
+	}
+	return result
+}

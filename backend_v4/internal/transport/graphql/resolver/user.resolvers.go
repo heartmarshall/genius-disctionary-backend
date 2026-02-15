@@ -30,7 +30,7 @@ func (r *userResolver) OauthProvider(ctx context.Context, obj *domain.User) (str
 
 // Settings is the resolver for the settings field.
 func (r *userResolver) Settings(ctx context.Context, obj *domain.User) (*domain.UserSettings, error) {
-	panic(fmt.Errorf("not implemented: Settings - settings"))
+	return r.user.GetSettings(ctx)
 }
 
 // User returns generated.UserResolver implementation.
