@@ -3,7 +3,6 @@ package topic
 import (
 	"context"
 	"errors"
-	"io"
 	"log/slog"
 	"strings"
 	"testing"
@@ -14,7 +13,7 @@ import (
 	"github.com/heartmarshall/myenglish-backend/pkg/ctxutil"
 )
 
-// newCRUDTestService creates a Service with the given mocks and a discard logger.
+// newCRUDTestService creates a Service with the given mocks and a default logger.
 func newCRUDTestService(
 	t *testing.T,
 	topicMock *topicRepoMock,
@@ -22,13 +21,13 @@ func newCRUDTestService(
 	txMock *txManagerMock,
 ) *Service {
 	t.Helper()
-	return &Service{
-		topics:  topicMock,
-		entries: &entryRepoMock{},
-		audit:   auditMock,
-		tx:      txMock,
-		log:     slog.New(slog.NewTextHandler(io.Discard, nil)),
-	}
+	return NewService(
+		slog.Default(),
+		topicMock,
+		&entryRepoMock{},
+		auditMock,
+		txMock,
+	)
 }
 
 // defaultTxMock returns a txManagerMock that simply calls the function with the same context.

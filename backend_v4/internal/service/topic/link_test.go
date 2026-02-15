@@ -3,7 +3,6 @@ package topic
 import (
 	"context"
 	"errors"
-	"io"
 	"log/slog"
 	"testing"
 
@@ -15,7 +14,7 @@ import (
 func newLinkTestService(t *testing.T, topics *topicRepoMock, entries *entryRepoMock) *Service {
 	t.Helper()
 	return NewService(
-		slog.New(slog.NewTextHandler(io.Discard, nil)),
+		slog.Default(),
 		topics,
 		entries,
 		&auditLoggerMock{LogFunc: func(ctx context.Context, r domain.AuditRecord) error { return nil }},
