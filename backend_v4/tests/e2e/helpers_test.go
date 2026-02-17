@@ -222,6 +222,7 @@ func setupTestServer(t *testing.T) *testServer {
 	mux.HandleFunc("GET /ready", healthHandler.Ready)
 	mux.HandleFunc("GET /health", healthHandler.Health)
 	mux.Handle("POST /query", graphqlHandler)
+	mux.Handle("OPTIONS /query", graphqlHandler)
 
 	// 12. httptest server.
 	srv := httptest.NewServer(mux)

@@ -69,8 +69,9 @@ func TestE2E_HealthEndpoint(t *testing.T) {
 	assert.Equal(t, "ok", db["status"])
 }
 
-// TestE2E_GraphQL_Unauthenticated verifies that the searchCatalog query
-// works without authentication (anonymous endpoint).
+// TestE2E_GraphQL_Unauthenticated verifies that a mutation requiring
+// authentication returns UNAUTHENTICATED when no token is provided,
+// even for query endpoints (searchCatalog requires auth).
 func TestE2E_GraphQL_Unauthenticated(t *testing.T) {
 	ts := setupTestServer(t)
 
@@ -79,15 +80,17 @@ func TestE2E_GraphQL_Unauthenticated(t *testing.T) {
 	status, result := ts.graphqlQuery(t, query, nil, "")
 	assert.Equal(t, http.StatusOK, status)
 
-	// Should have data (possibly empty array) and no errors.
-	data, ok := result["data"].(map[string]any)
-	require.True(t, ok, "expected data in response")
+	// searchCatalog requires authentication — expect UNAUTHENTICATED error.
+	errors, ok := result["errors"].([]any)
+	require.True(t, ok, "expected errors array")
+	require.NotEmpty(t, errors)
 
-	catalog, ok := data["searchCatalog"].([]any)
-	require.True(t, ok, "expected searchCatalog array")
-	// The catalog is empty in a fresh DB — that is fine.
-	_ = catalog
-	assert.Nil(t, result["errors"], "expected no errors for anonymous searchCatalog")
+	firstErr, ok := errors[0].(map[string]any)
+	require.True(t, ok)
+
+	extensions, ok := firstErr["extensions"].(map[string]any)
+	require.True(t, ok, "expected extensions in error")
+	assert.Equal(t, "UNAUTHENTICATED", extensions["code"])
 }
 
 // TestE2E_GraphQL_AuthRequired verifies that a mutation requiring

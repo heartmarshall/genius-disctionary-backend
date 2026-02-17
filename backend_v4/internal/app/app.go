@@ -242,6 +242,7 @@ func Run(ctx context.Context) error {
 
 	// GraphQL - full middleware chain
 	mux.Handle("POST /query", graphqlHandler)
+	mux.Handle("OPTIONS /query", graphqlHandler)
 
 	// Playground (conditional)
 	if cfg.GraphQL.PlaygroundEnabled {

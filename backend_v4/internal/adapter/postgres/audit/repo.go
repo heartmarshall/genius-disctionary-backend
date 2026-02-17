@@ -35,8 +35,13 @@ func New(pool *pgxpool.Pool) *Repo {
 // ---------------------------------------------------------------------------
 
 // Create inserts a new audit record and returns the persisted domain.AuditRecord.
+// If record.ID is the zero UUID, a new UUID is generated automatically.
 func (r *Repo) Create(ctx context.Context, record domain.AuditRecord) (domain.AuditRecord, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
+
+	if record.ID == uuid.Nil {
+		record.ID = uuid.New()
+	}
 
 	changesJSON, err := json.Marshal(record.Changes)
 	if err != nil {
