@@ -2317,18 +2317,18 @@ func TestService_CreateCard_Success(t *testing.T) {
 	}
 
 	mockCards := &cardRepoMock{
-		CreateFunc: func(ctx context.Context, uid uuid.UUID, card *domain.Card) (*domain.Card, error) {
+		CreateFunc: func(ctx context.Context, uid, eid uuid.UUID, status domain.LearningStatus, easeFactor float64) (*domain.Card, error) {
 			if uid != userID {
 				t.Errorf("userID: got %v, want %v", uid, userID)
 			}
-			if card.EntryID != entryID {
-				t.Errorf("card.EntryID: got %v, want %v", card.EntryID, entryID)
+			if eid != entryID {
+				t.Errorf("entryID: got %v, want %v", eid, entryID)
 			}
-			if card.Status != domain.LearningStatusNew {
-				t.Errorf("card.Status: got %v, want New", card.Status)
+			if status != domain.LearningStatusNew {
+				t.Errorf("status: got %v, want New", status)
 			}
-			if card.EaseFactor != 2.5 {
-				t.Errorf("card.EaseFactor: got %v, want 2.5", card.EaseFactor)
+			if easeFactor != 2.5 {
+				t.Errorf("easeFactor: got %v, want 2.5", easeFactor)
 			}
 			return createdCard, nil
 		},
@@ -2493,7 +2493,7 @@ func TestService_CreateCard_CardAlreadyExists(t *testing.T) {
 	}
 
 	mockCards := &cardRepoMock{
-		CreateFunc: func(ctx context.Context, uid uuid.UUID, card *domain.Card) (*domain.Card, error) {
+		CreateFunc: func(ctx context.Context, uid, eid uuid.UUID, status domain.LearningStatus, easeFactor float64) (*domain.Card, error) {
 			return nil, domain.ErrAlreadyExists
 		},
 	}
@@ -2559,7 +2559,7 @@ func TestService_CreateCard_TransactionRollback_AuditError(t *testing.T) {
 	}
 
 	mockCards := &cardRepoMock{
-		CreateFunc: func(ctx context.Context, uid uuid.UUID, card *domain.Card) (*domain.Card, error) {
+		CreateFunc: func(ctx context.Context, uid, eid uuid.UUID, status domain.LearningStatus, easeFactor float64) (*domain.Card, error) {
 			return createdCard, nil
 		},
 	}
@@ -2814,8 +2814,8 @@ func TestService_BatchCreateCards_Success_AllCreated(t *testing.T) {
 				entryID2: false,
 			}, nil
 		},
-		CreateFunc: func(ctx context.Context, uid uuid.UUID, card *domain.Card) (*domain.Card, error) {
-			return card, nil
+		CreateFunc: func(ctx context.Context, uid, eid uuid.UUID, status domain.LearningStatus, easeFactor float64) (*domain.Card, error) {
+			return &domain.Card{UserID: uid, EntryID: eid, Status: status, EaseFactor: easeFactor}, nil
 		},
 	}
 
@@ -2896,8 +2896,8 @@ func TestService_BatchCreateCards_SomeEntriesNotExist(t *testing.T) {
 				entryID3: false,
 			}, nil
 		},
-		CreateFunc: func(ctx context.Context, uid uuid.UUID, card *domain.Card) (*domain.Card, error) {
-			return card, nil
+		CreateFunc: func(ctx context.Context, uid, eid uuid.UUID, status domain.LearningStatus, easeFactor float64) (*domain.Card, error) {
+			return &domain.Card{UserID: uid, EntryID: eid, Status: status, EaseFactor: easeFactor}, nil
 		},
 	}
 
@@ -2972,8 +2972,8 @@ func TestService_BatchCreateCards_SomeEntriesNoSenses(t *testing.T) {
 				entryID2: false,
 			}, nil
 		},
-		CreateFunc: func(ctx context.Context, uid uuid.UUID, card *domain.Card) (*domain.Card, error) {
-			return card, nil
+		CreateFunc: func(ctx context.Context, uid, eid uuid.UUID, status domain.LearningStatus, easeFactor float64) (*domain.Card, error) {
+			return &domain.Card{UserID: uid, EntryID: eid, Status: status, EaseFactor: easeFactor}, nil
 		},
 	}
 
@@ -3049,8 +3049,8 @@ func TestService_BatchCreateCards_SomeEntriesAlreadyHaveCards(t *testing.T) {
 				entryID2: false, // No card yet
 			}, nil
 		},
-		CreateFunc: func(ctx context.Context, uid uuid.UUID, card *domain.Card) (*domain.Card, error) {
-			return card, nil
+		CreateFunc: func(ctx context.Context, uid, eid uuid.UUID, status domain.LearningStatus, easeFactor float64) (*domain.Card, error) {
+			return &domain.Card{UserID: uid, EntryID: eid, Status: status, EaseFactor: easeFactor}, nil
 		},
 	}
 
@@ -3128,8 +3128,8 @@ func TestService_BatchCreateCards_MixedScenario(t *testing.T) {
 				entryID4: false, // No card
 			}, nil
 		},
-		CreateFunc: func(ctx context.Context, uid uuid.UUID, card *domain.Card) (*domain.Card, error) {
-			return card, nil
+		CreateFunc: func(ctx context.Context, uid, eid uuid.UUID, status domain.LearningStatus, easeFactor float64) (*domain.Card, error) {
+			return &domain.Card{UserID: uid, EntryID: eid, Status: status, EaseFactor: easeFactor}, nil
 		},
 	}
 

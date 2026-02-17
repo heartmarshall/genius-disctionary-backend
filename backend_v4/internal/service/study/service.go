@@ -19,7 +19,7 @@ import (
 type cardRepo interface {
 	GetByID(ctx context.Context, userID, cardID uuid.UUID) (*domain.Card, error)
 	GetByEntryID(ctx context.Context, userID, entryID uuid.UUID) (*domain.Card, error)
-	Create(ctx context.Context, userID uuid.UUID, card *domain.Card) (*domain.Card, error)
+	Create(ctx context.Context, userID, entryID uuid.UUID, status domain.LearningStatus, easeFactor float64) (*domain.Card, error)
 	UpdateSRS(ctx context.Context, userID, cardID uuid.UUID, params domain.SRSUpdateParams) (*domain.Card, error)
 	Delete(ctx context.Context, userID, cardID uuid.UUID) error
 	GetDueCards(ctx context.Context, userID uuid.UUID, now time.Time, limit int) ([]*domain.Card, error)
@@ -626,21 +626,8 @@ func (s *Service) CreateCard(ctx context.Context, input CreateCardInput) (*domai
 
 	// Transaction: create card + audit
 	err = s.tx.RunInTx(ctx, func(txCtx context.Context) error {
-		// Create card with default SRS state
-		newCard := &domain.Card{
-			ID:           uuid.New(),
-			UserID:       userID,
-			EntryID:      input.EntryID,
-			Status:       domain.LearningStatusNew,
-			LearningStep: 0,
-			IntervalDays: 0,
-			EaseFactor:   s.srsConfig.DefaultEaseFactor,
-			NextReviewAt: nil, // NEW cards have no next review
-			CreatedAt:    time.Now(),
-		}
-
 		var createErr error
-		card, createErr = s.cards.Create(txCtx, userID, newCard)
+		card, createErr = s.cards.Create(txCtx, userID, input.EntryID, domain.LearningStatusNew, s.srsConfig.DefaultEaseFactor)
 		if createErr != nil {
 			return fmt.Errorf("create card: %w", createErr)
 		}
@@ -813,20 +800,7 @@ func (s *Service) BatchCreateCards(ctx context.Context, input BatchCreateCardsIn
 	// Create cards for valid entries
 	for _, entryID := range finalEntriesToCreate {
 		err := s.tx.RunInTx(ctx, func(txCtx context.Context) error {
-			// Create card
-			newCard := &domain.Card{
-				ID:           uuid.New(),
-				UserID:       userID,
-				EntryID:      entryID,
-				Status:       domain.LearningStatusNew,
-				LearningStep: 0,
-				IntervalDays: 0,
-				EaseFactor:   s.srsConfig.DefaultEaseFactor,
-				NextReviewAt: nil,
-				CreatedAt:    time.Now(),
-			}
-
-			_, createErr := s.cards.Create(txCtx, userID, newCard)
+			createdCard, createErr := s.cards.Create(txCtx, userID, entryID, domain.LearningStatusNew, s.srsConfig.DefaultEaseFactor)
 			if createErr != nil {
 				return fmt.Errorf("create card: %w", createErr)
 			}
@@ -835,7 +809,7 @@ func (s *Service) BatchCreateCards(ctx context.Context, input BatchCreateCardsIn
 			auditErr := s.audit.Log(txCtx, domain.AuditRecord{
 				UserID:     userID,
 				EntityType: domain.EntityTypeCard,
-				EntityID:   &newCard.ID,
+				EntityID:   &createdCard.ID,
 				Action:     domain.AuditActionCreate,
 				Changes: map[string]any{
 					"entry_id": map[string]any{"new": entryID},

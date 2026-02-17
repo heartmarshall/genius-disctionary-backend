@@ -239,14 +239,14 @@ func (m *mockCardRepo) Create(ctx context.Context, userID, entryID uuid.UUID, st
 }
 
 type mockAuditRepo struct {
-	CreateFunc func(ctx context.Context, record domain.AuditRecord) error
+	CreateFunc func(ctx context.Context, record domain.AuditRecord) (domain.AuditRecord, error)
 }
 
-func (m *mockAuditRepo) Create(ctx context.Context, record domain.AuditRecord) error {
+func (m *mockAuditRepo) Create(ctx context.Context, record domain.AuditRecord) (domain.AuditRecord, error) {
 	if m.CreateFunc != nil {
 		return m.CreateFunc(ctx, record)
 	}
-	return nil
+	return domain.AuditRecord{}, nil
 }
 
 type mockTxManager struct {
@@ -516,12 +516,12 @@ func TestService_CreateFromCatalog_AllSenses(t *testing.T) {
 	}
 
 	auditCreated := false
-	deps.audit.CreateFunc = func(_ context.Context, rec domain.AuditRecord) error {
+	deps.audit.CreateFunc = func(_ context.Context, rec domain.AuditRecord) (domain.AuditRecord, error) {
 		assert.Equal(t, userID, rec.UserID)
 		assert.Equal(t, domain.AuditActionCreate, rec.Action)
 		assert.Equal(t, domain.EntityTypeEntry, rec.EntityType)
 		auditCreated = true
-		return nil
+		return rec, nil
 	}
 
 	result, err := svc.CreateEntryFromCatalog(ctx, CreateFromCatalogInput{
@@ -1254,10 +1254,10 @@ func TestService_UpdateNotes_Set(t *testing.T) {
 	}
 
 	var auditChanges map[string]any
-	deps.audit.CreateFunc = func(_ context.Context, rec domain.AuditRecord) error {
+	deps.audit.CreateFunc = func(_ context.Context, rec domain.AuditRecord) (domain.AuditRecord, error) {
 		assert.Equal(t, domain.AuditActionUpdate, rec.Action)
 		auditChanges = rec.Changes
-		return nil
+		return rec, nil
 	}
 
 	result, err := svc.UpdateNotes(ctx, UpdateNotesInput{EntryID: entryID, Notes: &newNotes})
@@ -1335,11 +1335,11 @@ func TestService_DeleteEntry_Happy(t *testing.T) {
 	}
 
 	auditCreated := false
-	deps.audit.CreateFunc = func(_ context.Context, rec domain.AuditRecord) error {
+	deps.audit.CreateFunc = func(_ context.Context, rec domain.AuditRecord) (domain.AuditRecord, error) {
 		assert.Equal(t, domain.AuditActionDelete, rec.Action)
 		assert.Equal(t, "hello", rec.Changes["text"])
 		auditCreated = true
-		return nil
+		return rec, nil
 	}
 
 	err := svc.DeleteEntry(ctx, entryID)
@@ -1487,10 +1487,10 @@ func TestService_BatchDelete_AllOK(t *testing.T) {
 	}
 
 	auditCreated := false
-	deps.audit.CreateFunc = func(_ context.Context, rec domain.AuditRecord) error {
+	deps.audit.CreateFunc = func(_ context.Context, rec domain.AuditRecord) (domain.AuditRecord, error) {
 		assert.Equal(t, domain.AuditActionDelete, rec.Action)
 		auditCreated = true
-		return nil
+		return rec, nil
 	}
 
 	result, err := svc.BatchDeleteEntries(ctx, ids)
@@ -1561,9 +1561,9 @@ func TestService_BatchDelete_AuditOnlyOnSuccess(t *testing.T) {
 	}
 
 	auditCreated := false
-	deps.audit.CreateFunc = func(_ context.Context, _ domain.AuditRecord) error {
+	deps.audit.CreateFunc = func(_ context.Context, rec domain.AuditRecord) (domain.AuditRecord, error) {
 		auditCreated = true
-		return nil
+		return rec, nil
 	}
 
 	result, err := svc.BatchDeleteEntries(ctx, []uuid.UUID{uuid.New()})

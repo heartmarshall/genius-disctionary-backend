@@ -46,9 +46,9 @@ func TestService_GetProfile_Success(t *testing.T) {
 	}
 
 	users := &userRepoMock{
-		GetByIDFunc: func(ctx context.Context, id uuid.UUID) (domain.User, error) {
+		GetByIDFunc: func(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 			assert.Equal(t, userID, id)
-			return expected, nil
+			return &expected, nil
 		},
 	}
 
@@ -79,8 +79,8 @@ func TestService_GetProfile_UserNotFound(t *testing.T) {
 	ctx := ctxutil.WithUserID(context.Background(), userID)
 
 	users := &userRepoMock{
-		GetByIDFunc: func(ctx context.Context, id uuid.UUID) (domain.User, error) {
-			return domain.User{}, domain.ErrNotFound
+		GetByIDFunc: func(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+			return nil, domain.ErrNotFound
 		},
 	}
 
@@ -115,11 +115,11 @@ func TestService_UpdateProfile_Success(t *testing.T) {
 	}
 
 	users := &userRepoMock{
-		UpdateFunc: func(ctx context.Context, id uuid.UUID, name string, avatarURL *string) (domain.User, error) {
+		UpdateFunc: func(ctx context.Context, id uuid.UUID, name *string, avatarURL *string) (*domain.User, error) {
 			assert.Equal(t, userID, id)
-			assert.Equal(t, "New Name", name)
+			assert.Equal(t, ptr("New Name"), name)
 			assert.Equal(t, ptr("https://example.com/avatar.jpg"), avatarURL)
-			return expected, nil
+			return &expected, nil
 		},
 	}
 
@@ -208,9 +208,9 @@ func TestService_GetSettings_Success(t *testing.T) {
 	}
 
 	settings := &settingsRepoMock{
-		GetSettingsFunc: func(ctx context.Context, uid uuid.UUID) (domain.UserSettings, error) {
+		GetSettingsFunc: func(ctx context.Context, uid uuid.UUID) (*domain.UserSettings, error) {
 			assert.Equal(t, userID, uid)
-			return expected, nil
+			return &expected, nil
 		},
 	}
 
@@ -241,8 +241,8 @@ func TestService_GetSettings_NotFound(t *testing.T) {
 	ctx := ctxutil.WithUserID(context.Background(), userID)
 
 	settings := &settingsRepoMock{
-		GetSettingsFunc: func(ctx context.Context, uid uuid.UUID) (domain.UserSettings, error) {
-			return domain.UserSettings{}, domain.ErrNotFound
+		GetSettingsFunc: func(ctx context.Context, uid uuid.UUID) (*domain.UserSettings, error) {
+			return nil, domain.ErrNotFound
 		},
 	}
 
@@ -288,16 +288,16 @@ func TestService_UpdateSettings_Success(t *testing.T) {
 	}
 
 	settingsRepo := &settingsRepoMock{
-		GetSettingsFunc: func(ctx context.Context, uid uuid.UUID) (domain.UserSettings, error) {
-			return current, nil
+		GetSettingsFunc: func(ctx context.Context, uid uuid.UUID) (*domain.UserSettings, error) {
+			return &current, nil
 		},
-		UpdateSettingsFunc: func(ctx context.Context, uid uuid.UUID, s domain.UserSettings) (domain.UserSettings, error) {
+		UpdateSettingsFunc: func(ctx context.Context, uid uuid.UUID, s domain.UserSettings) (*domain.UserSettings, error) {
 			assert.Equal(t, userID, uid)
 			assert.Equal(t, 30, s.NewCardsPerDay)
 			assert.Equal(t, 250, s.ReviewsPerDay)
 			assert.Equal(t, 400, s.MaxIntervalDays)
 			assert.Equal(t, "America/New_York", s.Timezone)
-			return expected, nil
+			return &expected, nil
 		},
 	}
 
@@ -349,16 +349,16 @@ func TestService_UpdateSettings_PartialUpdate(t *testing.T) {
 	}
 
 	settingsRepo := &settingsRepoMock{
-		GetSettingsFunc: func(ctx context.Context, uid uuid.UUID) (domain.UserSettings, error) {
-			return current, nil
+		GetSettingsFunc: func(ctx context.Context, uid uuid.UUID) (*domain.UserSettings, error) {
+			return &current, nil
 		},
-		UpdateSettingsFunc: func(ctx context.Context, uid uuid.UUID, s domain.UserSettings) (domain.UserSettings, error) {
+		UpdateSettingsFunc: func(ctx context.Context, uid uuid.UUID, s domain.UserSettings) (*domain.UserSettings, error) {
 			// Verify only NewCardsPerDay changed
 			assert.Equal(t, 50, s.NewCardsPerDay)
 			assert.Equal(t, 200, s.ReviewsPerDay)
 			assert.Equal(t, 365, s.MaxIntervalDays)
 			assert.Equal(t, "UTC", s.Timezone)
-			return s, nil
+			return &s, nil
 		},
 	}
 
@@ -478,11 +478,11 @@ func TestService_UpdateSettings_TransactionRollback(t *testing.T) {
 	input := UpdateSettingsInput{NewCardsPerDay: ptr(30)}
 
 	settingsRepo := &settingsRepoMock{
-		GetSettingsFunc: func(ctx context.Context, uid uuid.UUID) (domain.UserSettings, error) {
-			return domain.UserSettings{UserID: userID, NewCardsPerDay: 20}, nil
+		GetSettingsFunc: func(ctx context.Context, uid uuid.UUID) (*domain.UserSettings, error) {
+			return &domain.UserSettings{UserID: userID, NewCardsPerDay: 20}, nil
 		},
-		UpdateSettingsFunc: func(ctx context.Context, uid uuid.UUID, s domain.UserSettings) (domain.UserSettings, error) {
-			return s, nil
+		UpdateSettingsFunc: func(ctx context.Context, uid uuid.UUID, s domain.UserSettings) (*domain.UserSettings, error) {
+			return &s, nil
 		},
 	}
 

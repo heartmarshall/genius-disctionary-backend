@@ -20,10 +20,10 @@ var _ userRepo = &userRepoMock{}
 //
 //		// make and configure a mocked userRepo
 //		mockeduserRepo := &userRepoMock{
-//			GetByIDFunc: func(ctx context.Context, id uuid.UUID) (domain.User, error) {
+//			GetByIDFunc: func(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 //				panic("mock out the GetByID method")
 //			},
-//			UpdateFunc: func(ctx context.Context, id uuid.UUID, name string, avatarURL *string) (domain.User, error) {
+//			UpdateFunc: func(ctx context.Context, id uuid.UUID, name *string, avatarURL *string) (*domain.User, error) {
 //				panic("mock out the Update method")
 //			},
 //		}
@@ -34,10 +34,10 @@ var _ userRepo = &userRepoMock{}
 //	}
 type userRepoMock struct {
 	// GetByIDFunc mocks the GetByID method.
-	GetByIDFunc func(ctx context.Context, id uuid.UUID) (domain.User, error)
+	GetByIDFunc func(ctx context.Context, id uuid.UUID) (*domain.User, error)
 
 	// UpdateFunc mocks the Update method.
-	UpdateFunc func(ctx context.Context, id uuid.UUID, name string, avatarURL *string) (domain.User, error)
+	UpdateFunc func(ctx context.Context, id uuid.UUID, name *string, avatarURL *string) (*domain.User, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -55,7 +55,7 @@ type userRepoMock struct {
 			// ID is the id argument value.
 			ID uuid.UUID
 			// Name is the name argument value.
-			Name string
+			Name *string
 			// AvatarURL is the avatarURL argument value.
 			AvatarURL *string
 		}
@@ -65,7 +65,7 @@ type userRepoMock struct {
 }
 
 // GetByID calls GetByIDFunc.
-func (mock *userRepoMock) GetByID(ctx context.Context, id uuid.UUID) (domain.User, error) {
+func (mock *userRepoMock) GetByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	if mock.GetByIDFunc == nil {
 		panic("userRepoMock.GetByIDFunc: method is nil but userRepo.GetByID was just called")
 	}
@@ -101,14 +101,14 @@ func (mock *userRepoMock) GetByIDCalls() []struct {
 }
 
 // Update calls UpdateFunc.
-func (mock *userRepoMock) Update(ctx context.Context, id uuid.UUID, name string, avatarURL *string) (domain.User, error) {
+func (mock *userRepoMock) Update(ctx context.Context, id uuid.UUID, name *string, avatarURL *string) (*domain.User, error) {
 	if mock.UpdateFunc == nil {
 		panic("userRepoMock.UpdateFunc: method is nil but userRepo.Update was just called")
 	}
 	callInfo := struct {
 		Ctx       context.Context
 		ID        uuid.UUID
-		Name      string
+		Name      *string
 		AvatarURL *string
 	}{
 		Ctx:       ctx,
@@ -129,13 +129,13 @@ func (mock *userRepoMock) Update(ctx context.Context, id uuid.UUID, name string,
 func (mock *userRepoMock) UpdateCalls() []struct {
 	Ctx       context.Context
 	ID        uuid.UUID
-	Name      string
+	Name      *string
 	AvatarURL *string
 } {
 	var calls []struct {
 		Ctx       context.Context
 		ID        uuid.UUID
-		Name      string
+		Name      *string
 		AvatarURL *string
 	}
 	mock.lockUpdate.RLock()

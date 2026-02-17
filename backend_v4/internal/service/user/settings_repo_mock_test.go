@@ -20,10 +20,10 @@ var _ settingsRepo = &settingsRepoMock{}
 //
 //		// make and configure a mocked settingsRepo
 //		mockedsettingsRepo := &settingsRepoMock{
-//			GetSettingsFunc: func(ctx context.Context, userID uuid.UUID) (domain.UserSettings, error) {
+//			GetSettingsFunc: func(ctx context.Context, userID uuid.UUID) (*domain.UserSettings, error) {
 //				panic("mock out the GetSettings method")
 //			},
-//			UpdateSettingsFunc: func(ctx context.Context, userID uuid.UUID, s domain.UserSettings) (domain.UserSettings, error) {
+//			UpdateSettingsFunc: func(ctx context.Context, userID uuid.UUID, s domain.UserSettings) (*domain.UserSettings, error) {
 //				panic("mock out the UpdateSettings method")
 //			},
 //		}
@@ -34,10 +34,10 @@ var _ settingsRepo = &settingsRepoMock{}
 //	}
 type settingsRepoMock struct {
 	// GetSettingsFunc mocks the GetSettings method.
-	GetSettingsFunc func(ctx context.Context, userID uuid.UUID) (domain.UserSettings, error)
+	GetSettingsFunc func(ctx context.Context, userID uuid.UUID) (*domain.UserSettings, error)
 
 	// UpdateSettingsFunc mocks the UpdateSettings method.
-	UpdateSettingsFunc func(ctx context.Context, userID uuid.UUID, s domain.UserSettings) (domain.UserSettings, error)
+	UpdateSettingsFunc func(ctx context.Context, userID uuid.UUID, s domain.UserSettings) (*domain.UserSettings, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -63,7 +63,7 @@ type settingsRepoMock struct {
 }
 
 // GetSettings calls GetSettingsFunc.
-func (mock *settingsRepoMock) GetSettings(ctx context.Context, userID uuid.UUID) (domain.UserSettings, error) {
+func (mock *settingsRepoMock) GetSettings(ctx context.Context, userID uuid.UUID) (*domain.UserSettings, error) {
 	if mock.GetSettingsFunc == nil {
 		panic("settingsRepoMock.GetSettingsFunc: method is nil but settingsRepo.GetSettings was just called")
 	}
@@ -99,7 +99,7 @@ func (mock *settingsRepoMock) GetSettingsCalls() []struct {
 }
 
 // UpdateSettings calls UpdateSettingsFunc.
-func (mock *settingsRepoMock) UpdateSettings(ctx context.Context, userID uuid.UUID, s domain.UserSettings) (domain.UserSettings, error) {
+func (mock *settingsRepoMock) UpdateSettings(ctx context.Context, userID uuid.UUID, s domain.UserSettings) (*domain.UserSettings, error) {
 	if mock.UpdateSettingsFunc == nil {
 		panic("settingsRepoMock.UpdateSettingsFunc: method is nil but settingsRepo.UpdateSettings was just called")
 	}

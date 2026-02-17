@@ -13,14 +13,14 @@ import (
 
 // userRepo defines the user repository interface needed by user service.
 type userRepo interface {
-	GetByID(ctx context.Context, id uuid.UUID) (domain.User, error)
-	Update(ctx context.Context, id uuid.UUID, name string, avatarURL *string) (domain.User, error)
+	GetByID(ctx context.Context, id uuid.UUID) (*domain.User, error)
+	Update(ctx context.Context, id uuid.UUID, name *string, avatarURL *string) (*domain.User, error)
 }
 
 // settingsRepo defines the settings repository interface needed by user service.
 type settingsRepo interface {
-	GetSettings(ctx context.Context, userID uuid.UUID) (domain.UserSettings, error)
-	UpdateSettings(ctx context.Context, userID uuid.UUID, s domain.UserSettings) (domain.UserSettings, error)
+	GetSettings(ctx context.Context, userID uuid.UUID) (*domain.UserSettings, error)
+	UpdateSettings(ctx context.Context, userID uuid.UUID, s domain.UserSettings) (*domain.UserSettings, error)
 }
 
 // auditRepo defines the audit repository interface needed by user service.
@@ -72,7 +72,7 @@ func (s *Service) GetProfile(ctx context.Context) (domain.User, error) {
 		return domain.User{}, fmt.Errorf("user.GetProfile: %w", err)
 	}
 
-	return user, nil
+	return *user, nil
 }
 
 // UpdateProfile updates the authenticated user's profile (name and avatar).
@@ -90,7 +90,7 @@ func (s *Service) UpdateProfile(ctx context.Context, input UpdateProfileInput) (
 	}
 
 	// Step 3: Update profile
-	user, err := s.users.Update(ctx, userID, input.Name, input.AvatarURL)
+	user, err := s.users.Update(ctx, userID, &input.Name, input.AvatarURL)
 	if err != nil {
 		return domain.User{}, fmt.Errorf("user.UpdateProfile: %w", err)
 	}
@@ -99,7 +99,7 @@ func (s *Service) UpdateProfile(ctx context.Context, input UpdateProfileInput) (
 	s.log.InfoContext(ctx, "profile updated",
 		slog.String("user_id", userID.String()))
 
-	return user, nil
+	return *user, nil
 }
 
 // GetSettings returns the authenticated user's settings.
@@ -115,7 +115,7 @@ func (s *Service) GetSettings(ctx context.Context) (domain.UserSettings, error) 
 		return domain.UserSettings{}, fmt.Errorf("user.GetSettings: %w", err)
 	}
 
-	return settings, nil
+	return *settings, nil
 }
 
 // UpdateSettings updates the authenticated user's settings with partial updates.
@@ -144,17 +144,17 @@ func (s *Service) UpdateSettings(ctx context.Context, input UpdateSettingsInput)
 		}
 
 		// Apply changes
-		newSettings := applySettingsChanges(current, input)
+		newSettings := applySettingsChanges(*current, input)
 
 		// Update settings
 		updated, err := s.settings.UpdateSettings(txCtx, userID, newSettings)
 		if err != nil {
 			return fmt.Errorf("update settings: %w", err)
 		}
-		updatedSettings = updated
+		updatedSettings = *updated
 
 		// Build changes for audit
-		changes := buildSettingsChanges(current, newSettings)
+		changes := buildSettingsChanges(*current, newSettings)
 
 		// Create audit record
 		auditRecord := domain.AuditRecord{

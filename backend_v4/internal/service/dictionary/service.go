@@ -64,7 +64,7 @@ type cardRepo interface {
 }
 
 type auditRepo interface {
-	Create(ctx context.Context, record domain.AuditRecord) error
+	Create(ctx context.Context, record domain.AuditRecord) (domain.AuditRecord, error)
 }
 
 type txManager interface {
@@ -283,7 +283,7 @@ func (s *Service) CreateEntryFromCatalog(ctx context.Context, input CreateFromCa
 		}
 
 		// Audit.
-		auditErr := s.audit.Create(txCtx, domain.AuditRecord{
+		_, auditErr := s.audit.Create(txCtx, domain.AuditRecord{
 			UserID:     userID,
 			EntityType: domain.EntityTypeEntry,
 			EntityID:   &created.ID,
@@ -391,7 +391,7 @@ func (s *Service) CreateEntryCustom(ctx context.Context, input CreateCustomInput
 		}
 
 		// Audit.
-		auditErr := s.audit.Create(txCtx, domain.AuditRecord{
+		_, auditErr := s.audit.Create(txCtx, domain.AuditRecord{
 			UserID:     userID,
 			EntityType: domain.EntityTypeEntry,
 			EntityID:   &created.ID,
@@ -560,7 +560,7 @@ func (s *Service) UpdateNotes(ctx context.Context, input UpdateNotesInput) (*dom
 			"new_notes": input.Notes,
 		}
 
-		auditErr := s.audit.Create(txCtx, domain.AuditRecord{
+		_, auditErr := s.audit.Create(txCtx, domain.AuditRecord{
 			UserID:     userID,
 			EntityType: domain.EntityTypeEntry,
 			EntityID:   &input.EntryID,
@@ -603,7 +603,7 @@ func (s *Service) DeleteEntry(ctx context.Context, entryID uuid.UUID) error {
 			return fmt.Errorf("soft delete: %w", delErr)
 		}
 
-		auditErr := s.audit.Create(txCtx, domain.AuditRecord{
+		_, auditErr := s.audit.Create(txCtx, domain.AuditRecord{
 			UserID:     userID,
 			EntityType: domain.EntityTypeEntry,
 			EntityID:   &entryID,
@@ -706,7 +706,7 @@ func (s *Service) BatchDeleteEntries(ctx context.Context, entryIDs []uuid.UUID) 
 			}
 		}
 
-		auditErr := s.audit.Create(ctx, domain.AuditRecord{
+		_, auditErr := s.audit.Create(ctx, domain.AuditRecord{
 			UserID:     userID,
 			EntityType: domain.EntityTypeEntry,
 			Action:     domain.AuditActionDelete,
