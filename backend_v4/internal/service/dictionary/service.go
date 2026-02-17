@@ -21,8 +21,8 @@ type entryRepo interface {
 	GetByID(ctx context.Context, userID, entryID uuid.UUID) (*domain.Entry, error)
 	GetByText(ctx context.Context, userID uuid.UUID, textNormalized string) (*domain.Entry, error)
 	GetByIDs(ctx context.Context, userID uuid.UUID, ids []uuid.UUID) ([]domain.Entry, error)
-	Find(ctx context.Context, userID uuid.UUID, filter EntryFilter) ([]domain.Entry, int, error)
-	FindCursor(ctx context.Context, userID uuid.UUID, filter EntryFilter) ([]domain.Entry, bool, error)
+	Find(ctx context.Context, userID uuid.UUID, filter domain.EntryFilter) ([]domain.Entry, int, error)
+	FindCursor(ctx context.Context, userID uuid.UUID, filter domain.EntryFilter) ([]domain.Entry, bool, error)
 	FindDeleted(ctx context.Context, userID uuid.UUID, limit, offset int) ([]domain.Entry, int, error)
 	CountByUser(ctx context.Context, userID uuid.UUID) (int, error)
 	Create(ctx context.Context, entry *domain.Entry) (*domain.Entry, error)
@@ -75,24 +75,6 @@ type refCatalogService interface {
 	GetOrFetchEntry(ctx context.Context, text string) (*domain.RefEntry, error)
 	GetRefEntry(ctx context.Context, refEntryID uuid.UUID) (*domain.RefEntry, error)
 	Search(ctx context.Context, query string, limit int) ([]domain.RefEntry, error)
-}
-
-// ---------------------------------------------------------------------------
-// EntryFilter — public type used by the repo interface
-// ---------------------------------------------------------------------------
-
-// EntryFilter contains filtering/pagination parameters for entry searches.
-type EntryFilter struct {
-	Search       *string
-	HasCard      *bool
-	PartOfSpeech *domain.PartOfSpeech
-	TopicID      *uuid.UUID
-	Status       *domain.LearningStatus
-	SortBy       string
-	SortOrder    string
-	Limit        int
-	Cursor       *string
-	Offset       *int
 }
 
 // ---------------------------------------------------------------------------
@@ -470,7 +452,7 @@ func (s *Service) FindEntries(ctx context.Context, input FindInput) (*FindResult
 		sortOrder = "DESC"
 	}
 
-	filter := EntryFilter{
+	filter := domain.EntryFilter{
 		Search:       normalizedSearch,
 		HasCard:      input.HasCard,
 		PartOfSpeech: input.PartOfSpeech,
@@ -906,7 +888,7 @@ func (s *Service) ExportEntries(ctx context.Context) (*ExportResult, error) {
 	}
 
 	// Find all entries.
-	entries, _, err := s.entries.Find(ctx, userID, EntryFilter{
+	entries, _, err := s.entries.Find(ctx, userID, domain.EntryFilter{
 		SortBy:    "created_at",
 		SortOrder: "ASC",
 		Limit:     s.cfg.ExportMaxEntries,

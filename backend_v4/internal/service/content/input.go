@@ -106,7 +106,7 @@ func (i UpdateSenseInput) Validate() error {
 // ReorderSensesInput holds the parameters for reordering senses.
 type ReorderSensesInput struct {
 	EntryID uuid.UUID
-	Items   []ReorderItem
+	Items   []domain.ReorderItem
 }
 
 // Validate checks all fields and collects all errors.
@@ -219,7 +219,7 @@ func (i UpdateTranslationInput) Validate() error {
 // ReorderTranslationsInput holds the parameters for reordering translations.
 type ReorderTranslationsInput struct {
 	SenseID uuid.UUID
-	Items   []ReorderItem
+	Items   []domain.ReorderItem
 }
 
 // Validate checks all fields and collects all errors.
@@ -342,7 +342,7 @@ func (i UpdateExampleInput) Validate() error {
 // ReorderExamplesInput holds the parameters for reordering examples.
 type ReorderExamplesInput struct {
 	SenseID uuid.UUID
-	Items   []ReorderItem
+	Items   []domain.ReorderItem
 }
 
 // Validate checks all fields and collects all errors.

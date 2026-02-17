@@ -23,8 +23,8 @@ type mockEntryRepo struct {
 	GetByIDFunc     func(ctx context.Context, userID, entryID uuid.UUID) (*domain.Entry, error)
 	GetByTextFunc   func(ctx context.Context, userID uuid.UUID, textNormalized string) (*domain.Entry, error)
 	GetByIDsFunc    func(ctx context.Context, userID uuid.UUID, ids []uuid.UUID) ([]domain.Entry, error)
-	FindFunc        func(ctx context.Context, userID uuid.UUID, filter EntryFilter) ([]domain.Entry, int, error)
-	FindCursorFunc  func(ctx context.Context, userID uuid.UUID, filter EntryFilter) ([]domain.Entry, bool, error)
+	FindFunc        func(ctx context.Context, userID uuid.UUID, filter domain.EntryFilter) ([]domain.Entry, int, error)
+	FindCursorFunc  func(ctx context.Context, userID uuid.UUID, filter domain.EntryFilter) ([]domain.Entry, bool, error)
 	FindDeletedFunc func(ctx context.Context, userID uuid.UUID, limit, offset int) ([]domain.Entry, int, error)
 	CountByUserFunc func(ctx context.Context, userID uuid.UUID) (int, error)
 	CreateFunc      func(ctx context.Context, entry *domain.Entry) (*domain.Entry, error)
@@ -55,14 +55,14 @@ func (m *mockEntryRepo) GetByIDs(ctx context.Context, userID uuid.UUID, ids []uu
 	return nil, nil
 }
 
-func (m *mockEntryRepo) Find(ctx context.Context, userID uuid.UUID, filter EntryFilter) ([]domain.Entry, int, error) {
+func (m *mockEntryRepo) Find(ctx context.Context, userID uuid.UUID, filter domain.EntryFilter) ([]domain.Entry, int, error) {
 	if m.FindFunc != nil {
 		return m.FindFunc(ctx, userID, filter)
 	}
 	return nil, 0, nil
 }
 
-func (m *mockEntryRepo) FindCursor(ctx context.Context, userID uuid.UUID, filter EntryFilter) ([]domain.Entry, bool, error) {
+func (m *mockEntryRepo) FindCursor(ctx context.Context, userID uuid.UUID, filter domain.EntryFilter) ([]domain.Entry, bool, error) {
 	if m.FindCursorFunc != nil {
 		return m.FindCursorFunc(ctx, userID, filter)
 	}
@@ -1009,7 +1009,7 @@ func TestService_FindEntries_NoFiltersOffset(t *testing.T) {
 	ctx, _ := authCtx()
 
 	entries := []domain.Entry{{ID: uuid.New(), Text: "hello"}, {ID: uuid.New(), Text: "world"}}
-	deps.entries.FindFunc = func(_ context.Context, _ uuid.UUID, f EntryFilter) ([]domain.Entry, int, error) {
+	deps.entries.FindFunc = func(_ context.Context, _ uuid.UUID, f domain.EntryFilter) ([]domain.Entry, int, error) {
 		assert.Equal(t, "created_at", f.SortBy)
 		assert.Equal(t, "DESC", f.SortOrder)
 		return entries, 2, nil
@@ -1027,7 +1027,7 @@ func TestService_FindEntries_WithSearch(t *testing.T) {
 	svc, deps := newTestService(defaultCfg())
 	ctx, _ := authCtx()
 
-	deps.entries.FindFunc = func(_ context.Context, _ uuid.UUID, f EntryFilter) ([]domain.Entry, int, error) {
+	deps.entries.FindFunc = func(_ context.Context, _ uuid.UUID, f domain.EntryFilter) ([]domain.Entry, int, error) {
 		require.NotNil(t, f.Search)
 		assert.Equal(t, "hello", *f.Search)
 		return nil, 0, nil
@@ -1042,7 +1042,7 @@ func TestService_FindEntries_SearchSpaces(t *testing.T) {
 	svc, deps := newTestService(defaultCfg())
 	ctx, _ := authCtx()
 
-	deps.entries.FindFunc = func(_ context.Context, _ uuid.UUID, f EntryFilter) ([]domain.Entry, int, error) {
+	deps.entries.FindFunc = func(_ context.Context, _ uuid.UUID, f domain.EntryFilter) ([]domain.Entry, int, error) {
 		// Spaces-only input normalizes to "", so search should be nil.
 		assert.Nil(t, f.Search)
 		return nil, 0, nil
@@ -1057,7 +1057,7 @@ func TestService_FindEntries_HasCard(t *testing.T) {
 	svc, deps := newTestService(defaultCfg())
 	ctx, _ := authCtx()
 
-	deps.entries.FindFunc = func(_ context.Context, _ uuid.UUID, f EntryFilter) ([]domain.Entry, int, error) {
+	deps.entries.FindFunc = func(_ context.Context, _ uuid.UUID, f domain.EntryFilter) ([]domain.Entry, int, error) {
 		require.NotNil(t, f.HasCard)
 		assert.True(t, *f.HasCard)
 		return nil, 0, nil
@@ -1073,7 +1073,7 @@ func TestService_FindEntries_TopicID(t *testing.T) {
 	ctx, _ := authCtx()
 
 	topicID := uuid.New()
-	deps.entries.FindFunc = func(_ context.Context, _ uuid.UUID, f EntryFilter) ([]domain.Entry, int, error) {
+	deps.entries.FindFunc = func(_ context.Context, _ uuid.UUID, f domain.EntryFilter) ([]domain.Entry, int, error) {
 		require.NotNil(t, f.TopicID)
 		assert.Equal(t, topicID, *f.TopicID)
 		return nil, 0, nil
@@ -1089,7 +1089,7 @@ func TestService_FindEntries_ComboFilters(t *testing.T) {
 	ctx, _ := authCtx()
 
 	pos := domain.PartOfSpeechNoun
-	deps.entries.FindFunc = func(_ context.Context, _ uuid.UUID, f EntryFilter) ([]domain.Entry, int, error) {
+	deps.entries.FindFunc = func(_ context.Context, _ uuid.UUID, f domain.EntryFilter) ([]domain.Entry, int, error) {
 		require.NotNil(t, f.Search)
 		assert.Equal(t, "hello", *f.Search)
 		require.NotNil(t, f.HasCard)
@@ -1114,7 +1114,7 @@ func TestService_FindEntries_Cursor(t *testing.T) {
 	ctx, _ := authCtx()
 
 	entries := []domain.Entry{{ID: uuid.New()}}
-	deps.entries.FindCursorFunc = func(_ context.Context, _ uuid.UUID, f EntryFilter) ([]domain.Entry, bool, error) {
+	deps.entries.FindCursorFunc = func(_ context.Context, _ uuid.UUID, f domain.EntryFilter) ([]domain.Entry, bool, error) {
 		require.NotNil(t, f.Cursor)
 		assert.Equal(t, "cursor123", *f.Cursor)
 		return entries, true, nil
@@ -1133,7 +1133,7 @@ func TestService_FindEntries_CursorWithOffsetUsesCursor(t *testing.T) {
 	ctx, _ := authCtx()
 
 	cursorCalled := false
-	deps.entries.FindCursorFunc = func(_ context.Context, _ uuid.UUID, _ EntryFilter) ([]domain.Entry, bool, error) {
+	deps.entries.FindCursorFunc = func(_ context.Context, _ uuid.UUID, _ domain.EntryFilter) ([]domain.Entry, bool, error) {
 		cursorCalled = true
 		return nil, false, nil
 	}
@@ -1151,7 +1151,7 @@ func TestService_FindEntries_LimitClamp(t *testing.T) {
 	ctx, _ := authCtx()
 
 	var capturedLimit int
-	deps.entries.FindFunc = func(_ context.Context, _ uuid.UUID, f EntryFilter) ([]domain.Entry, int, error) {
+	deps.entries.FindFunc = func(_ context.Context, _ uuid.UUID, f domain.EntryFilter) ([]domain.Entry, int, error) {
 		capturedLimit = f.Limit
 		return nil, 0, nil
 	}
@@ -1166,7 +1166,7 @@ func TestService_FindEntries_DefaultSort(t *testing.T) {
 	svc, deps := newTestService(defaultCfg())
 	ctx, _ := authCtx()
 
-	deps.entries.FindFunc = func(_ context.Context, _ uuid.UUID, f EntryFilter) ([]domain.Entry, int, error) {
+	deps.entries.FindFunc = func(_ context.Context, _ uuid.UUID, f domain.EntryFilter) ([]domain.Entry, int, error) {
 		assert.Equal(t, "created_at", f.SortBy)
 		assert.Equal(t, "DESC", f.SortOrder)
 		return nil, 0, nil
@@ -1768,7 +1768,7 @@ func TestService_ExportEntries_Happy(t *testing.T) {
 
 	entryID := uuid.New()
 	entries := []domain.Entry{{ID: entryID, Text: "hello"}}
-	deps.entries.FindFunc = func(_ context.Context, _ uuid.UUID, f EntryFilter) ([]domain.Entry, int, error) {
+	deps.entries.FindFunc = func(_ context.Context, _ uuid.UUID, f domain.EntryFilter) ([]domain.Entry, int, error) {
 		assert.Equal(t, "created_at", f.SortBy)
 		assert.Equal(t, "ASC", f.SortOrder)
 		return entries, 1, nil
@@ -1813,7 +1813,7 @@ func TestService_ExportEntries_Empty(t *testing.T) {
 	svc, deps := newTestService(defaultCfg())
 	ctx, _ := authCtx()
 
-	deps.entries.FindFunc = func(_ context.Context, _ uuid.UUID, _ EntryFilter) ([]domain.Entry, int, error) {
+	deps.entries.FindFunc = func(_ context.Context, _ uuid.UUID, _ domain.EntryFilter) ([]domain.Entry, int, error) {
 		return nil, 0, nil
 	}
 
@@ -1833,7 +1833,7 @@ func TestService_ExportEntries_WithData(t *testing.T) {
 		{ID: id1, Text: "hello", Notes: ptrString("note1")},
 		{ID: id2, Text: "world"},
 	}
-	deps.entries.FindFunc = func(_ context.Context, _ uuid.UUID, _ EntryFilter) ([]domain.Entry, int, error) {
+	deps.entries.FindFunc = func(_ context.Context, _ uuid.UUID, _ domain.EntryFilter) ([]domain.Entry, int, error) {
 		return entries, 2, nil
 	}
 

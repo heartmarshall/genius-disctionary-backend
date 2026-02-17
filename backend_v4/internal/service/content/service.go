@@ -34,7 +34,7 @@ type senseRepo interface {
 	CreateCustom(ctx context.Context, entryID uuid.UUID, definition *string, pos *domain.PartOfSpeech, cefr *string, sourceSlug string) (*domain.Sense, error)
 	Update(ctx context.Context, senseID uuid.UUID, definition *string, pos *domain.PartOfSpeech, cefr *string) (*domain.Sense, error)
 	Delete(ctx context.Context, senseID uuid.UUID) error
-	Reorder(ctx context.Context, items []ReorderItem) error
+	Reorder(ctx context.Context, items []domain.ReorderItem) error
 }
 
 type translationRepo interface {
@@ -44,7 +44,7 @@ type translationRepo interface {
 	CreateCustom(ctx context.Context, senseID uuid.UUID, text string, sourceSlug string) (*domain.Translation, error)
 	Update(ctx context.Context, translationID uuid.UUID, text string) (*domain.Translation, error)
 	Delete(ctx context.Context, translationID uuid.UUID) error
-	Reorder(ctx context.Context, items []ReorderItem) error
+	Reorder(ctx context.Context, items []domain.ReorderItem) error
 }
 
 type exampleRepo interface {
@@ -54,7 +54,7 @@ type exampleRepo interface {
 	CreateCustom(ctx context.Context, senseID uuid.UUID, sentence string, translation *string, sourceSlug string) (*domain.Example, error)
 	Update(ctx context.Context, exampleID uuid.UUID, sentence string, translation *string) (*domain.Example, error)
 	Delete(ctx context.Context, exampleID uuid.UUID) error
-	Reorder(ctx context.Context, items []ReorderItem) error
+	Reorder(ctx context.Context, items []domain.ReorderItem) error
 }
 
 type imageRepo interface {
@@ -69,16 +69,6 @@ type auditRepo interface {
 
 type txManager interface {
 	RunInTx(ctx context.Context, fn func(ctx context.Context) error) error
-}
-
-// ---------------------------------------------------------------------------
-// ReorderItem
-// ---------------------------------------------------------------------------
-
-// ReorderItem represents an item to reorder with its new position.
-type ReorderItem struct {
-	ID       uuid.UUID
-	Position int
 }
 
 // ---------------------------------------------------------------------------

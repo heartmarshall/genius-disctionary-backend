@@ -94,9 +94,9 @@ func (r *mutationResolver) ReorderSenses(ctx context.Context, input generated.Re
 	}
 
 	// Map GraphQL reorder items to service reorder items
-	items := make([]content.ReorderItem, len(input.Items))
+	items := make([]domain.ReorderItem, len(input.Items))
 	for i, item := range input.Items {
-		items[i] = content.ReorderItem{
+		items[i] = domain.ReorderItem{
 			ID:       item.ID,
 			Position: item.Position,
 		}
@@ -182,9 +182,9 @@ func (r *mutationResolver) ReorderTranslations(ctx context.Context, input genera
 	}
 
 	// Map GraphQL reorder items to service reorder items
-	items := make([]content.ReorderItem, len(input.Items))
+	items := make([]domain.ReorderItem, len(input.Items))
 	for i, item := range input.Items {
-		items[i] = content.ReorderItem{
+		items[i] = domain.ReorderItem{
 			ID:       item.ID,
 			Position: item.Position,
 		}
@@ -278,9 +278,9 @@ func (r *mutationResolver) ReorderExamples(ctx context.Context, input generated.
 	}
 
 	// Map GraphQL reorder items to service reorder items
-	items := make([]content.ReorderItem, len(input.Items))
+	items := make([]domain.ReorderItem, len(input.Items))
 	for i, item := range input.Items {
-		items[i] = content.ReorderItem{
+		items[i] = domain.ReorderItem{
 			ID:       item.ID,
 			Position: item.Position,
 		}

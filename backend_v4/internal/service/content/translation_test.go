@@ -22,7 +22,7 @@ type mockExampleRepo struct {
 	createCustomFunc func(ctx context.Context, senseID uuid.UUID, sentence string, translation *string, sourceSlug string) (*domain.Example, error)
 	updateFunc       func(ctx context.Context, exampleID uuid.UUID, sentence string, translation *string) (*domain.Example, error)
 	deleteFunc       func(ctx context.Context, exampleID uuid.UUID) error
-	reorderFunc      func(ctx context.Context, items []ReorderItem) error
+	reorderFunc      func(ctx context.Context, items []domain.ReorderItem) error
 }
 
 func (m *mockExampleRepo) GetByID(ctx context.Context, exampleID uuid.UUID) (*domain.Example, error) {
@@ -67,7 +67,7 @@ func (m *mockExampleRepo) Delete(ctx context.Context, exampleID uuid.UUID) error
 	return nil
 }
 
-func (m *mockExampleRepo) Reorder(ctx context.Context, items []ReorderItem) error {
+func (m *mockExampleRepo) Reorder(ctx context.Context, items []domain.ReorderItem) error {
 	if m.reorderFunc != nil {
 		return m.reorderFunc(ctx, items)
 	}
@@ -661,7 +661,7 @@ func TestService_ReorderTranslations_HappyPath(t *testing.T) {
 				{ID: tr2, SenseID: sid},
 			}, nil
 		},
-		reorderFunc: func(ctx context.Context, items []ReorderItem) error {
+		reorderFunc: func(ctx context.Context, items []domain.ReorderItem) error {
 			if len(items) != 2 {
 				t.Errorf("expected 2 items, got %d", len(items))
 			}
@@ -677,7 +677,7 @@ func TestService_ReorderTranslations_HappyPath(t *testing.T) {
 	ctx := withUser(context.Background(), userID)
 	input := ReorderTranslationsInput{
 		SenseID: senseID,
-		Items: []ReorderItem{
+		Items: []domain.ReorderItem{
 			{ID: tr2, Position: 0},
 			{ID: tr1, Position: 1},
 		},
@@ -728,7 +728,7 @@ func TestService_ReorderTranslations_ForeignTranslationID(t *testing.T) {
 	ctx := withUser(context.Background(), userID)
 	input := ReorderTranslationsInput{
 		SenseID: senseID,
-		Items: []ReorderItem{
+		Items: []domain.ReorderItem{
 			{ID: foreignTrID, Position: 0},
 		},
 	}

@@ -34,7 +34,7 @@ type mockSenseRepo struct {
 	createCustomFunc func(ctx context.Context, entryID uuid.UUID, definition *string, pos *domain.PartOfSpeech, cefr *string, sourceSlug string) (*domain.Sense, error)
 	updateFunc       func(ctx context.Context, senseID uuid.UUID, definition *string, pos *domain.PartOfSpeech, cefr *string) (*domain.Sense, error)
 	deleteFunc       func(ctx context.Context, senseID uuid.UUID) error
-	reorderFunc      func(ctx context.Context, items []ReorderItem) error
+	reorderFunc      func(ctx context.Context, items []domain.ReorderItem) error
 }
 
 func (m *mockSenseRepo) GetByID(ctx context.Context, senseID uuid.UUID) (*domain.Sense, error) {
@@ -79,7 +79,7 @@ func (m *mockSenseRepo) Delete(ctx context.Context, senseID uuid.UUID) error {
 	return nil
 }
 
-func (m *mockSenseRepo) Reorder(ctx context.Context, items []ReorderItem) error {
+func (m *mockSenseRepo) Reorder(ctx context.Context, items []domain.ReorderItem) error {
 	if m.reorderFunc != nil {
 		return m.reorderFunc(ctx, items)
 	}
@@ -93,7 +93,7 @@ type mockTranslationRepo struct {
 	createCustomFunc func(ctx context.Context, senseID uuid.UUID, text string, sourceSlug string) (*domain.Translation, error)
 	updateFunc       func(ctx context.Context, translationID uuid.UUID, text string) (*domain.Translation, error)
 	deleteFunc       func(ctx context.Context, translationID uuid.UUID) error
-	reorderFunc      func(ctx context.Context, items []ReorderItem) error
+	reorderFunc      func(ctx context.Context, items []domain.ReorderItem) error
 }
 
 func (m *mockTranslationRepo) GetByID(ctx context.Context, translationID uuid.UUID) (*domain.Translation, error) {
@@ -138,7 +138,7 @@ func (m *mockTranslationRepo) Delete(ctx context.Context, translationID uuid.UUI
 	return nil
 }
 
-func (m *mockTranslationRepo) Reorder(ctx context.Context, items []ReorderItem) error {
+func (m *mockTranslationRepo) Reorder(ctx context.Context, items []domain.ReorderItem) error {
 	if m.reorderFunc != nil {
 		return m.reorderFunc(ctx, items)
 	}
@@ -842,7 +842,7 @@ func TestService_ReorderSenses_NoUserID(t *testing.T) {
 	ctx := context.Background()
 	input := ReorderSensesInput{
 		EntryID: uuid.New(),
-		Items:   []ReorderItem{{ID: uuid.New(), Position: 0}},
+		Items:   []domain.ReorderItem{{ID: uuid.New(), Position: 0}},
 	}
 
 	err := svc.ReorderSenses(ctx, input)
@@ -861,7 +861,7 @@ func TestService_ReorderSenses_InvalidInput(t *testing.T) {
 	ctx := withUser(context.Background(), uuid.New())
 	input := ReorderSensesInput{
 		EntryID: uuid.Nil, // Invalid
-		Items:   []ReorderItem{{ID: uuid.New(), Position: 0}},
+		Items:   []domain.ReorderItem{{ID: uuid.New(), Position: 0}},
 	}
 
 	err := svc.ReorderSenses(ctx, input)
@@ -885,7 +885,7 @@ func TestService_ReorderSenses_EntryNotFound(t *testing.T) {
 	ctx := withUser(context.Background(), uuid.New())
 	input := ReorderSensesInput{
 		EntryID: uuid.New(),
-		Items:   []ReorderItem{{ID: uuid.New(), Position: 0}},
+		Items:   []domain.ReorderItem{{ID: uuid.New(), Position: 0}},
 	}
 
 	err := svc.ReorderSenses(ctx, input)
@@ -923,7 +923,7 @@ func TestService_ReorderSenses_ForeignSenseID(t *testing.T) {
 	ctx := withUser(context.Background(), userID)
 	input := ReorderSensesInput{
 		EntryID: entryID,
-		Items: []ReorderItem{
+		Items: []domain.ReorderItem{
 			{ID: foreignSenseID, Position: 0},
 		},
 	}
@@ -957,7 +957,7 @@ func TestService_ReorderSenses_HappyPath(t *testing.T) {
 				{ID: sense2, EntryID: eid},
 			}, nil
 		},
-		reorderFunc: func(ctx context.Context, items []ReorderItem) error {
+		reorderFunc: func(ctx context.Context, items []domain.ReorderItem) error {
 			if len(items) != 2 {
 				t.Errorf("expected 2 items, got %d", len(items))
 			}
@@ -970,7 +970,7 @@ func TestService_ReorderSenses_HappyPath(t *testing.T) {
 	ctx := withUser(context.Background(), userID)
 	input := ReorderSensesInput{
 		EntryID: entryID,
-		Items: []ReorderItem{
+		Items: []domain.ReorderItem{
 			{ID: sense2, Position: 0},
 			{ID: sense1, Position: 1},
 		},
@@ -1007,7 +1007,7 @@ func TestService_ReorderSenses_PartialList(t *testing.T) {
 				{ID: sense3, EntryID: eid},
 			}, nil
 		},
-		reorderFunc: func(ctx context.Context, items []ReorderItem) error {
+		reorderFunc: func(ctx context.Context, items []domain.ReorderItem) error {
 			return nil
 		},
 	}
@@ -1017,7 +1017,7 @@ func TestService_ReorderSenses_PartialList(t *testing.T) {
 	ctx := withUser(context.Background(), userID)
 	input := ReorderSensesInput{
 		EntryID: entryID,
-		Items: []ReorderItem{
+		Items: []domain.ReorderItem{
 			{ID: sense1, Position: 0},
 			{ID: sense3, Position: 1},
 			// sense2 not included - partial reorder is allowed

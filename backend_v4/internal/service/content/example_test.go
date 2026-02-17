@@ -537,7 +537,7 @@ func TestService_ReorderExamples_HappyPath(t *testing.T) {
 				{ID: ex2, SenseID: sid},
 			}, nil
 		},
-		reorderFunc: func(ctx context.Context, items []ReorderItem) error {
+		reorderFunc: func(ctx context.Context, items []domain.ReorderItem) error {
 			if len(items) != 2 {
 				t.Errorf("expected 2 items, got %d", len(items))
 			}
@@ -550,7 +550,7 @@ func TestService_ReorderExamples_HappyPath(t *testing.T) {
 	ctx := withUser(context.Background(), userID)
 	input := ReorderExamplesInput{
 		SenseID: senseID,
-		Items: []ReorderItem{
+		Items: []domain.ReorderItem{
 			{ID: ex2, Position: 0},
 			{ID: ex1, Position: 1},
 		},
@@ -598,7 +598,7 @@ func TestService_ReorderExamples_ForeignExampleID(t *testing.T) {
 	ctx := withUser(context.Background(), userID)
 	input := ReorderExamplesInput{
 		SenseID: senseID,
-		Items: []ReorderItem{
+		Items: []domain.ReorderItem{
 			{ID: foreignExID, Position: 0},
 		},
 	}
