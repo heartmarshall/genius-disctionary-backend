@@ -31,6 +31,9 @@ test-cover: ## Run tests with coverage report (opens HTML)
 test-integration: ## Run integration tests (require Docker)
 	go test ./... -race -count=1 -tags=integration
 
+test-e2e: ## Run E2E smoke tests (require Docker for testcontainers)
+	go test -tags=e2e -count=1 -v ./tests/e2e/...
+
 ##@ Generation
 
 generate: ## Generate code (sqlc + go generate)
@@ -75,6 +78,6 @@ help: ## Show this help message
 # ---------------------------------------------------------------------------
 # Phony
 # ---------------------------------------------------------------------------
-.PHONY: build run test test-cover test-integration generate \
+.PHONY: build run test test-cover test-integration test-e2e generate \
         migrate-up migrate-down migrate-status migrate-create \
         docker-up docker-down docker-logs lint help
