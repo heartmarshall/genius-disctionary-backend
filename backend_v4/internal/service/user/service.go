@@ -61,79 +61,79 @@ func NewService(
 
 // GetProfile returns the authenticated user's profile.
 // Returns ErrUnauthorized if no userID is found in context.
-func (s *Service) GetProfile(ctx context.Context) (domain.User, error) {
+func (s *Service) GetProfile(ctx context.Context) (*domain.User, error) {
 	userID, ok := ctxutil.UserIDFromCtx(ctx)
 	if !ok {
-		return domain.User{}, domain.ErrUnauthorized
+		return nil, domain.ErrUnauthorized
 	}
 
 	user, err := s.users.GetByID(ctx, userID)
 	if err != nil {
-		return domain.User{}, fmt.Errorf("user.GetProfile: %w", err)
+		return nil, fmt.Errorf("user.GetProfile: %w", err)
 	}
 
-	return *user, nil
+	return user, nil
 }
 
 // UpdateProfile updates the authenticated user's profile (name and avatar).
 // Returns ErrUnauthorized if no userID is found in context.
-func (s *Service) UpdateProfile(ctx context.Context, input UpdateProfileInput) (domain.User, error) {
+func (s *Service) UpdateProfile(ctx context.Context, input UpdateProfileInput) (*domain.User, error) {
 	// Step 1: Validate input
 	if err := input.Validate(); err != nil {
-		return domain.User{}, err
+		return nil, err
 	}
 
 	// Step 2: Extract userID from context
 	userID, ok := ctxutil.UserIDFromCtx(ctx)
 	if !ok {
-		return domain.User{}, domain.ErrUnauthorized
+		return nil, domain.ErrUnauthorized
 	}
 
 	// Step 3: Update profile
 	user, err := s.users.Update(ctx, userID, &input.Name, input.AvatarURL)
 	if err != nil {
-		return domain.User{}, fmt.Errorf("user.UpdateProfile: %w", err)
+		return nil, fmt.Errorf("user.UpdateProfile: %w", err)
 	}
 
 	// Step 4: Log the update
 	s.log.InfoContext(ctx, "profile updated",
 		slog.String("user_id", userID.String()))
 
-	return *user, nil
+	return user, nil
 }
 
 // GetSettings returns the authenticated user's settings.
 // Returns ErrUnauthorized if no userID is found in context.
-func (s *Service) GetSettings(ctx context.Context) (domain.UserSettings, error) {
+func (s *Service) GetSettings(ctx context.Context) (*domain.UserSettings, error) {
 	userID, ok := ctxutil.UserIDFromCtx(ctx)
 	if !ok {
-		return domain.UserSettings{}, domain.ErrUnauthorized
+		return nil, domain.ErrUnauthorized
 	}
 
 	settings, err := s.settings.GetSettings(ctx, userID)
 	if err != nil {
-		return domain.UserSettings{}, fmt.Errorf("user.GetSettings: %w", err)
+		return nil, fmt.Errorf("user.GetSettings: %w", err)
 	}
 
-	return *settings, nil
+	return settings, nil
 }
 
 // UpdateSettings updates the authenticated user's settings with partial updates.
 // Returns ErrUnauthorized if no userID is found in context.
 // Creates an audit record for the changes in a transaction.
-func (s *Service) UpdateSettings(ctx context.Context, input UpdateSettingsInput) (domain.UserSettings, error) {
+func (s *Service) UpdateSettings(ctx context.Context, input UpdateSettingsInput) (*domain.UserSettings, error) {
 	// Step 1: Validate input
 	if err := input.Validate(); err != nil {
-		return domain.UserSettings{}, err
+		return nil, err
 	}
 
 	// Step 2: Extract userID from context
 	userID, ok := ctxutil.UserIDFromCtx(ctx)
 	if !ok {
-		return domain.UserSettings{}, domain.ErrUnauthorized
+		return nil, domain.ErrUnauthorized
 	}
 
-	var updatedSettings domain.UserSettings
+	var updatedSettings *domain.UserSettings
 
 	// Step 3: Update settings and create audit record in transaction
 	err := s.tx.RunInTx(ctx, func(txCtx context.Context) error {
@@ -151,7 +151,7 @@ func (s *Service) UpdateSettings(ctx context.Context, input UpdateSettingsInput)
 		if err != nil {
 			return fmt.Errorf("update settings: %w", err)
 		}
-		updatedSettings = *updated
+		updatedSettings = updated
 
 		// Build changes for audit
 		changes := buildSettingsChanges(*current, newSettings)
@@ -174,7 +174,7 @@ func (s *Service) UpdateSettings(ctx context.Context, input UpdateSettingsInput)
 	})
 
 	if err != nil {
-		return domain.UserSettings{}, fmt.Errorf("user.UpdateSettings: %w", err)
+		return nil, fmt.Errorf("user.UpdateSettings: %w", err)
 	}
 
 	// Step 4: Log the update

@@ -56,7 +56,7 @@ func TestService_GetProfile_Success(t *testing.T) {
 	user, err := svc.GetProfile(ctx)
 
 	require.NoError(t, err)
-	assert.Equal(t, expected, user)
+	assert.Equal(t, &expected, user)
 	assert.Len(t, users.GetByIDCalls(), 1)
 }
 
@@ -69,7 +69,7 @@ func TestService_GetProfile_NoUserIDInContext(t *testing.T) {
 	user, err := svc.GetProfile(ctx)
 
 	require.ErrorIs(t, err, domain.ErrUnauthorized)
-	assert.Equal(t, domain.User{}, user)
+	assert.Nil(t, user)
 }
 
 func TestService_GetProfile_UserNotFound(t *testing.T) {
@@ -88,7 +88,7 @@ func TestService_GetProfile_UserNotFound(t *testing.T) {
 	user, err := svc.GetProfile(ctx)
 
 	require.ErrorIs(t, err, domain.ErrNotFound)
-	assert.Equal(t, domain.User{}, user)
+	assert.Nil(t, user)
 }
 
 // ---------------------------------------------------------------------------
@@ -127,7 +127,7 @@ func TestService_UpdateProfile_Success(t *testing.T) {
 	user, err := svc.UpdateProfile(ctx, input)
 
 	require.NoError(t, err)
-	assert.Equal(t, expected, user)
+	assert.Equal(t, &expected, user)
 	assert.Len(t, users.UpdateCalls(), 1)
 }
 
@@ -170,7 +170,7 @@ func TestService_UpdateProfile_ValidationError(t *testing.T) {
 			user, err := svc.UpdateProfile(ctx, tt.input)
 
 			require.ErrorIs(t, err, domain.ErrValidation)
-			assert.Equal(t, domain.User{}, user)
+			assert.Nil(t, user)
 		})
 	}
 }
@@ -185,7 +185,7 @@ func TestService_UpdateProfile_NoUserIDInContext(t *testing.T) {
 	user, err := svc.UpdateProfile(ctx, input)
 
 	require.ErrorIs(t, err, domain.ErrUnauthorized)
-	assert.Equal(t, domain.User{}, user)
+	assert.Nil(t, user)
 }
 
 // ---------------------------------------------------------------------------
@@ -218,7 +218,7 @@ func TestService_GetSettings_Success(t *testing.T) {
 	result, err := svc.GetSettings(ctx)
 
 	require.NoError(t, err)
-	assert.Equal(t, expected, result)
+	assert.Equal(t, &expected, result)
 	assert.Len(t, settings.GetSettingsCalls(), 1)
 }
 
@@ -231,7 +231,7 @@ func TestService_GetSettings_NoUserIDInContext(t *testing.T) {
 	result, err := svc.GetSettings(ctx)
 
 	require.ErrorIs(t, err, domain.ErrUnauthorized)
-	assert.Equal(t, domain.UserSettings{}, result)
+	assert.Nil(t, result)
 }
 
 func TestService_GetSettings_NotFound(t *testing.T) {
@@ -250,7 +250,7 @@ func TestService_GetSettings_NotFound(t *testing.T) {
 	result, err := svc.GetSettings(ctx)
 
 	require.ErrorIs(t, err, domain.ErrNotFound)
-	assert.Equal(t, domain.UserSettings{}, result)
+	assert.Nil(t, result)
 }
 
 // ---------------------------------------------------------------------------
@@ -322,7 +322,7 @@ func TestService_UpdateSettings_Success(t *testing.T) {
 	result, err := svc.UpdateSettings(ctx, input)
 
 	require.NoError(t, err)
-	assert.Equal(t, expected, result)
+	assert.Equal(t, &expected, result)
 	assert.Len(t, settingsRepo.GetSettingsCalls(), 1)
 	assert.Len(t, settingsRepo.UpdateSettingsCalls(), 1)
 	assert.Len(t, auditRepo.CreateCalls(), 1)
@@ -451,7 +451,7 @@ func TestService_UpdateSettings_ValidationError(t *testing.T) {
 			result, err := svc.UpdateSettings(ctx, tt.input)
 
 			require.ErrorIs(t, err, domain.ErrValidation)
-			assert.Equal(t, domain.UserSettings{}, result)
+			assert.Nil(t, result)
 		})
 	}
 }
@@ -466,7 +466,7 @@ func TestService_UpdateSettings_NoUserIDInContext(t *testing.T) {
 	result, err := svc.UpdateSettings(ctx, input)
 
 	require.ErrorIs(t, err, domain.ErrUnauthorized)
-	assert.Equal(t, domain.UserSettings{}, result)
+	assert.Nil(t, result)
 }
 
 func TestService_UpdateSettings_TransactionRollback(t *testing.T) {
@@ -502,7 +502,7 @@ func TestService_UpdateSettings_TransactionRollback(t *testing.T) {
 	result, err := svc.UpdateSettings(ctx, input)
 
 	require.Error(t, err)
-	assert.Equal(t, domain.UserSettings{}, result)
+	assert.Nil(t, result)
 	assert.Contains(t, err.Error(), "audit failed")
 }
 

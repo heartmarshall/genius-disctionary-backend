@@ -148,7 +148,7 @@ func (r *Repo) CreateSettings(ctx context.Context, s *domain.UserSettings) error
 }
 
 // UpdateSettings updates the settings for the given user.
-func (r *Repo) UpdateSettings(ctx context.Context, userID uuid.UUID, s domain.UserSettings) (domain.UserSettings, error) {
+func (r *Repo) UpdateSettings(ctx context.Context, userID uuid.UUID, s domain.UserSettings) (*domain.UserSettings, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	row, err := q.UpdateUserSettings(ctx, sqlc.UpdateUserSettingsParams{
@@ -159,10 +159,11 @@ func (r *Repo) UpdateSettings(ctx context.Context, userID uuid.UUID, s domain.Us
 		Timezone:        s.Timezone,
 	})
 	if err != nil {
-		return domain.UserSettings{}, mapError(err, "user_settings", userID)
+		return nil, mapError(err, "user_settings", userID)
 	}
 
-	return toDomainSettings(row), nil
+	result := toDomainSettings(row)
+	return &result, nil
 }
 
 // GetByUserID is an alias for GetSettings, satisfying the study service's settingsRepo interface.
