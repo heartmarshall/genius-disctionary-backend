@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -63,6 +64,17 @@ func (r *Repo) Create(ctx context.Context, record domain.AuditRecord) (domain.Au
 func (r *Repo) Log(ctx context.Context, record domain.AuditRecord) error {
 	_, err := r.Create(ctx, record)
 	return err
+}
+
+// DeleteOlderThan deletes audit_log records older than the given time.
+// Returns the number of deleted records.
+func (r *Repo) DeleteOlderThan(ctx context.Context, before time.Time) (int64, error) {
+	result, err := r.pool.Exec(ctx,
+		"DELETE FROM audit_log WHERE created_at < $1", before)
+	if err != nil {
+		return 0, fmt.Errorf("audit.DeleteOlderThan: %w", err)
+	}
+	return result.RowsAffected(), nil
 }
 
 // ---------------------------------------------------------------------------

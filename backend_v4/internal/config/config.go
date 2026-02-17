@@ -66,6 +66,7 @@ type DictionaryConfig struct {
 	ImportChunkSize         int     `yaml:"import_chunk_size"           env:"DICT_IMPORT_CHUNK_SIZE"          env-default:"50"`
 	ExportMaxEntries        int     `yaml:"export_max_entries"          env:"DICT_EXPORT_MAX_ENTRIES"         env-default:"10000"`
 	HardDeleteRetentionDays int     `yaml:"hard_delete_retention_days"  env:"DICT_HARD_DELETE_RETENTION_DAYS" env-default:"30"`
+	AuditRetentionDays      int     `yaml:"audit_retention_days"        env:"AUDIT_RETENTION_DAYS"            env-default:"365"`
 }
 
 // GraphQLConfig holds GraphQL server settings.
