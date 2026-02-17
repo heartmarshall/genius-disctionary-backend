@@ -24,10 +24,10 @@ func TestRequestID_ReuseIncoming(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	wrappedHandler := RequestID(handler)
+	wrappedHandler := RequestID()(handler)
 
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
-	req.Header.Set("X-Request-Id", incomingID)
+	req.Header.Set(RequestIDHeader, incomingID)
 	rec := httptest.NewRecorder()
 
 	wrappedHandler.ServeHTTP(rec, req)
@@ -36,9 +36,9 @@ func TestRequestID_ReuseIncoming(t *testing.T) {
 		t.Errorf("expected status %d, got %d", http.StatusOK, rec.Code)
 	}
 
-	gotHeader := rec.Header().Get("X-Request-Id")
+	gotHeader := rec.Header().Get(RequestIDHeader)
 	if gotHeader != incomingID {
-		t.Errorf("expected X-Request-Id header %s, got %s", incomingID, gotHeader)
+		t.Errorf("expected %s header %s, got %s", RequestIDHeader, incomingID, gotHeader)
 	}
 }
 
@@ -56,7 +56,7 @@ func TestRequestID_GenerateNew(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	wrappedHandler := RequestID(handler)
+	wrappedHandler := RequestID()(handler)
 
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
@@ -67,9 +67,9 @@ func TestRequestID_GenerateNew(t *testing.T) {
 		t.Errorf("expected status %d, got %d", http.StatusOK, rec.Code)
 	}
 
-	gotHeader := rec.Header().Get("X-Request-Id")
+	gotHeader := rec.Header().Get(RequestIDHeader)
 	if gotHeader == "" {
-		t.Error("expected X-Request-Id header to be set")
+		t.Error("expected " + RequestIDHeader + " header to be set")
 	}
 
 	// Validate it's a valid UUID

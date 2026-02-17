@@ -14,6 +14,16 @@ type Config struct {
 	GraphQL    GraphQLConfig    `yaml:"graphql"`
 	Log        LogConfig        `yaml:"log"`
 	SRS        SRSConfig        `yaml:"srs"`
+	CORS       CORSConfig       `yaml:"cors"`
+}
+
+// CORSConfig holds CORS settings.
+type CORSConfig struct {
+	AllowedOrigins   string `yaml:"allowed_origins"   env:"CORS_ALLOWED_ORIGINS"   env-default:"*"`
+	AllowedMethods   string `yaml:"allowed_methods"   env:"CORS_ALLOWED_METHODS"   env-default:"GET,POST,OPTIONS"`
+	AllowedHeaders   string `yaml:"allowed_headers"   env:"CORS_ALLOWED_HEADERS"   env-default:"Authorization,Content-Type"`
+	AllowCredentials bool   `yaml:"allow_credentials" env:"CORS_ALLOW_CREDENTIALS" env-default:"true"`
+	MaxAge           int    `yaml:"max_age"           env:"CORS_MAX_AGE"           env-default:"86400"`
 }
 
 // ServerConfig holds HTTP server settings.
