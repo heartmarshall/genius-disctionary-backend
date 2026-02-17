@@ -175,3 +175,33 @@ func TestAuth_EmptyBearerToken(t *testing.T) {
 		t.Error("ValidateToken should not be called for empty Bearer token")
 	}
 }
+
+func TestExtractBearerToken_Cases(t *testing.T) {
+	cases := []struct {
+		name   string
+		header string
+		want   string
+	}{
+		{"empty header", "", ""},
+		{"bearer with token", "Bearer valid-token", "valid-token"},
+		{"bearer lowercase", "bearer valid-token", "valid-token"},
+		{"bearer mixed case", "BEARER valid-token", "valid-token"},
+		{"basic auth", "Basic dXNlcjpwYXNz", ""},
+		{"bearer no space", "Bearertoken", ""},
+		{"bearer empty token", "Bearer ", ""},
+		{"just bearer", "Bearer", ""},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			req := httptest.NewRequest(http.MethodGet, "/", nil)
+			if tc.header != "" {
+				req.Header.Set("Authorization", tc.header)
+			}
+			got := extractBearerToken(req)
+			if got != tc.want {
+				t.Errorf("extractBearerToken(%q) = %q, want %q", tc.header, got, tc.want)
+			}
+		})
+	}
+}

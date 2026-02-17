@@ -13,7 +13,7 @@ type tokenValidator interface {
 	ValidateToken(ctx context.Context, token string) (uuid.UUID, error)
 }
 
-func Auth(validator tokenValidator) func(http.Handler) http.Handler {
+func Auth(validator tokenValidator) Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			token := extractBearerToken(r)
@@ -34,8 +34,12 @@ func Auth(validator tokenValidator) func(http.Handler) http.Handler {
 
 func extractBearerToken(r *http.Request) string {
 	auth := r.Header.Get("Authorization")
-	if !strings.HasPrefix(auth, "Bearer ") {
+	if auth == "" {
 		return ""
 	}
-	return strings.TrimPrefix(auth, "Bearer ")
+	parts := strings.SplitN(auth, " ", 2)
+	if len(parts) != 2 || !strings.EqualFold(parts[0], "Bearer") {
+		return ""
+	}
+	return parts[1]
 }
