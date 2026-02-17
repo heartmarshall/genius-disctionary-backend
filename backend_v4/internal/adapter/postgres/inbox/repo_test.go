@@ -45,7 +45,7 @@ func TestRepo_Create_HappyPath(t *testing.T) {
 	itemCtx := "saw it in a movie"
 	input := buildInboxItem(user.ID, "serendipity", &itemCtx)
 
-	got, err := repo.Create(ctx, user.ID, input)
+	got, err := repo.Create(ctx, user.ID, &input)
 	if err != nil {
 		t.Fatalf("Create: unexpected error: %v", err)
 	}
@@ -75,7 +75,7 @@ func TestRepo_Create_NilContext(t *testing.T) {
 
 	input := buildInboxItem(user.ID, "ephemeral", nil)
 
-	got, err := repo.Create(ctx, user.ID, input)
+	got, err := repo.Create(ctx, user.ID, &input)
 	if err != nil {
 		t.Fatalf("Create: unexpected error: %v", err)
 	}
@@ -93,7 +93,7 @@ func TestRepo_Create_InvalidUserID(t *testing.T) {
 	bogusUserID := uuid.New()
 	input := buildInboxItem(bogusUserID, "will fail", nil)
 
-	_, err := repo.Create(ctx, bogusUserID, input)
+	_, err := repo.Create(ctx, bogusUserID, &input)
 	assertIsDomainError(t, err, domain.ErrNotFound) // FK violation -> ErrNotFound
 }
 
@@ -110,7 +110,7 @@ func TestRepo_GetByID_HappyPath(t *testing.T) {
 	itemCtx := "from a podcast"
 	input := buildInboxItem(user.ID, "ubiquitous", &itemCtx)
 
-	created, err := repo.Create(ctx, user.ID, input)
+	created, err := repo.Create(ctx, user.ID, &input)
 	if err != nil {
 		t.Fatalf("Create: %v", err)
 	}
@@ -150,7 +150,7 @@ func TestRepo_GetByID_WrongUser(t *testing.T) {
 	user2 := testhelper.SeedUser(t, pool)
 
 	input := buildInboxItem(user1.ID, "private word", nil)
-	created, err := repo.Create(ctx, user1.ID, input)
+	created, err := repo.Create(ctx, user1.ID, &input)
 	if err != nil {
 		t.Fatalf("Create: %v", err)
 	}
@@ -174,28 +174,28 @@ func TestRepo_ListByUser_HappyPath(t *testing.T) {
 	for i := range 3 {
 		item := buildInboxItem(user.ID, "word-"+uuid.New().String()[:8], nil)
 		item.CreatedAt = time.Now().UTC().Truncate(time.Microsecond).Add(time.Duration(i) * time.Millisecond)
-		if _, err := repo.Create(ctx, user.ID, item); err != nil {
+		if _, err := repo.Create(ctx, user.ID, &item); err != nil {
 			t.Fatalf("Create[%d]: %v", i, err)
 		}
 	}
 
-	result, err := repo.ListByUser(ctx, user.ID, 10, 0)
+	items, totalCount, err := repo.List(ctx, user.ID, 10, 0)
 	if err != nil {
-		t.Fatalf("ListByUser: unexpected error: %v", err)
+		t.Fatalf("List: unexpected error: %v", err)
 	}
 
-	if result.TotalCount != 3 {
-		t.Errorf("TotalCount: got %d, want 3", result.TotalCount)
+	if totalCount != 3 {
+		t.Errorf("TotalCount: got %d, want 3", totalCount)
 	}
-	if len(result.Items) != 3 {
-		t.Fatalf("Items count: got %d, want 3", len(result.Items))
+	if len(items) != 3 {
+		t.Fatalf("Items count: got %d, want 3", len(items))
 	}
 
 	// Verify descending order by created_at.
-	for i := 1; i < len(result.Items); i++ {
-		if result.Items[i].CreatedAt.After(result.Items[i-1].CreatedAt) {
+	for i := 1; i < len(items); i++ {
+		if items[i].CreatedAt.After(items[i-1].CreatedAt) {
 			t.Errorf("Items not in DESC order: [%d].CreatedAt=%s > [%d].CreatedAt=%s",
-				i, result.Items[i].CreatedAt, i-1, result.Items[i-1].CreatedAt)
+				i, items[i].CreatedAt, i-1, items[i-1].CreatedAt)
 		}
 	}
 }
@@ -206,19 +206,19 @@ func TestRepo_ListByUser_EmptyInbox(t *testing.T) {
 	ctx := context.Background()
 	user := testhelper.SeedUser(t, pool)
 
-	result, err := repo.ListByUser(ctx, user.ID, 10, 0)
+	items, totalCount, err := repo.List(ctx, user.ID, 10, 0)
 	if err != nil {
-		t.Fatalf("ListByUser: unexpected error: %v", err)
+		t.Fatalf("List: unexpected error: %v", err)
 	}
 
-	if result.TotalCount != 0 {
-		t.Errorf("TotalCount: got %d, want 0", result.TotalCount)
+	if totalCount != 0 {
+		t.Errorf("TotalCount: got %d, want 0", totalCount)
 	}
-	if result.Items == nil {
+	if items == nil {
 		t.Fatal("Items should not be nil (empty inbox should return empty slice)")
 	}
-	if len(result.Items) != 0 {
-		t.Errorf("Items count: got %d, want 0", len(result.Items))
+	if len(items) != 0 {
+		t.Errorf("Items count: got %d, want 0", len(items))
 	}
 }
 
@@ -232,45 +232,45 @@ func TestRepo_ListByUser_Pagination(t *testing.T) {
 	for i := range 5 {
 		item := buildInboxItem(user.ID, "paginate-"+uuid.New().String()[:8], nil)
 		item.CreatedAt = time.Now().UTC().Truncate(time.Microsecond).Add(time.Duration(i) * time.Millisecond)
-		if _, err := repo.Create(ctx, user.ID, item); err != nil {
+		if _, err := repo.Create(ctx, user.ID, &item); err != nil {
 			t.Fatalf("Create[%d]: %v", i, err)
 		}
 	}
 
 	// Page 1: limit 2, offset 0.
-	page1, err := repo.ListByUser(ctx, user.ID, 2, 0)
+	page1Items, page1Total, err := repo.List(ctx, user.ID, 2, 0)
 	if err != nil {
-		t.Fatalf("ListByUser page1: %v", err)
+		t.Fatalf("List page1: %v", err)
 	}
-	if page1.TotalCount != 5 {
-		t.Errorf("page1 TotalCount: got %d, want 5", page1.TotalCount)
+	if page1Total != 5 {
+		t.Errorf("page1 TotalCount: got %d, want 5", page1Total)
 	}
-	if len(page1.Items) != 2 {
-		t.Fatalf("page1 Items count: got %d, want 2", len(page1.Items))
+	if len(page1Items) != 2 {
+		t.Fatalf("page1 Items count: got %d, want 2", len(page1Items))
 	}
 
 	// Page 2: limit 2, offset 2.
-	page2, err := repo.ListByUser(ctx, user.ID, 2, 2)
+	page2Items, _, err := repo.List(ctx, user.ID, 2, 2)
 	if err != nil {
-		t.Fatalf("ListByUser page2: %v", err)
+		t.Fatalf("List page2: %v", err)
 	}
-	if len(page2.Items) != 2 {
-		t.Fatalf("page2 Items count: got %d, want 2", len(page2.Items))
+	if len(page2Items) != 2 {
+		t.Fatalf("page2 Items count: got %d, want 2", len(page2Items))
 	}
 
 	// Page 3: limit 2, offset 4.
-	page3, err := repo.ListByUser(ctx, user.ID, 2, 4)
+	page3Items, _, err := repo.List(ctx, user.ID, 2, 4)
 	if err != nil {
-		t.Fatalf("ListByUser page3: %v", err)
+		t.Fatalf("List page3: %v", err)
 	}
-	if len(page3.Items) != 1 {
-		t.Fatalf("page3 Items count: got %d, want 1", len(page3.Items))
+	if len(page3Items) != 1 {
+		t.Fatalf("page3 Items count: got %d, want 1", len(page3Items))
 	}
 
 	// Verify no overlap between pages.
 	ids := make(map[uuid.UUID]bool)
-	allItems := append(page1.Items, page2.Items...)
-	allItems = append(allItems, page3.Items...)
+	allItems := append(page1Items, page2Items...)
+	allItems = append(allItems, page3Items...)
 	for _, item := range allItems {
 		if ids[item.ID] {
 			t.Errorf("duplicate item ID %s across pages", item.ID)
@@ -293,31 +293,31 @@ func TestRepo_ListByUser_IsolationBetweenUsers(t *testing.T) {
 	// Create items for user1 and user2.
 	for i := range 3 {
 		item := buildInboxItem(user1.ID, "user1-word-"+uuid.New().String()[:8], nil)
-		if _, err := repo.Create(ctx, user1.ID, item); err != nil {
+		if _, err := repo.Create(ctx, user1.ID, &item); err != nil {
 			t.Fatalf("Create user1[%d]: %v", i, err)
 		}
 	}
 	for i := range 2 {
 		item := buildInboxItem(user2.ID, "user2-word-"+uuid.New().String()[:8], nil)
-		if _, err := repo.Create(ctx, user2.ID, item); err != nil {
+		if _, err := repo.Create(ctx, user2.ID, &item); err != nil {
 			t.Fatalf("Create user2[%d]: %v", i, err)
 		}
 	}
 
-	result1, err := repo.ListByUser(ctx, user1.ID, 10, 0)
+	_, total1, err := repo.List(ctx, user1.ID, 10, 0)
 	if err != nil {
-		t.Fatalf("ListByUser user1: %v", err)
+		t.Fatalf("List user1: %v", err)
 	}
-	if result1.TotalCount != 3 {
-		t.Errorf("user1 TotalCount: got %d, want 3", result1.TotalCount)
+	if total1 != 3 {
+		t.Errorf("user1 TotalCount: got %d, want 3", total1)
 	}
 
-	result2, err := repo.ListByUser(ctx, user2.ID, 10, 0)
+	_, total2, err := repo.List(ctx, user2.ID, 10, 0)
 	if err != nil {
-		t.Fatalf("ListByUser user2: %v", err)
+		t.Fatalf("List user2: %v", err)
 	}
-	if result2.TotalCount != 2 {
-		t.Errorf("user2 TotalCount: got %d, want 2", result2.TotalCount)
+	if total2 != 2 {
+		t.Errorf("user2 TotalCount: got %d, want 2", total2)
 	}
 }
 
@@ -332,7 +332,7 @@ func TestRepo_CountByUser_HappyPath(t *testing.T) {
 	user := testhelper.SeedUser(t, pool)
 
 	// Initially empty.
-	count, err := repo.CountByUser(ctx, user.ID)
+	count, err := repo.Count(ctx, user.ID)
 	if err != nil {
 		t.Fatalf("CountByUser: %v", err)
 	}
@@ -343,12 +343,12 @@ func TestRepo_CountByUser_HappyPath(t *testing.T) {
 	// Create 3 items.
 	for i := range 3 {
 		item := buildInboxItem(user.ID, "count-"+uuid.New().String()[:8], nil)
-		if _, err := repo.Create(ctx, user.ID, item); err != nil {
+		if _, err := repo.Create(ctx, user.ID, &item); err != nil {
 			t.Fatalf("Create[%d]: %v", i, err)
 		}
 	}
 
-	count, err = repo.CountByUser(ctx, user.ID)
+	count, err = repo.Count(ctx, user.ID)
 	if err != nil {
 		t.Fatalf("CountByUser after create: %v", err)
 	}
@@ -368,7 +368,7 @@ func TestRepo_Delete_HappyPath(t *testing.T) {
 	user := testhelper.SeedUser(t, pool)
 
 	input := buildInboxItem(user.ID, "to-be-deleted", nil)
-	created, err := repo.Create(ctx, user.ID, input)
+	created, err := repo.Create(ctx, user.ID, &input)
 	if err != nil {
 		t.Fatalf("Create: %v", err)
 	}
@@ -401,7 +401,7 @@ func TestRepo_Delete_WrongUser(t *testing.T) {
 	user2 := testhelper.SeedUser(t, pool)
 
 	input := buildInboxItem(user1.ID, "user1-only", nil)
-	created, err := repo.Create(ctx, user1.ID, input)
+	created, err := repo.Create(ctx, user1.ID, &input)
 	if err != nil {
 		t.Fatalf("Create: %v", err)
 	}
@@ -433,18 +433,18 @@ func TestRepo_DeleteAll_HappyPath(t *testing.T) {
 	// Create several items.
 	for i := range 5 {
 		item := buildInboxItem(user.ID, "clearme-"+uuid.New().String()[:8], nil)
-		if _, err := repo.Create(ctx, user.ID, item); err != nil {
+		if _, err := repo.Create(ctx, user.ID, &item); err != nil {
 			t.Fatalf("Create[%d]: %v", i, err)
 		}
 	}
 
 	// Delete all.
-	if err := repo.DeleteAll(ctx, user.ID); err != nil {
+	if _, err := repo.DeleteAll(ctx, user.ID); err != nil {
 		t.Fatalf("DeleteAll: unexpected error: %v", err)
 	}
 
 	// Verify inbox is empty.
-	count, err := repo.CountByUser(ctx, user.ID)
+	count, err := repo.Count(ctx, user.ID)
 	if err != nil {
 		t.Fatalf("CountByUser after DeleteAll: %v", err)
 	}
@@ -460,12 +460,12 @@ func TestRepo_DeleteAll_Idempotent(t *testing.T) {
 	user := testhelper.SeedUser(t, pool)
 
 	// Calling DeleteAll on an empty inbox should not error.
-	if err := repo.DeleteAll(ctx, user.ID); err != nil {
+	if _, err := repo.DeleteAll(ctx, user.ID); err != nil {
 		t.Fatalf("DeleteAll on empty inbox: unexpected error: %v", err)
 	}
 
 	// Double call should also succeed.
-	if err := repo.DeleteAll(ctx, user.ID); err != nil {
+	if _, err := repo.DeleteAll(ctx, user.ID); err != nil {
 		t.Fatalf("DeleteAll second call: unexpected error: %v", err)
 	}
 }
@@ -481,22 +481,22 @@ func TestRepo_DeleteAll_UserIsolation(t *testing.T) {
 	// Create items for both users.
 	for i := range 3 {
 		item1 := buildInboxItem(user1.ID, "u1-"+uuid.New().String()[:8], nil)
-		if _, err := repo.Create(ctx, user1.ID, item1); err != nil {
+		if _, err := repo.Create(ctx, user1.ID, &item1); err != nil {
 			t.Fatalf("Create user1[%d]: %v", i, err)
 		}
 		item2 := buildInboxItem(user2.ID, "u2-"+uuid.New().String()[:8], nil)
-		if _, err := repo.Create(ctx, user2.ID, item2); err != nil {
+		if _, err := repo.Create(ctx, user2.ID, &item2); err != nil {
 			t.Fatalf("Create user2[%d]: %v", i, err)
 		}
 	}
 
 	// Delete all for user1.
-	if err := repo.DeleteAll(ctx, user1.ID); err != nil {
+	if _, err := repo.DeleteAll(ctx, user1.ID); err != nil {
 		t.Fatalf("DeleteAll user1: %v", err)
 	}
 
 	// user1 inbox should be empty.
-	count1, err := repo.CountByUser(ctx, user1.ID)
+	count1, err := repo.Count(ctx, user1.ID)
 	if err != nil {
 		t.Fatalf("CountByUser user1: %v", err)
 	}
@@ -505,7 +505,7 @@ func TestRepo_DeleteAll_UserIsolation(t *testing.T) {
 	}
 
 	// user2 inbox should be untouched.
-	count2, err := repo.CountByUser(ctx, user2.ID)
+	count2, err := repo.Count(ctx, user2.ID)
 	if err != nil {
 		t.Fatalf("CountByUser user2: %v", err)
 	}
@@ -527,7 +527,7 @@ func TestRepo_Create_ThenGetByID_RoundTrip(t *testing.T) {
 	itemCtx := "heard in conversation"
 	input := buildInboxItem(user.ID, "mellifluous", &itemCtx)
 
-	created, err := repo.Create(ctx, user.ID, input)
+	created, err := repo.Create(ctx, user.ID, &input)
 	if err != nil {
 		t.Fatalf("Create: %v", err)
 	}

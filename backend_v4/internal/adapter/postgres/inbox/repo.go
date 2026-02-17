@@ -18,12 +18,6 @@ import (
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
 )
 
-// ListResult holds paginated inbox items with total count.
-type ListResult struct {
-	Items      []domain.InboxItem
-	TotalCount int
-}
-
 // Repo provides inbox item persistence backed by PostgreSQL.
 type Repo struct {
 	pool *pgxpool.Pool
@@ -40,7 +34,7 @@ func New(pool *pgxpool.Pool) *Repo {
 
 // GetByID returns an inbox item by primary key.
 // Returns domain.ErrNotFound if the item does not exist or belongs to another user.
-func (r *Repo) GetByID(ctx context.Context, userID, itemID uuid.UUID) (domain.InboxItem, error) {
+func (r *Repo) GetByID(ctx context.Context, userID, itemID uuid.UUID) (*domain.InboxItem, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	row, err := q.GetInboxItemByID(ctx, sqlc.GetInboxItemByIDParams{
@@ -48,21 +42,22 @@ func (r *Repo) GetByID(ctx context.Context, userID, itemID uuid.UUID) (domain.In
 		UserID: userID,
 	})
 	if err != nil {
-		return domain.InboxItem{}, mapError(err, "inbox_item", itemID)
+		return nil, mapError(err, "inbox_item", itemID)
 	}
 
-	return toDomainInboxItem(row), nil
+	item := toDomainInboxItem(row)
+	return &item, nil
 }
 
-// ListByUser returns inbox items ordered by created_at DESC with pagination.
-// Returns an empty slice and totalCount 0 if the inbox is empty.
-func (r *Repo) ListByUser(ctx context.Context, userID uuid.UUID, limit, offset int) (ListResult, error) {
+// List returns inbox items ordered by created_at DESC with pagination.
+// Returns items, total count, and error. Returns an empty slice and totalCount 0 if the inbox is empty.
+func (r *Repo) List(ctx context.Context, userID uuid.UUID, limit, offset int) ([]*domain.InboxItem, int, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	// Count total items for this user.
 	totalCount, err := q.CountInboxItemsByUser(ctx, userID)
 	if err != nil {
-		return ListResult{}, fmt.Errorf("count inbox_items: %w", err)
+		return nil, 0, fmt.Errorf("count inbox_items: %w", err)
 	}
 
 	// Fetch the page.
@@ -72,22 +67,20 @@ func (r *Repo) ListByUser(ctx context.Context, userID uuid.UUID, limit, offset i
 		Off:    int32(offset),
 	})
 	if err != nil {
-		return ListResult{}, fmt.Errorf("list inbox_items: %w", err)
+		return nil, 0, fmt.Errorf("list inbox_items: %w", err)
 	}
 
-	items := make([]domain.InboxItem, len(rows))
+	items := make([]*domain.InboxItem, len(rows))
 	for i, row := range rows {
-		items[i] = toDomainInboxItem(row)
+		item := toDomainInboxItem(row)
+		items[i] = &item
 	}
 
-	return ListResult{
-		Items:      items,
-		TotalCount: int(totalCount),
-	}, nil
+	return items, int(totalCount), nil
 }
 
-// CountByUser returns the number of inbox items for a user.
-func (r *Repo) CountByUser(ctx context.Context, userID uuid.UUID) (int, error) {
+// Count returns the number of inbox items for a user.
+func (r *Repo) Count(ctx context.Context, userID uuid.UUID) (int, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	count, err := q.CountInboxItemsByUser(ctx, userID)
@@ -103,7 +96,7 @@ func (r *Repo) CountByUser(ctx context.Context, userID uuid.UUID) (int, error) {
 // ---------------------------------------------------------------------------
 
 // Create inserts a new inbox item and returns the persisted domain.InboxItem.
-func (r *Repo) Create(ctx context.Context, userID uuid.UUID, item domain.InboxItem) (domain.InboxItem, error) {
+func (r *Repo) Create(ctx context.Context, userID uuid.UUID, item *domain.InboxItem) (*domain.InboxItem, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	row, err := q.CreateInboxItem(ctx, sqlc.CreateInboxItemParams{
@@ -114,10 +107,11 @@ func (r *Repo) Create(ctx context.Context, userID uuid.UUID, item domain.InboxIt
 		CreatedAt: item.CreatedAt,
 	})
 	if err != nil {
-		return domain.InboxItem{}, mapError(err, "inbox_item", item.ID)
+		return nil, mapError(err, "inbox_item", item.ID)
 	}
 
-	return toDomainInboxItem(row), nil
+	result := toDomainInboxItem(row)
+	return &result, nil
 }
 
 // Delete removes an inbox item. Returns domain.ErrNotFound if the item
@@ -140,16 +134,20 @@ func (r *Repo) Delete(ctx context.Context, userID, itemID uuid.UUID) error {
 	return nil
 }
 
-// DeleteAll removes all inbox items for a user. Idempotent: calling on an
-// empty inbox is not an error.
-func (r *Repo) DeleteAll(ctx context.Context, userID uuid.UUID) error {
-	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
+// deleteAllInboxItemsSQL is used instead of sqlc to get rows affected count.
+const deleteAllInboxItemsSQL = `DELETE FROM inbox_items WHERE user_id = $1`
 
-	if err := q.DeleteAllInboxItems(ctx, userID); err != nil {
-		return fmt.Errorf("delete all inbox_items: %w", err)
+// DeleteAll removes all inbox items for a user. Idempotent: calling on an
+// empty inbox is not an error. Returns the number of deleted items.
+func (r *Repo) DeleteAll(ctx context.Context, userID uuid.UUID) (int, error) {
+	querier := postgres.QuerierFromCtx(ctx, r.pool)
+
+	tag, err := querier.Exec(ctx, deleteAllInboxItemsSQL, userID)
+	if err != nil {
+		return 0, fmt.Errorf("delete all inbox_items: %w", err)
 	}
 
-	return nil
+	return int(tag.RowsAffected()), nil
 }
 
 // ---------------------------------------------------------------------------

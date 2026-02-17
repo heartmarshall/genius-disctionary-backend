@@ -65,7 +65,7 @@ func TestRepo_Create_WithPrevState(t *testing.T) {
 	durationMs := 3500
 	input := buildReviewLog(card.ID, domain.ReviewGradeGood, prevState, &durationMs)
 
-	got, err := repo.Create(ctx, input)
+	got, err := repo.Create(ctx, &input)
 	if err != nil {
 		t.Fatalf("Create: unexpected error: %v", err)
 	}
@@ -119,7 +119,7 @@ func TestRepo_Create_NilPrevState(t *testing.T) {
 
 	input := buildReviewLog(card.ID, domain.ReviewGradeAgain, nil, nil)
 
-	got, err := repo.Create(ctx, input)
+	got, err := repo.Create(ctx, &input)
 	if err != nil {
 		t.Fatalf("Create: unexpected error: %v", err)
 	}
@@ -149,14 +149,14 @@ func TestRepo_GetByCardID(t *testing.T) {
 		rl := buildReviewLog(card.ID, domain.ReviewGradeGood, nil, nil)
 		rl.ReviewedAt = time.Now().UTC().Truncate(time.Microsecond).Add(time.Duration(i) * time.Second)
 
-		created, err := repo.Create(ctx, rl)
+		created, err := repo.Create(ctx, &rl)
 		if err != nil {
 			t.Fatalf("Create[%d]: %v", i, err)
 		}
 		createdIDs = append(createdIDs, created.ID)
 	}
 
-	got, err := repo.GetByCardID(ctx, card.ID, 10, 0)
+	got, _, err := repo.GetByCardID(ctx, card.ID, 10, 0)
 	if err != nil {
 		t.Fatalf("GetByCardID: unexpected error: %v", err)
 	}
@@ -193,13 +193,13 @@ func TestRepo_GetLastByCardID(t *testing.T) {
 	// Create 2 review logs.
 	rl1 := buildReviewLog(card.ID, domain.ReviewGradeHard, nil, nil)
 	rl1.ReviewedAt = time.Now().UTC().Truncate(time.Microsecond).Add(-1 * time.Hour)
-	if _, err := repo.Create(ctx, rl1); err != nil {
+	if _, err := repo.Create(ctx, &rl1); err != nil {
 		t.Fatalf("Create[1]: %v", err)
 	}
 
 	rl2 := buildReviewLog(card.ID, domain.ReviewGradeEasy, nil, nil)
 	rl2.ReviewedAt = time.Now().UTC().Truncate(time.Microsecond)
-	created2, err := repo.Create(ctx, rl2)
+	created2, err := repo.Create(ctx, &rl2)
 	if err != nil {
 		t.Fatalf("Create[2]: %v", err)
 	}
@@ -240,7 +240,7 @@ func TestRepo_Delete(t *testing.T) {
 	_, card := seedCard(t, pool)
 
 	input := buildReviewLog(card.ID, domain.ReviewGradeGood, nil, nil)
-	created, err := repo.Create(ctx, input)
+	created, err := repo.Create(ctx, &input)
 	if err != nil {
 		t.Fatalf("Create: %v", err)
 	}
@@ -250,7 +250,7 @@ func TestRepo_Delete(t *testing.T) {
 	}
 
 	// Should not be findable anymore.
-	got, err := repo.GetByCardID(ctx, card.ID, 10, 0)
+	got, _, err := repo.GetByCardID(ctx, card.ID, 10, 0)
 	if err != nil {
 		t.Fatalf("GetByCardID after delete: %v", err)
 	}
@@ -288,7 +288,7 @@ func TestRepo_CountToday(t *testing.T) {
 	for range 2 {
 		rl := buildReviewLog(card.ID, domain.ReviewGradeGood, nil, nil)
 		rl.ReviewedAt = now.Truncate(time.Microsecond)
-		if _, err := repo.Create(ctx, rl); err != nil {
+		if _, err := repo.Create(ctx, &rl); err != nil {
 			t.Fatalf("Create today: %v", err)
 		}
 	}
@@ -346,7 +346,9 @@ func TestRepo_GetStreakDays(t *testing.T) {
 		}
 	}
 
-	counts, err := repo.GetStreakDays(ctx, user.ID, "UTC", 10)
+	dayStart := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+
+	counts, err := repo.GetStreakDays(ctx, user.ID, dayStart, 10)
 	if err != nil {
 		t.Fatalf("GetStreakDays: unexpected error: %v", err)
 	}
@@ -386,12 +388,12 @@ func TestRepo_GetByCardIDs_Batch(t *testing.T) {
 	// Create 2 logs for card1 and 1 for card2.
 	for range 2 {
 		rl := buildReviewLog(card1.ID, domain.ReviewGradeGood, nil, nil)
-		if _, err := repo.Create(ctx, rl); err != nil {
+		if _, err := repo.Create(ctx, &rl); err != nil {
 			t.Fatalf("Create card1: %v", err)
 		}
 	}
 	rl := buildReviewLog(card2.ID, domain.ReviewGradeHard, nil, nil)
-	if _, err := repo.Create(ctx, rl); err != nil {
+	if _, err := repo.Create(ctx, &rl); err != nil {
 		t.Fatalf("Create card2: %v", err)
 	}
 
@@ -457,7 +459,7 @@ func TestRepo_PrevState_WithNextReviewAt(t *testing.T) {
 	}
 	input := buildReviewLog(card.ID, domain.ReviewGradeEasy, prevState, nil)
 
-	created, err := repo.Create(ctx, input)
+	created, err := repo.Create(ctx, &input)
 	if err != nil {
 		t.Fatalf("Create: %v", err)
 	}
@@ -504,7 +506,7 @@ func TestRepo_PrevState_WithNilNextReviewAt(t *testing.T) {
 	}
 	input := buildReviewLog(card.ID, domain.ReviewGradeAgain, prevState, nil)
 
-	created, err := repo.Create(ctx, input)
+	created, err := repo.Create(ctx, &input)
 	if err != nil {
 		t.Fatalf("Create: %v", err)
 	}

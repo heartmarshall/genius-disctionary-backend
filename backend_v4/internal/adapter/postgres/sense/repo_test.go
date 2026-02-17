@@ -585,7 +585,7 @@ func TestRepo_Reorder_HappyPath(t *testing.T) {
 	entry := testhelper.SeedEntryCustom(t, pool, user.ID)
 
 	// SeedEntryCustom creates senses at positions 0, 1. Swap them.
-	items := []sense.ReorderItem{
+	items := []domain.ReorderItem{
 		{ID: entry.Senses[0].ID, Position: 1},
 		{ID: entry.Senses[1].ID, Position: 0},
 	}
@@ -634,7 +634,7 @@ func TestRepo_Reorder_Atomic(t *testing.T) {
 	// Try to reorder with a nonexistent sense ID mixed in.
 	// The entire batch should still succeed because UpdateSensePosition is :exec
 	// (no error on 0 rows). But we can verify that the valid ones get updated.
-	items := []sense.ReorderItem{
+	items := []domain.ReorderItem{
 		{ID: entry.Senses[0].ID, Position: 10},
 		{ID: entry.Senses[1].ID, Position: 20},
 	}

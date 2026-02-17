@@ -58,6 +58,13 @@ func (r *Repo) Create(ctx context.Context, record domain.AuditRecord) (domain.Au
 	return toDomainAuditRecord(row)
 }
 
+// Log creates an audit record without returning it (fire-and-forget).
+// Satisfies study.auditLogger, topic.auditLogger, and content.auditRepo.
+func (r *Repo) Log(ctx context.Context, record domain.AuditRecord) error {
+	_, err := r.Create(ctx, record)
+	return err
+}
+
 // ---------------------------------------------------------------------------
 // Read operations
 // ---------------------------------------------------------------------------

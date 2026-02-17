@@ -104,6 +104,11 @@ func seedSense(t *testing.T, pool *pgxpool.Pool, entryID uuid.UUID, pos *domain.
 	return id
 }
 
+// intPtr returns a pointer to the given int.
+func intPtr(v int) *int {
+	return &v
+}
+
 // ---------------------------------------------------------------------------
 // Create tests
 // ---------------------------------------------------------------------------
@@ -120,7 +125,7 @@ func TestRepo_Create_HappyPath(t *testing.T) {
 	notes := "some notes"
 	e.Notes = &notes
 
-	got, err := repo.Create(ctx, user.ID, e)
+	got, err := repo.Create(ctx, &e)
 	if err != nil {
 		t.Fatalf("Create: unexpected error: %v", err)
 	}
@@ -128,8 +133,8 @@ func TestRepo_Create_HappyPath(t *testing.T) {
 	if got.ID != e.ID {
 		t.Errorf("ID mismatch: got %s, want %s", got.ID, e.ID)
 	}
-	if got.UserID != user.ID {
-		t.Errorf("UserID mismatch: got %s, want %s", got.UserID, user.ID)
+	if got.UserID != e.UserID {
+		t.Errorf("UserID mismatch: got %s, want %s", got.UserID, e.UserID)
 	}
 	if got.Text != e.Text {
 		t.Errorf("Text mismatch: got %q, want %q", got.Text, e.Text)
@@ -157,7 +162,7 @@ func TestRepo_Create_WithoutRefEntry(t *testing.T) {
 	text := "custom-word-" + uuid.New().String()[:8]
 	e := buildEntry(user.ID, text, nil)
 
-	got, err := repo.Create(ctx, user.ID, e)
+	got, err := repo.Create(ctx, &e)
 	if err != nil {
 		t.Fatalf("Create: unexpected error: %v", err)
 	}
@@ -176,12 +181,12 @@ func TestRepo_Create_DuplicateText(t *testing.T) {
 	text := "duplicate-" + uuid.New().String()[:8]
 
 	e1 := buildEntry(user.ID, text, nil)
-	if _, err := repo.Create(ctx, user.ID, e1); err != nil {
+	if _, err := repo.Create(ctx, &e1); err != nil {
 		t.Fatalf("Create first: %v", err)
 	}
 
 	e2 := buildEntry(user.ID, text, nil)
-	_, err := repo.Create(ctx, user.ID, e2)
+	_, err := repo.Create(ctx, &e2)
 	assertIsDomainError(t, err, domain.ErrAlreadyExists)
 }
 
@@ -202,7 +207,7 @@ func TestRepo_Create_ConcurrentSameText(t *testing.T) {
 		go func() {
 			defer wg.Done()
 			e := buildEntry(user.ID, text, nil)
-			_, errs[i] = repo.Create(ctx, user.ID, e)
+			_, errs[i] = repo.Create(ctx, &e)
 		}()
 	}
 	wg.Wait()
@@ -232,7 +237,7 @@ func TestRepo_GetByID_HappyPath(t *testing.T) {
 
 	user := testhelper.SeedUser(t, pool)
 	e := buildEntry(user.ID, "getbyid-"+uuid.New().String()[:8], nil)
-	created, err := repo.Create(ctx, user.ID, e)
+	created, err := repo.Create(ctx, &e)
 	if err != nil {
 		t.Fatalf("Create: %v", err)
 	}
@@ -267,7 +272,7 @@ func TestRepo_GetByID_SoftDeletedNotVisible(t *testing.T) {
 
 	user := testhelper.SeedUser(t, pool)
 	e := buildEntry(user.ID, "softdel-hidden-"+uuid.New().String()[:8], nil)
-	created, err := repo.Create(ctx, user.ID, e)
+	created, err := repo.Create(ctx, &e)
 	if err != nil {
 		t.Fatalf("Create: %v", err)
 	}
@@ -289,7 +294,7 @@ func TestRepo_GetByID_WrongUser(t *testing.T) {
 	user2 := testhelper.SeedUser(t, pool)
 
 	e := buildEntry(user1.ID, "wronguser-"+uuid.New().String()[:8], nil)
-	created, err := repo.Create(ctx, user1.ID, e)
+	created, err := repo.Create(ctx, &e)
 	if err != nil {
 		t.Fatalf("Create: %v", err)
 	}
@@ -310,7 +315,7 @@ func TestRepo_GetByText_HappyPath(t *testing.T) {
 	user := testhelper.SeedUser(t, pool)
 	text := "ByText-" + uuid.New().String()[:8]
 	e := buildEntry(user.ID, text, nil)
-	created, err := repo.Create(ctx, user.ID, e)
+	created, err := repo.Create(ctx, &e)
 	if err != nil {
 		t.Fatalf("Create: %v", err)
 	}
@@ -350,7 +355,7 @@ func TestRepo_GetByIDs_HappyPath(t *testing.T) {
 	var ids []uuid.UUID
 	for i := 0; i < 3; i++ {
 		e := buildEntry(user.ID, "batch-"+suffix+"-"+uuid.New().String()[:4], nil)
-		created, err := repo.Create(ctx, user.ID, e)
+		created, err := repo.Create(ctx, &e)
 		if err != nil {
 			t.Fatalf("Create[%d]: %v", i, err)
 		}
@@ -391,9 +396,9 @@ func TestRepo_GetByIDs_IgnoresSoftDeleted(t *testing.T) {
 	user := testhelper.SeedUser(t, pool)
 
 	e1 := buildEntry(user.ID, "batchdel-a-"+uuid.New().String()[:8], nil)
-	c1, _ := repo.Create(ctx, user.ID, e1)
+	c1, _ := repo.Create(ctx, &e1)
 	e2 := buildEntry(user.ID, "batchdel-b-"+uuid.New().String()[:8], nil)
-	c2, _ := repo.Create(ctx, user.ID, e2)
+	c2, _ := repo.Create(ctx, &e2)
 
 	_ = repo.SoftDelete(ctx, user.ID, c1.ID)
 
@@ -430,7 +435,7 @@ func TestRepo_CountByUser(t *testing.T) {
 
 	for i := 0; i < 3; i++ {
 		e := buildEntry(user.ID, "count-"+uuid.New().String()[:8], nil)
-		if _, err := repo.Create(ctx, user.ID, e); err != nil {
+		if _, err := repo.Create(ctx, &e); err != nil {
 			t.Fatalf("Create[%d]: %v", i, err)
 		}
 	}
@@ -445,7 +450,7 @@ func TestRepo_CountByUser(t *testing.T) {
 
 	// Soft delete one: should not be counted.
 	e := buildEntry(user.ID, "count-del-"+uuid.New().String()[:8], nil)
-	created, _ := repo.Create(ctx, user.ID, e)
+	created, _ := repo.Create(ctx, &e)
 	_ = repo.SoftDelete(ctx, user.ID, created.ID)
 
 	count3again, err := repo.CountByUser(ctx, user.ID)
@@ -468,7 +473,7 @@ func TestRepo_UpdateNotes_HappyPath(t *testing.T) {
 
 	user := testhelper.SeedUser(t, pool)
 	e := buildEntry(user.ID, "notes-"+uuid.New().String()[:8], nil)
-	created, _ := repo.Create(ctx, user.ID, e)
+	created, _ := repo.Create(ctx, &e)
 
 	newNotes := "updated notes"
 	got, err := repo.UpdateNotes(ctx, user.ID, created.ID, &newNotes)
@@ -493,7 +498,7 @@ func TestRepo_UpdateNotes_SetToNil(t *testing.T) {
 	notes := "initial notes"
 	e := buildEntry(user.ID, "notes-nil-"+uuid.New().String()[:8], nil)
 	e.Notes = &notes
-	created, _ := repo.Create(ctx, user.ID, e)
+	created, _ := repo.Create(ctx, &e)
 
 	got, err := repo.UpdateNotes(ctx, user.ID, created.ID, nil)
 	if err != nil {
@@ -527,7 +532,7 @@ func TestRepo_SoftDelete_HappyPath(t *testing.T) {
 
 	user := testhelper.SeedUser(t, pool)
 	e := buildEntry(user.ID, "softdel-"+uuid.New().String()[:8], nil)
-	created, _ := repo.Create(ctx, user.ID, e)
+	created, _ := repo.Create(ctx, &e)
 
 	if err := repo.SoftDelete(ctx, user.ID, created.ID); err != nil {
 		t.Fatalf("SoftDelete: unexpected error: %v", err)
@@ -545,7 +550,7 @@ func TestRepo_SoftDelete_Idempotent(t *testing.T) {
 
 	user := testhelper.SeedUser(t, pool)
 	e := buildEntry(user.ID, "softdel-idem-"+uuid.New().String()[:8], nil)
-	created, _ := repo.Create(ctx, user.ID, e)
+	created, _ := repo.Create(ctx, &e)
 
 	// First soft delete.
 	if err := repo.SoftDelete(ctx, user.ID, created.ID); err != nil {
@@ -582,7 +587,7 @@ func TestRepo_Restore_HappyPath(t *testing.T) {
 
 	user := testhelper.SeedUser(t, pool)
 	e := buildEntry(user.ID, "restore-"+uuid.New().String()[:8], nil)
-	created, _ := repo.Create(ctx, user.ID, e)
+	created, _ := repo.Create(ctx, &e)
 
 	_ = repo.SoftDelete(ctx, user.ID, created.ID)
 
@@ -612,7 +617,7 @@ func TestRepo_Restore_NotDeleted(t *testing.T) {
 
 	user := testhelper.SeedUser(t, pool)
 	e := buildEntry(user.ID, "restore-notdel-"+uuid.New().String()[:8], nil)
-	created, _ := repo.Create(ctx, user.ID, e)
+	created, _ := repo.Create(ctx, &e)
 
 	// Restoring a non-deleted entry should return ErrNotFound.
 	_, err := repo.Restore(ctx, user.ID, created.ID)
@@ -633,7 +638,7 @@ func TestRepo_ReCreateAfterSoftDelete(t *testing.T) {
 
 	// Create and soft-delete.
 	e1 := buildEntry(user.ID, text, nil)
-	created1, err := repo.Create(ctx, user.ID, e1)
+	created1, err := repo.Create(ctx, &e1)
 	if err != nil {
 		t.Fatalf("Create first: %v", err)
 	}
@@ -641,7 +646,7 @@ func TestRepo_ReCreateAfterSoftDelete(t *testing.T) {
 
 	// Re-create with same text should succeed (partial unique index).
 	e2 := buildEntry(user.ID, text, nil)
-	created2, err := repo.Create(ctx, user.ID, e2)
+	created2, err := repo.Create(ctx, &e2)
 	if err != nil {
 		t.Fatalf("Create after soft delete: unexpected error: %v", err)
 	}
@@ -671,7 +676,7 @@ func TestRepo_HardDeleteOld_HappyPath(t *testing.T) {
 	// Old soft-deleted entries.
 	for i := 0; i < 2; i++ {
 		e := buildEntry(user.ID, "harddelold-"+uuid.New().String()[:8], nil)
-		created, err := repo.Create(ctx, user.ID, e)
+		created, err := repo.Create(ctx, &e)
 		if err != nil {
 			t.Fatalf("Create[%d]: %v", i, err)
 		}
@@ -687,12 +692,12 @@ func TestRepo_HardDeleteOld_HappyPath(t *testing.T) {
 
 	// Recently soft-deleted entry.
 	eRecent := buildEntry(user.ID, "harddelrecent-"+uuid.New().String()[:8], nil)
-	createdRecent, _ := repo.Create(ctx, user.ID, eRecent)
+	createdRecent, _ := repo.Create(ctx, &eRecent)
 	_ = repo.SoftDelete(ctx, user.ID, createdRecent.ID)
 
 	// Alive entry.
 	eAlive := buildEntry(user.ID, "harddelalive-"+uuid.New().String()[:8], nil)
-	if _, err := repo.Create(ctx, user.ID, eAlive); err != nil {
+	if _, err := repo.Create(ctx, &eAlive); err != nil {
 		t.Fatalf("Create alive: %v", err)
 	}
 
@@ -744,30 +749,30 @@ func TestRepo_Find_AllEntries(t *testing.T) {
 
 	for i := 0; i < 3; i++ {
 		e := buildEntry(user.ID, "findall-"+suffix+"-"+uuid.New().String()[:4], nil)
-		if _, err := repo.Create(ctx, user.ID, e); err != nil {
+		if _, err := repo.Create(ctx, &e); err != nil {
 			t.Fatalf("Create[%d]: %v", i, err)
 		}
 	}
 
 	// Also soft-delete one to verify it's excluded.
 	eDel := buildEntry(user.ID, "findall-del-"+suffix, nil)
-	cDel, _ := repo.Create(ctx, user.ID, eDel)
+	cDel, _ := repo.Create(ctx, &eDel)
 	_ = repo.SoftDelete(ctx, user.ID, cDel.ID)
 
-	result, err := repo.Find(ctx, user.ID, entry.Filter{})
+	entries, totalCount, err := repo.Find(ctx, user.ID, domain.EntryFilter{})
 	if err != nil {
 		t.Fatalf("Find: unexpected error: %v", err)
 	}
 
-	if result.TotalCount < 3 {
-		t.Errorf("expected TotalCount >= 3, got %d", result.TotalCount)
+	if totalCount < 3 {
+		t.Errorf("expected TotalCount >= 3, got %d", totalCount)
 	}
-	if len(result.Entries) < 3 {
-		t.Errorf("expected at least 3 entries, got %d", len(result.Entries))
+	if len(entries) < 3 {
+		t.Errorf("expected at least 3 entries, got %d", len(entries))
 	}
 
 	// Verify soft-deleted entry is not in results.
-	for _, e := range result.Entries {
+	for _, e := range entries {
 		if e.ID == cDel.ID {
 			t.Error("soft-deleted entry should not appear in Find results")
 		}
@@ -781,16 +786,16 @@ func TestRepo_Find_EmptyResult(t *testing.T) {
 
 	user := testhelper.SeedUser(t, pool)
 
-	result, err := repo.Find(ctx, user.ID, entry.Filter{})
+	entries, totalCount, err := repo.Find(ctx, user.ID, domain.EntryFilter{})
 	if err != nil {
 		t.Fatalf("Find: unexpected error: %v", err)
 	}
 
-	if result.TotalCount != 0 {
-		t.Errorf("expected TotalCount 0, got %d", result.TotalCount)
+	if totalCount != 0 {
+		t.Errorf("expected TotalCount 0, got %d", totalCount)
 	}
-	if len(result.Entries) != 0 {
-		t.Errorf("expected 0 entries, got %d", len(result.Entries))
+	if len(entries) != 0 {
+		t.Errorf("expected 0 entries, got %d", len(entries))
 	}
 }
 
@@ -804,7 +809,7 @@ func TestRepo_Find_OffsetPagination(t *testing.T) {
 
 	for i := 0; i < 5; i++ {
 		e := buildEntry(user.ID, "page-"+suffix+"-"+uuid.New().String()[:4], nil)
-		if _, err := repo.Create(ctx, user.ID, e); err != nil {
+		if _, err := repo.Create(ctx, &e); err != nil {
 			t.Fatalf("Create[%d]: %v", i, err)
 		}
 		// Small sleep to ensure distinct created_at.
@@ -812,39 +817,39 @@ func TestRepo_Find_OffsetPagination(t *testing.T) {
 	}
 
 	// Page 1: limit 2, offset 0.
-	result1, err := repo.Find(ctx, user.ID, entry.Filter{
+	entries1, totalCount1, err := repo.Find(ctx, user.ID, domain.EntryFilter{
 		Limit:  2,
-		Offset: 0,
+		Offset: intPtr(0),
 	})
 	if err != nil {
 		t.Fatalf("Find page 1: %v", err)
 	}
 
-	if len(result1.Entries) != 2 {
-		t.Fatalf("page 1: expected 2 entries, got %d", len(result1.Entries))
+	if len(entries1) != 2 {
+		t.Fatalf("page 1: expected 2 entries, got %d", len(entries1))
 	}
 
 	// TotalCount should reflect all matching entries (not just page).
-	if result1.TotalCount < 5 {
-		t.Errorf("totalCount should be >= 5, got %d", result1.TotalCount)
+	if totalCount1 < 5 {
+		t.Errorf("totalCount should be >= 5, got %d", totalCount1)
 	}
 
 	// Page 2: limit 2, offset 2.
-	result2, err := repo.Find(ctx, user.ID, entry.Filter{
+	entries2, _, err := repo.Find(ctx, user.ID, domain.EntryFilter{
 		Limit:  2,
-		Offset: 2,
+		Offset: intPtr(2),
 	})
 	if err != nil {
 		t.Fatalf("Find page 2: %v", err)
 	}
 
-	if len(result2.Entries) != 2 {
-		t.Fatalf("page 2: expected 2 entries, got %d", len(result2.Entries))
+	if len(entries2) != 2 {
+		t.Fatalf("page 2: expected 2 entries, got %d", len(entries2))
 	}
 
 	// Pages should not overlap.
-	for _, e1 := range result1.Entries {
-		for _, e2 := range result2.Entries {
+	for _, e1 := range entries1 {
+		for _, e2 := range entries2 {
 			if e1.ID == e2.ID {
 				t.Error("pages should not contain duplicate entries")
 			}
@@ -862,22 +867,22 @@ func TestRepo_Find_TotalCountIndependentOfLimit(t *testing.T) {
 
 	for i := 0; i < 5; i++ {
 		e := buildEntry(user.ID, "totalcount-"+suffix+"-"+uuid.New().String()[:4], nil)
-		if _, err := repo.Create(ctx, user.ID, e); err != nil {
+		if _, err := repo.Create(ctx, &e); err != nil {
 			t.Fatalf("Create[%d]: %v", i, err)
 		}
 	}
 
 	// Fetch with limit 2.
-	result, err := repo.Find(ctx, user.ID, entry.Filter{Limit: 2})
+	entries, totalCount, err := repo.Find(ctx, user.ID, domain.EntryFilter{Limit: 2})
 	if err != nil {
 		t.Fatalf("Find: %v", err)
 	}
 
-	if len(result.Entries) != 2 {
-		t.Errorf("expected 2 entries, got %d", len(result.Entries))
+	if len(entries) != 2 {
+		t.Errorf("expected 2 entries, got %d", len(entries))
 	}
-	if result.TotalCount < 5 {
-		t.Errorf("totalCount should be >= 5, got %d", result.TotalCount)
+	if totalCount < 5 {
+		t.Errorf("totalCount should be >= 5, got %d", totalCount)
 	}
 }
 
@@ -895,33 +900,33 @@ func TestRepo_Find_SearchFilter(t *testing.T) {
 
 	// Create entries with known text patterns.
 	e1 := buildEntry(user.ID, "elephant-"+suffix, nil)
-	if _, err := repo.Create(ctx, user.ID, e1); err != nil {
+	if _, err := repo.Create(ctx, &e1); err != nil {
 		t.Fatalf("Create elephant: %v", err)
 	}
 	e2 := buildEntry(user.ID, "elephantine-"+suffix, nil)
-	if _, err := repo.Create(ctx, user.ID, e2); err != nil {
+	if _, err := repo.Create(ctx, &e2); err != nil {
 		t.Fatalf("Create elephantine: %v", err)
 	}
 	e3 := buildEntry(user.ID, "zebra-"+suffix, nil)
-	if _, err := repo.Create(ctx, user.ID, e3); err != nil {
+	if _, err := repo.Create(ctx, &e3); err != nil {
 		t.Fatalf("Create zebra: %v", err)
 	}
 
 	search := "elephant-" + suffix
-	result, err := repo.Find(ctx, user.ID, entry.Filter{Search: &search})
+	entries, totalCount, err := repo.Find(ctx, user.ID, domain.EntryFilter{Search: &search})
 	if err != nil {
 		t.Fatalf("Find with search: %v", err)
 	}
 
 	// Should find exactly 1 entry matching the exact ILIKE pattern.
-	if result.TotalCount != 1 {
-		t.Errorf("expected totalCount 1, got %d", result.TotalCount)
+	if totalCount != 1 {
+		t.Errorf("expected totalCount 1, got %d", totalCount)
 	}
-	if len(result.Entries) != 1 {
-		t.Fatalf("expected 1 entry, got %d", len(result.Entries))
+	if len(entries) != 1 {
+		t.Fatalf("expected 1 entry, got %d", len(entries))
 	}
-	if result.Entries[0].TextNormalized != domain.NormalizeText("elephant-"+suffix) {
-		t.Errorf("expected elephant entry, got %q", result.Entries[0].TextNormalized)
+	if entries[0].TextNormalized != domain.NormalizeText("elephant-"+suffix) {
+		t.Errorf("expected elephant entry, got %q", entries[0].TextNormalized)
 	}
 }
 
@@ -934,18 +939,18 @@ func TestRepo_Find_EmptySearchIgnored(t *testing.T) {
 	suffix := uuid.New().String()[:8]
 
 	e := buildEntry(user.ID, "emptysearch-"+suffix, nil)
-	if _, err := repo.Create(ctx, user.ID, e); err != nil {
+	if _, err := repo.Create(ctx, &e); err != nil {
 		t.Fatalf("Create: %v", err)
 	}
 
 	empty := ""
-	result, err := repo.Find(ctx, user.ID, entry.Filter{Search: &empty})
+	_, totalCount, err := repo.Find(ctx, user.ID, domain.EntryFilter{Search: &empty})
 	if err != nil {
 		t.Fatalf("Find with empty search: %v", err)
 	}
 
-	if result.TotalCount < 1 {
-		t.Errorf("expected at least 1 entry, got %d", result.TotalCount)
+	if totalCount < 1 {
+		t.Errorf("expected at least 1 entry, got %d", totalCount)
 	}
 }
 
@@ -963,32 +968,32 @@ func TestRepo_Find_HasCardFilter(t *testing.T) {
 
 	// Entry with card.
 	eWithCard := buildEntry(user.ID, "hascard-yes-"+suffix, nil)
-	cWithCard, _ := repo.Create(ctx, user.ID, eWithCard)
+	cWithCard, _ := repo.Create(ctx, &eWithCard)
 	seedCard(t, pool, user.ID, cWithCard.ID, domain.LearningStatusNew)
 
 	// Entry without card.
 	eNoCard := buildEntry(user.ID, "hascard-no-"+suffix, nil)
-	repo.Create(ctx, user.ID, eNoCard)
+	repo.Create(ctx, &eNoCard)
 
 	// Filter: HasCard = true.
 	hasCard := true
 	search := suffix
-	result, err := repo.Find(ctx, user.ID, entry.Filter{HasCard: &hasCard, Search: &search})
+	_, totalCount, err := repo.Find(ctx, user.ID, domain.EntryFilter{HasCard: &hasCard, Search: &search})
 	if err != nil {
 		t.Fatalf("Find HasCard=true: %v", err)
 	}
-	if result.TotalCount != 1 {
-		t.Errorf("HasCard=true: expected 1, got %d", result.TotalCount)
+	if totalCount != 1 {
+		t.Errorf("HasCard=true: expected 1, got %d", totalCount)
 	}
 
 	// Filter: HasCard = false.
 	noCard := false
-	result2, err := repo.Find(ctx, user.ID, entry.Filter{HasCard: &noCard, Search: &search})
+	_, totalCount2, err := repo.Find(ctx, user.ID, domain.EntryFilter{HasCard: &noCard, Search: &search})
 	if err != nil {
 		t.Fatalf("Find HasCard=false: %v", err)
 	}
-	if result2.TotalCount != 1 {
-		t.Errorf("HasCard=false: expected 1, got %d", result2.TotalCount)
+	if totalCount2 != 1 {
+		t.Errorf("HasCard=false: expected 1, got %d", totalCount2)
 	}
 }
 
@@ -1006,28 +1011,28 @@ func TestRepo_Find_PartOfSpeechFilter(t *testing.T) {
 
 	// Entry with NOUN sense.
 	eNoun := buildEntry(user.ID, "pos-noun-"+suffix, nil)
-	cNoun, _ := repo.Create(ctx, user.ID, eNoun)
+	cNoun, _ := repo.Create(ctx, &eNoun)
 	posNoun := domain.PartOfSpeechNoun
 	seedSense(t, pool, cNoun.ID, &posNoun)
 
 	// Entry with VERB sense.
 	eVerb := buildEntry(user.ID, "pos-verb-"+suffix, nil)
-	cVerb, _ := repo.Create(ctx, user.ID, eVerb)
+	cVerb, _ := repo.Create(ctx, &eVerb)
 	posVerb := domain.PartOfSpeechVerb
 	seedSense(t, pool, cVerb.ID, &posVerb)
 
 	// Filter: NOUN.
 	posFilter := domain.PartOfSpeechNoun
 	search := suffix
-	result, err := repo.Find(ctx, user.ID, entry.Filter{PartOfSpeech: &posFilter, Search: &search})
+	entries, totalCount, err := repo.Find(ctx, user.ID, domain.EntryFilter{PartOfSpeech: &posFilter, Search: &search})
 	if err != nil {
 		t.Fatalf("Find POS=NOUN: %v", err)
 	}
-	if result.TotalCount != 1 {
-		t.Errorf("POS=NOUN: expected 1, got %d", result.TotalCount)
+	if totalCount != 1 {
+		t.Errorf("POS=NOUN: expected 1, got %d", totalCount)
 	}
-	if len(result.Entries) == 1 && result.Entries[0].ID != cNoun.ID {
-		t.Errorf("expected noun entry, got %s", result.Entries[0].ID)
+	if len(entries) == 1 && entries[0].ID != cNoun.ID {
+		t.Errorf("expected noun entry, got %s", entries[0].ID)
 	}
 }
 
@@ -1047,20 +1052,20 @@ func TestRepo_Find_TopicFilter(t *testing.T) {
 
 	// Entry in topic.
 	eInTopic := buildEntry(user.ID, "topic-in-"+suffix, nil)
-	cInTopic, _ := repo.Create(ctx, user.ID, eInTopic)
+	cInTopic, _ := repo.Create(ctx, &eInTopic)
 	linkEntryTopic(t, pool, cInTopic.ID, topicID)
 
 	// Entry not in topic.
 	eNotInTopic := buildEntry(user.ID, "topic-out-"+suffix, nil)
-	repo.Create(ctx, user.ID, eNotInTopic)
+	repo.Create(ctx, &eNotInTopic)
 
 	search := suffix
-	result, err := repo.Find(ctx, user.ID, entry.Filter{TopicID: &topicID, Search: &search})
+	_, totalCount, err := repo.Find(ctx, user.ID, domain.EntryFilter{TopicID: &topicID, Search: &search})
 	if err != nil {
 		t.Fatalf("Find TopicID: %v", err)
 	}
-	if result.TotalCount != 1 {
-		t.Errorf("TopicID filter: expected 1, got %d", result.TotalCount)
+	if totalCount != 1 {
+		t.Errorf("TopicID filter: expected 1, got %d", totalCount)
 	}
 }
 
@@ -1078,23 +1083,23 @@ func TestRepo_Find_StatusFilter(t *testing.T) {
 
 	// Entry with NEW card.
 	eNew := buildEntry(user.ID, "status-new-"+suffix, nil)
-	cNew, _ := repo.Create(ctx, user.ID, eNew)
+	cNew, _ := repo.Create(ctx, &eNew)
 	seedCard(t, pool, user.ID, cNew.ID, domain.LearningStatusNew)
 
 	// Entry with LEARNING card.
 	eLearning := buildEntry(user.ID, "status-learning-"+suffix, nil)
-	cLearning, _ := repo.Create(ctx, user.ID, eLearning)
+	cLearning, _ := repo.Create(ctx, &eLearning)
 	seedCard(t, pool, user.ID, cLearning.ID, domain.LearningStatusLearning)
 
 	// Filter: NEW.
 	statusNew := domain.LearningStatusNew
 	search := suffix
-	result, err := repo.Find(ctx, user.ID, entry.Filter{Status: &statusNew, Search: &search})
+	_, totalCount, err := repo.Find(ctx, user.ID, domain.EntryFilter{Status: &statusNew, Search: &search})
 	if err != nil {
 		t.Fatalf("Find Status=NEW: %v", err)
 	}
-	if result.TotalCount != 1 {
-		t.Errorf("Status=NEW: expected 1, got %d", result.TotalCount)
+	if totalCount != 1 {
+		t.Errorf("Status=NEW: expected 1, got %d", totalCount)
 	}
 }
 
@@ -1113,7 +1118,7 @@ func TestRepo_Find_CombinedFilters(t *testing.T) {
 
 	// Entry that matches ALL filters: has card (NEW), is NOUN, in topic.
 	eMatch := buildEntry(user.ID, "combined-match-"+suffix, nil)
-	cMatch, _ := repo.Create(ctx, user.ID, eMatch)
+	cMatch, _ := repo.Create(ctx, &eMatch)
 	seedCard(t, pool, user.ID, cMatch.ID, domain.LearningStatusNew)
 	posNoun := domain.PartOfSpeechNoun
 	seedSense(t, pool, cMatch.ID, &posNoun)
@@ -1121,7 +1126,7 @@ func TestRepo_Find_CombinedFilters(t *testing.T) {
 
 	// Entry that matches only some filters.
 	ePartial := buildEntry(user.ID, "combined-partial-"+suffix, nil)
-	cPartial, _ := repo.Create(ctx, user.ID, ePartial)
+	cPartial, _ := repo.Create(ctx, &ePartial)
 	posVerb := domain.PartOfSpeechVerb
 	seedSense(t, pool, cPartial.ID, &posVerb) // wrong POS
 
@@ -1130,7 +1135,7 @@ func TestRepo_Find_CombinedFilters(t *testing.T) {
 	status := domain.LearningStatusNew
 	search := suffix
 
-	result, err := repo.Find(ctx, user.ID, entry.Filter{
+	entries, totalCount, err := repo.Find(ctx, user.ID, domain.EntryFilter{
 		Search:       &search,
 		HasCard:      &hasCard,
 		PartOfSpeech: &pos,
@@ -1140,11 +1145,11 @@ func TestRepo_Find_CombinedFilters(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Find combined: %v", err)
 	}
-	if result.TotalCount != 1 {
-		t.Errorf("combined filters: expected 1, got %d", result.TotalCount)
+	if totalCount != 1 {
+		t.Errorf("combined filters: expected 1, got %d", totalCount)
 	}
-	if len(result.Entries) == 1 && result.Entries[0].ID != cMatch.ID {
-		t.Errorf("expected matching entry %s, got %s", cMatch.ID, result.Entries[0].ID)
+	if len(entries) == 1 && entries[0].ID != cMatch.ID {
+		t.Errorf("expected matching entry %s, got %s", cMatch.ID, entries[0].ID)
 	}
 }
 
@@ -1163,13 +1168,13 @@ func TestRepo_Find_SortByText(t *testing.T) {
 	texts := []string{"apple-" + suffix, "banana-" + suffix, "cherry-" + suffix}
 	for _, text := range texts {
 		e := buildEntry(user.ID, text, nil)
-		if _, err := repo.Create(ctx, user.ID, e); err != nil {
+		if _, err := repo.Create(ctx, &e); err != nil {
 			t.Fatalf("Create %s: %v", text, err)
 		}
 	}
 
 	search := suffix
-	result, err := repo.Find(ctx, user.ID, entry.Filter{
+	entries, _, err := repo.Find(ctx, user.ID, domain.EntryFilter{
 		Search:    &search,
 		SortBy:    "text",
 		SortOrder: "ASC",
@@ -1178,15 +1183,15 @@ func TestRepo_Find_SortByText(t *testing.T) {
 		t.Fatalf("Find sort by text: %v", err)
 	}
 
-	if len(result.Entries) < 3 {
-		t.Fatalf("expected at least 3 entries, got %d", len(result.Entries))
+	if len(entries) < 3 {
+		t.Fatalf("expected at least 3 entries, got %d", len(entries))
 	}
 
 	// Verify ascending text order.
-	for i := 1; i < len(result.Entries); i++ {
-		if result.Entries[i].TextNormalized < result.Entries[i-1].TextNormalized {
+	for i := 1; i < len(entries); i++ {
+		if entries[i].TextNormalized < entries[i-1].TextNormalized {
 			t.Errorf("entries not sorted by text ASC: %q < %q at index %d",
-				result.Entries[i].TextNormalized, result.Entries[i-1].TextNormalized, i)
+				entries[i].TextNormalized, entries[i-1].TextNormalized, i)
 		}
 	}
 }
@@ -1201,14 +1206,14 @@ func TestRepo_Find_SortByCreatedAtDESC(t *testing.T) {
 
 	for i := 0; i < 3; i++ {
 		e := buildEntry(user.ID, "sortcreated-"+suffix+"-"+uuid.New().String()[:4], nil)
-		if _, err := repo.Create(ctx, user.ID, e); err != nil {
+		if _, err := repo.Create(ctx, &e); err != nil {
 			t.Fatalf("Create[%d]: %v", i, err)
 		}
 		time.Sleep(time.Millisecond)
 	}
 
 	search := "sortcreated-" + suffix
-	result, err := repo.Find(ctx, user.ID, entry.Filter{
+	entries, _, err := repo.Find(ctx, user.ID, domain.EntryFilter{
 		Search:    &search,
 		SortBy:    "created_at",
 		SortOrder: "DESC",
@@ -1218,18 +1223,18 @@ func TestRepo_Find_SortByCreatedAtDESC(t *testing.T) {
 	}
 
 	// Verify descending created_at order.
-	for i := 1; i < len(result.Entries); i++ {
-		if result.Entries[i].CreatedAt.After(result.Entries[i-1].CreatedAt) {
+	for i := 1; i < len(entries); i++ {
+		if entries[i].CreatedAt.After(entries[i-1].CreatedAt) {
 			t.Errorf("entries not sorted by created_at DESC at index %d", i)
 		}
 	}
 }
 
 // ---------------------------------------------------------------------------
-// Find tests: cursor-based pagination
+// FindCursor tests: cursor-based pagination
 // ---------------------------------------------------------------------------
 
-func TestRepo_Find_CursorPagination(t *testing.T) {
+func TestRepo_FindCursor_Pagination(t *testing.T) {
 	t.Parallel()
 	repo, pool := newRepo(t)
 	ctx := context.Background()
@@ -1240,7 +1245,7 @@ func TestRepo_Find_CursorPagination(t *testing.T) {
 	// Create 5 entries with distinct timestamps.
 	for i := 0; i < 5; i++ {
 		e := buildEntry(user.ID, "cursor-"+suffix+"-"+uuid.New().String()[:4], nil)
-		if _, err := repo.Create(ctx, user.ID, e); err != nil {
+		if _, err := repo.Create(ctx, &e); err != nil {
 			t.Fatalf("Create[%d]: %v", i, err)
 		}
 		time.Sleep(2 * time.Millisecond)
@@ -1249,25 +1254,29 @@ func TestRepo_Find_CursorPagination(t *testing.T) {
 	search := "cursor-" + suffix
 
 	// First page: limit 2, no cursor.
-	result1, err := repo.Find(ctx, user.ID, entry.Filter{
+	entries1, hasNext1, err := repo.FindCursor(ctx, user.ID, domain.EntryFilter{
 		Search:    &search,
 		SortBy:    "created_at",
 		SortOrder: "DESC",
 		Limit:     2,
 	})
 	if err != nil {
-		t.Fatalf("Find page 1: %v", err)
+		t.Fatalf("FindCursor page 1: %v", err)
 	}
-	if len(result1.Entries) != 2 {
-		t.Fatalf("page 1: expected 2, got %d", len(result1.Entries))
+	if len(entries1) != 2 {
+		t.Fatalf("page 1: expected 2, got %d", len(entries1))
+	}
+	// With 5 entries total, first page of 2 should have more.
+	if !hasNext1 {
+		t.Error("page 1: expected hasNextPage=true")
 	}
 
 	// Create cursor from last entry of page 1.
-	lastEntry := result1.Entries[len(result1.Entries)-1]
+	lastEntry := entries1[len(entries1)-1]
 	cursor := entry.CursorFromEntry(lastEntry, "created_at")
 
 	// Second page: limit 2, with cursor.
-	result2, err := repo.Find(ctx, user.ID, entry.Filter{
+	entries2, hasNext2, err := repo.FindCursor(ctx, user.ID, domain.EntryFilter{
 		Search:    &search,
 		SortBy:    "created_at",
 		SortOrder: "DESC",
@@ -1275,31 +1284,31 @@ func TestRepo_Find_CursorPagination(t *testing.T) {
 		Cursor:    &cursor,
 	})
 	if err != nil {
-		t.Fatalf("Find page 2: %v", err)
+		t.Fatalf("FindCursor page 2: %v", err)
 	}
-	if len(result2.Entries) != 2 {
-		t.Fatalf("page 2: expected 2, got %d", len(result2.Entries))
+	if len(entries2) != 2 {
+		t.Fatalf("page 2: expected 2, got %d", len(entries2))
 	}
-	if result2.HasNextPage != true {
-		t.Error("page 2: expected HasNextPage=true")
+	if !hasNext2 {
+		t.Error("page 2: expected hasNextPage=true")
 	}
 
 	// Verify no overlap between pages.
 	page1IDs := make(map[uuid.UUID]bool)
-	for _, e := range result1.Entries {
+	for _, e := range entries1 {
 		page1IDs[e.ID] = true
 	}
-	for _, e := range result2.Entries {
+	for _, e := range entries2 {
 		if page1IDs[e.ID] {
 			t.Error("cursor pagination: pages should not overlap")
 		}
 	}
 
 	// Third page: should have 1 entry and hasNextPage=false.
-	lastEntry2 := result2.Entries[len(result2.Entries)-1]
+	lastEntry2 := entries2[len(entries2)-1]
 	cursor2 := entry.CursorFromEntry(lastEntry2, "created_at")
 
-	result3, err := repo.Find(ctx, user.ID, entry.Filter{
+	entries3, hasNext3, err := repo.FindCursor(ctx, user.ID, domain.EntryFilter{
 		Search:    &search,
 		SortBy:    "created_at",
 		SortOrder: "DESC",
@@ -1307,17 +1316,17 @@ func TestRepo_Find_CursorPagination(t *testing.T) {
 		Cursor:    &cursor2,
 	})
 	if err != nil {
-		t.Fatalf("Find page 3: %v", err)
+		t.Fatalf("FindCursor page 3: %v", err)
 	}
-	if len(result3.Entries) != 1 {
-		t.Errorf("page 3: expected 1, got %d", len(result3.Entries))
+	if len(entries3) != 1 {
+		t.Errorf("page 3: expected 1, got %d", len(entries3))
 	}
-	if result3.HasNextPage {
-		t.Error("page 3: expected HasNextPage=false")
+	if hasNext3 {
+		t.Error("page 3: expected hasNextPage=false")
 	}
 }
 
-func TestRepo_Find_CursorPaginationTextSort(t *testing.T) {
+func TestRepo_FindCursor_TextSort(t *testing.T) {
 	t.Parallel()
 	repo, pool := newRepo(t)
 	ctx := context.Background()
@@ -1332,7 +1341,7 @@ func TestRepo_Find_CursorPaginationTextSort(t *testing.T) {
 	}
 	for _, text := range texts {
 		e := buildEntry(user.ID, text, nil)
-		if _, err := repo.Create(ctx, user.ID, e); err != nil {
+		if _, err := repo.Create(ctx, &e); err != nil {
 			t.Fatalf("Create %s: %v", text, err)
 		}
 	}
@@ -1340,25 +1349,25 @@ func TestRepo_Find_CursorPaginationTextSort(t *testing.T) {
 	search := "cursor-text-" + suffix
 
 	// First page: limit 1, sort by text ASC.
-	result1, err := repo.Find(ctx, user.ID, entry.Filter{
+	entries1, _, err := repo.FindCursor(ctx, user.ID, domain.EntryFilter{
 		Search:    &search,
 		SortBy:    "text",
 		SortOrder: "ASC",
 		Limit:     1,
 	})
 	if err != nil {
-		t.Fatalf("Find text cursor page 1: %v", err)
+		t.Fatalf("FindCursor text page 1: %v", err)
 	}
-	if len(result1.Entries) != 1 {
-		t.Fatalf("expected 1, got %d", len(result1.Entries))
+	if len(entries1) != 1 {
+		t.Fatalf("expected 1, got %d", len(entries1))
 	}
-	if result1.Entries[0].TextNormalized != domain.NormalizeText("aaa-cursor-text-"+suffix) {
-		t.Errorf("expected aaa entry, got %q", result1.Entries[0].TextNormalized)
+	if entries1[0].TextNormalized != domain.NormalizeText("aaa-cursor-text-"+suffix) {
+		t.Errorf("expected aaa entry, got %q", entries1[0].TextNormalized)
 	}
 
 	// Second page with cursor.
-	cursor := entry.CursorFromEntry(result1.Entries[0], "text")
-	result2, err := repo.Find(ctx, user.ID, entry.Filter{
+	cursor := entry.CursorFromEntry(entries1[0], "text")
+	entries2, _, err := repo.FindCursor(ctx, user.ID, domain.EntryFilter{
 		Search:    &search,
 		SortBy:    "text",
 		SortOrder: "ASC",
@@ -1366,17 +1375,17 @@ func TestRepo_Find_CursorPaginationTextSort(t *testing.T) {
 		Cursor:    &cursor,
 	})
 	if err != nil {
-		t.Fatalf("Find text cursor page 2: %v", err)
+		t.Fatalf("FindCursor text page 2: %v", err)
 	}
-	if len(result2.Entries) != 1 {
-		t.Fatalf("expected 1, got %d", len(result2.Entries))
+	if len(entries2) != 1 {
+		t.Fatalf("expected 1, got %d", len(entries2))
 	}
-	if result2.Entries[0].TextNormalized != domain.NormalizeText("bbb-cursor-text-"+suffix) {
-		t.Errorf("expected bbb entry, got %q", result2.Entries[0].TextNormalized)
+	if entries2[0].TextNormalized != domain.NormalizeText("bbb-cursor-text-"+suffix) {
+		t.Errorf("expected bbb entry, got %q", entries2[0].TextNormalized)
 	}
 }
 
-func TestRepo_Find_InvalidCursor(t *testing.T) {
+func TestRepo_FindCursor_InvalidCursor(t *testing.T) {
 	t.Parallel()
 	repo, pool := newRepo(t)
 	ctx := context.Background()
@@ -1385,17 +1394,17 @@ func TestRepo_Find_InvalidCursor(t *testing.T) {
 
 	// Test with garbage cursor.
 	badCursor := "not-valid-base64!!!"
-	_, err := repo.Find(ctx, user.ID, entry.Filter{Cursor: &badCursor})
+	_, _, err := repo.FindCursor(ctx, user.ID, domain.EntryFilter{Cursor: &badCursor})
 	assertIsDomainError(t, err, domain.ErrValidation)
 
 	// Test with valid base64 but bad format (no pipe).
 	badCursor2 := "bm9waXBl" // base64("nopipe")
-	_, err = repo.Find(ctx, user.ID, entry.Filter{Cursor: &badCursor2})
+	_, _, err = repo.FindCursor(ctx, user.ID, domain.EntryFilter{Cursor: &badCursor2})
 	assertIsDomainError(t, err, domain.ErrValidation)
 
 	// Test with valid base64, pipe, but bad UUID.
 	badCursor3 := entry.EncodeCursor("2024-01-01T00:00:00Z", "not-a-uuid")
-	_, err = repo.Find(ctx, user.ID, entry.Filter{Cursor: &badCursor3})
+	_, _, err = repo.FindCursor(ctx, user.ID, domain.EntryFilter{Cursor: &badCursor3})
 	assertIsDomainError(t, err, domain.ErrValidation)
 }
 
@@ -1411,19 +1420,16 @@ func TestRepo_Find_LimitDefaults(t *testing.T) {
 	user := testhelper.SeedUser(t, pool)
 
 	// With limit 0, should use default (50).
-	result, err := repo.Find(ctx, user.ID, entry.Filter{Limit: 0})
+	_, _, err := repo.Find(ctx, user.ID, domain.EntryFilter{Limit: 0})
 	if err != nil {
 		t.Fatalf("Find: %v", err)
 	}
-	// Just verify it doesn't fail; actual entries may be 0 or more.
-	_ = result
 
 	// With negative limit, should use default.
-	result2, err := repo.Find(ctx, user.ID, entry.Filter{Limit: -5})
+	_, _, err = repo.Find(ctx, user.ID, domain.EntryFilter{Limit: -5})
 	if err != nil {
 		t.Fatalf("Find negative limit: %v", err)
 	}
-	_ = result2
 }
 
 // ---------------------------------------------------------------------------

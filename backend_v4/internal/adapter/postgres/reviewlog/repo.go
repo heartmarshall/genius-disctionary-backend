@@ -21,12 +21,6 @@ import (
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
 )
 
-// DayReviewCount holds the date and number of reviews for that day.
-type DayReviewCount struct {
-	Date  time.Time // date only (midnight)
-	Count int
-}
-
 // ReviewLogWithCardID wraps a domain.ReviewLog with its CardID for batch queries.
 type ReviewLogWithCardID struct {
 	CardID uuid.UUID
@@ -54,11 +48,11 @@ WHERE c.user_id = $1 AND rl.reviewed_at >= $2`
 
 const getStreakDaysSQL = `
 SELECT
-    date_trunc('day', rl.reviewed_at AT TIME ZONE $2)::date AS review_date,
+    date_trunc('day', rl.reviewed_at)::date AS review_date,
     count(*) AS review_count
 FROM review_logs rl
 JOIN cards c ON rl.card_id = c.id
-WHERE c.user_id = $1
+WHERE c.user_id = $1 AND rl.reviewed_at >= $2
 GROUP BY review_date
 ORDER BY review_date DESC
 LIMIT $3`
@@ -69,47 +63,75 @@ FROM review_logs rl
 WHERE rl.card_id = ANY($1::uuid[])
 ORDER BY rl.card_id, rl.reviewed_at DESC`
 
+const countByCardIDSQL = `SELECT count(*) FROM review_logs WHERE card_id = $1`
+
+const countNewTodaySQL = `
+SELECT count(*) FROM review_logs rl
+JOIN cards c ON rl.card_id = c.id
+WHERE c.user_id = $1 AND rl.reviewed_at >= $2
+AND rl.prev_state IS NOT NULL
+AND rl.prev_state->>'status' = 'NEW'`
+
+const getByPeriodSQL = `
+SELECT rl.id, rl.card_id, rl.grade, rl.prev_state, rl.duration_ms, rl.reviewed_at
+FROM review_logs rl
+JOIN cards c ON rl.card_id = c.id
+WHERE c.user_id = $1 AND rl.reviewed_at >= $2 AND rl.reviewed_at <= $3
+ORDER BY rl.reviewed_at DESC`
+
 // ---------------------------------------------------------------------------
 // Read operations
 // ---------------------------------------------------------------------------
 
 // GetByCardID returns review logs for a card, ordered by reviewed_at DESC,
-// with limit/offset pagination.
-func (r *Repo) GetByCardID(ctx context.Context, cardID uuid.UUID, limit, offset int) ([]domain.ReviewLog, error) {
-	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
+// with limit/offset pagination. Returns logs, total count, and error.
+func (r *Repo) GetByCardID(ctx context.Context, cardID uuid.UUID, limit, offset int) ([]*domain.ReviewLog, int, error) {
+	querier := postgres.QuerierFromCtx(ctx, r.pool)
 
+	// Count total
+	var total int
+	if err := querier.QueryRow(ctx, countByCardIDSQL, cardID).Scan(&total); err != nil {
+		return nil, 0, fmt.Errorf("count review_logs by card_id: %w", err)
+	}
+
+	q := sqlc.New(querier)
 	rows, err := q.GetByCardID(ctx, sqlc.GetByCardIDParams{
 		CardID: cardID,
 		Lim:    int32(limit),
 		Off:    int32(offset),
 	})
 	if err != nil {
-		return nil, fmt.Errorf("get review_logs by card_id: %w", err)
+		return nil, 0, fmt.Errorf("get review_logs by card_id: %w", err)
 	}
 
-	logs := make([]domain.ReviewLog, len(rows))
+	logs := make([]*domain.ReviewLog, len(rows))
 	for i, row := range rows {
 		rl, err := toDomainReviewLog(row)
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
-		logs[i] = rl
+		logs[i] = &rl
 	}
 
-	return logs, nil
+	return logs, total, nil
 }
 
 // GetLastByCardID returns the most recent review log for a card.
 // Returns domain.ErrNotFound if no review logs exist for the card.
-func (r *Repo) GetLastByCardID(ctx context.Context, cardID uuid.UUID) (domain.ReviewLog, error) {
+func (r *Repo) GetLastByCardID(ctx context.Context, cardID uuid.UUID) (*domain.ReviewLog, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	row, err := q.GetLastByCardID(ctx, cardID)
 	if err != nil {
-		return domain.ReviewLog{}, mapError(err, "review_log", cardID)
+		return nil, mapError(err, "review_log", cardID)
 	}
 
-	return toDomainReviewLog(row)
+	rl, err := toDomainReviewLog(row)
+	if err != nil {
+		return nil, err
+	}
+
+	return &rl, nil
 }
 
 // GetByCardIDs returns review logs for multiple cards (batch for DataLoader).
@@ -189,20 +211,24 @@ func (r *Repo) CountToday(ctx context.Context, userID uuid.UUID, dayStart time.T
 	return count, nil
 }
 
-// GetStreakDays returns daily review counts grouped by day in the given timezone,
-// ordered by date DESC, limited to `days` entries.
-func (r *Repo) GetStreakDays(ctx context.Context, userID uuid.UUID, timezone string, days int) ([]DayReviewCount, error) {
+// GetStreakDays returns daily review counts grouped by day,
+// ordered by date DESC, limited to `lastNDays` entries.
+// dayStart is the start of the current day; the query goes back lastNDays from it.
+func (r *Repo) GetStreakDays(ctx context.Context, userID uuid.UUID, dayStart time.Time, lastNDays int) ([]domain.DayReviewCount, error) {
 	querier := postgres.QuerierFromCtx(ctx, r.pool)
 
-	rows, err := querier.Query(ctx, getStreakDaysSQL, userID, timezone, days)
+	// dayStart is already the start of the first day. We go back lastNDays from dayStart.
+	from := dayStart.AddDate(0, 0, -lastNDays)
+
+	rows, err := querier.Query(ctx, getStreakDaysSQL, userID, from, lastNDays)
 	if err != nil {
 		return nil, fmt.Errorf("get streak days: %w", err)
 	}
 	defer rows.Close()
 
-	var counts []DayReviewCount
+	var counts []domain.DayReviewCount
 	for rows.Next() {
-		var dc DayReviewCount
+		var dc domain.DayReviewCount
 		if err := rows.Scan(&dc.Date, &dc.Count); err != nil {
 			return nil, fmt.Errorf("scan streak day: %w", err)
 		}
@@ -213,7 +239,7 @@ func (r *Repo) GetStreakDays(ctx context.Context, userID uuid.UUID, timezone str
 	}
 
 	if counts == nil {
-		counts = []DayReviewCount{}
+		counts = []domain.DayReviewCount{}
 	}
 
 	return counts, nil
@@ -224,12 +250,12 @@ func (r *Repo) GetStreakDays(ctx context.Context, userID uuid.UUID, timezone str
 // ---------------------------------------------------------------------------
 
 // Create inserts a new review log and returns the persisted domain.ReviewLog.
-func (r *Repo) Create(ctx context.Context, rl domain.ReviewLog) (domain.ReviewLog, error) {
+func (r *Repo) Create(ctx context.Context, rl *domain.ReviewLog) (*domain.ReviewLog, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	prevStateBytes, err := marshalPrevState(rl.PrevState)
 	if err != nil {
-		return domain.ReviewLog{}, fmt.Errorf("review_log marshal prev_state: %w", err)
+		return nil, fmt.Errorf("review_log marshal prev_state: %w", err)
 	}
 
 	var durationMs pgtype.Int4
@@ -246,10 +272,15 @@ func (r *Repo) Create(ctx context.Context, rl domain.ReviewLog) (domain.ReviewLo
 		ReviewedAt: rl.ReviewedAt,
 	})
 	if err != nil {
-		return domain.ReviewLog{}, mapError(err, "review_log", rl.ID)
+		return nil, mapError(err, "review_log", rl.ID)
 	}
 
-	return toDomainReviewLog(row)
+	result, err := toDomainReviewLog(row)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
 }
 
 // Delete removes a review log by ID.
@@ -267,6 +298,75 @@ func (r *Repo) Delete(ctx context.Context, id uuid.UUID) error {
 	}
 
 	return nil
+}
+
+// CountNewToday returns the count of reviews for NEW-status cards since dayStart.
+func (r *Repo) CountNewToday(ctx context.Context, userID uuid.UUID, dayStart time.Time) (int, error) {
+	querier := postgres.QuerierFromCtx(ctx, r.pool)
+
+	var count int
+	if err := querier.QueryRow(ctx, countNewTodaySQL, userID, dayStart).Scan(&count); err != nil {
+		return 0, fmt.Errorf("count new today reviews: %w", err)
+	}
+
+	return count, nil
+}
+
+// GetByPeriod returns review logs for a user within a time range,
+// ordered by reviewed_at DESC.
+func (r *Repo) GetByPeriod(ctx context.Context, userID uuid.UUID, from, to time.Time) ([]*domain.ReviewLog, error) {
+	querier := postgres.QuerierFromCtx(ctx, r.pool)
+
+	rows, err := querier.Query(ctx, getByPeriodSQL, userID, from, to)
+	if err != nil {
+		return nil, fmt.Errorf("get review_logs by period: %w", err)
+	}
+	defer rows.Close()
+
+	var logs []*domain.ReviewLog
+	for rows.Next() {
+		var (
+			id         uuid.UUID
+			cardID     uuid.UUID
+			grade      string
+			prevState  []byte
+			durationMs pgtype.Int4
+			reviewedAt time.Time
+		)
+
+		if err := rows.Scan(&id, &cardID, &grade, &prevState, &durationMs, &reviewedAt); err != nil {
+			return nil, fmt.Errorf("scan review_log: %w", err)
+		}
+
+		rl := &domain.ReviewLog{
+			ID:         id,
+			CardID:     cardID,
+			Grade:      domain.ReviewGrade(grade),
+			ReviewedAt: reviewedAt,
+		}
+
+		if durationMs.Valid {
+			d := int(durationMs.Int32)
+			rl.DurationMs = &d
+		}
+
+		ps, err := unmarshalPrevState(prevState)
+		if err != nil {
+			return nil, fmt.Errorf("review_log %s: %w", id, err)
+		}
+		rl.PrevState = ps
+
+		logs = append(logs, rl)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate review_logs: %w", err)
+	}
+
+	if logs == nil {
+		logs = []*domain.ReviewLog{}
+	}
+
+	return logs, nil
 }
 
 // ---------------------------------------------------------------------------

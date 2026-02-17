@@ -5,7 +5,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -27,33 +26,34 @@ func New(pool *pgxpool.Pool) *Repo {
 	return &Repo{pool: pool}
 }
 
-// Create inserts a new refresh token and returns the persisted domain.RefreshToken.
-func (r *Repo) Create(ctx context.Context, userID uuid.UUID, tokenHash string, expiresAt time.Time) (domain.RefreshToken, error) {
+// Create inserts a new refresh token.
+func (r *Repo) Create(ctx context.Context, token *domain.RefreshToken) error {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
-	row, err := q.CreateRefreshToken(ctx, sqlc.CreateRefreshTokenParams{
-		UserID:    userID,
-		TokenHash: tokenHash,
-		ExpiresAt: expiresAt,
+	_, err := q.CreateRefreshToken(ctx, sqlc.CreateRefreshTokenParams{
+		UserID:    token.UserID,
+		TokenHash: token.TokenHash,
+		ExpiresAt: token.ExpiresAt,
 	})
 	if err != nil {
-		return domain.RefreshToken{}, mapError(err, "refresh_token", uuid.Nil)
+		return mapError(err, "refresh_token", uuid.Nil)
 	}
 
-	return toDomain(row), nil
+	return nil
 }
 
 // GetByHash returns an active (non-revoked, non-expired) refresh token by its hash.
 // Returns domain.ErrNotFound if the token does not exist, is revoked, or is expired.
-func (r *Repo) GetByHash(ctx context.Context, tokenHash string) (domain.RefreshToken, error) {
+func (r *Repo) GetByHash(ctx context.Context, tokenHash string) (*domain.RefreshToken, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	row, err := q.GetRefreshTokenByHash(ctx, tokenHash)
 	if err != nil {
-		return domain.RefreshToken{}, mapError(err, "refresh_token", uuid.Nil)
+		return nil, mapError(err, "refresh_token", uuid.Nil)
 	}
 
-	return toDomain(row), nil
+	t := toDomain(row)
+	return &t, nil
 }
 
 // RevokeByID revokes a specific refresh token by setting revoked_at.

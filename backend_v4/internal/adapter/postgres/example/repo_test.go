@@ -98,7 +98,7 @@ func TestRepo_CreateCustom_AndGetBySenseID(t *testing.T) {
 	sentence := "The cat sat on the mat."
 	translation := "Кот сидел на коврике."
 
-	got, err := repo.CreateCustom(ctx, sense.ID, &sentence, &translation, "user")
+	got, err := repo.CreateCustom(ctx, sense.ID, sentence, &translation, "user")
 	if err != nil {
 		t.Fatalf("CreateCustom: unexpected error: %v", err)
 	}
@@ -189,7 +189,7 @@ func TestRepo_Update(t *testing.T) {
 	newSentence := "updated sentence"
 	newTranslation := "updated translation"
 
-	got, err := repo.Update(ctx, exampleID, &newSentence, &newTranslation)
+	got, err := repo.Update(ctx, exampleID, newSentence, &newTranslation)
 	if err != nil {
 		t.Fatalf("Update: unexpected error: %v", err)
 	}
@@ -216,7 +216,7 @@ func TestRepo_Update_PreservesRefLink(t *testing.T) {
 
 	// Update sentence only.
 	newSentence := "user override sentence"
-	got, err := repo.Update(ctx, exampleID, &newSentence, nil)
+	got, err := repo.Update(ctx, exampleID, newSentence, nil)
 	if err != nil {
 		t.Fatalf("Update: %v", err)
 	}
@@ -238,7 +238,7 @@ func TestRepo_Update_NotFound(t *testing.T) {
 	ctx := context.Background()
 
 	sentence := "test"
-	_, err := repo.Update(ctx, uuid.New(), &sentence, nil)
+	_, err := repo.Update(ctx, uuid.New(), sentence, nil)
 	assertIsDomainError(t, err, domain.ErrNotFound)
 }
 
@@ -289,7 +289,7 @@ func TestRepo_Reorder(t *testing.T) {
 
 	sense := entry.Senses[0]
 	// SeedEntry creates 2 examples per sense at positions 0, 1. Swap them.
-	items := []example.ReorderItem{
+	items := []domain.ReorderItem{
 		{ID: sense.Examples[0].ID, Position: 10},
 		{ID: sense.Examples[1].ID, Position: 20},
 	}
@@ -343,7 +343,7 @@ func TestRepo_PositionAutoIncrement(t *testing.T) {
 	// SeedEntry creates 2 examples at positions 0, 1.
 
 	sentence := "third example"
-	e3, err := repo.CreateCustom(ctx, sense.ID, &sentence, nil, "user")
+	e3, err := repo.CreateCustom(ctx, sense.ID, sentence, nil, "user")
 	if err != nil {
 		t.Fatalf("CreateCustom[2]: %v", err)
 	}
@@ -353,7 +353,7 @@ func TestRepo_PositionAutoIncrement(t *testing.T) {
 	}
 
 	sentence2 := "fourth example"
-	e4, err := repo.CreateCustom(ctx, sense.ID, &sentence2, nil, "user")
+	e4, err := repo.CreateCustom(ctx, sense.ID, sentence2, nil, "user")
 	if err != nil {
 		t.Fatalf("CreateCustom[3]: %v", err)
 	}
@@ -389,7 +389,7 @@ func TestRepo_GetBySenseIDs_Batch(t *testing.T) {
 	}
 
 	// Verify results can be grouped by sense_id.
-	bySense := make(map[uuid.UUID][]example.ExampleWithSenseID)
+	bySense := make(map[uuid.UUID][]domain.Example)
 	for _, ex := range got {
 		bySense[ex.SenseID] = append(bySense[ex.SenseID], ex)
 	}

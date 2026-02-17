@@ -11,13 +11,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/graph-gophers/dataloader/v7"
 
-	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/card"
-	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/example"
 	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/image"
 	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/pronunciation"
 	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/reviewlog"
 	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/topic"
-	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/translation"
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
 )
 
@@ -35,11 +32,11 @@ type senseRepo interface {
 }
 
 type translationRepo interface {
-	GetBySenseIDs(ctx context.Context, senseIDs []uuid.UUID) ([]translation.TranslationWithSenseID, error)
+	GetBySenseIDs(ctx context.Context, senseIDs []uuid.UUID) ([]domain.Translation, error)
 }
 
 type exampleRepo interface {
-	GetBySenseIDs(ctx context.Context, senseIDs []uuid.UUID) ([]example.ExampleWithSenseID, error)
+	GetBySenseIDs(ctx context.Context, senseIDs []uuid.UUID) ([]domain.Example, error)
 }
 
 type pronunciationRepo interface {
@@ -52,7 +49,7 @@ type imageRepo interface {
 }
 
 type cardRepo interface {
-	GetByEntryIDs(ctx context.Context, userID uuid.UUID, entryIDs []uuid.UUID) ([]card.CardWithEntryID, error)
+	GetByEntryIDs(ctx context.Context, entryIDs []uuid.UUID) ([]domain.Card, error)
 }
 
 type topicRepo interface {

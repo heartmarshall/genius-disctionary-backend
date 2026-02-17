@@ -34,36 +34,43 @@ func New(pool *pgxpool.Pool, txm *postgres.TxManager) *Repo {
 // Read operations
 // ---------------------------------------------------------------------------
 
-// GetByID returns a ref_entry with full tree (senses -> translations, examples;
+// GetFullTreeByID returns a ref_entry with full tree (senses -> translations, examples;
 // pronunciations; images). Returns domain.ErrNotFound if not found.
-func (r *Repo) GetByID(ctx context.Context, id uuid.UUID) (domain.RefEntry, error) {
+func (r *Repo) GetFullTreeByID(ctx context.Context, id uuid.UUID) (*domain.RefEntry, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	row, err := q.GetRefEntryByID(ctx, id)
 	if err != nil {
-		return domain.RefEntry{}, mapError(err, "ref_entry", id)
+		return nil, mapError(err, "ref_entry", id)
 	}
 
 	entry := toDomainRefEntry(row)
 
 	if err := r.loadFullTree(ctx, q, &entry); err != nil {
-		return domain.RefEntry{}, err
+		return nil, err
 	}
 
-	return entry, nil
+	return &entry, nil
 }
 
-// GetByNormalizedText returns a ref_entry by normalized text.
+// GetFullTreeByText returns a ref_entry by normalized text with full tree
+// (senses -> translations, examples; pronunciations; images).
 // Returns domain.ErrNotFound if not found.
-func (r *Repo) GetByNormalizedText(ctx context.Context, text string) (domain.RefEntry, error) {
+func (r *Repo) GetFullTreeByText(ctx context.Context, textNormalized string) (*domain.RefEntry, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
-	row, err := q.GetRefEntryByNormalizedText(ctx, text)
+	row, err := q.GetRefEntryByNormalizedText(ctx, textNormalized)
 	if err != nil {
-		return domain.RefEntry{}, mapError(err, "ref_entry", uuid.Nil)
+		return nil, mapError(err, "ref_entry", uuid.Nil)
 	}
 
-	return toDomainRefEntry(row), nil
+	entry := toDomainRefEntry(row)
+
+	if err := r.loadFullTree(ctx, q, &entry); err != nil {
+		return nil, err
+	}
+
+	return &entry, nil
 }
 
 // Search performs fuzzy search by text_normalized using pg_trgm.
@@ -95,9 +102,9 @@ func (r *Repo) Search(ctx context.Context, query string, limit int) ([]domain.Re
 // Write operations
 // ---------------------------------------------------------------------------
 
-// Create inserts a ref_entry and all children in one transaction.
+// CreateWithTree inserts a ref_entry and all children in one transaction.
 // Returns the created domain.RefEntry with all IDs populated.
-func (r *Repo) Create(ctx context.Context, entry domain.RefEntry) (domain.RefEntry, error) {
+func (r *Repo) CreateWithTree(ctx context.Context, entry *domain.RefEntry) (*domain.RefEntry, error) {
 	var result domain.RefEntry
 
 	err := r.txm.RunInTx(ctx, func(txCtx context.Context) error {
@@ -206,10 +213,10 @@ func (r *Repo) Create(ctx context.Context, entry domain.RefEntry) (domain.RefEnt
 		return nil
 	})
 	if err != nil {
-		return domain.RefEntry{}, err
+		return nil, err
 	}
 
-	return result, nil
+	return &result, nil
 }
 
 // GetOrCreate performs an upsert: INSERT ON CONFLICT DO NOTHING, then SELECT.

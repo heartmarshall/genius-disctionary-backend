@@ -34,9 +34,19 @@ func TestRepo_Create_HappyPath(t *testing.T) {
 	hash := "testhash-" + uuid.New().String()[:8]
 	expiresAt := time.Now().UTC().Add(24 * time.Hour).Truncate(time.Microsecond)
 
-	got, err := repo.Create(ctx, user.ID, hash, expiresAt)
+	err := repo.Create(ctx, &domain.RefreshToken{
+		UserID:    user.ID,
+		TokenHash: hash,
+		ExpiresAt: expiresAt,
+	})
 	if err != nil {
 		t.Fatalf("Create: unexpected error: %v", err)
+	}
+
+	// Verify via GetByHash.
+	got, err := repo.GetByHash(ctx, hash)
+	if err != nil {
+		t.Fatalf("GetByHash: unexpected error: %v", err)
 	}
 
 	if got.ID == uuid.Nil {
@@ -68,7 +78,11 @@ func TestRepo_Create_InvalidUserID(t *testing.T) {
 	expiresAt := time.Now().UTC().Add(24 * time.Hour)
 
 	// Non-existent user_id should trigger foreign key violation -> ErrNotFound.
-	_, err := repo.Create(ctx, uuid.New(), hash, expiresAt)
+	err := repo.Create(ctx, &domain.RefreshToken{
+		UserID:    uuid.New(),
+		TokenHash: hash,
+		ExpiresAt: expiresAt,
+	})
 	assertIsDomainError(t, err, domain.ErrNotFound)
 }
 
@@ -81,7 +95,11 @@ func TestRepo_GetByHash_HappyPath(t *testing.T) {
 	hash := "gethash-" + uuid.New().String()[:8]
 	expiresAt := time.Now().UTC().Add(24 * time.Hour).Truncate(time.Microsecond)
 
-	created, err := repo.Create(ctx, user.ID, hash, expiresAt)
+	err := repo.Create(ctx, &domain.RefreshToken{
+		UserID:    user.ID,
+		TokenHash: hash,
+		ExpiresAt: expiresAt,
+	})
 	if err != nil {
 		t.Fatalf("Create: %v", err)
 	}
@@ -91,8 +109,8 @@ func TestRepo_GetByHash_HappyPath(t *testing.T) {
 		t.Fatalf("GetByHash: unexpected error: %v", err)
 	}
 
-	if got.ID != created.ID {
-		t.Errorf("ID mismatch: got %s, want %s", got.ID, created.ID)
+	if got.ID == uuid.Nil {
+		t.Error("ID should not be nil")
 	}
 	if got.UserID != user.ID {
 		t.Errorf("UserID mismatch: got %s, want %s", got.UserID, user.ID)
@@ -121,7 +139,11 @@ func TestRepo_GetByHash_Expired(t *testing.T) {
 	// Token already expired 1 hour ago.
 	expiresAt := time.Now().UTC().Add(-1 * time.Hour)
 
-	_, err := repo.Create(ctx, user.ID, hash, expiresAt)
+	err := repo.Create(ctx, &domain.RefreshToken{
+		UserID:    user.ID,
+		TokenHash: hash,
+		ExpiresAt: expiresAt,
+	})
 	if err != nil {
 		t.Fatalf("Create: %v", err)
 	}
@@ -139,9 +161,19 @@ func TestRepo_GetByHash_Revoked(t *testing.T) {
 	hash := "revoked-hash-" + uuid.New().String()[:8]
 	expiresAt := time.Now().UTC().Add(24 * time.Hour)
 
-	created, err := repo.Create(ctx, user.ID, hash, expiresAt)
+	err := repo.Create(ctx, &domain.RefreshToken{
+		UserID:    user.ID,
+		TokenHash: hash,
+		ExpiresAt: expiresAt,
+	})
 	if err != nil {
 		t.Fatalf("Create: %v", err)
+	}
+
+	// Get the token to find its ID for revocation.
+	created, err := repo.GetByHash(ctx, hash)
+	if err != nil {
+		t.Fatalf("GetByHash: %v", err)
 	}
 
 	if err := repo.RevokeByID(ctx, created.ID); err != nil {
@@ -165,9 +197,18 @@ func TestRepo_RevokeByID_HappyPath(t *testing.T) {
 	hash := "revoke-id-" + uuid.New().String()[:8]
 	expiresAt := time.Now().UTC().Add(24 * time.Hour)
 
-	created, err := repo.Create(ctx, user.ID, hash, expiresAt)
+	err := repo.Create(ctx, &domain.RefreshToken{
+		UserID:    user.ID,
+		TokenHash: hash,
+		ExpiresAt: expiresAt,
+	})
 	if err != nil {
 		t.Fatalf("Create: %v", err)
+	}
+
+	created, err := repo.GetByHash(ctx, hash)
+	if err != nil {
+		t.Fatalf("GetByHash: %v", err)
 	}
 
 	if err := repo.RevokeByID(ctx, created.ID); err != nil {
@@ -188,9 +229,18 @@ func TestRepo_RevokeByID_Idempotent(t *testing.T) {
 	hash := "revoke-idempotent-" + uuid.New().String()[:8]
 	expiresAt := time.Now().UTC().Add(24 * time.Hour)
 
-	created, err := repo.Create(ctx, user.ID, hash, expiresAt)
+	err := repo.Create(ctx, &domain.RefreshToken{
+		UserID:    user.ID,
+		TokenHash: hash,
+		ExpiresAt: expiresAt,
+	})
 	if err != nil {
 		t.Fatalf("Create: %v", err)
+	}
+
+	created, err := repo.GetByHash(ctx, hash)
+	if err != nil {
+		t.Fatalf("GetByHash: %v", err)
 	}
 
 	// First revocation.
@@ -230,7 +280,11 @@ func TestRepo_RevokeAllByUser_HappyPath(t *testing.T) {
 	hashes := make([]string, 3)
 	for i := range hashes {
 		hashes[i] = "revoke-all-" + uuid.New().String()[:8]
-		_, err := repo.Create(ctx, user.ID, hashes[i], time.Now().UTC().Add(24*time.Hour))
+		err := repo.Create(ctx, &domain.RefreshToken{
+			UserID:    user.ID,
+			TokenHash: hashes[i],
+			ExpiresAt: time.Now().UTC().Add(24 * time.Hour),
+		})
 		if err != nil {
 			t.Fatalf("Create token %d: %v", i, err)
 		}
@@ -265,9 +319,17 @@ func TestRepo_RevokeAllByUser_OnlyAffectsActiveTokens(t *testing.T) {
 
 	// Create and immediately revoke a token.
 	hash1 := "revoke-all-active-1-" + uuid.New().String()[:8]
-	created, err := repo.Create(ctx, user.ID, hash1, time.Now().UTC().Add(24*time.Hour))
+	err := repo.Create(ctx, &domain.RefreshToken{
+		UserID:    user.ID,
+		TokenHash: hash1,
+		ExpiresAt: time.Now().UTC().Add(24 * time.Hour),
+	})
 	if err != nil {
 		t.Fatalf("Create token 1: %v", err)
+	}
+	created, err := repo.GetByHash(ctx, hash1)
+	if err != nil {
+		t.Fatalf("GetByHash token 1: %v", err)
 	}
 	if err := repo.RevokeByID(ctx, created.ID); err != nil {
 		t.Fatalf("RevokeByID: %v", err)
@@ -275,7 +337,11 @@ func TestRepo_RevokeAllByUser_OnlyAffectsActiveTokens(t *testing.T) {
 
 	// Create an active token.
 	hash2 := "revoke-all-active-2-" + uuid.New().String()[:8]
-	_, err = repo.Create(ctx, user.ID, hash2, time.Now().UTC().Add(24*time.Hour))
+	err = repo.Create(ctx, &domain.RefreshToken{
+		UserID:    user.ID,
+		TokenHash: hash2,
+		ExpiresAt: time.Now().UTC().Add(24 * time.Hour),
+	})
 	if err != nil {
 		t.Fatalf("Create token 2: %v", err)
 	}
@@ -301,11 +367,19 @@ func TestRepo_RevokeAllByUser_DoesNotAffectOtherUsers(t *testing.T) {
 	hash1 := "other-user-1-" + uuid.New().String()[:8]
 	hash2 := "other-user-2-" + uuid.New().String()[:8]
 
-	_, err := repo.Create(ctx, user1.ID, hash1, time.Now().UTC().Add(24*time.Hour))
+	err := repo.Create(ctx, &domain.RefreshToken{
+		UserID:    user1.ID,
+		TokenHash: hash1,
+		ExpiresAt: time.Now().UTC().Add(24 * time.Hour),
+	})
 	if err != nil {
 		t.Fatalf("Create token for user1: %v", err)
 	}
-	_, err = repo.Create(ctx, user2.ID, hash2, time.Now().UTC().Add(24*time.Hour))
+	err = repo.Create(ctx, &domain.RefreshToken{
+		UserID:    user2.ID,
+		TokenHash: hash2,
+		ExpiresAt: time.Now().UTC().Add(24 * time.Hour),
+	})
 	if err != nil {
 		t.Fatalf("Create token for user2: %v", err)
 	}
@@ -342,14 +416,22 @@ func TestRepo_DeleteExpired_RemovesExpiredTokens(t *testing.T) {
 
 	// Create an expired token directly via SQL (since Create succeeds regardless of expiry).
 	expiredHash := "delete-expired-" + uuid.New().String()[:8]
-	_, err := repo.Create(ctx, user.ID, expiredHash, time.Now().UTC().Add(-1*time.Hour))
+	err := repo.Create(ctx, &domain.RefreshToken{
+		UserID:    user.ID,
+		TokenHash: expiredHash,
+		ExpiresAt: time.Now().UTC().Add(-1 * time.Hour),
+	})
 	if err != nil {
 		t.Fatalf("Create expired token: %v", err)
 	}
 
 	// Create an active token.
 	activeHash := "delete-active-" + uuid.New().String()[:8]
-	_, err = repo.Create(ctx, user.ID, activeHash, time.Now().UTC().Add(24*time.Hour))
+	err = repo.Create(ctx, &domain.RefreshToken{
+		UserID:    user.ID,
+		TokenHash: activeHash,
+		ExpiresAt: time.Now().UTC().Add(24 * time.Hour),
+	})
 	if err != nil {
 		t.Fatalf("Create active token: %v", err)
 	}
@@ -393,9 +475,17 @@ func TestRepo_DeleteExpired_RemovesRevokedTokens(t *testing.T) {
 
 	// Create and revoke a token.
 	revokedHash := "delete-revoked-" + uuid.New().String()[:8]
-	created, err := repo.Create(ctx, user.ID, revokedHash, time.Now().UTC().Add(24*time.Hour))
+	err := repo.Create(ctx, &domain.RefreshToken{
+		UserID:    user.ID,
+		TokenHash: revokedHash,
+		ExpiresAt: time.Now().UTC().Add(24 * time.Hour),
+	})
 	if err != nil {
 		t.Fatalf("Create: %v", err)
+	}
+	created, err := repo.GetByHash(ctx, revokedHash)
+	if err != nil {
+		t.Fatalf("GetByHash: %v", err)
 	}
 	if err := repo.RevokeByID(ctx, created.ID); err != nil {
 		t.Fatalf("RevokeByID: %v", err)

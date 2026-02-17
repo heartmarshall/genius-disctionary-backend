@@ -132,19 +132,19 @@ func buildRefEntry(text string) domain.RefEntry {
 }
 
 // ---------------------------------------------------------------------------
-// Create tests
+// CreateWithTree tests
 // ---------------------------------------------------------------------------
 
-func TestRepo_Create_FullTree(t *testing.T) {
+func TestRepo_CreateWithTree_FullTree(t *testing.T) {
 	t.Parallel()
 	repo, _ := newRepo(t)
 	ctx := context.Background()
 
 	input := buildRefEntry("Abundance-" + uuid.New().String()[:8])
 
-	got, err := repo.Create(ctx, input)
+	got, err := repo.CreateWithTree(ctx, &input)
 	if err != nil {
-		t.Fatalf("Create: unexpected error: %v", err)
+		t.Fatalf("CreateWithTree: unexpected error: %v", err)
 	}
 
 	// Verify entry.
@@ -220,24 +220,24 @@ func TestRepo_Create_FullTree(t *testing.T) {
 	}
 }
 
-func TestRepo_Create_DuplicateText(t *testing.T) {
+func TestRepo_CreateWithTree_DuplicateText(t *testing.T) {
 	t.Parallel()
 	repo, _ := newRepo(t)
 	ctx := context.Background()
 
 	text := "Duplicate-" + uuid.New().String()[:8]
 	input1 := buildRefEntry(text)
-	if _, err := repo.Create(ctx, input1); err != nil {
-		t.Fatalf("Create first: %v", err)
+	if _, err := repo.CreateWithTree(ctx, &input1); err != nil {
+		t.Fatalf("CreateWithTree first: %v", err)
 	}
 
 	// Second insert with same normalized text should fail.
 	input2 := buildRefEntry(text)
-	_, err := repo.Create(ctx, input2)
+	_, err := repo.CreateWithTree(ctx, &input2)
 	assertIsDomainError(t, err, domain.ErrAlreadyExists)
 }
 
-func TestRepo_Create_AtomicRollback(t *testing.T) {
+func TestRepo_CreateWithTree_AtomicRollback(t *testing.T) {
 	t.Parallel()
 	repo, pool := newRepo(t)
 	ctx := context.Background()
@@ -249,13 +249,13 @@ func TestRepo_Create_AtomicRollback(t *testing.T) {
 	input.Senses[0].Translations[0].RefSenseID = uuid.New() // bogus sense ID
 	// The sense ID in the Insert call uses sense.ID, not translation.RefSenseID,
 	// so let's instead make a sense reference an invalid entry ID to trigger FK error.
-	// Actually, the Create method uses entry.ID and sense.ID directly, so let me
+	// Actually, the CreateWithTree method uses entry.ID and sense.ID directly, so let me
 	// instead cause an error by having a duplicate sense ID.
 	input.Senses[1].ID = input.Senses[0].ID // duplicate PK
 
-	_, err := repo.Create(ctx, input)
+	_, err := repo.CreateWithTree(ctx, &input)
 	if err == nil {
-		t.Fatal("expected error from Create with duplicate sense ID")
+		t.Fatal("expected error from CreateWithTree with duplicate sense ID")
 	}
 
 	// Verify entry was rolled back.
@@ -273,19 +273,19 @@ func TestRepo_Create_AtomicRollback(t *testing.T) {
 }
 
 // ---------------------------------------------------------------------------
-// GetByID tests
+// GetFullTreeByID tests
 // ---------------------------------------------------------------------------
 
-func TestRepo_GetByID_FullTree(t *testing.T) {
+func TestRepo_GetFullTreeByID_FullTree(t *testing.T) {
 	t.Parallel()
 	repo, pool := newRepo(t)
 	ctx := context.Background()
 
-	seeded := testhelper.SeedRefEntry(t, pool, "GetByID-"+uuid.New().String()[:8])
+	seeded := testhelper.SeedRefEntry(t, pool, "GetFullTreeByID-"+uuid.New().String()[:8])
 
-	got, err := repo.GetByID(ctx, seeded.ID)
+	got, err := repo.GetFullTreeByID(ctx, seeded.ID)
 	if err != nil {
-		t.Fatalf("GetByID: unexpected error: %v", err)
+		t.Fatalf("GetFullTreeByID: unexpected error: %v", err)
 	}
 
 	// Verify entry fields.
@@ -329,29 +329,29 @@ func TestRepo_GetByID_FullTree(t *testing.T) {
 	}
 }
 
-func TestRepo_GetByID_NotFound(t *testing.T) {
+func TestRepo_GetFullTreeByID_NotFound(t *testing.T) {
 	t.Parallel()
 	repo, _ := newRepo(t)
 	ctx := context.Background()
 
-	_, err := repo.GetByID(ctx, uuid.New())
+	_, err := repo.GetFullTreeByID(ctx, uuid.New())
 	assertIsDomainError(t, err, domain.ErrNotFound)
 }
 
 // ---------------------------------------------------------------------------
-// GetByNormalizedText tests
+// GetFullTreeByText tests
 // ---------------------------------------------------------------------------
 
-func TestRepo_GetByNormalizedText_HappyPath(t *testing.T) {
+func TestRepo_GetFullTreeByText_HappyPath(t *testing.T) {
 	t.Parallel()
 	repo, pool := newRepo(t)
 	ctx := context.Background()
 
 	seeded := testhelper.SeedRefEntry(t, pool, "ByText-"+uuid.New().String()[:8])
 
-	got, err := repo.GetByNormalizedText(ctx, seeded.TextNormalized)
+	got, err := repo.GetFullTreeByText(ctx, seeded.TextNormalized)
 	if err != nil {
-		t.Fatalf("GetByNormalizedText: unexpected error: %v", err)
+		t.Fatalf("GetFullTreeByText: unexpected error: %v", err)
 	}
 
 	if got.ID != seeded.ID {
@@ -359,12 +359,12 @@ func TestRepo_GetByNormalizedText_HappyPath(t *testing.T) {
 	}
 }
 
-func TestRepo_GetByNormalizedText_NotFound(t *testing.T) {
+func TestRepo_GetFullTreeByText_NotFound(t *testing.T) {
 	t.Parallel()
 	repo, _ := newRepo(t)
 	ctx := context.Background()
 
-	_, err := repo.GetByNormalizedText(ctx, "nonexistent-"+uuid.New().String()[:8])
+	_, err := repo.GetFullTreeByText(ctx, "nonexistent-"+uuid.New().String()[:8])
 	assertIsDomainError(t, err, domain.ErrNotFound)
 }
 
@@ -667,9 +667,9 @@ func TestRepo_GetRefImagesByIDs(t *testing.T) {
 	// Create an entry with images via the repo.
 	input := buildRefEntry("BatchImages-" + uuid.New().String()[:8])
 
-	created, err := repo.Create(ctx, input)
+	created, err := repo.CreateWithTree(ctx, &input)
 	if err != nil {
-		t.Fatalf("Create: %v", err)
+		t.Fatalf("CreateWithTree: %v", err)
 	}
 
 	ids := make([]uuid.UUID, len(created.Images))
@@ -713,24 +713,24 @@ func TestRepo_GetRefImagesByIDs_Empty(t *testing.T) {
 }
 
 // ---------------------------------------------------------------------------
-// Create + GetByID round-trip test
+// CreateWithTree + GetFullTreeByID round-trip test
 // ---------------------------------------------------------------------------
 
-func TestRepo_Create_ThenGetByID_RoundTrip(t *testing.T) {
+func TestRepo_CreateWithTree_ThenGetFullTreeByID_RoundTrip(t *testing.T) {
 	t.Parallel()
 	repo, _ := newRepo(t)
 	ctx := context.Background()
 
 	input := buildRefEntry("RoundTrip-" + uuid.New().String()[:8])
 
-	created, err := repo.Create(ctx, input)
+	created, err := repo.CreateWithTree(ctx, &input)
 	if err != nil {
-		t.Fatalf("Create: %v", err)
+		t.Fatalf("CreateWithTree: %v", err)
 	}
 
-	got, err := repo.GetByID(ctx, created.ID)
+	got, err := repo.GetFullTreeByID(ctx, created.ID)
 	if err != nil {
-		t.Fatalf("GetByID after Create: %v", err)
+		t.Fatalf("GetFullTreeByID after CreateWithTree: %v", err)
 	}
 
 	// Verify the full tree matches.

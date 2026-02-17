@@ -39,6 +39,9 @@ func TestRepo_Create_AndGetByID(t *testing.T) {
 		t.Fatalf("Create: unexpected error: %v", err)
 	}
 
+	if created == nil {
+		t.Fatal("Create: expected non-nil result")
+	}
 	if created.UserID != user.ID {
 		t.Errorf("UserID mismatch: got %s, want %s", created.UserID, user.ID)
 	}
@@ -62,6 +65,9 @@ func TestRepo_Create_AndGetByID(t *testing.T) {
 	got, err := repo.GetByID(ctx, user.ID, created.ID)
 	if err != nil {
 		t.Fatalf("GetByID: unexpected error: %v", err)
+	}
+	if got == nil {
+		t.Fatal("GetByID: expected non-nil result")
 	}
 	if got.ID != created.ID {
 		t.Errorf("GetByID ID mismatch: got %s, want %s", got.ID, created.ID)
@@ -111,6 +117,9 @@ func TestRepo_GetByEntryID(t *testing.T) {
 		t.Fatalf("GetByEntryID: unexpected error: %v", err)
 	}
 
+	if got == nil {
+		t.Fatal("GetByEntryID: expected non-nil result")
+	}
 	if got.EntryID != entry.ID {
 		t.Errorf("EntryID mismatch: got %s, want %s", got.EntryID, entry.ID)
 	}
@@ -387,22 +396,21 @@ func TestRepo_CountByStatus(t *testing.T) {
 		t.Fatalf("CountByStatus: unexpected error: %v", err)
 	}
 
-	// Should have 2 groups: NEW=1, REVIEW=2
-	statusMap := make(map[domain.LearningStatus]int)
-	for _, sc := range counts {
-		statusMap[sc.Status] = sc.Count
+	// Should have NEW=1, REVIEW=2, Total=3
+	if counts.New != 1 {
+		t.Errorf("expected 1 NEW card, got %d", counts.New)
 	}
-
-	if statusMap[domain.LearningStatusNew] != 1 {
-		t.Errorf("expected 1 NEW card, got %d", statusMap[domain.LearningStatusNew])
+	if counts.Review != 2 {
+		t.Errorf("expected 2 REVIEW cards, got %d", counts.Review)
 	}
-	if statusMap[domain.LearningStatusReview] != 2 {
-		t.Errorf("expected 2 REVIEW cards, got %d", statusMap[domain.LearningStatusReview])
+	if counts.Learning != 0 {
+		t.Errorf("expected 0 LEARNING cards, got %d", counts.Learning)
 	}
-
-	// LEARNING and MASTERED should not be in the result (they are zero).
-	if _, ok := statusMap[domain.LearningStatusLearning]; ok {
-		t.Errorf("expected LEARNING to be absent from results, but it was present with count %d", statusMap[domain.LearningStatusLearning])
+	if counts.Mastered != 0 {
+		t.Errorf("expected 0 MASTERED cards, got %d", counts.Mastered)
+	}
+	if counts.Total != 3 {
+		t.Errorf("expected 3 Total cards, got %d", counts.Total)
 	}
 }
 
@@ -420,7 +428,7 @@ func TestRepo_UpdateSRS(t *testing.T) {
 	entry := testhelper.SeedEntryWithCard(t, pool, user.ID, refEntry.ID)
 
 	nextReview := time.Now().UTC().Add(24 * time.Hour).Truncate(time.Microsecond)
-	params := card.SRSUpdateParams{
+	params := domain.SRSUpdateParams{
 		Status:       domain.LearningStatusReview,
 		NextReviewAt: &nextReview,
 		IntervalDays: 3,
@@ -428,17 +436,14 @@ func TestRepo_UpdateSRS(t *testing.T) {
 		LearningStep: 2,
 	}
 
-	err := repo.UpdateSRS(ctx, user.ID, entry.Card.ID, params)
+	got, err := repo.UpdateSRS(ctx, user.ID, entry.Card.ID, params)
 	if err != nil {
 		t.Fatalf("UpdateSRS: unexpected error: %v", err)
 	}
 
-	// Verify changes.
-	got, err := repo.GetByID(ctx, user.ID, entry.Card.ID)
-	if err != nil {
-		t.Fatalf("GetByID after update: %v", err)
+	if got == nil {
+		t.Fatal("UpdateSRS: expected non-nil result")
 	}
-
 	if got.Status != domain.LearningStatusReview {
 		t.Errorf("Status mismatch: got %s, want %s", got.Status, domain.LearningStatusReview)
 	}
@@ -513,7 +518,7 @@ func TestRepo_GetByEntryIDs_Batch(t *testing.T) {
 	entry2 := testhelper.SeedEntryWithCard(t, pool, user.ID, refEntry2.ID)
 
 	// Also include a nonexistent entry ID to test it doesn't cause errors.
-	cards, err := repo.GetByEntryIDs(ctx, user.ID, []uuid.UUID{entry1.ID, entry2.ID, uuid.New()})
+	cards, err := repo.GetByEntryIDs(ctx, []uuid.UUID{entry1.ID, entry2.ID, uuid.New()})
 	if err != nil {
 		t.Fatalf("GetByEntryIDs: unexpected error: %v", err)
 	}
@@ -523,7 +528,7 @@ func TestRepo_GetByEntryIDs_Batch(t *testing.T) {
 	}
 
 	// Verify grouping by entry_id.
-	byEntry := make(map[uuid.UUID][]card.CardWithEntryID)
+	byEntry := make(map[uuid.UUID][]domain.Card)
 	for _, c := range cards {
 		byEntry[c.EntryID] = append(byEntry[c.EntryID], c)
 	}

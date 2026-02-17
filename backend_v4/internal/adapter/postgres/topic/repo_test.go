@@ -31,7 +31,7 @@ func TestRepo_Create_AndGetByID(t *testing.T) {
 	user := testhelper.SeedUser(t, pool)
 
 	desc := "words from travel"
-	created, err := repo.Create(ctx, user.ID, "Travel", &desc)
+	created, err := repo.Create(ctx, user.ID, &domain.Topic{Name: "Travel", Description: &desc})
 	if err != nil {
 		t.Fatalf("Create: unexpected error: %v", err)
 	}
@@ -78,7 +78,7 @@ func TestRepo_Create_NilDescription(t *testing.T) {
 	ctx := context.Background()
 	user := testhelper.SeedUser(t, pool)
 
-	created, err := repo.Create(ctx, user.ID, "NoDesc-"+uuid.New().String()[:8], nil)
+	created, err := repo.Create(ctx, user.ID, &domain.Topic{Name: "NoDesc-" + uuid.New().String()[:8]})
 	if err != nil {
 		t.Fatalf("Create: unexpected error: %v", err)
 	}
@@ -95,13 +95,13 @@ func TestRepo_Create_DuplicateName(t *testing.T) {
 	user := testhelper.SeedUser(t, pool)
 
 	name := "Unique-" + uuid.New().String()[:8]
-	_, err := repo.Create(ctx, user.ID, name, nil)
+	_, err := repo.Create(ctx, user.ID, &domain.Topic{Name: name})
 	if err != nil {
 		t.Fatalf("Create first: %v", err)
 	}
 
 	// Same name, same user -> ErrAlreadyExists.
-	_, err = repo.Create(ctx, user.ID, name, nil)
+	_, err = repo.Create(ctx, user.ID, &domain.Topic{Name: name})
 	assertIsDomainError(t, err, domain.ErrAlreadyExists)
 }
 
@@ -114,13 +114,13 @@ func TestRepo_Create_SameNameDifferentUsers(t *testing.T) {
 	user2 := testhelper.SeedUser(t, pool)
 
 	name := "SharedName-" + uuid.New().String()[:8]
-	_, err := repo.Create(ctx, user1.ID, name, nil)
+	_, err := repo.Create(ctx, user1.ID, &domain.Topic{Name: name})
 	if err != nil {
 		t.Fatalf("Create user1: %v", err)
 	}
 
 	// Same name but different user -> should succeed.
-	_, err = repo.Create(ctx, user2.ID, name, nil)
+	_, err = repo.Create(ctx, user2.ID, &domain.Topic{Name: name})
 	if err != nil {
 		t.Fatalf("Create user2: expected success, got: %v", err)
 	}
@@ -144,7 +144,7 @@ func TestRepo_GetByID_WrongUser(t *testing.T) {
 	user1 := testhelper.SeedUser(t, pool)
 	user2 := testhelper.SeedUser(t, pool)
 
-	created, err := repo.Create(ctx, user1.ID, "Private-"+uuid.New().String()[:8], nil)
+	created, err := repo.Create(ctx, user1.ID, &domain.Topic{Name: "Private-" + uuid.New().String()[:8]})
 	if err != nil {
 		t.Fatalf("Create: %v", err)
 	}
@@ -168,12 +168,12 @@ func TestRepo_ListByUser(t *testing.T) {
 	suffix := uuid.New().String()[:8]
 	names := []string{"C-" + suffix, "A-" + suffix, "B-" + suffix}
 	for _, name := range names {
-		if _, err := repo.Create(ctx, user.ID, name, nil); err != nil {
+		if _, err := repo.Create(ctx, user.ID, &domain.Topic{Name: name}); err != nil {
 			t.Fatalf("Create %q: %v", name, err)
 		}
 	}
 
-	got, err := repo.ListByUser(ctx, user.ID)
+	got, err := repo.List(ctx, user.ID)
 	if err != nil {
 		t.Fatalf("ListByUser: unexpected error: %v", err)
 	}
@@ -200,7 +200,7 @@ func TestRepo_ListByUser_Empty(t *testing.T) {
 	ctx := context.Background()
 	user := testhelper.SeedUser(t, pool)
 
-	got, err := repo.ListByUser(ctx, user.ID)
+	got, err := repo.List(ctx, user.ID)
 	if err != nil {
 		t.Fatalf("ListByUser: unexpected error: %v", err)
 	}
@@ -224,14 +224,14 @@ func TestRepo_Update(t *testing.T) {
 	user := testhelper.SeedUser(t, pool)
 
 	desc := "original description"
-	created, err := repo.Create(ctx, user.ID, "Original-"+uuid.New().String()[:8], &desc)
+	created, err := repo.Create(ctx, user.ID, &domain.Topic{Name: "Original-" + uuid.New().String()[:8], Description: &desc})
 	if err != nil {
 		t.Fatalf("Create: %v", err)
 	}
 
 	newName := "Updated-" + uuid.New().String()[:8]
 	newDesc := "updated description"
-	err = repo.Update(ctx, user.ID, created.ID, newName, &newDesc)
+	_, err = repo.Update(ctx, user.ID, created.ID, domain.TopicUpdateParams{Name: &newName, Description: &newDesc})
 	if err != nil {
 		t.Fatalf("Update: unexpected error: %v", err)
 	}
@@ -259,7 +259,8 @@ func TestRepo_Update_NotFound(t *testing.T) {
 	ctx := context.Background()
 	user := testhelper.SeedUser(t, pool)
 
-	err := repo.Update(ctx, user.ID, uuid.New(), "name", nil)
+	name := "name"
+	_, err := repo.Update(ctx, user.ID, uuid.New(), domain.TopicUpdateParams{Name: &name})
 	assertIsDomainError(t, err, domain.ErrNotFound)
 }
 
@@ -271,13 +272,14 @@ func TestRepo_Update_WrongUser(t *testing.T) {
 	user1 := testhelper.SeedUser(t, pool)
 	user2 := testhelper.SeedUser(t, pool)
 
-	created, err := repo.Create(ctx, user1.ID, "UpdWrong-"+uuid.New().String()[:8], nil)
+	created, err := repo.Create(ctx, user1.ID, &domain.Topic{Name: "UpdWrong-" + uuid.New().String()[:8]})
 	if err != nil {
 		t.Fatalf("Create: %v", err)
 	}
 
 	// user2 should not be able to update user1's topic.
-	err = repo.Update(ctx, user2.ID, created.ID, "hacked", nil)
+	hackedName := "hacked"
+	_, err = repo.Update(ctx, user2.ID, created.ID, domain.TopicUpdateParams{Name: &hackedName})
 	assertIsDomainError(t, err, domain.ErrNotFound)
 }
 
@@ -291,7 +293,7 @@ func TestRepo_Delete(t *testing.T) {
 	ctx := context.Background()
 	user := testhelper.SeedUser(t, pool)
 
-	created, err := repo.Create(ctx, user.ID, "ToDelete-"+uuid.New().String()[:8], nil)
+	created, err := repo.Create(ctx, user.ID, &domain.Topic{Name: "ToDelete-" + uuid.New().String()[:8]})
 	if err != nil {
 		t.Fatalf("Create: %v", err)
 	}
@@ -325,7 +327,7 @@ func TestRepo_Delete_CascadeEntryTopics(t *testing.T) {
 	refEntry := testhelper.SeedRefEntry(t, pool, "cascade-"+uuid.New().String()[:8])
 	entry := testhelper.SeedEntry(t, pool, user.ID, refEntry.ID)
 
-	created, err := repo.Create(ctx, user.ID, "CascTopic-"+uuid.New().String()[:8], nil)
+	created, err := repo.Create(ctx, user.ID, &domain.Topic{Name: "CascTopic-" + uuid.New().String()[:8]})
 	if err != nil {
 		t.Fatalf("Create: %v", err)
 	}
@@ -388,11 +390,11 @@ func TestRepo_LinkEntry_AndGetByEntryID(t *testing.T) {
 	refEntry := testhelper.SeedRefEntry(t, pool, "link-"+uuid.New().String()[:8])
 	entry := testhelper.SeedEntry(t, pool, user.ID, refEntry.ID)
 
-	topic1, err := repo.Create(ctx, user.ID, "B-Topic-"+uuid.New().String()[:8], nil)
+	topic1, err := repo.Create(ctx, user.ID, &domain.Topic{Name: "B-Topic-" + uuid.New().String()[:8]})
 	if err != nil {
 		t.Fatalf("Create topic1: %v", err)
 	}
-	topic2, err := repo.Create(ctx, user.ID, "A-Topic-"+uuid.New().String()[:8], nil)
+	topic2, err := repo.Create(ctx, user.ID, &domain.Topic{Name: "A-Topic-" + uuid.New().String()[:8]})
 	if err != nil {
 		t.Fatalf("Create topic2: %v", err)
 	}
@@ -406,7 +408,7 @@ func TestRepo_LinkEntry_AndGetByEntryID(t *testing.T) {
 	}
 
 	// GetByEntryID should return both topics sorted by name.
-	got, err := repo.GetByEntryID(ctx, entry.ID)
+	got, err := repo.GetTopicsByEntryID(ctx, entry.ID)
 	if err != nil {
 		t.Fatalf("GetByEntryID: unexpected error: %v", err)
 	}
@@ -433,7 +435,7 @@ func TestRepo_LinkEntry_Idempotent(t *testing.T) {
 	refEntry := testhelper.SeedRefEntry(t, pool, "idem-"+uuid.New().String()[:8])
 	entry := testhelper.SeedEntry(t, pool, user.ID, refEntry.ID)
 
-	created, err := repo.Create(ctx, user.ID, "Idem-"+uuid.New().String()[:8], nil)
+	created, err := repo.Create(ctx, user.ID, &domain.Topic{Name: "Idem-" + uuid.New().String()[:8]})
 	if err != nil {
 		t.Fatalf("Create: %v", err)
 	}
@@ -450,7 +452,7 @@ func TestRepo_LinkEntry_Idempotent(t *testing.T) {
 	}
 
 	// Only 1 link should exist.
-	got, err := repo.GetByEntryID(ctx, entry.ID)
+	got, err := repo.GetTopicsByEntryID(ctx, entry.ID)
 	if err != nil {
 		t.Fatalf("GetByEntryID: %v", err)
 	}
@@ -472,7 +474,7 @@ func TestRepo_UnlinkEntry(t *testing.T) {
 	refEntry := testhelper.SeedRefEntry(t, pool, "unlink-"+uuid.New().String()[:8])
 	entry := testhelper.SeedEntry(t, pool, user.ID, refEntry.ID)
 
-	created, err := repo.Create(ctx, user.ID, "Unlink-"+uuid.New().String()[:8], nil)
+	created, err := repo.Create(ctx, user.ID, &domain.Topic{Name: "Unlink-" + uuid.New().String()[:8]})
 	if err != nil {
 		t.Fatalf("Create: %v", err)
 	}
@@ -489,7 +491,7 @@ func TestRepo_UnlinkEntry(t *testing.T) {
 	}
 
 	// Verify link is gone.
-	got, err := repo.GetByEntryID(ctx, entry.ID)
+	got, err := repo.GetTopicsByEntryID(ctx, entry.ID)
 	if err != nil {
 		t.Fatalf("GetByEntryID: %v", err)
 	}
@@ -507,7 +509,7 @@ func TestRepo_UnlinkEntry_NonExisting(t *testing.T) {
 	refEntry := testhelper.SeedRefEntry(t, pool, "unlinkne-"+uuid.New().String()[:8])
 	entry := testhelper.SeedEntry(t, pool, user.ID, refEntry.ID)
 
-	created, err := repo.Create(ctx, user.ID, "UnlinkNE-"+uuid.New().String()[:8], nil)
+	created, err := repo.Create(ctx, user.ID, &domain.Topic{Name: "UnlinkNE-" + uuid.New().String()[:8]})
 	if err != nil {
 		t.Fatalf("Create: %v", err)
 	}
@@ -534,11 +536,11 @@ func TestRepo_GetByEntryIDs_Batch(t *testing.T) {
 	entry1 := testhelper.SeedEntry(t, pool, user.ID, refEntry1.ID)
 	entry2 := testhelper.SeedEntry(t, pool, user.ID, refEntry2.ID)
 
-	topicA, err := repo.Create(ctx, user.ID, "BatchA-"+uuid.New().String()[:8], nil)
+	topicA, err := repo.Create(ctx, user.ID, &domain.Topic{Name: "BatchA-" + uuid.New().String()[:8]})
 	if err != nil {
 		t.Fatalf("Create topicA: %v", err)
 	}
-	topicB, err := repo.Create(ctx, user.ID, "BatchB-"+uuid.New().String()[:8], nil)
+	topicB, err := repo.Create(ctx, user.ID, &domain.Topic{Name: "BatchB-" + uuid.New().String()[:8]})
 	if err != nil {
 		t.Fatalf("Create topicB: %v", err)
 	}
@@ -618,7 +620,7 @@ func TestRepo_GetEntryIDsByTopicID(t *testing.T) {
 	entry1 := testhelper.SeedEntry(t, pool, user.ID, refEntry1.ID)
 	entry2 := testhelper.SeedEntry(t, pool, user.ID, refEntry2.ID)
 
-	created, err := repo.Create(ctx, user.ID, "EntryIDs-"+uuid.New().String()[:8], nil)
+	created, err := repo.Create(ctx, user.ID, &domain.Topic{Name: "EntryIDs-" + uuid.New().String()[:8]})
 	if err != nil {
 		t.Fatalf("Create: %v", err)
 	}
@@ -660,7 +662,7 @@ func TestRepo_GetEntryIDsByTopicID_Empty(t *testing.T) {
 	ctx := context.Background()
 	user := testhelper.SeedUser(t, pool)
 
-	created, err := repo.Create(ctx, user.ID, "NoEntries-"+uuid.New().String()[:8], nil)
+	created, err := repo.Create(ctx, user.ID, &domain.Topic{Name: "NoEntries-" + uuid.New().String()[:8]})
 	if err != nil {
 		t.Fatalf("Create: %v", err)
 	}
@@ -691,7 +693,7 @@ func TestRepo_GetByEntryID_Empty(t *testing.T) {
 	refEntry := testhelper.SeedRefEntry(t, pool, "empty-"+uuid.New().String()[:8])
 	entry := testhelper.SeedEntry(t, pool, user.ID, refEntry.ID)
 
-	got, err := repo.GetByEntryID(ctx, entry.ID)
+	got, err := repo.GetTopicsByEntryID(ctx, entry.ID)
 	if err != nil {
 		t.Fatalf("GetByEntryID: unexpected error: %v", err)
 	}

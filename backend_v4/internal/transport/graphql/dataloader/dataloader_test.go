@@ -10,16 +10,12 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/card"
-	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/example"
 	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/image"
 	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/pronunciation"
 	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/reviewlog"
 	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/topic"
-	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/translation"
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
 	dl "github.com/heartmarshall/myenglish-backend/internal/transport/graphql/dataloader"
-	"github.com/heartmarshall/myenglish-backend/pkg/ctxutil"
 )
 
 // ---------------------------------------------------------------------------
@@ -36,20 +32,20 @@ func (m *mockSenseRepo) GetByEntryIDs(_ context.Context, _ []uuid.UUID) ([]domai
 }
 
 type mockTranslationRepo struct {
-	result []translation.TranslationWithSenseID
+	result []domain.Translation
 	err    error
 }
 
-func (m *mockTranslationRepo) GetBySenseIDs(_ context.Context, _ []uuid.UUID) ([]translation.TranslationWithSenseID, error) {
+func (m *mockTranslationRepo) GetBySenseIDs(_ context.Context, _ []uuid.UUID) ([]domain.Translation, error) {
 	return m.result, m.err
 }
 
 type mockExampleRepo struct {
-	result []example.ExampleWithSenseID
+	result []domain.Example
 	err    error
 }
 
-func (m *mockExampleRepo) GetBySenseIDs(_ context.Context, _ []uuid.UUID) ([]example.ExampleWithSenseID, error) {
+func (m *mockExampleRepo) GetBySenseIDs(_ context.Context, _ []uuid.UUID) ([]domain.Example, error) {
 	return m.result, m.err
 }
 
@@ -77,11 +73,11 @@ func (m *mockImageRepo) GetUserByEntryIDs(_ context.Context, _ []uuid.UUID) ([]i
 }
 
 type mockCardRepo struct {
-	result []card.CardWithEntryID
+	result []domain.Card
 	err    error
 }
 
-func (m *mockCardRepo) GetByEntryIDs(_ context.Context, _ uuid.UUID, _ []uuid.UUID) ([]card.CardWithEntryID, error) {
+func (m *mockCardRepo) GetByEntryIDs(_ context.Context, _ []uuid.UUID) ([]domain.Card, error) {
 	return m.result, m.err
 }
 
@@ -204,10 +200,10 @@ func TestTranslationsLoader_GroupsBySenseID(t *testing.T) {
 
 	repos := emptyRepos()
 	repos.Translation = &mockTranslationRepo{
-		result: []translation.TranslationWithSenseID{
-			{SenseID: sense1, Translation: domain.Translation{ID: uuid.New()}},
-			{SenseID: sense2, Translation: domain.Translation{ID: uuid.New()}},
-			{SenseID: sense2, Translation: domain.Translation{ID: uuid.New()}},
+		result: []domain.Translation{
+			{ID: uuid.New(), SenseID: sense1},
+			{ID: uuid.New(), SenseID: sense2},
+			{ID: uuid.New(), SenseID: sense2},
 		},
 	}
 
@@ -226,17 +222,16 @@ func TestTranslationsLoader_GroupsBySenseID(t *testing.T) {
 func TestCardLoader_NullableResult(t *testing.T) {
 	entry1 := uuid.New()
 	entry2 := uuid.New() // no card for this entry
-	userID := uuid.New()
 
 	repos := emptyRepos()
 	repos.Card = &mockCardRepo{
-		result: []card.CardWithEntryID{
-			{EntryID: entry1, Card: domain.Card{ID: uuid.New()}},
+		result: []domain.Card{
+			{ID: uuid.New(), EntryID: entry1},
 		},
 	}
 
 	loaders := dl.NewLoaders(repos)
-	ctx := ctxutil.WithUserID(context.Background(), userID)
+	ctx := context.Background()
 
 	result1, err := loaders.CardByEntryID.Load(ctx, entry1)()
 	require.NoError(t, err)
@@ -245,16 +240,6 @@ func TestCardLoader_NullableResult(t *testing.T) {
 	result2, err := loaders.CardByEntryID.Load(ctx, entry2)()
 	require.NoError(t, err)
 	assert.Nil(t, result2, "should return nil for entry without card")
-}
-
-func TestCardLoader_ErrorOnMissingUserID(t *testing.T) {
-	repos := emptyRepos()
-	loaders := dl.NewLoaders(repos)
-
-	// No userID in context.
-	_, err := loaders.CardByEntryID.Load(context.Background(), uuid.New())()
-	require.Error(t, err)
-	assert.ErrorIs(t, err, domain.ErrUnauthorized)
 }
 
 func TestReviewLogsLoader_GroupsByCardID(t *testing.T) {

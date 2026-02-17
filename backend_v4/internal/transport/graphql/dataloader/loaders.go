@@ -7,7 +7,6 @@ import (
 	"github.com/graph-gophers/dataloader/v7"
 
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
-	"github.com/heartmarshall/myenglish-backend/pkg/ctxutil"
 )
 
 // ---------------------------------------------------------------------------
@@ -36,14 +35,14 @@ func newSensesBatchFn(repo senseRepo) dataloader.BatchFunc[uuid.UUID, []domain.S
 
 func newTranslationsBatchFn(repo translationRepo) dataloader.BatchFunc[uuid.UUID, []domain.Translation] {
 	return func(ctx context.Context, keys []uuid.UUID) []*dataloader.Result[[]domain.Translation] {
-		rows, err := repo.GetBySenseIDs(ctx, keys)
+		translations, err := repo.GetBySenseIDs(ctx, keys)
 		if err != nil {
 			return errorResults[[]domain.Translation](len(keys), err)
 		}
 
 		grouped := make(map[uuid.UUID][]domain.Translation, len(keys))
-		for _, r := range rows {
-			grouped[r.SenseID] = append(grouped[r.SenseID], r.Translation)
+		for _, tr := range translations {
+			grouped[tr.SenseID] = append(grouped[tr.SenseID], tr)
 		}
 
 		return mapResults(keys, grouped, emptySlice[domain.Translation])
@@ -56,14 +55,14 @@ func newTranslationsBatchFn(repo translationRepo) dataloader.BatchFunc[uuid.UUID
 
 func newExamplesBatchFn(repo exampleRepo) dataloader.BatchFunc[uuid.UUID, []domain.Example] {
 	return func(ctx context.Context, keys []uuid.UUID) []*dataloader.Result[[]domain.Example] {
-		rows, err := repo.GetBySenseIDs(ctx, keys)
+		examples, err := repo.GetBySenseIDs(ctx, keys)
 		if err != nil {
 			return errorResults[[]domain.Example](len(keys), err)
 		}
 
 		grouped := make(map[uuid.UUID][]domain.Example, len(keys))
-		for _, r := range rows {
-			grouped[r.SenseID] = append(grouped[r.SenseID], r.Example)
+		for _, ex := range examples {
+			grouped[ex.SenseID] = append(grouped[ex.SenseID], ex)
 		}
 
 		return mapResults(keys, grouped, emptySlice[domain.Example])
@@ -136,20 +135,15 @@ func newUserImagesBatchFn(repo imageRepo) dataloader.BatchFunc[uuid.UUID, []doma
 
 func newCardBatchFn(repo cardRepo) dataloader.BatchFunc[uuid.UUID, *domain.Card] {
 	return func(ctx context.Context, keys []uuid.UUID) []*dataloader.Result[*domain.Card] {
-		userID, ok := ctxutil.UserIDFromCtx(ctx)
-		if !ok {
-			return errorResults[*domain.Card](len(keys), domain.ErrUnauthorized)
-		}
-
-		rows, err := repo.GetByEntryIDs(ctx, userID, keys)
+		rows, err := repo.GetByEntryIDs(ctx, keys)
 		if err != nil {
 			return errorResults[*domain.Card](len(keys), err)
 		}
 
 		byEntry := make(map[uuid.UUID]*domain.Card, len(rows))
-		for _, r := range rows {
-			c := r.Card // copy to avoid aliasing
-			byEntry[r.EntryID] = &c
+		for i := range rows {
+			c := rows[i] // copy to avoid aliasing
+			byEntry[c.EntryID] = &c
 		}
 
 		results := make([]*dataloader.Result[*domain.Card], len(keys))

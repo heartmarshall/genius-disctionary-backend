@@ -184,7 +184,7 @@ func TestRepo_Update(t *testing.T) {
 	translationID := entry.Senses[0].Translations[0].ID
 	newText := "updated translation text"
 
-	got, err := repo.Update(ctx, translationID, &newText)
+	got, err := repo.Update(ctx, translationID, newText)
 	if err != nil {
 		t.Fatalf("Update: unexpected error: %v", err)
 	}
@@ -209,7 +209,7 @@ func TestRepo_Update_PreservesRefLink(t *testing.T) {
 
 	// Update text only.
 	newText := "user override translation"
-	got, err := repo.Update(ctx, translationID, &newText)
+	got, err := repo.Update(ctx, translationID, newText)
 	if err != nil {
 		t.Fatalf("Update: %v", err)
 	}
@@ -225,37 +225,13 @@ func TestRepo_Update_PreservesRefLink(t *testing.T) {
 	}
 }
 
-func TestRepo_Update_SetToNil(t *testing.T) {
-	t.Parallel()
-	repo, pool := newRepo(t)
-	ctx := context.Background()
-
-	user := testhelper.SeedUser(t, pool)
-	refEntry := testhelper.SeedRefEntry(t, pool, "tr-updnil-"+uuid.New().String()[:8])
-	entry := testhelper.SeedEntry(t, pool, user.ID, refEntry.ID)
-
-	translationID := entry.Senses[0].Translations[0].ID
-	refTranslation := refEntry.Senses[0].Translations[0]
-
-	// Set text to nil -- should fallback to ref via COALESCE.
-	got, err := repo.Update(ctx, translationID, nil)
-	if err != nil {
-		t.Fatalf("Update to nil: unexpected error: %v", err)
-	}
-
-	// COALESCE should resolve to ref text.
-	if got.Text == nil || *got.Text != refTranslation.Text {
-		t.Errorf("Text after nil update: got %v, want %q (from ref)", got.Text, refTranslation.Text)
-	}
-}
-
 func TestRepo_Update_NotFound(t *testing.T) {
 	t.Parallel()
 	repo, _ := newRepo(t)
 	ctx := context.Background()
 
 	text := "test"
-	_, err := repo.Update(ctx, uuid.New(), &text)
+	_, err := repo.Update(ctx, uuid.New(), text)
 	assertIsDomainError(t, err, domain.ErrNotFound)
 }
 
@@ -310,7 +286,7 @@ func TestRepo_Reorder(t *testing.T) {
 	tr1 := sense.Translations[1]
 
 	// Swap positions.
-	items := []translation.ReorderItem{
+	items := []domain.ReorderItem{
 		{ID: tr0.ID, Position: 1},
 		{ID: tr1.ID, Position: 0},
 	}
@@ -411,7 +387,7 @@ func TestRepo_GetBySenseIDs_Batch(t *testing.T) {
 	// Verify results can be grouped by sense_id.
 	bySense := make(map[uuid.UUID][]domain.Translation)
 	for _, tr := range got {
-		bySense[tr.SenseID] = append(bySense[tr.SenseID], tr.Translation)
+		bySense[tr.SenseID] = append(bySense[tr.SenseID], tr)
 	}
 
 	if len(bySense[sense0.ID]) != 2 {

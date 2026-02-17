@@ -167,6 +167,33 @@ func (r *Repo) UnlinkCatalog(ctx context.Context, entryID, refImageID uuid.UUID)
 // User image read operations
 // ---------------------------------------------------------------------------
 
+const getUserByIDSQL = `
+SELECT id, entry_id, url, caption, created_at
+FROM user_images
+WHERE id = $1`
+
+// GetUserByID returns a single user-uploaded image by its ID.
+// Returns domain.ErrNotFound if the image does not exist.
+func (r *Repo) GetUserByID(ctx context.Context, imageID uuid.UUID) (*domain.UserImage, error) {
+	querier := postgres.QuerierFromCtx(ctx, r.pool)
+
+	var (
+		id        uuid.UUID
+		entryID   uuid.UUID
+		url       string
+		caption   pgtype.Text
+		createdAt time.Time
+	)
+
+	err := querier.QueryRow(ctx, getUserByIDSQL, imageID).Scan(&id, &entryID, &url, &caption, &createdAt)
+	if err != nil {
+		return nil, mapError(err, "user_image", imageID)
+	}
+
+	img := buildDomainUserImage(id, entryID, url, caption, createdAt)
+	return &img, nil
+}
+
 // GetUserByEntryID returns all user-uploaded images for an entry.
 // Returns an empty slice (not nil) when no images exist.
 func (r *Repo) GetUserByEntryID(ctx context.Context, entryID uuid.UUID) ([]domain.UserImage, error) {
@@ -214,7 +241,7 @@ func (r *Repo) GetUserByEntryIDs(ctx context.Context, entryIDs []uuid.UUID) ([]U
 // ---------------------------------------------------------------------------
 
 // CreateUser creates a user-uploaded image and returns the persisted domain.UserImage.
-func (r *Repo) CreateUser(ctx context.Context, entryID uuid.UUID, url string, caption *string) (domain.UserImage, error) {
+func (r *Repo) CreateUser(ctx context.Context, entryID uuid.UUID, url string, caption *string) (*domain.UserImage, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	now := time.Now().UTC().Truncate(time.Microsecond)
@@ -226,10 +253,11 @@ func (r *Repo) CreateUser(ctx context.Context, entryID uuid.UUID, url string, ca
 		CreatedAt: now,
 	})
 	if err != nil {
-		return domain.UserImage{}, mapError(err, "user_image", uuid.Nil)
+		return nil, mapError(err, "user_image", uuid.Nil)
 	}
 
-	return toDomainUserImage(row), nil
+	img := toDomainUserImage(row)
+	return &img, nil
 }
 
 // DeleteUser removes a user image by ID. Returns domain.ErrNotFound if the image

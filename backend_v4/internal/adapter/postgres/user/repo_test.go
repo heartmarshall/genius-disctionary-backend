@@ -42,12 +42,12 @@ func TestRepo_Create_HappyPath(t *testing.T) {
 		UpdatedAt:     now,
 	}
 
-	got, err := repo.Create(ctx, u)
+	got, err := repo.Create(ctx, &u)
 	if err != nil {
 		t.Fatalf("Create: unexpected error: %v", err)
 	}
 
-	assertUserEqual(t, u, got)
+	assertUserEqual(t, u, *got)
 }
 
 func TestRepo_Create_DuplicateEmail(t *testing.T) {
@@ -67,7 +67,7 @@ func TestRepo_Create_DuplicateEmail(t *testing.T) {
 		CreatedAt:     now,
 		UpdatedAt:     now,
 	}
-	if _, err := repo.Create(ctx, u1); err != nil {
+	if _, err := repo.Create(ctx, &u1); err != nil {
 		t.Fatalf("Create first user: %v", err)
 	}
 
@@ -80,7 +80,7 @@ func TestRepo_Create_DuplicateEmail(t *testing.T) {
 		CreatedAt:     now,
 		UpdatedAt:     now,
 	}
-	_, err := repo.Create(ctx, u2)
+	_, err := repo.Create(ctx, &u2)
 	assertIsDomainError(t, err, domain.ErrAlreadyExists)
 }
 
@@ -102,7 +102,7 @@ func TestRepo_Create_DuplicateOAuth(t *testing.T) {
 		CreatedAt:     now,
 		UpdatedAt:     now,
 	}
-	if _, err := repo.Create(ctx, u1); err != nil {
+	if _, err := repo.Create(ctx, &u1); err != nil {
 		t.Fatalf("Create first user: %v", err)
 	}
 
@@ -115,7 +115,7 @@ func TestRepo_Create_DuplicateOAuth(t *testing.T) {
 		CreatedAt:     now,
 		UpdatedAt:     now,
 	}
-	_, err := repo.Create(ctx, u2)
+	_, err := repo.Create(ctx, &u2)
 	assertIsDomainError(t, err, domain.ErrAlreadyExists)
 }
 
@@ -210,7 +210,7 @@ func TestRepo_Update_HappyPath(t *testing.T) {
 	newName := "Updated Name"
 	newAvatar := "https://example.com/new-avatar.png"
 
-	got, err := repo.Update(ctx, seeded.ID, newName, &newAvatar)
+	got, err := repo.Update(ctx, seeded.ID, &newName, &newAvatar)
 	if err != nil {
 		t.Fatalf("Update: unexpected error: %v", err)
 	}
@@ -231,7 +231,8 @@ func TestRepo_Update_NotFound(t *testing.T) {
 	repo, _ := newRepo(t)
 	ctx := context.Background()
 
-	_, err := repo.Update(ctx, uuid.New(), "name", nil)
+	name := "name"
+	_, err := repo.Update(ctx, uuid.New(), &name, nil)
 	assertIsDomainError(t, err, domain.ErrNotFound)
 }
 
@@ -251,11 +252,12 @@ func TestRepo_Update_ClearAvatar(t *testing.T) {
 		CreatedAt:     now,
 		UpdatedAt:     now,
 	}
-	if _, err := repo.Create(ctx, u); err != nil {
+	if _, err := repo.Create(ctx, &u); err != nil {
 		t.Fatalf("Create: %v", err)
 	}
 
-	got, err := repo.Update(ctx, u.ID, "With Avatar", nil)
+	withAvatar := "With Avatar"
+	got, err := repo.Update(ctx, u.ID, &withAvatar, nil)
 	if err != nil {
 		t.Fatalf("Update: %v", err)
 	}
@@ -285,7 +287,7 @@ func TestRepo_CreateSettings_HappyPath(t *testing.T) {
 		CreatedAt:     now,
 		UpdatedAt:     now,
 	}
-	if _, err := repo.Create(ctx, u); err != nil {
+	if _, err := repo.Create(ctx, &u); err != nil {
 		t.Fatalf("Create user: %v", err)
 	}
 
@@ -297,9 +299,15 @@ func TestRepo_CreateSettings_HappyPath(t *testing.T) {
 		Timezone:        "Europe/Moscow",
 	}
 
-	got, err := repo.CreateSettings(ctx, s)
+	err := repo.CreateSettings(ctx, &s)
 	if err != nil {
 		t.Fatalf("CreateSettings: unexpected error: %v", err)
+	}
+
+	// Verify via GetSettings.
+	got, err := repo.GetSettings(ctx, u.ID)
+	if err != nil {
+		t.Fatalf("GetSettings: unexpected error: %v", err)
 	}
 
 	if got.UserID != s.UserID {
@@ -328,7 +336,7 @@ func TestRepo_CreateSettings_DuplicateUserID(t *testing.T) {
 	seeded := testhelper.SeedUser(t, pool)
 
 	s := domain.DefaultUserSettings(seeded.ID)
-	_, err := repo.CreateSettings(ctx, s)
+	err := repo.CreateSettings(ctx, &s)
 	assertIsDomainError(t, err, domain.ErrAlreadyExists)
 }
 
@@ -437,7 +445,7 @@ func TestRepo_OAuthProviderMapping(t *testing.T) {
 				UpdatedAt:     now,
 			}
 
-			created, err := repo.Create(ctx, u)
+			created, err := repo.Create(ctx, &u)
 			if err != nil {
 				t.Fatalf("Create: %v", err)
 			}

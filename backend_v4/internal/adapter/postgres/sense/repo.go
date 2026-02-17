@@ -20,12 +20,6 @@ import (
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
 )
 
-// ReorderItem holds a sense ID and its new position for batch reordering.
-type ReorderItem struct {
-	ID       uuid.UUID
-	Position int
-}
-
 // Repo provides sense persistence backed by PostgreSQL.
 type Repo struct {
 	pool *pgxpool.Pool
@@ -123,21 +117,21 @@ func (r *Repo) GetByEntryIDs(ctx context.Context, entryIDs []uuid.UUID) ([]domai
 }
 
 // GetByID returns a single sense with COALESCE-resolved fields.
-func (r *Repo) GetByID(ctx context.Context, senseID uuid.UUID) (domain.Sense, error) {
+func (r *Repo) GetByID(ctx context.Context, senseID uuid.UUID) (*domain.Sense, error) {
 	querier := postgres.QuerierFromCtx(ctx, r.pool)
 
 	row := querier.QueryRow(ctx, getByIDSQL, senseID)
 
 	sense, err := scanSenseRow(row)
 	if err != nil {
-		return domain.Sense{}, mapError(err, "sense", senseID)
+		return nil, mapError(err, "sense", senseID)
 	}
 
-	return sense, nil
+	return &sense, nil
 }
 
 // CountByEntry returns the number of senses for an entry.
-func (r *Repo) CountByEntry(ctx context.Context, entryID uuid.UUID) (int64, error) {
+func (r *Repo) CountByEntry(ctx context.Context, entryID uuid.UUID) (int, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	count, err := q.CountByEntry(ctx, entryID)
@@ -145,7 +139,12 @@ func (r *Repo) CountByEntry(ctx context.Context, entryID uuid.UUID) (int64, erro
 		return 0, fmt.Errorf("count senses: %w", err)
 	}
 
-	return count, nil
+	return int(count), nil
+}
+
+// CountByEntryID is an alias for CountByEntry, satisfying the study.senseRepo interface.
+func (r *Repo) CountByEntryID(ctx context.Context, entryID uuid.UUID) (int, error) {
+	return r.CountByEntry(ctx, entryID)
 }
 
 // ---------------------------------------------------------------------------
@@ -155,7 +154,7 @@ func (r *Repo) CountByEntry(ctx context.Context, entryID uuid.UUID) (int64, erro
 // CreateFromRef creates a sense linked to a reference sense. Fields
 // definition/part_of_speech/cefr_level stay NULL — COALESCE picks up ref values.
 // Position is auto-calculated as MAX(position)+1.
-func (r *Repo) CreateFromRef(ctx context.Context, entryID, refSenseID uuid.UUID, sourceSlug string) (domain.Sense, error) {
+func (r *Repo) CreateFromRef(ctx context.Context, entryID, refSenseID uuid.UUID, sourceSlug string) (*domain.Sense, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	now := time.Now().UTC().Truncate(time.Microsecond)
@@ -167,7 +166,7 @@ func (r *Repo) CreateFromRef(ctx context.Context, entryID, refSenseID uuid.UUID,
 		CreatedAt:  now,
 	})
 	if err != nil {
-		return domain.Sense{}, mapError(err, "sense", uuid.Nil)
+		return nil, mapError(err, "sense", uuid.Nil)
 	}
 
 	// The sqlc RETURNING gives raw values (without COALESCE). Re-read with COALESCE.
@@ -176,7 +175,7 @@ func (r *Repo) CreateFromRef(ctx context.Context, entryID, refSenseID uuid.UUID,
 
 // CreateCustom creates a custom sense with user-provided fields (no ref link).
 // Position is auto-calculated as MAX(position)+1.
-func (r *Repo) CreateCustom(ctx context.Context, entryID uuid.UUID, definition *string, partOfSpeech *domain.PartOfSpeech, cefrLevel *string, sourceSlug string) (domain.Sense, error) {
+func (r *Repo) CreateCustom(ctx context.Context, entryID uuid.UUID, definition *string, partOfSpeech *domain.PartOfSpeech, cefrLevel *string, sourceSlug string) (*domain.Sense, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	now := time.Now().UTC().Truncate(time.Microsecond)
@@ -190,15 +189,16 @@ func (r *Repo) CreateCustom(ctx context.Context, entryID uuid.UUID, definition *
 		CreatedAt:    now,
 	})
 	if err != nil {
-		return domain.Sense{}, mapError(err, "sense", uuid.Nil)
+		return nil, mapError(err, "sense", uuid.Nil)
 	}
 
-	return toDomainSense(row), nil
+	s := toDomainSense(row)
+	return &s, nil
 }
 
 // Update modifies sense fields. ref_sense_id is NOT touched (preserves origin link).
 // Returns the sense with COALESCE-resolved fields.
-func (r *Repo) Update(ctx context.Context, senseID uuid.UUID, definition *string, partOfSpeech *domain.PartOfSpeech, cefrLevel *string) (domain.Sense, error) {
+func (r *Repo) Update(ctx context.Context, senseID uuid.UUID, definition *string, partOfSpeech *domain.PartOfSpeech, cefrLevel *string) (*domain.Sense, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	_, err := q.UpdateSense(ctx, sqlc.UpdateSenseParams{
@@ -208,7 +208,7 @@ func (r *Repo) Update(ctx context.Context, senseID uuid.UUID, definition *string
 		CefrLevel:    ptrStringToPgText(cefrLevel),
 	})
 	if err != nil {
-		return domain.Sense{}, mapError(err, "sense", senseID)
+		return nil, mapError(err, "sense", senseID)
 	}
 
 	// Re-read with COALESCE to return resolved values.
@@ -231,7 +231,7 @@ func (r *Repo) Delete(ctx context.Context, senseID uuid.UUID) error {
 }
 
 // Reorder updates positions for a batch of senses atomically within a transaction.
-func (r *Repo) Reorder(ctx context.Context, items []ReorderItem) error {
+func (r *Repo) Reorder(ctx context.Context, items []domain.ReorderItem) error {
 	if len(items) == 0 {
 		return nil
 	}

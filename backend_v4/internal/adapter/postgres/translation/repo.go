@@ -19,19 +19,6 @@ import (
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
 )
 
-// ReorderItem holds a translation ID and its new position for batch reordering.
-type ReorderItem struct {
-	ID       uuid.UUID
-	Position int
-}
-
-// TranslationWithSenseID pairs a translation with its parent sense ID for
-// batch DataLoader grouping.
-type TranslationWithSenseID struct {
-	SenseID uuid.UUID
-	domain.Translation
-}
-
 // Repo provides translation persistence backed by PostgreSQL.
 type Repo struct {
 	pool *pgxpool.Pool
@@ -100,10 +87,10 @@ func (r *Repo) GetBySenseID(ctx context.Context, senseID uuid.UUID) ([]domain.Tr
 }
 
 // GetBySenseIDs returns translations for multiple senses (batch for DataLoader).
-// Results include SenseID for grouping by the caller.
-func (r *Repo) GetBySenseIDs(ctx context.Context, senseIDs []uuid.UUID) ([]TranslationWithSenseID, error) {
+// Results include SenseID in domain.Translation for grouping by the caller.
+func (r *Repo) GetBySenseIDs(ctx context.Context, senseIDs []uuid.UUID) ([]domain.Translation, error) {
 	if len(senseIDs) == 0 {
-		return []TranslationWithSenseID{}, nil
+		return []domain.Translation{}, nil
 	}
 
 	querier := postgres.QuerierFromCtx(ctx, r.pool)
@@ -114,30 +101,30 @@ func (r *Repo) GetBySenseIDs(ctx context.Context, senseIDs []uuid.UUID) ([]Trans
 	}
 	defer rows.Close()
 
-	result, err := scanTranslationsWithSenseID(rows)
+	translations, err := scanTranslations(rows)
 	if err != nil {
 		return nil, fmt.Errorf("get translations by sense_ids: %w", err)
 	}
 
-	return result, nil
+	return translations, nil
 }
 
 // GetByID returns a single translation with COALESCE-resolved text.
-func (r *Repo) GetByID(ctx context.Context, translationID uuid.UUID) (domain.Translation, error) {
+func (r *Repo) GetByID(ctx context.Context, translationID uuid.UUID) (*domain.Translation, error) {
 	querier := postgres.QuerierFromCtx(ctx, r.pool)
 
 	row := querier.QueryRow(ctx, getByIDSQL, translationID)
 
 	tr, err := scanTranslationRow(row)
 	if err != nil {
-		return domain.Translation{}, mapError(err, "translation", translationID)
+		return nil, mapError(err, "translation", translationID)
 	}
 
-	return tr, nil
+	return &tr, nil
 }
 
 // CountBySense returns the number of translations for a sense.
-func (r *Repo) CountBySense(ctx context.Context, senseID uuid.UUID) (int64, error) {
+func (r *Repo) CountBySense(ctx context.Context, senseID uuid.UUID) (int, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	count, err := q.CountBySense(ctx, senseID)
@@ -145,7 +132,7 @@ func (r *Repo) CountBySense(ctx context.Context, senseID uuid.UUID) (int64, erro
 		return 0, fmt.Errorf("count translations: %w", err)
 	}
 
-	return count, nil
+	return int(count), nil
 }
 
 // ---------------------------------------------------------------------------
@@ -155,7 +142,7 @@ func (r *Repo) CountBySense(ctx context.Context, senseID uuid.UUID) (int64, erro
 // CreateFromRef creates a translation linked to a reference translation. The text
 // field stays NULL -- COALESCE picks up the ref value.
 // Position is auto-calculated as MAX(position)+1.
-func (r *Repo) CreateFromRef(ctx context.Context, senseID, refTranslationID uuid.UUID, sourceSlug string) (domain.Translation, error) {
+func (r *Repo) CreateFromRef(ctx context.Context, senseID, refTranslationID uuid.UUID, sourceSlug string) (*domain.Translation, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	row, err := q.CreateTranslationFromRef(ctx, sqlc.CreateTranslationFromRefParams{
@@ -165,7 +152,7 @@ func (r *Repo) CreateFromRef(ctx context.Context, senseID, refTranslationID uuid
 		SourceSlug:       sourceSlug,
 	})
 	if err != nil {
-		return domain.Translation{}, mapError(err, "translation", uuid.Nil)
+		return nil, mapError(err, "translation", uuid.Nil)
 	}
 
 	// The sqlc RETURNING gives raw values (without COALESCE). Re-read with COALESCE.
@@ -174,7 +161,7 @@ func (r *Repo) CreateFromRef(ctx context.Context, senseID, refTranslationID uuid
 
 // CreateCustom creates a custom translation with user-provided text (no ref link).
 // Position is auto-calculated as MAX(position)+1.
-func (r *Repo) CreateCustom(ctx context.Context, senseID uuid.UUID, text string, sourceSlug string) (domain.Translation, error) {
+func (r *Repo) CreateCustom(ctx context.Context, senseID uuid.UUID, text string, sourceSlug string) (*domain.Translation, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	row, err := q.CreateTranslationCustom(ctx, sqlc.CreateTranslationCustomParams{
@@ -184,23 +171,24 @@ func (r *Repo) CreateCustom(ctx context.Context, senseID uuid.UUID, text string,
 		SourceSlug: sourceSlug,
 	})
 	if err != nil {
-		return domain.Translation{}, mapError(err, "translation", uuid.Nil)
+		return nil, mapError(err, "translation", uuid.Nil)
 	}
 
-	return toDomainTranslation(row), nil
+	tr := toDomainTranslation(row)
+	return &tr, nil
 }
 
 // Update modifies the translation text. ref_translation_id is NOT touched
 // (preserves origin link). Returns the translation with COALESCE-resolved text.
-func (r *Repo) Update(ctx context.Context, translationID uuid.UUID, text *string) (domain.Translation, error) {
+func (r *Repo) Update(ctx context.Context, translationID uuid.UUID, text string) (*domain.Translation, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	_, err := q.UpdateTranslation(ctx, sqlc.UpdateTranslationParams{
 		ID:   translationID,
-		Text: ptrStringToPgText(text),
+		Text: pgtype.Text{String: text, Valid: true},
 	})
 	if err != nil {
-		return domain.Translation{}, mapError(err, "translation", translationID)
+		return nil, mapError(err, "translation", translationID)
 	}
 
 	// Re-read with COALESCE to return resolved values.
@@ -223,7 +211,7 @@ func (r *Repo) Delete(ctx context.Context, translationID uuid.UUID) error {
 }
 
 // Reorder updates positions for a batch of translations atomically within a transaction.
-func (r *Repo) Reorder(ctx context.Context, items []ReorderItem) error {
+func (r *Repo) Reorder(ctx context.Context, items []domain.ReorderItem) error {
 	if len(items) == 0 {
 		return nil
 	}
@@ -267,40 +255,6 @@ func scanTranslations(rows pgx.Rows) ([]domain.Translation, error) {
 	}
 
 	return translations, nil
-}
-
-// scanTranslationsWithSenseID scans multiple rows including sense_id for batch grouping.
-func scanTranslationsWithSenseID(rows pgx.Rows) ([]TranslationWithSenseID, error) {
-	var result []TranslationWithSenseID
-	for rows.Next() {
-		var (
-			id               uuid.UUID
-			senseID          uuid.UUID
-			text             pgtype.Text
-			sourceSlug       string
-			position         int32
-			refTranslationID pgtype.UUID
-		)
-
-		if err := rows.Scan(&id, &senseID, &text, &sourceSlug, &position, &refTranslationID); err != nil {
-			return nil, err
-		}
-
-		tr := buildDomainTranslation(id, senseID, text, sourceSlug, position, refTranslationID)
-		result = append(result, TranslationWithSenseID{
-			SenseID:     senseID,
-			Translation: tr,
-		})
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	if result == nil {
-		result = []TranslationWithSenseID{}
-	}
-
-	return result, nil
 }
 
 // scanTranslationFromRows scans a single row from pgx.Rows into a domain.Translation.
@@ -418,14 +372,3 @@ func mapError(err error, entity string, id uuid.UUID) error {
 	return fmt.Errorf("%s %s: %w", entity, id, err)
 }
 
-// ---------------------------------------------------------------------------
-// pgtype helpers
-// ---------------------------------------------------------------------------
-
-// ptrStringToPgText converts a *string to pgtype.Text (nil -> NULL).
-func ptrStringToPgText(s *string) pgtype.Text {
-	if s == nil {
-		return pgtype.Text{}
-	}
-	return pgtype.Text{String: *s, Valid: true}
-}

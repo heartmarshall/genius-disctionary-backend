@@ -32,19 +32,20 @@ func New(pool *pgxpool.Pool) *Repo {
 // ---------------------------------------------------------------------------
 
 // GetByID returns a user by primary key.
-func (r *Repo) GetByID(ctx context.Context, id uuid.UUID) (domain.User, error) {
+func (r *Repo) GetByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	row, err := q.GetUserByID(ctx, id)
 	if err != nil {
-		return domain.User{}, mapError(err, "user", id)
+		return nil, mapError(err, "user", id)
 	}
 
-	return toDomainUser(row), nil
+	u := toDomainUser(row)
+	return &u, nil
 }
 
 // GetByOAuth returns a user by OAuth provider and external ID.
-func (r *Repo) GetByOAuth(ctx context.Context, provider domain.OAuthProvider, oauthID string) (domain.User, error) {
+func (r *Repo) GetByOAuth(ctx context.Context, provider domain.OAuthProvider, oauthID string) (*domain.User, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	row, err := q.GetUserByOAuth(ctx, sqlc.GetUserByOAuthParams{
@@ -52,26 +53,28 @@ func (r *Repo) GetByOAuth(ctx context.Context, provider domain.OAuthProvider, oa
 		OauthID:       oauthID,
 	})
 	if err != nil {
-		return domain.User{}, mapError(err, "user", uuid.Nil)
+		return nil, mapError(err, "user", uuid.Nil)
 	}
 
-	return toDomainUser(row), nil
+	u := toDomainUser(row)
+	return &u, nil
 }
 
 // GetByEmail returns a user by email address.
-func (r *Repo) GetByEmail(ctx context.Context, email string) (domain.User, error) {
+func (r *Repo) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	row, err := q.GetUserByEmail(ctx, email)
 	if err != nil {
-		return domain.User{}, mapError(err, "user", uuid.Nil)
+		return nil, mapError(err, "user", uuid.Nil)
 	}
 
-	return toDomainUser(row), nil
+	u := toDomainUser(row)
+	return &u, nil
 }
 
 // Create inserts a new user and returns the persisted domain.User.
-func (r *Repo) Create(ctx context.Context, u domain.User) (domain.User, error) {
+func (r *Repo) Create(ctx context.Context, u *domain.User) (*domain.User, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	row, err := q.CreateUser(ctx, sqlc.CreateUserParams{
@@ -85,26 +88,28 @@ func (r *Repo) Create(ctx context.Context, u domain.User) (domain.User, error) {
 		UpdatedAt:     u.UpdatedAt,
 	})
 	if err != nil {
-		return domain.User{}, mapError(err, "user", u.ID)
+		return nil, mapError(err, "user", u.ID)
 	}
 
-	return toDomainUser(row), nil
+	result := toDomainUser(row)
+	return &result, nil
 }
 
 // Update modifies name and avatar_url for the given user.
-func (r *Repo) Update(ctx context.Context, id uuid.UUID, name string, avatarURL *string) (domain.User, error) {
+func (r *Repo) Update(ctx context.Context, id uuid.UUID, name *string, avatarURL *string) (*domain.User, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	row, err := q.UpdateUser(ctx, sqlc.UpdateUserParams{
 		ID:        id,
-		Name:      stringToPgText(name),
+		Name:      ptrStringToPgText(name),
 		AvatarUrl: ptrStringToPgText(avatarURL),
 	})
 	if err != nil {
-		return domain.User{}, mapError(err, "user", id)
+		return nil, mapError(err, "user", id)
 	}
 
-	return toDomainUser(row), nil
+	u := toDomainUser(row)
+	return &u, nil
 }
 
 // ---------------------------------------------------------------------------
@@ -112,22 +117,23 @@ func (r *Repo) Update(ctx context.Context, id uuid.UUID, name string, avatarURL 
 // ---------------------------------------------------------------------------
 
 // GetSettings returns the settings for the given user.
-func (r *Repo) GetSettings(ctx context.Context, userID uuid.UUID) (domain.UserSettings, error) {
+func (r *Repo) GetSettings(ctx context.Context, userID uuid.UUID) (*domain.UserSettings, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	row, err := q.GetUserSettings(ctx, userID)
 	if err != nil {
-		return domain.UserSettings{}, mapError(err, "user_settings", userID)
+		return nil, mapError(err, "user_settings", userID)
 	}
 
-	return toDomainSettings(row), nil
+	s := toDomainSettings(row)
+	return &s, nil
 }
 
 // CreateSettings inserts new user settings.
-func (r *Repo) CreateSettings(ctx context.Context, s domain.UserSettings) (domain.UserSettings, error) {
+func (r *Repo) CreateSettings(ctx context.Context, s *domain.UserSettings) error {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
-	row, err := q.CreateUserSettings(ctx, sqlc.CreateUserSettingsParams{
+	_, err := q.CreateUserSettings(ctx, sqlc.CreateUserSettingsParams{
 		UserID:          s.UserID,
 		NewCardsPerDay:  int32(s.NewCardsPerDay),
 		ReviewsPerDay:   int32(s.ReviewsPerDay),
@@ -135,10 +141,10 @@ func (r *Repo) CreateSettings(ctx context.Context, s domain.UserSettings) (domai
 		Timezone:        s.Timezone,
 	})
 	if err != nil {
-		return domain.UserSettings{}, mapError(err, "user_settings", s.UserID)
+		return mapError(err, "user_settings", s.UserID)
 	}
 
-	return toDomainSettings(row), nil
+	return nil
 }
 
 // UpdateSettings updates the settings for the given user.
@@ -157,6 +163,11 @@ func (r *Repo) UpdateSettings(ctx context.Context, userID uuid.UUID, s domain.Us
 	}
 
 	return toDomainSettings(row), nil
+}
+
+// GetByUserID is an alias for GetSettings, satisfying the study service's settingsRepo interface.
+func (r *Repo) GetByUserID(ctx context.Context, userID uuid.UUID) (*domain.UserSettings, error) {
+	return r.GetSettings(ctx, userID)
 }
 
 // ---------------------------------------------------------------------------

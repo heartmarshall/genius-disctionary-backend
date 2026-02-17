@@ -25,12 +25,17 @@ import (
 // psql is the Squirrel statement builder configured for PostgreSQL dollar placeholders.
 var psql = sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 
-// FindResult holds the result of a Find query.
-type FindResult struct {
-	Entries     []domain.Entry
-	TotalCount  int
-	HasNextPage bool
-}
+const (
+	defaultLimit = 50
+	maxLimit     = 200
+
+	sortByText      = "text"
+	sortByCreatedAt = "created_at"
+	sortByUpdatedAt = "updated_at"
+
+	sortOrderASC  = "ASC"
+	sortOrderDESC = "DESC"
+)
 
 // Repo provides entry persistence backed by PostgreSQL.
 type Repo struct {
@@ -47,7 +52,7 @@ func New(pool *pgxpool.Pool) *Repo {
 // ---------------------------------------------------------------------------
 
 // GetByID returns a non-deleted entry by primary key.
-func (r *Repo) GetByID(ctx context.Context, userID, id uuid.UUID) (domain.Entry, error) {
+func (r *Repo) GetByID(ctx context.Context, userID, id uuid.UUID) (*domain.Entry, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	row, err := q.GetEntryByID(ctx, sqlc.GetEntryByIDParams{
@@ -55,14 +60,15 @@ func (r *Repo) GetByID(ctx context.Context, userID, id uuid.UUID) (domain.Entry,
 		UserID: userID,
 	})
 	if err != nil {
-		return domain.Entry{}, mapError(err, "entry", id)
+		return nil, mapError(err, "entry", id)
 	}
 
-	return toDomainEntry(row), nil
+	e := toDomainEntry(row)
+	return &e, nil
 }
 
 // GetByText returns a non-deleted entry by normalized text (for duplicate checking).
-func (r *Repo) GetByText(ctx context.Context, userID uuid.UUID, textNormalized string) (domain.Entry, error) {
+func (r *Repo) GetByText(ctx context.Context, userID uuid.UUID, textNormalized string) (*domain.Entry, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	row, err := q.GetEntryByText(ctx, sqlc.GetEntryByTextParams{
@@ -70,10 +76,11 @@ func (r *Repo) GetByText(ctx context.Context, userID uuid.UUID, textNormalized s
 		TextNormalized: textNormalized,
 	})
 	if err != nil {
-		return domain.Entry{}, mapError(err, "entry", uuid.Nil)
+		return nil, mapError(err, "entry", uuid.Nil)
 	}
 
-	return toDomainEntry(row), nil
+	e := toDomainEntry(row)
+	return &e, nil
 }
 
 // GetByIDs returns non-deleted entries by a batch of IDs.
@@ -101,7 +108,7 @@ func (r *Repo) GetByIDs(ctx context.Context, userID uuid.UUID, ids []uuid.UUID) 
 }
 
 // CountByUser returns the number of non-deleted entries for a user.
-func (r *Repo) CountByUser(ctx context.Context, userID uuid.UUID) (int64, error) {
+func (r *Repo) CountByUser(ctx context.Context, userID uuid.UUID) (int, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	count, err := q.CountEntriesByUser(ctx, userID)
@@ -109,31 +116,70 @@ func (r *Repo) CountByUser(ctx context.Context, userID uuid.UUID) (int64, error)
 		return 0, fmt.Errorf("count entries: %w", err)
 	}
 
-	return count, nil
+	return int(count), nil
 }
 
-// Find returns entries matching the given filter using dynamic SQL (Squirrel).
-// Supports both offset-based and cursor-based pagination.
-func (r *Repo) Find(ctx context.Context, userID uuid.UUID, f Filter) (FindResult, error) {
-	f.normalize()
+// ExistByIDs checks which of the given IDs exist as non-deleted entries for a user.
+// Returns a map of id -> true for each existing entry.
+func (r *Repo) ExistByIDs(ctx context.Context, userID uuid.UUID, ids []uuid.UUID) (map[uuid.UUID]bool, error) {
+	if len(ids) == 0 {
+		return map[uuid.UUID]bool{}, nil
+	}
+
+	querier := postgres.QuerierFromCtx(ctx, r.pool)
+
+	query, args, err := psql.
+		Select("id").
+		From("entries").
+		Where(sq.Eq{"user_id": userID}).
+		Where(sq.Eq{"id": ids}).
+		Where(sq.Expr("deleted_at IS NULL")).
+		ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("build exist by ids query: %w", err)
+	}
+
+	rows, err := querier.Query(ctx, query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("exist by ids: %w", err)
+	}
+	defer rows.Close()
+
+	result := make(map[uuid.UUID]bool, len(ids))
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, fmt.Errorf("scan entry id: %w", err)
+		}
+		result[id] = true
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate entry ids: %w", err)
+	}
+
+	return result, nil
+}
+
+// Find returns entries matching the given filter using offset-based pagination.
+// Always runs a COUNT query and returns (entries, totalCount, error).
+func (r *Repo) Find(ctx context.Context, userID uuid.UUID, f domain.EntryFilter) ([]domain.Entry, int, error) {
+	normalizeFilter(&f)
 
 	querier := postgres.QuerierFromCtx(ctx, r.pool)
 
 	// Build base WHERE conditions.
 	baseWhere := buildBaseWhere(userID, f)
 
-	// --- Count (only for offset mode) ---
+	// --- Count ---
 	var totalCount int
-	if !f.isCursor() {
-		countQB := psql.Select("count(*)").From("entries").Where(baseWhere)
-		countSQL, countArgs, err := countQB.ToSql()
-		if err != nil {
-			return FindResult{}, fmt.Errorf("build count query: %w", err)
-		}
+	countQB := psql.Select("count(*)").From("entries").Where(baseWhere)
+	countSQL, countArgs, err := countQB.ToSql()
+	if err != nil {
+		return nil, 0, fmt.Errorf("build count query: %w", err)
+	}
 
-		if err := querier.QueryRow(ctx, countSQL, countArgs...).Scan(&totalCount); err != nil {
-			return FindResult{}, fmt.Errorf("count entries: %w", err)
-		}
+	if err := querier.QueryRow(ctx, countSQL, countArgs...).Scan(&totalCount); err != nil {
+		return nil, 0, fmt.Errorf("count entries: %w", err)
 	}
 
 	// --- Data query ---
@@ -143,40 +189,120 @@ func (r *Repo) Find(ctx context.Context, userID uuid.UUID, f Filter) (FindResult
 	}
 	dataQB := psql.Select(cols...).From("entries").Where(baseWhere)
 
+	// Sorting.
+	sortCol := sortColumn(f.SortBy)
+	orderDir := f.SortOrder
+	dataQB = dataQB.OrderBy(sortCol + " " + orderDir + ", id " + orderDir)
+
+	// Limit.
+	dataQB = dataQB.Limit(uint64(f.Limit))
+
+	// Offset.
+	if f.Offset != nil && *f.Offset > 0 {
+		dataQB = dataQB.Offset(uint64(*f.Offset))
+	}
+
+	entries, err := scanEntries(ctx, querier, dataQB)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return entries, totalCount, nil
+}
+
+// FindCursor returns entries matching the given filter using cursor-based pagination.
+// Fetches limit+1 to detect hasNextPage. Returns (entries, hasNextPage, error).
+func (r *Repo) FindCursor(ctx context.Context, userID uuid.UUID, f domain.EntryFilter) ([]domain.Entry, bool, error) {
+	normalizeFilter(&f)
+
+	querier := postgres.QuerierFromCtx(ctx, r.pool)
+
+	// Build base WHERE conditions.
+	baseWhere := buildBaseWhere(userID, f)
+
+	// --- Data query ---
+	cols := []string{
+		"id", "user_id", "ref_entry_id", "text", "text_normalized",
+		"notes", "created_at", "updated_at",
+	}
+	dataQB := psql.Select(cols...).From("entries").Where(baseWhere)
+
 	// Cursor pagination: add keyset condition.
-	if f.isCursor() {
+	if f.Cursor != nil {
 		cursorWhere, err := decodeCursorWhere(f)
 		if err != nil {
-			return FindResult{}, err
+			return nil, false, err
 		}
 		dataQB = dataQB.Where(cursorWhere)
 	}
 
 	// Sorting.
-	sortCol := f.sortColumn()
+	sortCol := sortColumn(f.SortBy)
 	orderDir := f.SortOrder
 	dataQB = dataQB.OrderBy(sortCol + " " + orderDir + ", id " + orderDir)
 
-	// Fetch limit+1 to detect hasNextPage in cursor mode.
-	fetchLimit := f.Limit
-	if f.isCursor() {
-		fetchLimit = f.Limit + 1
-	}
+	// Fetch limit+1 to detect hasNextPage.
+	fetchLimit := f.Limit + 1
 	dataQB = dataQB.Limit(uint64(fetchLimit))
 
-	// Offset (only in offset mode).
-	if !f.isCursor() && f.Offset > 0 {
-		dataQB = dataQB.Offset(uint64(f.Offset))
+	entries, err := scanEntries(ctx, querier, dataQB)
+	if err != nil {
+		return nil, false, err
+	}
+
+	// Determine hasNextPage.
+	var hasNextPage bool
+	if len(entries) > f.Limit {
+		hasNextPage = true
+		entries = entries[:f.Limit]
+	}
+
+	return entries, hasNextPage, nil
+}
+
+// FindDeleted returns soft-deleted entries for a user with offset-based pagination.
+// Returns (entries, totalCount, error).
+func (r *Repo) FindDeleted(ctx context.Context, userID uuid.UUID, limit, offset int) ([]domain.Entry, int, error) {
+	querier := postgres.QuerierFromCtx(ctx, r.pool)
+
+	baseWhere := sq.And{
+		sq.Eq{"user_id": userID},
+		sq.Expr("deleted_at IS NOT NULL"),
+	}
+
+	// --- Count ---
+	var totalCount int
+	countQB := psql.Select("count(*)").From("entries").Where(baseWhere)
+	countSQL, countArgs, err := countQB.ToSql()
+	if err != nil {
+		return nil, 0, fmt.Errorf("build count query: %w", err)
+	}
+
+	if err := querier.QueryRow(ctx, countSQL, countArgs...).Scan(&totalCount); err != nil {
+		return nil, 0, fmt.Errorf("count deleted entries: %w", err)
+	}
+
+	// --- Data query ---
+	cols := []string{
+		"id", "user_id", "ref_entry_id", "text", "text_normalized",
+		"notes", "created_at", "updated_at", "deleted_at",
+	}
+	dataQB := psql.Select(cols...).From("entries").Where(baseWhere).
+		OrderBy("deleted_at DESC").
+		Limit(uint64(limit))
+
+	if offset > 0 {
+		dataQB = dataQB.Offset(uint64(offset))
 	}
 
 	dataSQL, dataArgs, err := dataQB.ToSql()
 	if err != nil {
-		return FindResult{}, fmt.Errorf("build data query: %w", err)
+		return nil, 0, fmt.Errorf("build find deleted query: %w", err)
 	}
 
 	rows, err := querier.Query(ctx, dataSQL, dataArgs...)
 	if err != nil {
-		return FindResult{}, fmt.Errorf("find entries: %w", err)
+		return nil, 0, fmt.Errorf("find deleted entries: %w", err)
 	}
 	defer rows.Close()
 
@@ -191,9 +317,10 @@ func (r *Repo) Find(ctx context.Context, userID uuid.UUID, f Filter) (FindResult
 			notes          pgtype.Text
 			createdAt      time.Time
 			updatedAt      time.Time
+			deletedAt      *time.Time
 		)
-		if err := rows.Scan(&id, &uid, &refEntryID, &text, &textNormalized, &notes, &createdAt, &updatedAt); err != nil {
-			return FindResult{}, fmt.Errorf("scan entry: %w", err)
+		if err := rows.Scan(&id, &uid, &refEntryID, &text, &textNormalized, &notes, &createdAt, &updatedAt, &deletedAt); err != nil {
+			return nil, 0, fmt.Errorf("scan deleted entry: %w", err)
 		}
 
 		e := domain.Entry{
@@ -203,6 +330,7 @@ func (r *Repo) Find(ctx context.Context, userID uuid.UUID, f Filter) (FindResult
 			TextNormalized: textNormalized,
 			CreatedAt:      createdAt,
 			UpdatedAt:      updatedAt,
+			DeletedAt:      deletedAt,
 		}
 		if refEntryID.Valid {
 			rid := uuid.UUID(refEntryID.Bytes)
@@ -214,25 +342,14 @@ func (r *Repo) Find(ctx context.Context, userID uuid.UUID, f Filter) (FindResult
 		entries = append(entries, e)
 	}
 	if err := rows.Err(); err != nil {
-		return FindResult{}, fmt.Errorf("iterate entries: %w", err)
+		return nil, 0, fmt.Errorf("iterate deleted entries: %w", err)
 	}
 
 	if entries == nil {
 		entries = []domain.Entry{}
 	}
 
-	// Determine hasNextPage for cursor mode.
-	var hasNextPage bool
-	if f.isCursor() && len(entries) > f.Limit {
-		hasNextPage = true
-		entries = entries[:f.Limit]
-	}
-
-	return FindResult{
-		Entries:     entries,
-		TotalCount:  totalCount,
-		HasNextPage: hasNextPage,
-	}, nil
+	return entries, totalCount, nil
 }
 
 // ---------------------------------------------------------------------------
@@ -240,28 +357,29 @@ func (r *Repo) Find(ctx context.Context, userID uuid.UUID, f Filter) (FindResult
 // ---------------------------------------------------------------------------
 
 // Create inserts a new entry and returns the persisted domain.Entry.
-func (r *Repo) Create(ctx context.Context, userID uuid.UUID, e domain.Entry) (domain.Entry, error) {
+func (r *Repo) Create(ctx context.Context, entry *domain.Entry) (*domain.Entry, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	row, err := q.CreateEntry(ctx, sqlc.CreateEntryParams{
-		ID:             e.ID,
-		UserID:         userID,
-		RefEntryID:     uuidPtrToPgtype(e.RefEntryID),
-		Text:           e.Text,
-		TextNormalized: e.TextNormalized,
-		Notes:          ptrStringToPgText(e.Notes),
-		CreatedAt:      e.CreatedAt,
-		UpdatedAt:      e.UpdatedAt,
+		ID:             entry.ID,
+		UserID:         entry.UserID,
+		RefEntryID:     uuidPtrToPgtype(entry.RefEntryID),
+		Text:           entry.Text,
+		TextNormalized: entry.TextNormalized,
+		Notes:          ptrStringToPgText(entry.Notes),
+		CreatedAt:      entry.CreatedAt,
+		UpdatedAt:      entry.UpdatedAt,
 	})
 	if err != nil {
-		return domain.Entry{}, mapError(err, "entry", e.ID)
+		return nil, mapError(err, "entry", entry.ID)
 	}
 
-	return toDomainEntry(row), nil
+	e := toDomainEntry(row)
+	return &e, nil
 }
 
 // UpdateNotes updates the notes field for a non-deleted entry.
-func (r *Repo) UpdateNotes(ctx context.Context, userID, id uuid.UUID, notes *string) (domain.Entry, error) {
+func (r *Repo) UpdateNotes(ctx context.Context, userID, id uuid.UUID, notes *string) (*domain.Entry, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	row, err := q.UpdateEntryNotes(ctx, sqlc.UpdateEntryNotesParams{
@@ -270,10 +388,11 @@ func (r *Repo) UpdateNotes(ctx context.Context, userID, id uuid.UUID, notes *str
 		Notes:  ptrStringToPgText(notes),
 	})
 	if err != nil {
-		return domain.Entry{}, mapError(err, "entry", id)
+		return nil, mapError(err, "entry", id)
 	}
 
-	return toDomainEntry(row), nil
+	e := toDomainEntry(row)
+	return &e, nil
 }
 
 // SoftDelete sets deleted_at on a non-deleted entry. Idempotent: if already
@@ -291,7 +410,7 @@ func (r *Repo) SoftDelete(ctx context.Context, userID, id uuid.UUID) error {
 }
 
 // Restore undeletes a soft-deleted entry.
-func (r *Repo) Restore(ctx context.Context, userID, id uuid.UUID) (domain.Entry, error) {
+func (r *Repo) Restore(ctx context.Context, userID, id uuid.UUID) (*domain.Entry, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	row, err := q.RestoreEntry(ctx, sqlc.RestoreEntryParams{
@@ -299,10 +418,11 @@ func (r *Repo) Restore(ctx context.Context, userID, id uuid.UUID) (domain.Entry,
 		UserID: userID,
 	})
 	if err != nil {
-		return domain.Entry{}, mapError(err, "entry", id)
+		return nil, mapError(err, "entry", id)
 	}
 
-	return toDomainEntry(row), nil
+	e := toDomainEntry(row)
+	return &e, nil
 }
 
 // HardDeleteOld permanently removes soft-deleted entries older than threshold.
@@ -358,13 +478,13 @@ func decodeCursor(cursor string) (string, uuid.UUID, error) {
 }
 
 // decodeCursorWhere builds a Squirrel WHERE clause for keyset pagination.
-func decodeCursorWhere(f Filter) (sq.Sqlizer, error) {
+func decodeCursorWhere(f domain.EntryFilter) (sq.Sqlizer, error) {
 	sortValue, entryID, err := decodeCursor(*f.Cursor)
 	if err != nil {
 		return nil, err
 	}
 
-	col := f.sortColumn()
+	col := sortColumn(f.SortBy)
 	op := ">"
 	if f.SortOrder == sortOrderDESC {
 		op = "<"
@@ -401,11 +521,54 @@ func CursorFromEntry(e domain.Entry, sortBy string) string {
 }
 
 // ---------------------------------------------------------------------------
+// Filter normalization
+// ---------------------------------------------------------------------------
+
+// normalizeFilter applies defaults and clamps values to a domain.EntryFilter.
+func normalizeFilter(f *domain.EntryFilter) {
+	// Sort column.
+	switch f.SortBy {
+	case sortByText, sortByCreatedAt, sortByUpdatedAt:
+		// valid
+	default:
+		f.SortBy = sortByCreatedAt
+	}
+
+	// Sort order.
+	switch f.SortOrder {
+	case sortOrderASC, sortOrderDESC:
+		// valid
+	default:
+		f.SortOrder = sortOrderDESC
+	}
+
+	// Limit.
+	if f.Limit <= 0 {
+		f.Limit = defaultLimit
+	}
+	if f.Limit > maxLimit {
+		f.Limit = maxLimit
+	}
+}
+
+// sortColumn returns the SQL column name for the given SortBy value.
+func sortColumn(sortBy string) string {
+	switch sortBy {
+	case sortByText:
+		return "text_normalized"
+	case sortByUpdatedAt:
+		return "updated_at"
+	default:
+		return "created_at"
+	}
+}
+
+// ---------------------------------------------------------------------------
 // Dynamic WHERE builder (shared between count and data queries)
 // ---------------------------------------------------------------------------
 
 // buildBaseWhere constructs the shared WHERE conditions for Find.
-func buildBaseWhere(userID uuid.UUID, f Filter) sq.And {
+func buildBaseWhere(userID uuid.UUID, f domain.EntryFilter) sq.And {
 	where := sq.And{
 		sq.Eq{"user_id": userID},
 		sq.Expr("deleted_at IS NULL"),
@@ -445,6 +608,66 @@ func buildBaseWhere(userID uuid.UUID, f Filter) sq.And {
 	}
 
 	return where
+}
+
+// ---------------------------------------------------------------------------
+// scanEntries scans entry rows from a Squirrel query builder.
+// ---------------------------------------------------------------------------
+
+func scanEntries(ctx context.Context, querier postgres.Querier, qb sq.SelectBuilder) ([]domain.Entry, error) {
+	dataSQL, dataArgs, err := qb.ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("build data query: %w", err)
+	}
+
+	rows, err := querier.Query(ctx, dataSQL, dataArgs...)
+	if err != nil {
+		return nil, fmt.Errorf("find entries: %w", err)
+	}
+	defer rows.Close()
+
+	var entries []domain.Entry
+	for rows.Next() {
+		var (
+			id             uuid.UUID
+			uid            uuid.UUID
+			refEntryID     pgtype.UUID
+			text           string
+			textNormalized string
+			notes          pgtype.Text
+			createdAt      time.Time
+			updatedAt      time.Time
+		)
+		if err := rows.Scan(&id, &uid, &refEntryID, &text, &textNormalized, &notes, &createdAt, &updatedAt); err != nil {
+			return nil, fmt.Errorf("scan entry: %w", err)
+		}
+
+		e := domain.Entry{
+			ID:             id,
+			UserID:         uid,
+			Text:           text,
+			TextNormalized: textNormalized,
+			CreatedAt:      createdAt,
+			UpdatedAt:      updatedAt,
+		}
+		if refEntryID.Valid {
+			rid := uuid.UUID(refEntryID.Bytes)
+			e.RefEntryID = &rid
+		}
+		if notes.Valid {
+			e.Notes = &notes.String
+		}
+		entries = append(entries, e)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate entries: %w", err)
+	}
+
+	if entries == nil {
+		entries = []domain.Entry{}
+	}
+
+	return entries, nil
 }
 
 // ---------------------------------------------------------------------------

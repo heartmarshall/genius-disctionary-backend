@@ -20,18 +20,6 @@ import (
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
 )
 
-// ReorderItem holds an example ID and its new position for batch reordering.
-type ReorderItem struct {
-	ID       uuid.UUID
-	Position int
-}
-
-// ExampleWithSenseID wraps a domain.Example with the parent SenseID for batch grouping.
-type ExampleWithSenseID struct {
-	SenseID uuid.UUID
-	domain.Example
-}
-
 // Repo provides example persistence backed by PostgreSQL.
 type Repo struct {
 	pool *pgxpool.Pool
@@ -103,10 +91,10 @@ func (r *Repo) GetBySenseID(ctx context.Context, senseID uuid.UUID) ([]domain.Ex
 }
 
 // GetBySenseIDs returns examples for multiple senses (batch for DataLoader).
-// Results include SenseID for grouping by the caller.
-func (r *Repo) GetBySenseIDs(ctx context.Context, senseIDs []uuid.UUID) ([]ExampleWithSenseID, error) {
+// Results include SenseID in domain.Example for grouping by the caller.
+func (r *Repo) GetBySenseIDs(ctx context.Context, senseIDs []uuid.UUID) ([]domain.Example, error) {
 	if len(senseIDs) == 0 {
-		return []ExampleWithSenseID{}, nil
+		return []domain.Example{}, nil
 	}
 
 	querier := postgres.QuerierFromCtx(ctx, r.pool)
@@ -117,7 +105,7 @@ func (r *Repo) GetBySenseIDs(ctx context.Context, senseIDs []uuid.UUID) ([]Examp
 	}
 	defer rows.Close()
 
-	examples, err := scanExamplesWithSenseID(rows)
+	examples, err := scanExamples(rows)
 	if err != nil {
 		return nil, fmt.Errorf("get examples by sense_ids: %w", err)
 	}
@@ -126,21 +114,21 @@ func (r *Repo) GetBySenseIDs(ctx context.Context, senseIDs []uuid.UUID) ([]Examp
 }
 
 // GetByID returns a single example with COALESCE-resolved fields.
-func (r *Repo) GetByID(ctx context.Context, exampleID uuid.UUID) (domain.Example, error) {
+func (r *Repo) GetByID(ctx context.Context, exampleID uuid.UUID) (*domain.Example, error) {
 	querier := postgres.QuerierFromCtx(ctx, r.pool)
 
 	row := querier.QueryRow(ctx, getByIDSQL, exampleID)
 
 	example, err := scanExampleRow(row)
 	if err != nil {
-		return domain.Example{}, mapError(err, "example", exampleID)
+		return nil, mapError(err, "example", exampleID)
 	}
 
-	return example, nil
+	return &example, nil
 }
 
 // CountBySense returns the number of examples for a sense.
-func (r *Repo) CountBySense(ctx context.Context, senseID uuid.UUID) (int64, error) {
+func (r *Repo) CountBySense(ctx context.Context, senseID uuid.UUID) (int, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	count, err := q.CountBySense(ctx, senseID)
@@ -148,7 +136,7 @@ func (r *Repo) CountBySense(ctx context.Context, senseID uuid.UUID) (int64, erro
 		return 0, fmt.Errorf("count examples: %w", err)
 	}
 
-	return count, nil
+	return int(count), nil
 }
 
 // ---------------------------------------------------------------------------
@@ -158,7 +146,7 @@ func (r *Repo) CountBySense(ctx context.Context, senseID uuid.UUID) (int64, erro
 // CreateFromRef creates an example linked to a reference example. Fields
 // sentence/translation stay NULL — COALESCE picks up ref values.
 // Position is auto-calculated as MAX(position)+1.
-func (r *Repo) CreateFromRef(ctx context.Context, senseID, refExampleID uuid.UUID, sourceSlug string) (domain.Example, error) {
+func (r *Repo) CreateFromRef(ctx context.Context, senseID, refExampleID uuid.UUID, sourceSlug string) (*domain.Example, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	now := time.Now().UTC().Truncate(time.Microsecond)
@@ -170,7 +158,7 @@ func (r *Repo) CreateFromRef(ctx context.Context, senseID, refExampleID uuid.UUI
 		CreatedAt:    now,
 	})
 	if err != nil {
-		return domain.Example{}, mapError(err, "example", uuid.Nil)
+		return nil, mapError(err, "example", uuid.Nil)
 	}
 
 	// The sqlc RETURNING gives raw values (without COALESCE). Re-read with COALESCE.
@@ -179,37 +167,38 @@ func (r *Repo) CreateFromRef(ctx context.Context, senseID, refExampleID uuid.UUI
 
 // CreateCustom creates a custom example with user-provided fields (no ref link).
 // Position is auto-calculated as MAX(position)+1.
-func (r *Repo) CreateCustom(ctx context.Context, senseID uuid.UUID, sentence, translation *string, sourceSlug string) (domain.Example, error) {
+func (r *Repo) CreateCustom(ctx context.Context, senseID uuid.UUID, sentence string, translation *string, sourceSlug string) (*domain.Example, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	now := time.Now().UTC().Truncate(time.Microsecond)
 	row, err := q.CreateExampleCustom(ctx, sqlc.CreateExampleCustomParams{
 		ID:          uuid.New(),
 		SenseID:     senseID,
-		Sentence:    ptrStringToPgText(sentence),
+		Sentence:    pgtype.Text{String: sentence, Valid: true},
 		Translation: ptrStringToPgText(translation),
 		SourceSlug:  sourceSlug,
 		CreatedAt:   now,
 	})
 	if err != nil {
-		return domain.Example{}, mapError(err, "example", uuid.Nil)
+		return nil, mapError(err, "example", uuid.Nil)
 	}
 
-	return toDomainExample(row), nil
+	e := toDomainExample(row)
+	return &e, nil
 }
 
 // Update modifies example fields. ref_example_id is NOT touched (preserves origin link).
 // Returns the example with COALESCE-resolved fields.
-func (r *Repo) Update(ctx context.Context, exampleID uuid.UUID, sentence, translation *string) (domain.Example, error) {
+func (r *Repo) Update(ctx context.Context, exampleID uuid.UUID, sentence string, translation *string) (*domain.Example, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	_, err := q.UpdateExample(ctx, sqlc.UpdateExampleParams{
 		ID:          exampleID,
-		Sentence:    ptrStringToPgText(sentence),
+		Sentence:    pgtype.Text{String: sentence, Valid: true},
 		Translation: ptrStringToPgText(translation),
 	})
 	if err != nil {
-		return domain.Example{}, mapError(err, "example", exampleID)
+		return nil, mapError(err, "example", exampleID)
 	}
 
 	// Re-read with COALESCE to return resolved values.
@@ -232,7 +221,7 @@ func (r *Repo) Delete(ctx context.Context, exampleID uuid.UUID) error {
 }
 
 // Reorder updates positions for a batch of examples atomically within a transaction.
-func (r *Repo) Reorder(ctx context.Context, items []ReorderItem) error {
+func (r *Repo) Reorder(ctx context.Context, items []domain.ReorderItem) error {
 	if len(items) == 0 {
 		return nil
 	}
@@ -273,30 +262,6 @@ func scanExamples(rows pgx.Rows) ([]domain.Example, error) {
 
 	if examples == nil {
 		examples = []domain.Example{}
-	}
-
-	return examples, nil
-}
-
-// scanExamplesWithSenseID scans multiple rows into ExampleWithSenseID slices (for batch).
-func scanExamplesWithSenseID(rows pgx.Rows) ([]ExampleWithSenseID, error) {
-	var examples []ExampleWithSenseID
-	for rows.Next() {
-		e, err := scanExampleFromRows(rows)
-		if err != nil {
-			return nil, err
-		}
-		examples = append(examples, ExampleWithSenseID{
-			SenseID: e.SenseID,
-			Example: e,
-		})
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	if examples == nil {
-		examples = []ExampleWithSenseID{}
 	}
 
 	return examples, nil
