@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './auth/AuthProvider'
 import { LoginPage } from './auth/LoginPage'
 import { Layout } from './components/Layout'
+import { CatalogPage } from './pages/CatalogPage'
 
 function Placeholder({ name }: { name: string }) {
   return <div className="p-6 text-gray-500">Page: {name} (coming soon)</div>
@@ -15,7 +16,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route element={<Layout />}>
             <Route path="/" element={<Navigate to="/dictionary" replace />} />
-            <Route path="/catalog" element={<Placeholder name="Catalog" />} />
+            <Route path="/catalog" element={<CatalogPage />} />
             <Route path="/dictionary" element={<Placeholder name="Dictionary" />} />
             <Route path="/entry/:id" element={<Placeholder name="Entry Detail" />} />
             <Route path="/study" element={<Placeholder name="Study" />} />
