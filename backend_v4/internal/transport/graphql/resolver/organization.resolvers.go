@@ -1,8 +1,5 @@
 package resolver
 
-//go:generate moq -out topic_service_mock_test.go -pkg resolver . topicService
-//go:generate moq -out inbox_service_mock_test.go -pkg resolver . inboxService
-
 // This file will be automatically regenerated based on the schema, any resolver
 // implementations
 // will be copied through when generating and any unknown code will be moved to the end.

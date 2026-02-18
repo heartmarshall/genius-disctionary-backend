@@ -51,6 +51,7 @@ type AuthConfig struct {
 	JWTIssuer          string        `yaml:"jwt_issuer"           env:"AUTH_JWT_ISSUER"           env-default:"myenglish"`
 	AccessTokenTTL     time.Duration `yaml:"access_token_ttl"     env:"AUTH_ACCESS_TOKEN_TTL"     env-default:"15m"`
 	RefreshTokenTTL    time.Duration `yaml:"refresh_token_ttl"    env:"AUTH_REFRESH_TOKEN_TTL"    env-default:"720h"`
+	PasswordHashCost   int           `yaml:"password_hash_cost"   env:"AUTH_PASSWORD_HASH_COST"   env-default:"12"`
 	GoogleClientID     string        `yaml:"google_client_id"     env:"AUTH_GOOGLE_CLIENT_ID"`
 	GoogleClientSecret string        `yaml:"google_client_secret" env:"AUTH_GOOGLE_CLIENT_SECRET"`
 	GoogleRedirectURI  string        `yaml:"google_redirect_uri"  env:"AUTH_GOOGLE_REDIRECT_URI"`

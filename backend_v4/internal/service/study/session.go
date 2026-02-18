@@ -1,0 +1,204 @@
+package study
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"log/slog"
+	"time"
+
+	"github.com/google/uuid"
+	"github.com/heartmarshall/myenglish-backend/internal/domain"
+	"github.com/heartmarshall/myenglish-backend/pkg/ctxutil"
+)
+
+// GetActiveSession returns the user's active study session, or nil if none.
+func (s *Service) GetActiveSession(ctx context.Context) (*domain.StudySession, error) {
+	userID, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	session, err := s.sessions.GetActive(ctx, userID)
+	if err != nil {
+		if errors.Is(err, domain.ErrNotFound) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("get active session: %w", err)
+	}
+	return session, nil
+}
+
+// StartSession starts a new study session or returns existing ACTIVE session (idempotent).
+func (s *Service) StartSession(ctx context.Context) (*domain.StudySession, error) {
+	userID, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	// Check for existing ACTIVE session first
+	existing, err := s.sessions.GetActive(ctx, userID)
+	if err == nil {
+		// Found existing ACTIVE session - return it (idempotent)
+		s.log.InfoContext(ctx, "returning existing session",
+			slog.String("user_id", userID.String()),
+			slog.String("session_id", existing.ID.String()),
+		)
+		return existing, nil
+	}
+	if err != nil && !errors.Is(err, domain.ErrNotFound) {
+		return nil, fmt.Errorf("check active session: %w", err)
+	}
+
+	// No active session - create new one
+	session := &domain.StudySession{
+		ID:        uuid.New(),
+		UserID:    userID,
+		Status:    domain.SessionStatusActive,
+		StartedAt: time.Now(),
+	}
+
+	created, err := s.sessions.Create(ctx, session)
+	if err != nil {
+		// Race condition: another request created session between check and create
+		if errors.Is(err, domain.ErrAlreadyExists) {
+			// Retry: fetch the session that was just created
+			existing, getErr := s.sessions.GetActive(ctx, userID)
+			if getErr != nil {
+				return nil, fmt.Errorf("get active after race: %w", getErr)
+			}
+			s.log.InfoContext(ctx, "race condition detected, returning existing session",
+				slog.String("user_id", userID.String()),
+				slog.String("session_id", existing.ID.String()),
+			)
+			return existing, nil
+		}
+		return nil, fmt.Errorf("create session: %w", err)
+	}
+
+	s.log.InfoContext(ctx, "session started",
+		slog.String("user_id", userID.String()),
+		slog.String("session_id", created.ID.String()),
+	)
+
+	return created, nil
+}
+
+// FinishSession finishes an ACTIVE session, aggregating review logs and calculating stats.
+func (s *Service) FinishSession(ctx context.Context, input FinishSessionInput) (*domain.StudySession, error) {
+	userID, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	if err := input.Validate(); err != nil {
+		return nil, err
+	}
+
+	// Load session
+	session, err := s.sessions.GetByID(ctx, userID, input.SessionID)
+	if err != nil {
+		return nil, fmt.Errorf("get session: %w", err)
+	}
+
+	// Check status: must be ACTIVE
+	if session.Status != domain.SessionStatusActive {
+		return nil, domain.NewValidationError("session", "session already finished")
+	}
+
+	now := time.Now()
+
+	// Aggregate review logs for period [session.StartedAt, now]
+	logs, err := s.reviews.GetByPeriod(ctx, userID, session.StartedAt, now)
+	if err != nil {
+		return nil, fmt.Errorf("get review logs: %w", err)
+	}
+
+	// Calculate stats
+	totalReviewed := len(logs)
+	newReviewed := 0
+	gradeCounts := domain.GradeCounts{}
+
+	for _, log := range logs {
+		// Count new reviews (cards that were NEW before this review)
+		if log.PrevState != nil && log.PrevState.Status == domain.LearningStatusNew {
+			newReviewed++
+		}
+
+		// Count grades
+		switch log.Grade {
+		case domain.ReviewGradeAgain:
+			gradeCounts.Again++
+		case domain.ReviewGradeHard:
+			gradeCounts.Hard++
+		case domain.ReviewGradeGood:
+			gradeCounts.Good++
+		case domain.ReviewGradeEasy:
+			gradeCounts.Easy++
+		}
+	}
+
+	dueReviewed := totalReviewed - newReviewed
+	durationMs := now.Sub(session.StartedAt).Milliseconds()
+
+	accuracyRate := 0.0
+	if totalReviewed > 0 {
+		accuracyRate = float64(gradeCounts.Good+gradeCounts.Easy) / float64(totalReviewed) * 100
+	}
+
+	// Create SessionResult
+	result := domain.SessionResult{
+		TotalReviewed: totalReviewed,
+		NewReviewed:   newReviewed,
+		DueReviewed:   dueReviewed,
+		GradeCounts:   gradeCounts,
+		DurationMs:    durationMs,
+		AccuracyRate:  accuracyRate,
+	}
+
+	// Finish session
+	finishedSession, err := s.sessions.Finish(ctx, userID, session.ID, result)
+	if err != nil {
+		return nil, fmt.Errorf("finish session: %w", err)
+	}
+
+	s.log.InfoContext(ctx, "session finished",
+		slog.String("user_id", userID.String()),
+		slog.String("session_id", session.ID.String()),
+		slog.Int("total_reviewed", totalReviewed),
+		slog.Int("new_reviewed", newReviewed),
+		slog.Float64("accuracy_rate", accuracyRate),
+	)
+
+	return finishedSession, nil
+}
+
+// AbandonSession abandons the current ACTIVE session (idempotent noop if no active session).
+func (s *Service) AbandonSession(ctx context.Context) error {
+	userID, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return domain.ErrUnauthorized
+	}
+
+	// Try to get active session
+	session, err := s.sessions.GetActive(ctx, userID)
+	if err != nil {
+		if errors.Is(err, domain.ErrNotFound) {
+			// No active session - idempotent noop
+			return nil
+		}
+		return fmt.Errorf("get active session: %w", err)
+	}
+
+	// Abandon the active session
+	if err := s.sessions.Abandon(ctx, userID, session.ID); err != nil {
+		return fmt.Errorf("abandon session: %w", err)
+	}
+
+	s.log.InfoContext(ctx, "session abandoned",
+		slog.String("user_id", userID.String()),
+		slog.String("session_id", session.ID.String()),
+	)
+
+	return nil
+}

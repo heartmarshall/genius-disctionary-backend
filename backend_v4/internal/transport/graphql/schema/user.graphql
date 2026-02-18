@@ -5,9 +5,9 @@
 type User {
   id: UUID!
   email: String!
+  username: String!
   name: String
   avatarUrl: String
-  oauthProvider: String!
   createdAt: DateTime!
   """Field resolver — загружает настройки пользователя."""
   settings: UserSettings!

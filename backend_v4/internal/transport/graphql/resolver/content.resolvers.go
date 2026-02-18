@@ -1,7 +1,5 @@
 package resolver
 
-//go:generate moq -out content_service_mock_test.go -pkg resolver . contentService
-
 // This file will be automatically regenerated based on the schema, any resolver
 // implementations
 // will be copied through when generating and any unknown code will be moved to the end.
@@ -16,10 +14,6 @@ import (
 	"github.com/heartmarshall/myenglish-backend/internal/transport/graphql/generated"
 	"github.com/heartmarshall/myenglish-backend/pkg/ctxutil"
 )
-
-// ============================================================================
-// Sense operations
-// ============================================================================
 
 // AddSense is the resolver for the addSense field.
 func (r *mutationResolver) AddSense(ctx context.Context, input generated.AddSenseInput) (*generated.AddSensePayload, error) {
@@ -115,10 +109,6 @@ func (r *mutationResolver) ReorderSenses(ctx context.Context, input generated.Re
 	return &generated.ReorderPayload{Success: true}, nil
 }
 
-// ============================================================================
-// Translation operations
-// ============================================================================
-
 // AddTranslation is the resolver for the addTranslation field.
 func (r *mutationResolver) AddTranslation(ctx context.Context, input generated.AddTranslationInput) (*generated.AddTranslationPayload, error) {
 	_, ok := ctxutil.UserIDFromCtx(ctx)
@@ -202,10 +192,6 @@ func (r *mutationResolver) ReorderTranslations(ctx context.Context, input genera
 
 	return &generated.ReorderPayload{Success: true}, nil
 }
-
-// ============================================================================
-// Example operations
-// ============================================================================
 
 // AddExample is the resolver for the addExample field.
 func (r *mutationResolver) AddExample(ctx context.Context, input generated.AddExampleInput) (*generated.AddExamplePayload, error) {
@@ -298,10 +284,6 @@ func (r *mutationResolver) ReorderExamples(ctx context.Context, input generated.
 
 	return &generated.ReorderPayload{Success: true}, nil
 }
-
-// ============================================================================
-// UserImage operations
-// ============================================================================
 
 // AddUserImage is the resolver for the addUserImage field.
 func (r *mutationResolver) AddUserImage(ctx context.Context, input generated.AddUserImageInput) (*generated.AddUserImagePayload, error) {

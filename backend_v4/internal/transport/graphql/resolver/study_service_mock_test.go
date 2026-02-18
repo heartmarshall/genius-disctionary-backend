@@ -84,6 +84,9 @@ type studyServiceMock struct {
 	// GetCardStatsFunc mocks the GetCardStats method.
 	GetCardStatsFunc func(ctx context.Context, input study.GetCardHistoryInput) (domain.CardStats, error)
 
+	// GetActiveSessionFunc mocks the GetActiveSession method.
+	GetActiveSessionFunc func(ctx context.Context) (*domain.StudySession, error)
+
 	// GetDashboardFunc mocks the GetDashboard method.
 	GetDashboardFunc func(ctx context.Context) (domain.Dashboard, error)
 
@@ -148,6 +151,11 @@ type studyServiceMock struct {
 			// Input is the input argument value.
 			Input study.GetCardHistoryInput
 		}
+		// GetActiveSession holds details about calls to the GetActiveSession method.
+		GetActiveSession []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+		}
 		// GetDashboard holds details about calls to the GetDashboard method.
 		GetDashboard []struct {
 			// Ctx is the ctx argument value.
@@ -187,6 +195,7 @@ type studyServiceMock struct {
 	lockFinishSession    sync.RWMutex
 	lockGetCardHistory   sync.RWMutex
 	lockGetCardStats     sync.RWMutex
+	lockGetActiveSession sync.RWMutex
 	lockGetDashboard     sync.RWMutex
 	lockGetStudyQueue    sync.RWMutex
 	lockReviewCard       sync.RWMutex
@@ -439,6 +448,35 @@ func (mock *studyServiceMock) GetCardStatsCalls() []struct {
 	mock.lockGetCardStats.RLock()
 	calls = mock.calls.GetCardStats
 	mock.lockGetCardStats.RUnlock()
+	return calls
+}
+
+// GetActiveSession calls GetActiveSessionFunc.
+func (mock *studyServiceMock) GetActiveSession(ctx context.Context) (*domain.StudySession, error) {
+	if mock.GetActiveSessionFunc == nil {
+		panic("studyServiceMock.GetActiveSessionFunc: method is nil but studyService.GetActiveSession was just called")
+	}
+	callInfo := struct {
+		Ctx context.Context
+	}{
+		Ctx: ctx,
+	}
+	mock.lockGetActiveSession.Lock()
+	mock.calls.GetActiveSession = append(mock.calls.GetActiveSession, callInfo)
+	mock.lockGetActiveSession.Unlock()
+	return mock.GetActiveSessionFunc(ctx)
+}
+
+// GetActiveSessionCalls gets all the calls that were made to GetActiveSession.
+func (mock *studyServiceMock) GetActiveSessionCalls() []struct {
+	Ctx context.Context
+} {
+	var calls []struct {
+		Ctx context.Context
+	}
+	mock.lockGetActiveSession.RLock()
+	calls = mock.calls.GetActiveSession
+	mock.lockGetActiveSession.RUnlock()
 	return calls
 }
 

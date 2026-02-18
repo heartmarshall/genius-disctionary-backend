@@ -36,9 +36,9 @@ func TestRunInTx_Commit(t *testing.T) {
 	err := tm.RunInTx(context.Background(), func(ctx context.Context) error {
 		q := postgres.QuerierFromCtx(ctx, pool)
 		_, err := q.Exec(ctx,
-			`INSERT INTO users (id, email, name, oauth_provider, oauth_id, created_at, updated_at)
-			 VALUES ($1, $2, $3, $4, $5, now(), now())`,
-			userID, "commit-test@example.com", "Commit Test", "google", "oauth-commit",
+			`INSERT INTO users (id, email, username, name, created_at, updated_at)
+			 VALUES ($1, $2, $3, $4, now(), now())`,
+			userID, "commit-test@example.com", "commit-test", "Commit Test",
 		)
 		return err
 	})
@@ -61,9 +61,9 @@ func TestRunInTx_RollbackOnError(t *testing.T) {
 	err := tm.RunInTx(context.Background(), func(ctx context.Context) error {
 		q := postgres.QuerierFromCtx(ctx, pool)
 		_, execErr := q.Exec(ctx,
-			`INSERT INTO users (id, email, name, oauth_provider, oauth_id, created_at, updated_at)
-			 VALUES ($1, $2, $3, $4, $5, now(), now())`,
-			userID, "rollback-test@example.com", "Rollback Test", "google", "oauth-rollback",
+			`INSERT INTO users (id, email, username, name, created_at, updated_at)
+			 VALUES ($1, $2, $3, $4, now(), now())`,
+			userID, "rollback-test@example.com", "rollback-test", "Rollback Test",
 		)
 		if execErr != nil {
 			t.Fatalf("insert inside tx failed: %v", execErr)
@@ -104,9 +104,9 @@ func TestRunInTx_RollbackOnPanic(t *testing.T) {
 	_ = tm.RunInTx(context.Background(), func(ctx context.Context) error {
 		q := postgres.QuerierFromCtx(ctx, pool)
 		_, err := q.Exec(ctx,
-			`INSERT INTO users (id, email, name, oauth_provider, oauth_id, created_at, updated_at)
-			 VALUES ($1, $2, $3, $4, $5, now(), now())`,
-			userID, "panic-test@example.com", "Panic Test", "google", "oauth-panic",
+			`INSERT INTO users (id, email, username, name, created_at, updated_at)
+			 VALUES ($1, $2, $3, $4, now(), now())`,
+			userID, "panic-test@example.com", "panic-test", "Panic Test",
 		)
 		if err != nil {
 			t.Fatalf("insert inside tx failed: %v", err)
@@ -126,9 +126,9 @@ func TestRunInTx_QuerierFromCtx_UsesTx(t *testing.T) {
 	err := tm.RunInTx(context.Background(), func(ctx context.Context) error {
 		q := postgres.QuerierFromCtx(ctx, pool)
 		_, err := q.Exec(ctx,
-			`INSERT INTO users (id, email, name, oauth_provider, oauth_id, created_at, updated_at)
-			 VALUES ($1, $2, $3, $4, $5, now(), now())`,
-			userID, "ctx-test@example.com", "Ctx Test", "google", "oauth-ctx",
+			`INSERT INTO users (id, email, username, name, created_at, updated_at)
+			 VALUES ($1, $2, $3, $4, now(), now())`,
+			userID, "ctx-test@example.com", "ctx-test", "Ctx Test",
 		)
 		if err != nil {
 			return err

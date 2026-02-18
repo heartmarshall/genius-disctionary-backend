@@ -8,14 +8,13 @@ import (
 
 // User represents an authenticated application user.
 type User struct {
-	ID            uuid.UUID
-	Email         string
-	Name          string
-	AvatarURL     *string
-	OAuthProvider OAuthProvider
-	OAuthID       string
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
+	ID        uuid.UUID
+	Email     string
+	Username  string
+	Name      string
+	AvatarURL *string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 // UserSettings holds per-user SRS and display preferences.

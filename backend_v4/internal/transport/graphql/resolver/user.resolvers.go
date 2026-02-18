@@ -1,7 +1,5 @@
 package resolver
 
-//go:generate moq -out user_service_mock_test.go -pkg resolver . userService
-
 // This file will be automatically regenerated based on the schema, any resolver
 // implementations
 // will be copied through when generating and any unknown code will be moved to the end.
@@ -51,11 +49,6 @@ func (r *queryResolver) Me(ctx context.Context) (*domain.User, error) {
 	}
 
 	return user, nil
-}
-
-// OauthProvider is the resolver for the oauthProvider field.
-func (r *userResolver) OauthProvider(ctx context.Context, obj *domain.User) (string, error) {
-	return obj.OAuthProvider.String(), nil
 }
 
 // Settings is the resolver for the settings field.

@@ -15,29 +15,6 @@ import (
 var _ userRepo = &userRepoMock{}
 
 // userRepoMock is a mock implementation of userRepo.
-//
-//	func TestSomethingThatUsesuserRepo(t *testing.T) {
-//
-//		// make and configure a mocked userRepo
-//		mockeduserRepo := &userRepoMock{
-//			CreateFunc: func(ctx context.Context, user *domain.User) (*domain.User, error) {
-//				panic("mock out the Create method")
-//			},
-//			GetByIDFunc: func(ctx context.Context, id uuid.UUID) (*domain.User, error) {
-//				panic("mock out the GetByID method")
-//			},
-//			GetByOAuthFunc: func(ctx context.Context, provider domain.OAuthProvider, oauthID string) (*domain.User, error) {
-//				panic("mock out the GetByOAuth method")
-//			},
-//			UpdateFunc: func(ctx context.Context, id uuid.UUID, name *string, avatarURL *string) (*domain.User, error) {
-//				panic("mock out the Update method")
-//			},
-//		}
-//
-//		// use mockeduserRepo in code that requires userRepo
-//		// and then make assertions.
-//
-//	}
 type userRepoMock struct {
 	// CreateFunc mocks the Create method.
 	CreateFunc func(ctx context.Context, user *domain.User) (*domain.User, error)
@@ -45,8 +22,8 @@ type userRepoMock struct {
 	// GetByIDFunc mocks the GetByID method.
 	GetByIDFunc func(ctx context.Context, id uuid.UUID) (*domain.User, error)
 
-	// GetByOAuthFunc mocks the GetByOAuth method.
-	GetByOAuthFunc func(ctx context.Context, provider domain.OAuthProvider, oauthID string) (*domain.User, error)
+	// GetByEmailFunc mocks the GetByEmail method.
+	GetByEmailFunc func(ctx context.Context, email string) (*domain.User, error)
 
 	// UpdateFunc mocks the Update method.
 	UpdateFunc func(ctx context.Context, id uuid.UUID, name *string, avatarURL *string) (*domain.User, error)
@@ -55,46 +32,33 @@ type userRepoMock struct {
 	calls struct {
 		// Create holds details about calls to the Create method.
 		Create []struct {
-			// Ctx is the ctx argument value.
-			Ctx context.Context
-			// User is the user argument value.
+			Ctx  context.Context
 			User *domain.User
 		}
 		// GetByID holds details about calls to the GetByID method.
 		GetByID []struct {
-			// Ctx is the ctx argument value.
 			Ctx context.Context
-			// ID is the id argument value.
-			ID uuid.UUID
+			ID  uuid.UUID
 		}
-		// GetByOAuth holds details about calls to the GetByOAuth method.
-		GetByOAuth []struct {
-			// Ctx is the ctx argument value.
-			Ctx context.Context
-			// Provider is the provider argument value.
-			Provider domain.OAuthProvider
-			// OauthID is the oauthID argument value.
-			OauthID string
+		// GetByEmail holds details about calls to the GetByEmail method.
+		GetByEmail []struct {
+			Ctx   context.Context
+			Email string
 		}
 		// Update holds details about calls to the Update method.
 		Update []struct {
-			// Ctx is the ctx argument value.
-			Ctx context.Context
-			// ID is the id argument value.
-			ID uuid.UUID
-			// Name is the name argument value.
-			Name *string
-			// AvatarURL is the avatarURL argument value.
+			Ctx       context.Context
+			ID        uuid.UUID
+			Name      *string
 			AvatarURL *string
 		}
 	}
 	lockCreate     sync.RWMutex
 	lockGetByID    sync.RWMutex
-	lockGetByOAuth sync.RWMutex
+	lockGetByEmail sync.RWMutex
 	lockUpdate     sync.RWMutex
 }
 
-// Create calls CreateFunc.
 func (mock *userRepoMock) Create(ctx context.Context, user *domain.User) (*domain.User, error) {
 	if mock.CreateFunc == nil {
 		panic("userRepoMock.CreateFunc: method is nil but userRepo.Create was just called")
@@ -112,25 +76,16 @@ func (mock *userRepoMock) Create(ctx context.Context, user *domain.User) (*domai
 	return mock.CreateFunc(ctx, user)
 }
 
-// CreateCalls gets all the calls that were made to Create.
-// Check the length with:
-//
-//	len(mockeduserRepo.CreateCalls())
 func (mock *userRepoMock) CreateCalls() []struct {
 	Ctx  context.Context
 	User *domain.User
 } {
-	var calls []struct {
-		Ctx  context.Context
-		User *domain.User
-	}
 	mock.lockCreate.RLock()
-	calls = mock.calls.Create
+	calls := mock.calls.Create
 	mock.lockCreate.RUnlock()
 	return calls
 }
 
-// GetByID calls GetByIDFunc.
 func (mock *userRepoMock) GetByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	if mock.GetByIDFunc == nil {
 		panic("userRepoMock.GetByIDFunc: method is nil but userRepo.GetByID was just called")
@@ -148,65 +103,43 @@ func (mock *userRepoMock) GetByID(ctx context.Context, id uuid.UUID) (*domain.Us
 	return mock.GetByIDFunc(ctx, id)
 }
 
-// GetByIDCalls gets all the calls that were made to GetByID.
-// Check the length with:
-//
-//	len(mockeduserRepo.GetByIDCalls())
 func (mock *userRepoMock) GetByIDCalls() []struct {
 	Ctx context.Context
 	ID  uuid.UUID
 } {
-	var calls []struct {
-		Ctx context.Context
-		ID  uuid.UUID
-	}
 	mock.lockGetByID.RLock()
-	calls = mock.calls.GetByID
+	calls := mock.calls.GetByID
 	mock.lockGetByID.RUnlock()
 	return calls
 }
 
-// GetByOAuth calls GetByOAuthFunc.
-func (mock *userRepoMock) GetByOAuth(ctx context.Context, provider domain.OAuthProvider, oauthID string) (*domain.User, error) {
-	if mock.GetByOAuthFunc == nil {
-		panic("userRepoMock.GetByOAuthFunc: method is nil but userRepo.GetByOAuth was just called")
+func (mock *userRepoMock) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
+	if mock.GetByEmailFunc == nil {
+		panic("userRepoMock.GetByEmailFunc: method is nil but userRepo.GetByEmail was just called")
 	}
 	callInfo := struct {
-		Ctx      context.Context
-		Provider domain.OAuthProvider
-		OauthID  string
+		Ctx   context.Context
+		Email string
 	}{
-		Ctx:      ctx,
-		Provider: provider,
-		OauthID:  oauthID,
+		Ctx:   ctx,
+		Email: email,
 	}
-	mock.lockGetByOAuth.Lock()
-	mock.calls.GetByOAuth = append(mock.calls.GetByOAuth, callInfo)
-	mock.lockGetByOAuth.Unlock()
-	return mock.GetByOAuthFunc(ctx, provider, oauthID)
+	mock.lockGetByEmail.Lock()
+	mock.calls.GetByEmail = append(mock.calls.GetByEmail, callInfo)
+	mock.lockGetByEmail.Unlock()
+	return mock.GetByEmailFunc(ctx, email)
 }
 
-// GetByOAuthCalls gets all the calls that were made to GetByOAuth.
-// Check the length with:
-//
-//	len(mockeduserRepo.GetByOAuthCalls())
-func (mock *userRepoMock) GetByOAuthCalls() []struct {
-	Ctx      context.Context
-	Provider domain.OAuthProvider
-	OauthID  string
+func (mock *userRepoMock) GetByEmailCalls() []struct {
+	Ctx   context.Context
+	Email string
 } {
-	var calls []struct {
-		Ctx      context.Context
-		Provider domain.OAuthProvider
-		OauthID  string
-	}
-	mock.lockGetByOAuth.RLock()
-	calls = mock.calls.GetByOAuth
-	mock.lockGetByOAuth.RUnlock()
+	mock.lockGetByEmail.RLock()
+	calls := mock.calls.GetByEmail
+	mock.lockGetByEmail.RUnlock()
 	return calls
 }
 
-// Update calls UpdateFunc.
 func (mock *userRepoMock) Update(ctx context.Context, id uuid.UUID, name *string, avatarURL *string) (*domain.User, error) {
 	if mock.UpdateFunc == nil {
 		panic("userRepoMock.UpdateFunc: method is nil but userRepo.Update was just called")
@@ -228,24 +161,14 @@ func (mock *userRepoMock) Update(ctx context.Context, id uuid.UUID, name *string
 	return mock.UpdateFunc(ctx, id, name, avatarURL)
 }
 
-// UpdateCalls gets all the calls that were made to Update.
-// Check the length with:
-//
-//	len(mockeduserRepo.UpdateCalls())
 func (mock *userRepoMock) UpdateCalls() []struct {
 	Ctx       context.Context
 	ID        uuid.UUID
 	Name      *string
 	AvatarURL *string
 } {
-	var calls []struct {
-		Ctx       context.Context
-		ID        uuid.UUID
-		Name      *string
-		AvatarURL *string
-	}
 	mock.lockUpdate.RLock()
-	calls = mock.calls.Update
+	calls := mock.calls.Update
 	mock.lockUpdate.RUnlock()
 	return calls
 }

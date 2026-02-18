@@ -241,8 +241,27 @@ func TestValidate_NoOAuthProvider(t *testing.T) {
 	cfg.Auth.AppleTeamID = ""
 	cfg.Auth.ApplePrivateKey = ""
 
+	// Password auth is always available, so no OAuth is fine.
+	if err := cfg.Validate(); err != nil {
+		t.Fatalf("unexpected error when no OAuth provider configured: %v", err)
+	}
+}
+
+func TestValidate_PasswordHashCostTooLow(t *testing.T) {
+	cfg := validConfig()
+	cfg.Auth.PasswordHashCost = 3
+
 	if err := cfg.Validate(); err == nil {
-		t.Fatal("expected error when no OAuth provider configured")
+		t.Fatal("expected error for PasswordHashCost < 4")
+	}
+}
+
+func TestValidate_PasswordHashCostTooHigh(t *testing.T) {
+	cfg := validConfig()
+	cfg.Auth.PasswordHashCost = 32
+
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("expected error for PasswordHashCost > 31")
 	}
 }
 
@@ -665,6 +684,7 @@ func validConfig() Config {
 	return Config{
 		Auth: AuthConfig{
 			JWTSecret:          "this-is-a-very-long-jwt-secret-for-testing-32+",
+			PasswordHashCost:   12,
 			GoogleClientID:     "gid",
 			GoogleClientSecret: "gsecret",
 		},

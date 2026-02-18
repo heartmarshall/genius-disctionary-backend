@@ -41,6 +41,7 @@ type CreateCustomInput struct {
 	Senses     []SenseInput
 	CreateCard bool
 	Notes      *string
+	TopicID    *uuid.UUID
 }
 
 // SenseInput holds the parameters for a single sense in a custom entry.

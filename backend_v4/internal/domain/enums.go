@@ -113,24 +113,6 @@ func (a AuditAction) IsValid() bool {
 	return false
 }
 
-// OAuthProvider identifies the external authentication provider.
-type OAuthProvider string
-
-const (
-	OAuthProviderGoogle OAuthProvider = "google"
-	OAuthProviderApple  OAuthProvider = "apple"
-)
-
-func (p OAuthProvider) String() string { return string(p) }
-
-func (p OAuthProvider) IsValid() bool {
-	switch p {
-	case OAuthProviderGoogle, OAuthProviderApple:
-		return true
-	}
-	return false
-}
-
 // SessionStatus represents the state of a study session.
 type SessionStatus string
 

@@ -13,8 +13,8 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("auth.jwt_secret must be at least 32 characters (got %d)", len(c.Auth.JWTSecret))
 	}
 
-	if len(c.Auth.AllowedProviders()) == 0 {
-		return fmt.Errorf("at least one OAuth provider must be configured (Google or Apple)")
+	if c.Auth.PasswordHashCost < 4 || c.Auth.PasswordHashCost > 31 {
+		return fmt.Errorf("auth.password_hash_cost must be between 4 and 31 (got %d)", c.Auth.PasswordHashCost)
 	}
 
 	if err := c.Dictionary.validate(); err != nil {

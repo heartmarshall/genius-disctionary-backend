@@ -515,13 +515,13 @@ type ComplexityRoot struct {
 	}
 
 	User struct {
-		AvatarURL     func(childComplexity int) int
-		CreatedAt     func(childComplexity int) int
-		Email         func(childComplexity int) int
-		ID            func(childComplexity int) int
-		Name          func(childComplexity int) int
-		OauthProvider func(childComplexity int) int
-		Settings      func(childComplexity int) int
+		AvatarURL func(childComplexity int) int
+		CreatedAt func(childComplexity int) int
+		Email     func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Name      func(childComplexity int) int
+		Settings  func(childComplexity int) int
+		Username  func(childComplexity int) int
 	}
 
 	UserImage struct {
@@ -542,7 +542,6 @@ type ComplexityRoot struct {
 type CardStatsResolver interface {
 	AverageDurationMs(ctx context.Context, obj *domain.CardStats) (int, error)
 	Accuracy(ctx context.Context, obj *domain.CardStats) (float64, error)
-	GradeDistribution(ctx context.Context, obj *domain.CardStats) (*domain.GradeCounts, error)
 }
 type DashboardResolver interface {
 	ActiveSession(ctx context.Context, obj *domain.Dashboard) (*domain.StudySession, error)
@@ -622,8 +621,6 @@ type SessionResultResolver interface {
 	AverageDurationMs(ctx context.Context, obj *domain.SessionResult) (int, error)
 }
 type UserResolver interface {
-	OauthProvider(ctx context.Context, obj *domain.User) (string, error)
-
 	Settings(ctx context.Context, obj *domain.User) (*domain.UserSettings, error)
 }
 
@@ -2436,18 +2433,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.User.Name(childComplexity), true
-	case "User.oauthProvider":
-		if e.complexity.User.OauthProvider == nil {
-			break
-		}
-
-		return e.complexity.User.OauthProvider(childComplexity), true
 	case "User.settings":
 		if e.complexity.User.Settings == nil {
 			break
 		}
 
 		return e.complexity.User.Settings(childComplexity), true
+	case "User.username":
+		if e.complexity.User.Username == nil {
+			break
+		}
+
+		return e.complexity.User.Username(childComplexity), true
 
 	case "UserImage.caption":
 		if e.complexity.UserImage.Caption == nil {
@@ -3469,9 +3466,9 @@ extend type Mutation {
 type User {
   id: UUID!
   email: String!
+  username: String!
   name: String
   avatarUrl: String
-  oauthProvider: String!
   createdAt: DateTime!
   """Field resolver — загружает настройки пользователя."""
   settings: UserSettings!
@@ -4963,7 +4960,7 @@ func (ec *executionContext) _CardStats_gradeDistribution(ctx context.Context, fi
 		field,
 		ec.fieldContext_CardStats_gradeDistribution,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.CardStats().GradeDistribution(ctx, obj)
+			return obj.GradeDistribution, nil
 		},
 		nil,
 		ec.marshalNGradeCounts2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐGradeCounts,
@@ -4976,8 +4973,8 @@ func (ec *executionContext) fieldContext_CardStats_gradeDistribution(_ context.C
 	fc = &graphql.FieldContext{
 		Object:     "CardStats",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "again":
@@ -10362,12 +10359,12 @@ func (ec *executionContext) fieldContext_Query_me(_ context.Context, field graph
 				return ec.fieldContext_User_id(ctx, field)
 			case "email":
 				return ec.fieldContext_User_email(ctx, field)
+			case "username":
+				return ec.fieldContext_User_username(ctx, field)
 			case "name":
 				return ec.fieldContext_User_name(ctx, field)
 			case "avatarUrl":
 				return ec.fieldContext_User_avatarUrl(ctx, field)
-			case "oauthProvider":
-				return ec.fieldContext_User_oauthProvider(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_User_createdAt(ctx, field)
 			case "settings":
@@ -12866,6 +12863,35 @@ func (ec *executionContext) fieldContext_User_email(_ context.Context, field gra
 	return fc, nil
 }
 
+func (ec *executionContext) _User_username(ctx context.Context, field graphql.CollectedField, obj *domain.User) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_User_username,
+		func(ctx context.Context) (any, error) {
+			return obj.Username, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_User_username(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _User_name(ctx context.Context, field graphql.CollectedField, obj *domain.User) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -12917,35 +12943,6 @@ func (ec *executionContext) fieldContext_User_avatarUrl(_ context.Context, field
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _User_oauthProvider(ctx context.Context, field graphql.CollectedField, obj *domain.User) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_User_oauthProvider,
-		func(ctx context.Context) (any, error) {
-			return ec.resolvers.User().OauthProvider(ctx, obj)
-		},
-		nil,
-		ec.marshalNString2string,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_User_oauthProvider(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "User",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
@@ -16476,41 +16473,10 @@ func (ec *executionContext) _CardStats(ctx context.Context, sel ast.SelectionSet
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "gradeDistribution":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._CardStats_gradeDistribution(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
+			out.Values[i] = ec._CardStats_gradeDistribution(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
 			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -20246,46 +20212,15 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "username":
+			out.Values[i] = ec._User_username(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "name":
 			out.Values[i] = ec._User_name(ctx, field, obj)
 		case "avatarUrl":
 			out.Values[i] = ec._User_avatarUrl(ctx, field, obj)
-		case "oauthProvider":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._User_oauthProvider(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "createdAt":
 			out.Values[i] = ec._User_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

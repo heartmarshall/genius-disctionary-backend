@@ -25,19 +25,18 @@ func SeedUser(t *testing.T, pool *pgxpool.Pool) domain.User {
 	suffix := uniqueSuffix()
 	now := time.Now().UTC().Truncate(time.Microsecond)
 	user := domain.User{
-		ID:            uuid.New(),
-		Email:         "testuser-" + suffix + "@example.com",
-		Name:          "Test User " + suffix,
-		OAuthProvider: domain.OAuthProviderGoogle,
-		OAuthID:       "oauth-" + suffix,
-		CreatedAt:     now,
-		UpdatedAt:     now,
+		ID:        uuid.New(),
+		Email:     "testuser-" + suffix + "@example.com",
+		Username:  "testuser-" + suffix,
+		Name:      "Test User " + suffix,
+		CreatedAt: now,
+		UpdatedAt: now,
 	}
 
 	_, err := pool.Exec(ctx,
-		`INSERT INTO users (id, email, name, oauth_provider, oauth_id, created_at, updated_at)
-		 VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-		user.ID, user.Email, user.Name, string(user.OAuthProvider), user.OAuthID, user.CreatedAt, user.UpdatedAt,
+		`INSERT INTO users (id, email, username, name, created_at, updated_at)
+		 VALUES ($1, $2, $3, $4, $5, $6)`,
+		user.ID, user.Email, user.Username, user.Name, user.CreatedAt, user.UpdatedAt,
 	)
 	if err != nil {
 		t.Fatalf("testhelper: SeedUser insert user: %v", err)

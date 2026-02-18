@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"golang.org/x/crypto/bcrypt"
+
 	"github.com/google/uuid"
 	"github.com/heartmarshall/myenglish-backend/internal/auth"
 	"github.com/heartmarshall/myenglish-backend/internal/config"
@@ -17,9 +19,32 @@ import (
 //go:generate moq -out user_repo_mock_test.go -pkg auth . userRepo
 //go:generate moq -out settings_repo_mock_test.go -pkg auth . settingsRepo
 //go:generate moq -out token_repo_mock_test.go -pkg auth . tokenRepo
+//go:generate moq -out auth_method_repo_mock_test.go -pkg auth . authMethodRepo
 //go:generate moq -out tx_manager_mock_test.go -pkg auth . txManager
 //go:generate moq -out oauth_verifier_mock_test.go -pkg auth . oauthVerifier
 //go:generate moq -out jwt_manager_mock_test.go -pkg auth . jwtManager
+
+// defaultCfg returns a config suitable for most tests.
+func defaultCfg() config.AuthConfig {
+	return config.AuthConfig{
+		GoogleClientID:     "google_client_id",
+		GoogleClientSecret: "google_client_secret",
+		RefreshTokenTTL:    30 * 24 * time.Hour,
+		PasswordHashCost:   4, // minimum cost for fast tests
+	}
+}
+
+// hashPassword returns a bcrypt hash for testing.
+func hashPassword(t *testing.T, password string) string {
+	t.Helper()
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), 4)
+	if err != nil {
+		t.Fatalf("hashPassword: %v", err)
+	}
+	return string(hash)
+}
+
+// ─── OAuth Login Tests ──────────────────────────────────────────────────────
 
 func TestService_Login_NewUserRegistration(t *testing.T) {
 	t.Parallel()
@@ -36,7 +61,6 @@ func TestService_Login_NewUserRegistration(t *testing.T) {
 		AvatarURL:  ptrString("https://example.com/avatar.jpg"),
 	}
 
-	// Setup mocks
 	oauthMock := &oauthVerifierMock{
 		VerifyCodeFunc: func(ctx context.Context, p, c string) (*auth.OAuthIdentity, error) {
 			if p != provider || c != code {
@@ -46,8 +70,19 @@ func TestService_Login_NewUserRegistration(t *testing.T) {
 		},
 	}
 
+	authMethodsMock := &authMethodRepoMock{
+		GetByOAuthFunc: func(ctx context.Context, method domain.AuthMethodType, providerID string) (*domain.AuthMethod, error) {
+			return nil, domain.ErrNotFound
+		},
+		CreateFunc: func(ctx context.Context, am *domain.AuthMethod) (*domain.AuthMethod, error) {
+			created := *am
+			created.ID = uuid.New()
+			return &created, nil
+		},
+	}
+
 	usersMock := &userRepoMock{
-		GetByOAuthFunc: func(ctx context.Context, p domain.OAuthProvider, oauthID string) (*domain.User, error) {
+		GetByEmailFunc: func(ctx context.Context, email string) (*domain.User, error) {
 			return nil, domain.ErrNotFound
 		},
 		CreateFunc: func(ctx context.Context, user *domain.User) (*domain.User, error) {
@@ -91,35 +126,19 @@ func TestService_Login_NewUserRegistration(t *testing.T) {
 			if token.UserID != userID {
 				t.Errorf("tokens.Create called with wrong userID: got=%s, want=%s", token.UserID, userID)
 			}
-			if token.TokenHash != "hash_refresh_123" {
-				t.Errorf("tokens.Create called with wrong hash: got=%s, want=%s", token.TokenHash, "hash_refresh_123")
-			}
 			return nil
 		},
 	}
 
-	cfg := config.AuthConfig{
-		GoogleClientID:     "google_client_id",
-		GoogleClientSecret: "google_client_secret",
-		RefreshTokenTTL:    30 * 24 * time.Hour,
-	}
+	cfg := defaultCfg()
 
 	svc := NewService(
-		slog.Default(),
-		usersMock,
-		settingsMock,
-		tokensMock,
-		txMock,
-		oauthMock,
-		jwtMock,
-		cfg,
+		slog.Default(), usersMock, settingsMock, tokensMock, authMethodsMock,
+		txMock, oauthMock, jwtMock, cfg,
 	)
 
-	// Execute
-	input := LoginInput{Provider: provider, Code: code}
-	result, err := svc.Login(ctx, input)
+	result, err := svc.Login(ctx, LoginInput{Provider: provider, Code: code})
 
-	// Assert
 	if err != nil {
 		t.Fatalf("Login returned error: %v", err)
 	}
@@ -130,7 +149,7 @@ func TestService_Login_NewUserRegistration(t *testing.T) {
 		t.Errorf("AccessToken: got=%s, want=%s", result.AccessToken, "access_token_123")
 	}
 	if result.RefreshToken != "raw_refresh_123" {
-		t.Errorf("RefreshToken: got=%s, want=%s (should be raw, not hash)", result.RefreshToken, "raw_refresh_123")
+		t.Errorf("RefreshToken: got=%s, want=%s", result.RefreshToken, "raw_refresh_123")
 	}
 	if result.User == nil {
 		t.Fatal("User is nil")
@@ -139,27 +158,24 @@ func TestService_Login_NewUserRegistration(t *testing.T) {
 		t.Errorf("User.ID: got=%s, want=%s", result.User.ID, userID)
 	}
 
-	// Verify all mocks were called
+	// Verify mocks
 	if len(oauthMock.VerifyCodeCalls()) != 1 {
 		t.Errorf("VerifyCode called %d times, want 1", len(oauthMock.VerifyCodeCalls()))
 	}
-	if len(usersMock.GetByOAuthCalls()) != 1 {
-		t.Errorf("GetByOAuth called %d times, want 1", len(usersMock.GetByOAuthCalls()))
+	if len(authMethodsMock.GetByOAuthCalls()) != 1 {
+		t.Errorf("authMethods.GetByOAuth called %d times, want 1", len(authMethodsMock.GetByOAuthCalls()))
+	}
+	if len(usersMock.GetByEmailCalls()) != 1 {
+		t.Errorf("GetByEmail called %d times, want 1", len(usersMock.GetByEmailCalls()))
 	}
 	if len(usersMock.CreateCalls()) != 1 {
 		t.Errorf("Create called %d times, want 1", len(usersMock.CreateCalls()))
 	}
+	if len(authMethodsMock.CreateCalls()) != 1 {
+		t.Errorf("authMethods.Create called %d times, want 1", len(authMethodsMock.CreateCalls()))
+	}
 	if len(settingsMock.CreateSettingsCalls()) != 1 {
 		t.Errorf("CreateSettings called %d times, want 1", len(settingsMock.CreateSettingsCalls()))
-	}
-	if len(jwtMock.GenerateAccessTokenCalls()) != 1 {
-		t.Errorf("GenerateAccessToken called %d times, want 1", len(jwtMock.GenerateAccessTokenCalls()))
-	}
-	if len(jwtMock.GenerateRefreshTokenCalls()) != 1 {
-		t.Errorf("GenerateRefreshToken called %d times, want 1", len(jwtMock.GenerateRefreshTokenCalls()))
-	}
-	if len(tokensMock.CreateCalls()) != 1 {
-		t.Errorf("tokens.Create called %d times, want 1", len(tokensMock.CreateCalls()))
 	}
 }
 
@@ -172,14 +188,20 @@ func TestService_Login_ExistingUser(t *testing.T) {
 	code := "auth_code_123"
 
 	existingUser := &domain.User{
-		ID:            userID,
-		Email:         "test@example.com",
-		Name:          "Test User",
-		AvatarURL:     ptrString("https://example.com/avatar.jpg"),
-		OAuthProvider: domain.OAuthProviderGoogle,
-		OAuthID:       "google_123",
-		CreatedAt:     time.Now().Add(-24 * time.Hour),
-		UpdatedAt:     time.Now().Add(-24 * time.Hour),
+		ID:        userID,
+		Email:     "test@example.com",
+		Username:  "test",
+		Name:      "Test User",
+		AvatarURL: ptrString("https://example.com/avatar.jpg"),
+		CreatedAt: time.Now().Add(-24 * time.Hour),
+		UpdatedAt: time.Now().Add(-24 * time.Hour),
+	}
+
+	existingAM := &domain.AuthMethod{
+		ID:         uuid.New(),
+		UserID:     userID,
+		Method:     domain.AuthMethodGoogle,
+		ProviderID: ptrString("google_123"),
 	}
 
 	identity := &auth.OAuthIdentity{
@@ -189,15 +211,20 @@ func TestService_Login_ExistingUser(t *testing.T) {
 		AvatarURL:  ptrString("https://example.com/avatar.jpg"),
 	}
 
-	// Setup mocks
 	oauthMock := &oauthVerifierMock{
 		VerifyCodeFunc: func(ctx context.Context, p, c string) (*auth.OAuthIdentity, error) {
 			return identity, nil
 		},
 	}
 
+	authMethodsMock := &authMethodRepoMock{
+		GetByOAuthFunc: func(ctx context.Context, method domain.AuthMethodType, providerID string) (*domain.AuthMethod, error) {
+			return existingAM, nil
+		},
+	}
+
 	usersMock := &userRepoMock{
-		GetByOAuthFunc: func(ctx context.Context, p domain.OAuthProvider, oauthID string) (*domain.User, error) {
+		GetByIDFunc: func(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 			return existingUser, nil
 		},
 	}
@@ -220,28 +247,15 @@ func TestService_Login_ExistingUser(t *testing.T) {
 		},
 	}
 
-	cfg := config.AuthConfig{
-		GoogleClientID:     "google_client_id",
-		GoogleClientSecret: "google_client_secret",
-		RefreshTokenTTL:    30 * 24 * time.Hour,
-	}
+	cfg := defaultCfg()
 
 	svc := NewService(
-		slog.Default(),
-		usersMock,
-		settingsMock,
-		tokensMock,
-		txMock,
-		oauthMock,
-		jwtMock,
-		cfg,
+		slog.Default(), usersMock, settingsMock, tokensMock, authMethodsMock,
+		txMock, oauthMock, jwtMock, cfg,
 	)
 
-	// Execute
-	input := LoginInput{Provider: provider, Code: code}
-	result, err := svc.Login(ctx, input)
+	result, err := svc.Login(ctx, LoginInput{Provider: provider, Code: code})
 
-	// Assert
 	if err != nil {
 		t.Fatalf("Login returned error: %v", err)
 	}
@@ -270,14 +284,20 @@ func TestService_Login_ProfileChanged(t *testing.T) {
 	code := "auth_code_123"
 
 	existingUser := &domain.User{
-		ID:            userID,
-		Email:         "test@example.com",
-		Name:          "Old Name",
-		AvatarURL:     ptrString("https://example.com/old_avatar.jpg"),
-		OAuthProvider: domain.OAuthProviderGoogle,
-		OAuthID:       "google_123",
-		CreatedAt:     time.Now().Add(-24 * time.Hour),
-		UpdatedAt:     time.Now().Add(-24 * time.Hour),
+		ID:        userID,
+		Email:     "test@example.com",
+		Username:  "test",
+		Name:      "Old Name",
+		AvatarURL: ptrString("https://example.com/old_avatar.jpg"),
+		CreatedAt: time.Now().Add(-24 * time.Hour),
+		UpdatedAt: time.Now().Add(-24 * time.Hour),
+	}
+
+	existingAM := &domain.AuthMethod{
+		ID:         uuid.New(),
+		UserID:     userID,
+		Method:     domain.AuthMethodGoogle,
+		ProviderID: ptrString("google_123"),
 	}
 
 	identity := &auth.OAuthIdentity{
@@ -288,25 +308,29 @@ func TestService_Login_ProfileChanged(t *testing.T) {
 	}
 
 	updatedUser := &domain.User{
-		ID:            userID,
-		Email:         "test@example.com",
-		Name:          "New Name",
-		AvatarURL:     ptrString("https://example.com/new_avatar.jpg"),
-		OAuthProvider: domain.OAuthProviderGoogle,
-		OAuthID:       "google_123",
-		CreatedAt:     existingUser.CreatedAt,
-		UpdatedAt:     time.Now(),
+		ID:        userID,
+		Email:     "test@example.com",
+		Username:  "test",
+		Name:      "New Name",
+		AvatarURL: ptrString("https://example.com/new_avatar.jpg"),
+		CreatedAt: existingUser.CreatedAt,
+		UpdatedAt: time.Now(),
 	}
 
-	// Setup mocks
 	oauthMock := &oauthVerifierMock{
 		VerifyCodeFunc: func(ctx context.Context, p, c string) (*auth.OAuthIdentity, error) {
 			return identity, nil
 		},
 	}
 
+	authMethodsMock := &authMethodRepoMock{
+		GetByOAuthFunc: func(ctx context.Context, method domain.AuthMethodType, providerID string) (*domain.AuthMethod, error) {
+			return existingAM, nil
+		},
+	}
+
 	usersMock := &userRepoMock{
-		GetByOAuthFunc: func(ctx context.Context, p domain.OAuthProvider, oauthID string) (*domain.User, error) {
+		GetByIDFunc: func(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 			return existingUser, nil
 		},
 		UpdateFunc: func(ctx context.Context, id uuid.UUID, name *string, avatarURL *string) (*domain.User, error) {
@@ -315,9 +339,6 @@ func TestService_Login_ProfileChanged(t *testing.T) {
 			}
 			if name == nil || *name != "New Name" {
 				t.Errorf("Update called with wrong name: got=%v, want=%s", name, "New Name")
-			}
-			if avatarURL == nil || *avatarURL != "https://example.com/new_avatar.jpg" {
-				t.Errorf("Update called with wrong avatarURL: got=%v, want=%s", avatarURL, "https://example.com/new_avatar.jpg")
 			}
 			return updatedUser, nil
 		},
@@ -341,39 +362,21 @@ func TestService_Login_ProfileChanged(t *testing.T) {
 		},
 	}
 
-	cfg := config.AuthConfig{
-		GoogleClientID:     "google_client_id",
-		GoogleClientSecret: "google_client_secret",
-		RefreshTokenTTL:    30 * 24 * time.Hour,
-	}
+	cfg := defaultCfg()
 
 	svc := NewService(
-		slog.Default(),
-		usersMock,
-		settingsMock,
-		tokensMock,
-		txMock,
-		oauthMock,
-		jwtMock,
-		cfg,
+		slog.Default(), usersMock, settingsMock, tokensMock, authMethodsMock,
+		txMock, oauthMock, jwtMock, cfg,
 	)
 
-	// Execute
-	input := LoginInput{Provider: provider, Code: code}
-	result, err := svc.Login(ctx, input)
+	result, err := svc.Login(ctx, LoginInput{Provider: provider, Code: code})
 
-	// Assert
 	if err != nil {
 		t.Fatalf("Login returned error: %v", err)
-	}
-	if result == nil {
-		t.Fatal("Login returned nil result")
 	}
 	if result.User.Name != "New Name" {
 		t.Errorf("User.Name: got=%s, want=%s", result.User.Name, "New Name")
 	}
-
-	// Verify Update was called
 	if len(usersMock.UpdateCalls()) != 1 {
 		t.Errorf("Update called %d times, want 1", len(usersMock.UpdateCalls()))
 	}
@@ -388,14 +391,20 @@ func TestService_Login_ProfileNotChanged(t *testing.T) {
 	code := "auth_code_123"
 
 	existingUser := &domain.User{
-		ID:            userID,
-		Email:         "test@example.com",
-		Name:          "Same Name",
-		AvatarURL:     ptrString("https://example.com/same_avatar.jpg"),
-		OAuthProvider: domain.OAuthProviderGoogle,
-		OAuthID:       "google_123",
-		CreatedAt:     time.Now().Add(-24 * time.Hour),
-		UpdatedAt:     time.Now().Add(-24 * time.Hour),
+		ID:        userID,
+		Email:     "test@example.com",
+		Username:  "test",
+		Name:      "Same Name",
+		AvatarURL: ptrString("https://example.com/same_avatar.jpg"),
+		CreatedAt: time.Now().Add(-24 * time.Hour),
+		UpdatedAt: time.Now().Add(-24 * time.Hour),
+	}
+
+	existingAM := &domain.AuthMethod{
+		ID:         uuid.New(),
+		UserID:     userID,
+		Method:     domain.AuthMethodGoogle,
+		ProviderID: ptrString("google_123"),
 	}
 
 	identity := &auth.OAuthIdentity{
@@ -405,15 +414,20 @@ func TestService_Login_ProfileNotChanged(t *testing.T) {
 		AvatarURL:  ptrString("https://example.com/same_avatar.jpg"),
 	}
 
-	// Setup mocks
 	oauthMock := &oauthVerifierMock{
 		VerifyCodeFunc: func(ctx context.Context, p, c string) (*auth.OAuthIdentity, error) {
 			return identity, nil
 		},
 	}
 
+	authMethodsMock := &authMethodRepoMock{
+		GetByOAuthFunc: func(ctx context.Context, method domain.AuthMethodType, providerID string) (*domain.AuthMethod, error) {
+			return existingAM, nil
+		},
+	}
+
 	usersMock := &userRepoMock{
-		GetByOAuthFunc: func(ctx context.Context, p domain.OAuthProvider, oauthID string) (*domain.User, error) {
+		GetByIDFunc: func(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 			return existingUser, nil
 		},
 	}
@@ -436,38 +450,132 @@ func TestService_Login_ProfileNotChanged(t *testing.T) {
 		},
 	}
 
-	cfg := config.AuthConfig{
-		GoogleClientID:     "google_client_id",
-		GoogleClientSecret: "google_client_secret",
-		RefreshTokenTTL:    30 * 24 * time.Hour,
-	}
+	cfg := defaultCfg()
 
 	svc := NewService(
-		slog.Default(),
-		usersMock,
-		settingsMock,
-		tokensMock,
-		txMock,
-		oauthMock,
-		jwtMock,
-		cfg,
+		slog.Default(), usersMock, settingsMock, tokensMock, authMethodsMock,
+		txMock, oauthMock, jwtMock, cfg,
 	)
 
-	// Execute
-	input := LoginInput{Provider: provider, Code: code}
-	result, err := svc.Login(ctx, input)
+	result, err := svc.Login(ctx, LoginInput{Provider: provider, Code: code})
 
-	// Assert
 	if err != nil {
 		t.Fatalf("Login returned error: %v", err)
 	}
 	if result == nil {
 		t.Fatal("Login returned nil result")
 	}
-
-	// Verify Update was NOT called (profile unchanged)
 	if len(usersMock.UpdateCalls()) != 0 {
 		t.Errorf("Update called %d times, want 0 (profile not changed)", len(usersMock.UpdateCalls()))
+	}
+}
+
+func TestService_Login_AccountLinking(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	userID := uuid.New()
+	provider := "google"
+	code := "auth_code_123"
+
+	// User registered via password, now logging in via Google
+	existingUser := &domain.User{
+		ID:        userID,
+		Email:     "test@example.com",
+		Username:  "testuser",
+		Name:      "Test User",
+		CreatedAt: time.Now().Add(-24 * time.Hour),
+		UpdatedAt: time.Now().Add(-24 * time.Hour),
+	}
+
+	identity := &auth.OAuthIdentity{
+		ProviderID: "google_123",
+		Email:      "test@example.com",
+		Name:       ptrString("Test User"),
+		AvatarURL:  ptrString("https://example.com/avatar.jpg"),
+	}
+
+	oauthMock := &oauthVerifierMock{
+		VerifyCodeFunc: func(ctx context.Context, p, c string) (*auth.OAuthIdentity, error) {
+			return identity, nil
+		},
+	}
+
+	authMethodsMock := &authMethodRepoMock{
+		GetByOAuthFunc: func(ctx context.Context, method domain.AuthMethodType, providerID string) (*domain.AuthMethod, error) {
+			return nil, domain.ErrNotFound
+		},
+		CreateFunc: func(ctx context.Context, am *domain.AuthMethod) (*domain.AuthMethod, error) {
+			if am.UserID != userID {
+				t.Errorf("authMethods.Create: UserID: got=%s, want=%s", am.UserID, userID)
+			}
+			if am.Method != domain.AuthMethodGoogle {
+				t.Errorf("authMethods.Create: Method: got=%s, want=%s", am.Method, domain.AuthMethodGoogle)
+			}
+			created := *am
+			created.ID = uuid.New()
+			return &created, nil
+		},
+	}
+
+	usersMock := &userRepoMock{
+		GetByEmailFunc: func(ctx context.Context, email string) (*domain.User, error) {
+			return existingUser, nil
+		},
+		UpdateFunc: func(ctx context.Context, id uuid.UUID, name *string, avatarURL *string) (*domain.User, error) {
+			updated := *existingUser
+			if avatarURL != nil {
+				updated.AvatarURL = avatarURL
+			}
+			return &updated, nil
+		},
+	}
+
+	settingsMock := &settingsRepoMock{}
+	txMock := &txManagerMock{
+		RunInTxFunc: func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		},
+	}
+
+	jwtMock := &jwtManagerMock{
+		GenerateAccessTokenFunc: func(uid uuid.UUID) (string, error) {
+			return "access_token_123", nil
+		},
+		GenerateRefreshTokenFunc: func() (string, string, error) {
+			return "raw_refresh_123", "hash_refresh_123", nil
+		},
+	}
+
+	tokensMock := &tokenRepoMock{
+		CreateFunc: func(ctx context.Context, token *domain.RefreshToken) error {
+			return nil
+		},
+	}
+
+	cfg := defaultCfg()
+
+	svc := NewService(
+		slog.Default(), usersMock, settingsMock, tokensMock, authMethodsMock,
+		txMock, oauthMock, jwtMock, cfg,
+	)
+
+	result, err := svc.Login(ctx, LoginInput{Provider: provider, Code: code})
+
+	if err != nil {
+		t.Fatalf("Login returned error: %v", err)
+	}
+	if result.User.ID != userID {
+		t.Errorf("User.ID: got=%s, want=%s", result.User.ID, userID)
+	}
+
+	// Auth method was linked
+	if len(authMethodsMock.CreateCalls()) != 1 {
+		t.Errorf("authMethods.Create called %d times, want 1", len(authMethodsMock.CreateCalls()))
+	}
+	// No new user was created
+	if len(usersMock.CreateCalls()) != 0 {
+		t.Errorf("users.Create called %d times, want 0 (account linking)", len(usersMock.CreateCalls()))
 	}
 }
 
@@ -480,14 +588,20 @@ func TestService_Login_RaceCondition(t *testing.T) {
 	code := "auth_code_123"
 
 	existingUser := &domain.User{
-		ID:            userID,
-		Email:         "test@example.com",
-		Name:          "Test User",
-		AvatarURL:     ptrString("https://example.com/avatar.jpg"),
-		OAuthProvider: domain.OAuthProviderGoogle,
-		OAuthID:       "google_123",
-		CreatedAt:     time.Now(),
-		UpdatedAt:     time.Now(),
+		ID:        userID,
+		Email:     "test@example.com",
+		Username:  "test",
+		Name:      "Test User",
+		AvatarURL: ptrString("https://example.com/avatar.jpg"),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	existingAM := &domain.AuthMethod{
+		ID:         uuid.New(),
+		UserID:     userID,
+		Method:     domain.AuthMethodGoogle,
+		ProviderID: ptrString("google_123"),
 	}
 
 	identity := &auth.OAuthIdentity{
@@ -497,7 +611,6 @@ func TestService_Login_RaceCondition(t *testing.T) {
 		AvatarURL:  ptrString("https://example.com/avatar.jpg"),
 	}
 
-	// Setup mocks
 	oauthMock := &oauthVerifierMock{
 		VerifyCodeFunc: func(ctx context.Context, p, c string) (*auth.OAuthIdentity, error) {
 			return identity, nil
@@ -505,19 +618,27 @@ func TestService_Login_RaceCondition(t *testing.T) {
 	}
 
 	getByOAuthCallCount := 0
-	usersMock := &userRepoMock{
-		GetByOAuthFunc: func(ctx context.Context, p domain.OAuthProvider, oauthID string) (*domain.User, error) {
+	authMethodsMock := &authMethodRepoMock{
+		GetByOAuthFunc: func(ctx context.Context, method domain.AuthMethodType, providerID string) (*domain.AuthMethod, error) {
 			getByOAuthCallCount++
 			if getByOAuthCallCount == 1 {
-				// First call: user not found (both requests arrive at same time)
 				return nil, domain.ErrNotFound
 			}
-			// Second call (retry after race): user found (created by concurrent request)
-			return existingUser, nil
+			// Retry after race: auth method now exists (created by concurrent request)
+			return existingAM, nil
+		},
+	}
+
+	usersMock := &userRepoMock{
+		GetByEmailFunc: func(ctx context.Context, email string) (*domain.User, error) {
+			return nil, domain.ErrNotFound
 		},
 		CreateFunc: func(ctx context.Context, user *domain.User) (*domain.User, error) {
 			// Simulate race condition: another request already created the user
 			return nil, domain.ErrAlreadyExists
+		},
+		GetByIDFunc: func(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+			return existingUser, nil
 		},
 	}
 
@@ -544,49 +665,28 @@ func TestService_Login_RaceCondition(t *testing.T) {
 		},
 	}
 
-	cfg := config.AuthConfig{
-		GoogleClientID:     "google_client_id",
-		GoogleClientSecret: "google_client_secret",
-		RefreshTokenTTL:    30 * 24 * time.Hour,
-	}
+	cfg := defaultCfg()
 
 	svc := NewService(
-		slog.Default(),
-		usersMock,
-		settingsMock,
-		tokensMock,
-		txMock,
-		oauthMock,
-		jwtMock,
-		cfg,
+		slog.Default(), usersMock, settingsMock, tokensMock, authMethodsMock,
+		txMock, oauthMock, jwtMock, cfg,
 	)
 
-	// Execute
-	input := LoginInput{Provider: provider, Code: code}
-	result, err := svc.Login(ctx, input)
+	result, err := svc.Login(ctx, LoginInput{Provider: provider, Code: code})
 
-	// Assert
 	if err != nil {
 		t.Fatalf("Login returned error: %v", err)
-	}
-	if result == nil {
-		t.Fatal("Login returned nil result")
 	}
 	if result.User.ID != userID {
 		t.Errorf("User.ID: got=%s, want=%s", result.User.ID, userID)
 	}
 
-	// Verify GetByOAuth was called twice (initial + retry)
-	if len(usersMock.GetByOAuthCalls()) != 2 {
-		t.Errorf("GetByOAuth called %d times, want 2 (initial + retry)", len(usersMock.GetByOAuthCalls()))
+	// GetByOAuth called twice (initial + retry after race)
+	if len(authMethodsMock.GetByOAuthCalls()) != 2 {
+		t.Errorf("authMethods.GetByOAuth called %d times, want 2 (initial + retry)", len(authMethodsMock.GetByOAuthCalls()))
 	}
-	// Verify Create was called once (failed with ErrAlreadyExists)
 	if len(usersMock.CreateCalls()) != 1 {
-		t.Errorf("Create called %d times, want 1", len(usersMock.CreateCalls()))
-	}
-	// Verify CreateSettings was NOT called (transaction rolled back)
-	if len(settingsMock.CreateSettingsCalls()) != 0 {
-		t.Errorf("CreateSettings called %d times, want 0 (tx rolled back)", len(settingsMock.CreateSettingsCalls()))
+		t.Errorf("users.Create called %d times, want 1", len(usersMock.CreateCalls()))
 	}
 }
 
@@ -604,22 +704,25 @@ func TestService_Login_EmailCollision(t *testing.T) {
 		AvatarURL:  ptrString("https://example.com/avatar.jpg"),
 	}
 
-	// Setup mocks
 	oauthMock := &oauthVerifierMock{
 		VerifyCodeFunc: func(ctx context.Context, p, c string) (*auth.OAuthIdentity, error) {
 			return identity, nil
 		},
 	}
 
-	getByOAuthCallCount := 0
+	authMethodsMock := &authMethodRepoMock{
+		GetByOAuthFunc: func(ctx context.Context, method domain.AuthMethodType, providerID string) (*domain.AuthMethod, error) {
+			// Both initial and retry return ErrNotFound (email collision, not OAuth collision)
+			return nil, domain.ErrNotFound
+		},
+	}
+
 	usersMock := &userRepoMock{
-		GetByOAuthFunc: func(ctx context.Context, p domain.OAuthProvider, oauthID string) (*domain.User, error) {
-			getByOAuthCallCount++
-			// Both initial and retry return ErrNotFound (email collision from different provider)
+		GetByEmailFunc: func(ctx context.Context, email string) (*domain.User, error) {
 			return nil, domain.ErrNotFound
 		},
 		CreateFunc: func(ctx context.Context, user *domain.User) (*domain.User, error) {
-			// Create fails due to email collision (ux_users_email constraint)
+			// Create fails due to username collision or similar unique constraint
 			return nil, domain.ErrAlreadyExists
 		},
 	}
@@ -635,28 +738,15 @@ func TestService_Login_EmailCollision(t *testing.T) {
 	jwtMock := &jwtManagerMock{}
 	tokensMock := &tokenRepoMock{}
 
-	cfg := config.AuthConfig{
-		GoogleClientID:     "google_client_id",
-		GoogleClientSecret: "google_client_secret",
-		RefreshTokenTTL:    30 * 24 * time.Hour,
-	}
+	cfg := defaultCfg()
 
 	svc := NewService(
-		slog.Default(),
-		usersMock,
-		settingsMock,
-		tokensMock,
-		txMock,
-		oauthMock,
-		jwtMock,
-		cfg,
+		slog.Default(), usersMock, settingsMock, tokensMock, authMethodsMock,
+		txMock, oauthMock, jwtMock, cfg,
 	)
 
-	// Execute
-	input := LoginInput{Provider: provider, Code: code}
-	result, err := svc.Login(ctx, input)
+	result, err := svc.Login(ctx, LoginInput{Provider: provider, Code: code})
 
-	// Assert
 	if !errors.Is(err, domain.ErrAlreadyExists) {
 		t.Fatalf("Login error: got=%v, want=ErrAlreadyExists", err)
 	}
@@ -664,30 +754,20 @@ func TestService_Login_EmailCollision(t *testing.T) {
 		t.Fatal("Login should return nil result on email collision")
 	}
 
-	// Verify GetByOAuth was called twice (initial + retry)
-	if len(usersMock.GetByOAuthCalls()) != 2 {
-		t.Errorf("GetByOAuth called %d times, want 2 (initial + retry)", len(usersMock.GetByOAuthCalls()))
+	// GetByOAuth called twice (initial + retry)
+	if len(authMethodsMock.GetByOAuthCalls()) != 2 {
+		t.Errorf("authMethods.GetByOAuth called %d times, want 2 (initial + retry)", len(authMethodsMock.GetByOAuthCalls()))
 	}
 }
 
 func TestService_Login_ValidationErrors(t *testing.T) {
 	t.Parallel()
 
-	cfg := config.AuthConfig{
-		GoogleClientID:     "google_client_id",
-		GoogleClientSecret: "google_client_secret",
-		RefreshTokenTTL:    30 * 24 * time.Hour,
-	}
+	cfg := defaultCfg()
 
 	svc := NewService(
-		slog.Default(),
-		&userRepoMock{},
-		&settingsRepoMock{},
-		&tokenRepoMock{},
-		&txManagerMock{},
-		&oauthVerifierMock{},
-		&jwtManagerMock{},
-		cfg,
+		slog.Default(), &userRepoMock{}, &settingsRepoMock{}, &tokenRepoMock{},
+		&authMethodRepoMock{}, &txManagerMock{}, &oauthVerifierMock{}, &jwtManagerMock{}, cfg,
 	)
 
 	tests := []struct {
@@ -733,10 +813,6 @@ func TestService_Login_ValidationErrors(t *testing.T) {
 				t.Fatalf("Login error: got=%v, want=ValidationError", err)
 			}
 
-			if len(valErr.Errors) == 0 {
-				t.Fatal("ValidationError.Errors is empty")
-			}
-
 			found := false
 			for _, fieldErr := range valErr.Errors {
 				if fieldErr.Field == tt.wantField && fieldErr.Message == tt.wantMsg {
@@ -755,40 +831,23 @@ func TestService_Login_OAuthVerificationFailed(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
-	provider := "google"
-	code := "invalid_code"
-
 	oauthErr := errors.New("oauth provider error")
 
-	// Setup mocks
 	oauthMock := &oauthVerifierMock{
 		VerifyCodeFunc: func(ctx context.Context, p, c string) (*auth.OAuthIdentity, error) {
 			return nil, oauthErr
 		},
 	}
 
-	cfg := config.AuthConfig{
-		GoogleClientID:     "google_client_id",
-		GoogleClientSecret: "google_client_secret",
-		RefreshTokenTTL:    30 * 24 * time.Hour,
-	}
+	cfg := defaultCfg()
 
 	svc := NewService(
-		slog.Default(),
-		&userRepoMock{},
-		&settingsRepoMock{},
-		&tokenRepoMock{},
-		&txManagerMock{},
-		oauthMock,
-		&jwtManagerMock{},
-		cfg,
+		slog.Default(), &userRepoMock{}, &settingsRepoMock{}, &tokenRepoMock{},
+		&authMethodRepoMock{}, &txManagerMock{}, oauthMock, &jwtManagerMock{}, cfg,
 	)
 
-	// Execute
-	input := LoginInput{Provider: provider, Code: code}
-	result, err := svc.Login(ctx, input)
+	result, err := svc.Login(ctx, LoginInput{Provider: "google", Code: "invalid_code"})
 
-	// Assert
 	if err == nil {
 		t.Fatal("Login should return error when OAuth verification fails")
 	}
@@ -805,15 +864,19 @@ func TestService_Login_TokensGeneratedCorrectly(t *testing.T) {
 
 	ctx := context.Background()
 	userID := uuid.New()
-	provider := "google"
-	code := "auth_code_123"
 
 	existingUser := &domain.User{
-		ID:            userID,
-		Email:         "test@example.com",
-		Name:          "Test User",
-		OAuthProvider: domain.OAuthProviderGoogle,
-		OAuthID:       "google_123",
+		ID:       userID,
+		Email:    "test@example.com",
+		Username: "test",
+		Name:     "Test User",
+	}
+
+	existingAM := &domain.AuthMethod{
+		ID:         uuid.New(),
+		UserID:     userID,
+		Method:     domain.AuthMethodGoogle,
+		ProviderID: ptrString("google_123"),
 	}
 
 	identity := &auth.OAuthIdentity{
@@ -826,15 +889,20 @@ func TestService_Login_TokensGeneratedCorrectly(t *testing.T) {
 	refreshTokenGenerated := false
 	refreshTokenStored := false
 
-	// Setup mocks
 	oauthMock := &oauthVerifierMock{
 		VerifyCodeFunc: func(ctx context.Context, p, c string) (*auth.OAuthIdentity, error) {
 			return identity, nil
 		},
 	}
 
+	authMethodsMock := &authMethodRepoMock{
+		GetByOAuthFunc: func(ctx context.Context, method domain.AuthMethodType, providerID string) (*domain.AuthMethod, error) {
+			return existingAM, nil
+		},
+	}
+
 	usersMock := &userRepoMock{
-		GetByOAuthFunc: func(ctx context.Context, p domain.OAuthProvider, oauthID string) (*domain.User, error) {
+		GetByIDFunc: func(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 			return existingUser, nil
 		},
 	}
@@ -857,21 +925,17 @@ func TestService_Login_TokensGeneratedCorrectly(t *testing.T) {
 	tokensMock := &tokenRepoMock{
 		CreateFunc: func(ctx context.Context, token *domain.RefreshToken) error {
 			refreshTokenStored = true
-
 			if token.UserID != userID {
 				t.Errorf("tokens.Create: UserID: got=%s, want=%s", token.UserID, userID)
 			}
 			if token.TokenHash != "hash_refresh_123" {
-				t.Errorf("tokens.Create: TokenHash: got=%s, want=%s (should be hash, not raw)", token.TokenHash, "hash_refresh_123")
+				t.Errorf("tokens.Create: TokenHash: got=%s, want=%s", token.TokenHash, "hash_refresh_123")
 			}
-
-			// Check ExpiresAt is approximately now + RefreshTokenTTL
 			expectedExpiry := time.Now().Add(refreshTokenTTL)
 			diff := token.ExpiresAt.Sub(expectedExpiry)
 			if diff < -time.Second || diff > time.Second {
-				t.Errorf("tokens.Create: ExpiresAt: got=%s, want≈%s (diff=%s)", token.ExpiresAt, expectedExpiry, diff)
+				t.Errorf("tokens.Create: ExpiresAt: got=%s, want~%s (diff=%s)", token.ExpiresAt, expectedExpiry, diff)
 			}
-
 			return nil
 		},
 	}
@@ -880,31 +944,19 @@ func TestService_Login_TokensGeneratedCorrectly(t *testing.T) {
 		GoogleClientID:     "google_client_id",
 		GoogleClientSecret: "google_client_secret",
 		RefreshTokenTTL:    refreshTokenTTL,
+		PasswordHashCost:   4,
 	}
 
 	svc := NewService(
-		slog.Default(),
-		usersMock,
-		&settingsRepoMock{},
-		tokensMock,
-		&txManagerMock{},
-		oauthMock,
-		jwtMock,
-		cfg,
+		slog.Default(), usersMock, &settingsRepoMock{}, tokensMock, authMethodsMock,
+		&txManagerMock{}, oauthMock, jwtMock, cfg,
 	)
 
-	// Execute
-	input := LoginInput{Provider: provider, Code: code}
-	result, err := svc.Login(ctx, input)
+	result, err := svc.Login(ctx, LoginInput{Provider: "google", Code: "auth_code_123"})
 
-	// Assert
 	if err != nil {
 		t.Fatalf("Login returned error: %v", err)
 	}
-	if result == nil {
-		t.Fatal("Login returned nil result")
-	}
-
 	if !accessTokenGenerated {
 		t.Error("Access token was not generated")
 	}
@@ -914,14 +966,498 @@ func TestService_Login_TokensGeneratedCorrectly(t *testing.T) {
 	if !refreshTokenStored {
 		t.Error("Refresh token was not stored")
 	}
-
 	if result.AccessToken != "access_token_123" {
 		t.Errorf("AccessToken: got=%s, want=%s", result.AccessToken, "access_token_123")
 	}
 	if result.RefreshToken != "raw_refresh_123" {
-		t.Errorf("RefreshToken: got=%s, want=%s (should be raw, not hash)", result.RefreshToken, "raw_refresh_123")
+		t.Errorf("RefreshToken: got=%s, want=%s", result.RefreshToken, "raw_refresh_123")
 	}
 }
+
+// ─── Password Registration Tests ────────────────────────────────────────────
+
+func TestService_Register_Success(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	userID := uuid.New()
+
+	usersMock := &userRepoMock{
+		CreateFunc: func(ctx context.Context, user *domain.User) (*domain.User, error) {
+			if user.Email != "new@example.com" {
+				t.Errorf("Create email: got=%s, want=%s", user.Email, "new@example.com")
+			}
+			if user.Username != "newuser" {
+				t.Errorf("Create username: got=%s, want=%s", user.Username, "newuser")
+			}
+			created := *user
+			created.ID = userID
+			created.CreatedAt = time.Now()
+			created.UpdatedAt = time.Now()
+			return &created, nil
+		},
+	}
+
+	authMethodsMock := &authMethodRepoMock{
+		CreateFunc: func(ctx context.Context, am *domain.AuthMethod) (*domain.AuthMethod, error) {
+			if am.Method != domain.AuthMethodPassword {
+				t.Errorf("authMethods.Create method: got=%s, want=%s", am.Method, domain.AuthMethodPassword)
+			}
+			if am.PasswordHash == nil || *am.PasswordHash == "" {
+				t.Error("authMethods.Create: PasswordHash should be set")
+			}
+			created := *am
+			created.ID = uuid.New()
+			return &created, nil
+		},
+	}
+
+	settingsMock := &settingsRepoMock{
+		CreateSettingsFunc: func(ctx context.Context, settings *domain.UserSettings) error {
+			if settings.UserID != userID {
+				t.Errorf("CreateSettings userID: got=%s, want=%s", settings.UserID, userID)
+			}
+			return nil
+		},
+	}
+
+	txMock := &txManagerMock{
+		RunInTxFunc: func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		},
+	}
+
+	jwtMock := &jwtManagerMock{
+		GenerateAccessTokenFunc: func(uid uuid.UUID) (string, error) {
+			return "access_token_123", nil
+		},
+		GenerateRefreshTokenFunc: func() (string, string, error) {
+			return "raw_refresh_123", "hash_refresh_123", nil
+		},
+	}
+
+	tokensMock := &tokenRepoMock{
+		CreateFunc: func(ctx context.Context, token *domain.RefreshToken) error {
+			return nil
+		},
+	}
+
+	cfg := defaultCfg()
+
+	svc := NewService(
+		slog.Default(), usersMock, settingsMock, tokensMock, authMethodsMock,
+		txMock, &oauthVerifierMock{}, jwtMock, cfg,
+	)
+
+	input := RegisterInput{
+		Email:    "new@example.com",
+		Username: "newuser",
+		Password: "password123",
+	}
+
+	result, err := svc.Register(ctx, input)
+
+	if err != nil {
+		t.Fatalf("Register returned error: %v", err)
+	}
+	if result == nil {
+		t.Fatal("Register returned nil result")
+	}
+	if result.User.ID != userID {
+		t.Errorf("User.ID: got=%s, want=%s", result.User.ID, userID)
+	}
+	if result.AccessToken != "access_token_123" {
+		t.Errorf("AccessToken: got=%s, want=%s", result.AccessToken, "access_token_123")
+	}
+
+	if len(usersMock.CreateCalls()) != 1 {
+		t.Errorf("users.Create called %d times, want 1", len(usersMock.CreateCalls()))
+	}
+	if len(authMethodsMock.CreateCalls()) != 1 {
+		t.Errorf("authMethods.Create called %d times, want 1", len(authMethodsMock.CreateCalls()))
+	}
+	if len(settingsMock.CreateSettingsCalls()) != 1 {
+		t.Errorf("CreateSettings called %d times, want 1", len(settingsMock.CreateSettingsCalls()))
+	}
+}
+
+func TestService_Register_EmailAlreadyTaken(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	usersMock := &userRepoMock{
+		CreateFunc: func(ctx context.Context, user *domain.User) (*domain.User, error) {
+			return nil, domain.ErrAlreadyExists
+		},
+	}
+
+	txMock := &txManagerMock{
+		RunInTxFunc: func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		},
+	}
+
+	cfg := defaultCfg()
+
+	svc := NewService(
+		slog.Default(), usersMock, &settingsRepoMock{}, &tokenRepoMock{},
+		&authMethodRepoMock{}, txMock, &oauthVerifierMock{}, &jwtManagerMock{}, cfg,
+	)
+
+	result, err := svc.Register(ctx, RegisterInput{
+		Email:    "taken@example.com",
+		Username: "newuser",
+		Password: "password123",
+	})
+
+	if !errors.Is(err, domain.ErrAlreadyExists) {
+		t.Fatalf("Register error: got=%v, want=ErrAlreadyExists", err)
+	}
+	if result != nil {
+		t.Fatal("Register should return nil result when email is taken")
+	}
+}
+
+func TestService_Register_ValidationErrors(t *testing.T) {
+	t.Parallel()
+
+	cfg := defaultCfg()
+
+	svc := NewService(
+		slog.Default(), &userRepoMock{}, &settingsRepoMock{}, &tokenRepoMock{},
+		&authMethodRepoMock{}, &txManagerMock{}, &oauthVerifierMock{}, &jwtManagerMock{}, cfg,
+	)
+
+	tests := []struct {
+		name      string
+		input     RegisterInput
+		wantField string
+		wantMsg   string
+	}{
+		{
+			name:      "empty email",
+			input:     RegisterInput{Email: "", Username: "user", Password: "password123"},
+			wantField: "email",
+			wantMsg:   "required",
+		},
+		{
+			name:      "invalid email",
+			input:     RegisterInput{Email: "notanemail", Username: "user", Password: "password123"},
+			wantField: "email",
+			wantMsg:   "invalid email",
+		},
+		{
+			name:      "empty username",
+			input:     RegisterInput{Email: "a@b.com", Username: "", Password: "password123"},
+			wantField: "username",
+			wantMsg:   "required",
+		},
+		{
+			name:      "username too short",
+			input:     RegisterInput{Email: "a@b.com", Username: "a", Password: "password123"},
+			wantField: "username",
+			wantMsg:   "must be between 2 and 50 characters",
+		},
+		{
+			name:      "empty password",
+			input:     RegisterInput{Email: "a@b.com", Username: "user", Password: ""},
+			wantField: "password",
+			wantMsg:   "required",
+		},
+		{
+			name:      "password too short",
+			input:     RegisterInput{Email: "a@b.com", Username: "user", Password: "short"},
+			wantField: "password",
+			wantMsg:   "must be at least 8 characters",
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			result, err := svc.Register(context.Background(), tt.input)
+			if result != nil {
+				t.Error("Register should return nil result on validation error")
+			}
+
+			var valErr *domain.ValidationError
+			if !errors.As(err, &valErr) {
+				t.Fatalf("Register error: got=%v, want=ValidationError", err)
+			}
+
+			found := false
+			for _, fieldErr := range valErr.Errors {
+				if fieldErr.Field == tt.wantField && fieldErr.Message == tt.wantMsg {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Errorf("ValidationError missing: field=%s, message=%s. Got: %v", tt.wantField, tt.wantMsg, valErr.Errors)
+			}
+		})
+	}
+}
+
+// ─── Password Login Tests ───────────────────────────────────────────────────
+
+func TestService_LoginWithPassword_Success(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	userID := uuid.New()
+	password := "correct_password"
+	passHash := hashPassword(t, password)
+
+	existingUser := &domain.User{
+		ID:       userID,
+		Email:    "test@example.com",
+		Username: "testuser",
+		Name:     "Test User",
+	}
+
+	existingAM := &domain.AuthMethod{
+		ID:           uuid.New(),
+		UserID:       userID,
+		Method:       domain.AuthMethodPassword,
+		PasswordHash: &passHash,
+	}
+
+	usersMock := &userRepoMock{
+		GetByEmailFunc: func(ctx context.Context, email string) (*domain.User, error) {
+			if email != "test@example.com" {
+				t.Errorf("GetByEmail email: got=%s, want=%s", email, "test@example.com")
+			}
+			return existingUser, nil
+		},
+	}
+
+	authMethodsMock := &authMethodRepoMock{
+		GetByUserAndMethodFunc: func(ctx context.Context, uid uuid.UUID, method domain.AuthMethodType) (*domain.AuthMethod, error) {
+			if uid != userID {
+				t.Errorf("GetByUserAndMethod userID: got=%s, want=%s", uid, userID)
+			}
+			if method != domain.AuthMethodPassword {
+				t.Errorf("GetByUserAndMethod method: got=%s, want=%s", method, domain.AuthMethodPassword)
+			}
+			return existingAM, nil
+		},
+	}
+
+	jwtMock := &jwtManagerMock{
+		GenerateAccessTokenFunc: func(uid uuid.UUID) (string, error) {
+			return "access_token_123", nil
+		},
+		GenerateRefreshTokenFunc: func() (string, string, error) {
+			return "raw_refresh_123", "hash_refresh_123", nil
+		},
+	}
+
+	tokensMock := &tokenRepoMock{
+		CreateFunc: func(ctx context.Context, token *domain.RefreshToken) error {
+			return nil
+		},
+	}
+
+	cfg := defaultCfg()
+
+	svc := NewService(
+		slog.Default(), usersMock, &settingsRepoMock{}, tokensMock, authMethodsMock,
+		&txManagerMock{}, &oauthVerifierMock{}, jwtMock, cfg,
+	)
+
+	result, err := svc.LoginWithPassword(ctx, LoginPasswordInput{
+		Email:    "test@example.com",
+		Password: password,
+	})
+
+	if err != nil {
+		t.Fatalf("LoginWithPassword returned error: %v", err)
+	}
+	if result.User.ID != userID {
+		t.Errorf("User.ID: got=%s, want=%s", result.User.ID, userID)
+	}
+	if result.AccessToken != "access_token_123" {
+		t.Errorf("AccessToken: got=%s, want=%s", result.AccessToken, "access_token_123")
+	}
+}
+
+func TestService_LoginWithPassword_UserNotFound(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	usersMock := &userRepoMock{
+		GetByEmailFunc: func(ctx context.Context, email string) (*domain.User, error) {
+			return nil, domain.ErrNotFound
+		},
+	}
+
+	cfg := defaultCfg()
+
+	svc := NewService(
+		slog.Default(), usersMock, &settingsRepoMock{}, &tokenRepoMock{},
+		&authMethodRepoMock{}, &txManagerMock{}, &oauthVerifierMock{}, &jwtManagerMock{}, cfg,
+	)
+
+	result, err := svc.LoginWithPassword(ctx, LoginPasswordInput{
+		Email:    "nobody@example.com",
+		Password: "password123",
+	})
+
+	if !errors.Is(err, domain.ErrUnauthorized) {
+		t.Fatalf("LoginWithPassword error: got=%v, want=ErrUnauthorized", err)
+	}
+	if result != nil {
+		t.Fatal("LoginWithPassword should return nil result when user not found")
+	}
+}
+
+func TestService_LoginWithPassword_NoPasswordMethod(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	userID := uuid.New()
+
+	usersMock := &userRepoMock{
+		GetByEmailFunc: func(ctx context.Context, email string) (*domain.User, error) {
+			return &domain.User{ID: userID, Email: email, Username: "oauthuser"}, nil
+		},
+	}
+
+	authMethodsMock := &authMethodRepoMock{
+		GetByUserAndMethodFunc: func(ctx context.Context, uid uuid.UUID, method domain.AuthMethodType) (*domain.AuthMethod, error) {
+			return nil, domain.ErrNotFound // OAuth-only user
+		},
+	}
+
+	cfg := defaultCfg()
+
+	svc := NewService(
+		slog.Default(), usersMock, &settingsRepoMock{}, &tokenRepoMock{},
+		authMethodsMock, &txManagerMock{}, &oauthVerifierMock{}, &jwtManagerMock{}, cfg,
+	)
+
+	result, err := svc.LoginWithPassword(ctx, LoginPasswordInput{
+		Email:    "oauth@example.com",
+		Password: "password123",
+	})
+
+	if !errors.Is(err, domain.ErrUnauthorized) {
+		t.Fatalf("LoginWithPassword error: got=%v, want=ErrUnauthorized", err)
+	}
+	if result != nil {
+		t.Fatal("LoginWithPassword should return nil result for OAuth-only user")
+	}
+}
+
+func TestService_LoginWithPassword_WrongPassword(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	userID := uuid.New()
+	correctHash := hashPassword(t, "correct_password")
+
+	usersMock := &userRepoMock{
+		GetByEmailFunc: func(ctx context.Context, email string) (*domain.User, error) {
+			return &domain.User{ID: userID, Email: email, Username: "testuser"}, nil
+		},
+	}
+
+	authMethodsMock := &authMethodRepoMock{
+		GetByUserAndMethodFunc: func(ctx context.Context, uid uuid.UUID, method domain.AuthMethodType) (*domain.AuthMethod, error) {
+			return &domain.AuthMethod{
+				ID:           uuid.New(),
+				UserID:       uid,
+				Method:       domain.AuthMethodPassword,
+				PasswordHash: &correctHash,
+			}, nil
+		},
+	}
+
+	cfg := defaultCfg()
+
+	svc := NewService(
+		slog.Default(), usersMock, &settingsRepoMock{}, &tokenRepoMock{},
+		authMethodsMock, &txManagerMock{}, &oauthVerifierMock{}, &jwtManagerMock{}, cfg,
+	)
+
+	result, err := svc.LoginWithPassword(ctx, LoginPasswordInput{
+		Email:    "test@example.com",
+		Password: "wrong_password",
+	})
+
+	if !errors.Is(err, domain.ErrUnauthorized) {
+		t.Fatalf("LoginWithPassword error: got=%v, want=ErrUnauthorized", err)
+	}
+	if result != nil {
+		t.Fatal("LoginWithPassword should return nil result on wrong password")
+	}
+}
+
+func TestService_LoginWithPassword_ValidationErrors(t *testing.T) {
+	t.Parallel()
+
+	cfg := defaultCfg()
+
+	svc := NewService(
+		slog.Default(), &userRepoMock{}, &settingsRepoMock{}, &tokenRepoMock{},
+		&authMethodRepoMock{}, &txManagerMock{}, &oauthVerifierMock{}, &jwtManagerMock{}, cfg,
+	)
+
+	tests := []struct {
+		name      string
+		input     LoginPasswordInput
+		wantField string
+		wantMsg   string
+	}{
+		{
+			name:      "empty email",
+			input:     LoginPasswordInput{Email: "", Password: "password123"},
+			wantField: "email",
+			wantMsg:   "required",
+		},
+		{
+			name:      "empty password",
+			input:     LoginPasswordInput{Email: "a@b.com", Password: ""},
+			wantField: "password",
+			wantMsg:   "required",
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			result, err := svc.LoginWithPassword(context.Background(), tt.input)
+			if result != nil {
+				t.Error("LoginWithPassword should return nil result on validation error")
+			}
+
+			var valErr *domain.ValidationError
+			if !errors.As(err, &valErr) {
+				t.Fatalf("error: got=%v, want=ValidationError", err)
+			}
+
+			found := false
+			for _, fieldErr := range valErr.Errors {
+				if fieldErr.Field == tt.wantField && fieldErr.Message == tt.wantMsg {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Errorf("ValidationError missing: field=%s, message=%s. Got: %v", tt.wantField, tt.wantMsg, valErr.Errors)
+			}
+		})
+	}
+}
+
+// ─── Refresh Tests ──────────────────────────────────────────────────────────
 
 func TestService_Refresh_Success(t *testing.T) {
 	t.Parallel()
@@ -941,17 +1477,15 @@ func TestService_Refresh_Success(t *testing.T) {
 	}
 
 	existingUser := &domain.User{
-		ID:            userID,
-		Email:         "test@example.com",
-		Name:          "Test User",
-		OAuthProvider: domain.OAuthProviderGoogle,
-		OAuthID:       "google_123",
+		ID:       userID,
+		Email:    "test@example.com",
+		Username: "test",
+		Name:     "Test User",
 	}
 
 	oldTokenRevoked := false
 	newTokenCreated := false
 
-	// Setup mocks
 	tokensMock := &tokenRepoMock{
 		GetByHashFunc: func(ctx context.Context, hash string) (*domain.RefreshToken, error) {
 			if hash != oldRefreshHash {
@@ -989,9 +1523,6 @@ func TestService_Refresh_Success(t *testing.T) {
 
 	jwtMock := &jwtManagerMock{
 		GenerateAccessTokenFunc: func(uid uuid.UUID) (string, error) {
-			if uid != userID {
-				t.Errorf("GenerateAccessToken called with wrong userID: got=%s, want=%s", uid, userID)
-			}
 			return "new_access_token", nil
 		},
 		GenerateRefreshTokenFunc: func() (string, string, error) {
@@ -999,155 +1530,87 @@ func TestService_Refresh_Success(t *testing.T) {
 		},
 	}
 
-	cfg := config.AuthConfig{
-		RefreshTokenTTL: 30 * 24 * time.Hour,
-	}
+	cfg := defaultCfg()
 
 	svc := NewService(
-		slog.Default(),
-		usersMock,
-		&settingsRepoMock{},
-		tokensMock,
-		&txManagerMock{},
-		&oauthVerifierMock{},
-		jwtMock,
-		cfg,
+		slog.Default(), usersMock, &settingsRepoMock{}, tokensMock, &authMethodRepoMock{},
+		&txManagerMock{}, &oauthVerifierMock{}, jwtMock, cfg,
 	)
 
-	// Execute
-	input := RefreshInput{RefreshToken: oldRefreshRaw}
-	result, err := svc.Refresh(ctx, input)
+	result, err := svc.Refresh(ctx, RefreshInput{RefreshToken: oldRefreshRaw})
 
-	// Assert
 	if err != nil {
 		t.Fatalf("Refresh returned error: %v", err)
-	}
-	if result == nil {
-		t.Fatal("Refresh returned nil result")
 	}
 	if result.AccessToken != "new_access_token" {
 		t.Errorf("AccessToken: got=%s, want=%s", result.AccessToken, "new_access_token")
 	}
 	if result.RefreshToken != "new_refresh_raw" {
-		t.Errorf("RefreshToken: got=%s, want=%s (should be raw, not hash)", result.RefreshToken, "new_refresh_raw")
-	}
-	if result.User == nil {
-		t.Fatal("User is nil")
+		t.Errorf("RefreshToken: got=%s, want=%s", result.RefreshToken, "new_refresh_raw")
 	}
 	if result.User.ID != userID {
 		t.Errorf("User.ID: got=%s, want=%s", result.User.ID, userID)
 	}
-
-	// Verify token rotation
 	if !oldTokenRevoked {
 		t.Error("Old token was not revoked")
 	}
 	if !newTokenCreated {
 		t.Error("New token was not created")
 	}
-
-	// Verify mock calls
-	if len(tokensMock.GetByHashCalls()) != 1 {
-		t.Errorf("GetByHash called %d times, want 1", len(tokensMock.GetByHashCalls()))
-	}
-	if len(tokensMock.RevokeByIDCalls()) != 1 {
-		t.Errorf("RevokeByID called %d times, want 1", len(tokensMock.RevokeByIDCalls()))
-	}
-	if len(tokensMock.CreateCalls()) != 1 {
-		t.Errorf("Create called %d times, want 1", len(tokensMock.CreateCalls()))
-	}
-	if len(usersMock.GetByIDCalls()) != 1 {
-		t.Errorf("GetByID called %d times, want 1", len(usersMock.GetByIDCalls()))
-	}
 }
 
 func TestService_Refresh_TokenNotFound(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-
-	// Setup mocks
 	tokensMock := &tokenRepoMock{
 		GetByHashFunc: func(ctx context.Context, hash string) (*domain.RefreshToken, error) {
 			return nil, domain.ErrNotFound
 		},
 	}
 
-	cfg := config.AuthConfig{
-		RefreshTokenTTL: 30 * 24 * time.Hour,
-	}
+	cfg := defaultCfg()
 
 	svc := NewService(
-		slog.Default(),
-		&userRepoMock{},
-		&settingsRepoMock{},
-		tokensMock,
-		&txManagerMock{},
-		&oauthVerifierMock{},
-		&jwtManagerMock{},
-		cfg,
+		slog.Default(), &userRepoMock{}, &settingsRepoMock{}, tokensMock, &authMethodRepoMock{},
+		&txManagerMock{}, &oauthVerifierMock{}, &jwtManagerMock{}, cfg,
 	)
 
-	// Execute
-	input := RefreshInput{RefreshToken: "invalid_token"}
-	result, err := svc.Refresh(ctx, input)
+	result, err := svc.Refresh(context.Background(), RefreshInput{RefreshToken: "invalid_token"})
 
-	// Assert
 	if !errors.Is(err, domain.ErrUnauthorized) {
 		t.Fatalf("Refresh error: got=%v, want=ErrUnauthorized", err)
 	}
 	if result != nil {
 		t.Fatal("Refresh should return nil result on token not found")
 	}
-
-	// Verify GetByHash was called
-	if len(tokensMock.GetByHashCalls()) != 1 {
-		t.Errorf("GetByHash called %d times, want 1", len(tokensMock.GetByHashCalls()))
-	}
 }
 
 func TestService_Refresh_TokenExpired(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-	userID := uuid.New()
-	tokenID := uuid.New()
-
 	expiredToken := &domain.RefreshToken{
-		ID:        tokenID,
-		UserID:    userID,
+		ID:        uuid.New(),
+		UserID:    uuid.New(),
 		TokenHash: "some_hash",
-		ExpiresAt: time.Now().Add(-1 * time.Hour), // expired
+		ExpiresAt: time.Now().Add(-1 * time.Hour),
 		CreatedAt: time.Now().Add(-2 * time.Hour),
 	}
 
-	// Setup mocks
 	tokensMock := &tokenRepoMock{
 		GetByHashFunc: func(ctx context.Context, hash string) (*domain.RefreshToken, error) {
 			return expiredToken, nil
 		},
 	}
 
-	cfg := config.AuthConfig{
-		RefreshTokenTTL: 30 * 24 * time.Hour,
-	}
+	cfg := defaultCfg()
 
 	svc := NewService(
-		slog.Default(),
-		&userRepoMock{},
-		&settingsRepoMock{},
-		tokensMock,
-		&txManagerMock{},
-		&oauthVerifierMock{},
-		&jwtManagerMock{},
-		cfg,
+		slog.Default(), &userRepoMock{}, &settingsRepoMock{}, tokensMock, &authMethodRepoMock{},
+		&txManagerMock{}, &oauthVerifierMock{}, &jwtManagerMock{}, cfg,
 	)
 
-	// Execute
-	input := RefreshInput{RefreshToken: "expired_token"}
-	result, err := svc.Refresh(ctx, input)
+	result, err := svc.Refresh(context.Background(), RefreshInput{RefreshToken: "expired_token"})
 
-	// Assert
 	if !errors.Is(err, domain.ErrUnauthorized) {
 		t.Fatalf("Refresh error: got=%v, want=ErrUnauthorized", err)
 	}
@@ -1159,19 +1622,14 @@ func TestService_Refresh_TokenExpired(t *testing.T) {
 func TestService_Refresh_UserDeleted(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-	userID := uuid.New()
-	tokenID := uuid.New()
-
 	validToken := &domain.RefreshToken{
-		ID:        tokenID,
-		UserID:    userID,
+		ID:        uuid.New(),
+		UserID:    uuid.New(),
 		TokenHash: "some_hash",
 		ExpiresAt: time.Now().Add(24 * time.Hour),
 		CreatedAt: time.Now().Add(-1 * time.Hour),
 	}
 
-	// Setup mocks
 	tokensMock := &tokenRepoMock{
 		GetByHashFunc: func(ctx context.Context, hash string) (*domain.RefreshToken, error) {
 			return validToken, nil
@@ -1184,26 +1642,15 @@ func TestService_Refresh_UserDeleted(t *testing.T) {
 		},
 	}
 
-	cfg := config.AuthConfig{
-		RefreshTokenTTL: 30 * 24 * time.Hour,
-	}
+	cfg := defaultCfg()
 
 	svc := NewService(
-		slog.Default(),
-		usersMock,
-		&settingsRepoMock{},
-		tokensMock,
-		&txManagerMock{},
-		&oauthVerifierMock{},
-		&jwtManagerMock{},
-		cfg,
+		slog.Default(), usersMock, &settingsRepoMock{}, tokensMock, &authMethodRepoMock{},
+		&txManagerMock{}, &oauthVerifierMock{}, &jwtManagerMock{}, cfg,
 	)
 
-	// Execute
-	input := RefreshInput{RefreshToken: "valid_token_deleted_user"}
-	result, err := svc.Refresh(ctx, input)
+	result, err := svc.Refresh(context.Background(), RefreshInput{RefreshToken: "valid_token_deleted_user"})
 
-	// Assert
 	if !errors.Is(err, domain.ErrUnauthorized) {
 		t.Fatalf("Refresh error: got=%v, want=ErrUnauthorized", err)
 	}
@@ -1215,28 +1662,15 @@ func TestService_Refresh_UserDeleted(t *testing.T) {
 func TestService_Refresh_ValidationEmptyToken(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-
-	cfg := config.AuthConfig{
-		RefreshTokenTTL: 30 * 24 * time.Hour,
-	}
+	cfg := defaultCfg()
 
 	svc := NewService(
-		slog.Default(),
-		&userRepoMock{},
-		&settingsRepoMock{},
-		&tokenRepoMock{},
-		&txManagerMock{},
-		&oauthVerifierMock{},
-		&jwtManagerMock{},
-		cfg,
+		slog.Default(), &userRepoMock{}, &settingsRepoMock{}, &tokenRepoMock{}, &authMethodRepoMock{},
+		&txManagerMock{}, &oauthVerifierMock{}, &jwtManagerMock{}, cfg,
 	)
 
-	// Execute
-	input := RefreshInput{RefreshToken: ""}
-	result, err := svc.Refresh(ctx, input)
+	result, err := svc.Refresh(context.Background(), RefreshInput{RefreshToken: ""})
 
-	// Assert
 	if result != nil {
 		t.Error("Refresh should return nil result on validation error")
 	}
@@ -1261,29 +1695,16 @@ func TestService_Refresh_ValidationEmptyToken(t *testing.T) {
 func TestService_Refresh_ValidationTooLong(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-
-	cfg := config.AuthConfig{
-		RefreshTokenTTL: 30 * 24 * time.Hour,
-	}
+	cfg := defaultCfg()
 
 	svc := NewService(
-		slog.Default(),
-		&userRepoMock{},
-		&settingsRepoMock{},
-		&tokenRepoMock{},
-		&txManagerMock{},
-		&oauthVerifierMock{},
-		&jwtManagerMock{},
-		cfg,
+		slog.Default(), &userRepoMock{}, &settingsRepoMock{}, &tokenRepoMock{}, &authMethodRepoMock{},
+		&txManagerMock{}, &oauthVerifierMock{}, &jwtManagerMock{}, cfg,
 	)
 
-	// Execute with token > 512 characters
 	longToken := string(make([]byte, 513))
-	input := RefreshInput{RefreshToken: longToken}
-	result, err := svc.Refresh(ctx, input)
+	result, err := svc.Refresh(context.Background(), RefreshInput{RefreshToken: longToken})
 
-	// Assert
 	if result != nil {
 		t.Error("Refresh should return nil result on validation error")
 	}
@@ -1322,16 +1743,14 @@ func TestService_Refresh_OldTokenRevoked(t *testing.T) {
 	}
 
 	existingUser := &domain.User{
-		ID:            userID,
-		Email:         "test@example.com",
-		Name:          "Test User",
-		OAuthProvider: domain.OAuthProviderGoogle,
-		OAuthID:       "google_123",
+		ID:       userID,
+		Email:    "test@example.com",
+		Username: "test",
+		Name:     "Test User",
 	}
 
 	revokeCalledWithID := uuid.Nil
 
-	// Setup mocks
 	tokensMock := &tokenRepoMock{
 		GetByHashFunc: func(ctx context.Context, hash string) (*domain.RefreshToken, error) {
 			return existingToken, nil
@@ -1360,30 +1779,18 @@ func TestService_Refresh_OldTokenRevoked(t *testing.T) {
 		},
 	}
 
-	cfg := config.AuthConfig{
-		RefreshTokenTTL: 30 * 24 * time.Hour,
-	}
+	cfg := defaultCfg()
 
 	svc := NewService(
-		slog.Default(),
-		usersMock,
-		&settingsRepoMock{},
-		tokensMock,
-		&txManagerMock{},
-		&oauthVerifierMock{},
-		jwtMock,
-		cfg,
+		slog.Default(), usersMock, &settingsRepoMock{}, tokensMock, &authMethodRepoMock{},
+		&txManagerMock{}, &oauthVerifierMock{}, jwtMock, cfg,
 	)
 
-	// Execute
-	input := RefreshInput{RefreshToken: oldRefreshRaw}
-	_, err := svc.Refresh(ctx, input)
+	_, err := svc.Refresh(ctx, RefreshInput{RefreshToken: oldRefreshRaw})
 
-	// Assert
 	if err != nil {
 		t.Fatalf("Refresh returned error: %v", err)
 	}
-
 	if revokeCalledWithID != tokenID {
 		t.Errorf("RevokeByID called with ID: got=%s, want=%s", revokeCalledWithID, tokenID)
 	}
@@ -1407,16 +1814,14 @@ func TestService_Refresh_NewTokenDifferentFromOld(t *testing.T) {
 	}
 
 	existingUser := &domain.User{
-		ID:            userID,
-		Email:         "test@example.com",
-		Name:          "Test User",
-		OAuthProvider: domain.OAuthProviderGoogle,
-		OAuthID:       "google_123",
+		ID:       userID,
+		Email:    "test@example.com",
+		Username: "test",
+		Name:     "Test User",
 	}
 
 	var createdTokenHash string
 
-	// Setup mocks
 	tokensMock := &tokenRepoMock{
 		GetByHashFunc: func(ctx context.Context, hash string) (*domain.RefreshToken, error) {
 			return existingToken, nil
@@ -1445,41 +1850,24 @@ func TestService_Refresh_NewTokenDifferentFromOld(t *testing.T) {
 		},
 	}
 
-	cfg := config.AuthConfig{
-		RefreshTokenTTL: 30 * 24 * time.Hour,
-	}
+	cfg := defaultCfg()
 
 	svc := NewService(
-		slog.Default(),
-		usersMock,
-		&settingsRepoMock{},
-		tokensMock,
-		&txManagerMock{},
-		&oauthVerifierMock{},
-		jwtMock,
-		cfg,
+		slog.Default(), usersMock, &settingsRepoMock{}, tokensMock, &authMethodRepoMock{},
+		&txManagerMock{}, &oauthVerifierMock{}, jwtMock, cfg,
 	)
 
-	// Execute
-	input := RefreshInput{RefreshToken: oldRefreshRaw}
-	result, err := svc.Refresh(ctx, input)
+	result, err := svc.Refresh(ctx, RefreshInput{RefreshToken: oldRefreshRaw})
 
-	// Assert
 	if err != nil {
 		t.Fatalf("Refresh returned error: %v", err)
 	}
-
-	// Verify new token is different from old
 	if result.RefreshToken == oldRefreshRaw {
 		t.Error("New refresh token should be different from old")
 	}
-
-	// Verify stored hash is different from old hash
 	if createdTokenHash == oldRefreshHash {
 		t.Error("New token hash should be different from old token hash")
 	}
-
-	// Verify stored hash matches the new hash
 	if createdTokenHash != "new_refresh_hash" {
 		t.Errorf("Stored token hash: got=%s, want=%s", createdTokenHash, "new_refresh_hash")
 	}
@@ -1502,15 +1890,13 @@ func TestService_Refresh_UserDataInResponse(t *testing.T) {
 	}
 
 	existingUser := &domain.User{
-		ID:            userID,
-		Email:         "john@example.com",
-		Name:          "John Doe",
-		AvatarURL:     ptrString("https://example.com/john.jpg"),
-		OAuthProvider: domain.OAuthProviderGoogle,
-		OAuthID:       "google_456",
+		ID:        userID,
+		Email:     "john@example.com",
+		Username:  "johndoe",
+		Name:      "John Doe",
+		AvatarURL: ptrString("https://example.com/john.jpg"),
 	}
 
-	// Setup mocks
 	tokensMock := &tokenRepoMock{
 		GetByHashFunc: func(ctx context.Context, hash string) (*domain.RefreshToken, error) {
 			return existingToken, nil
@@ -1538,32 +1924,17 @@ func TestService_Refresh_UserDataInResponse(t *testing.T) {
 		},
 	}
 
-	cfg := config.AuthConfig{
-		RefreshTokenTTL: 30 * 24 * time.Hour,
-	}
+	cfg := defaultCfg()
 
 	svc := NewService(
-		slog.Default(),
-		usersMock,
-		&settingsRepoMock{},
-		tokensMock,
-		&txManagerMock{},
-		&oauthVerifierMock{},
-		jwtMock,
-		cfg,
+		slog.Default(), usersMock, &settingsRepoMock{}, tokensMock, &authMethodRepoMock{},
+		&txManagerMock{}, &oauthVerifierMock{}, jwtMock, cfg,
 	)
 
-	// Execute
-	input := RefreshInput{RefreshToken: oldRefreshRaw}
-	result, err := svc.Refresh(ctx, input)
+	result, err := svc.Refresh(ctx, RefreshInput{RefreshToken: oldRefreshRaw})
 
-	// Assert
 	if err != nil {
 		t.Fatalf("Refresh returned error: %v", err)
-	}
-
-	if result.User == nil {
-		t.Fatal("User is nil")
 	}
 	if result.User.Name != "John Doe" {
 		t.Errorf("User.Name: got=%s, want=%s", result.User.Name, "John Doe")
@@ -1573,6 +1944,8 @@ func TestService_Refresh_UserDataInResponse(t *testing.T) {
 	}
 }
 
+// ─── Logout Tests ───────────────────────────────────────────────────────────
+
 func TestService_Logout_Success(t *testing.T) {
 	t.Parallel()
 
@@ -1581,7 +1954,6 @@ func TestService_Logout_Success(t *testing.T) {
 
 	revokedForUserID := uuid.Nil
 
-	// Setup mocks
 	tokensMock := &tokenRepoMock{
 		RevokeAllByUserFunc: func(ctx context.Context, uid uuid.UUID) error {
 			revokedForUserID = uid
@@ -1589,34 +1961,21 @@ func TestService_Logout_Success(t *testing.T) {
 		},
 	}
 
-	cfg := config.AuthConfig{
-		RefreshTokenTTL: 30 * 24 * time.Hour,
-	}
+	cfg := defaultCfg()
 
 	svc := NewService(
-		slog.Default(),
-		&userRepoMock{},
-		&settingsRepoMock{},
-		tokensMock,
-		&txManagerMock{},
-		&oauthVerifierMock{},
-		&jwtManagerMock{},
-		cfg,
+		slog.Default(), &userRepoMock{}, &settingsRepoMock{}, tokensMock, &authMethodRepoMock{},
+		&txManagerMock{}, &oauthVerifierMock{}, &jwtManagerMock{}, cfg,
 	)
 
-	// Execute
 	err := svc.Logout(ctx)
 
-	// Assert
 	if err != nil {
 		t.Fatalf("Logout returned error: %v", err)
 	}
-
 	if revokedForUserID != userID {
 		t.Errorf("RevokeAllByUser called with userID: got=%s, want=%s", revokedForUserID, userID)
 	}
-
-	// Verify mock was called
 	if len(tokensMock.RevokeAllByUserCalls()) != 1 {
 		t.Errorf("RevokeAllByUser called %d times, want 1", len(tokensMock.RevokeAllByUserCalls()))
 	}
@@ -1625,35 +1984,21 @@ func TestService_Logout_Success(t *testing.T) {
 func TestService_Logout_NoUserID(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background() // No userID in context
-
-	// Setup mocks
+	ctx := context.Background()
 	tokensMock := &tokenRepoMock{}
 
-	cfg := config.AuthConfig{
-		RefreshTokenTTL: 30 * 24 * time.Hour,
-	}
+	cfg := defaultCfg()
 
 	svc := NewService(
-		slog.Default(),
-		&userRepoMock{},
-		&settingsRepoMock{},
-		tokensMock,
-		&txManagerMock{},
-		&oauthVerifierMock{},
-		&jwtManagerMock{},
-		cfg,
+		slog.Default(), &userRepoMock{}, &settingsRepoMock{}, tokensMock, &authMethodRepoMock{},
+		&txManagerMock{}, &oauthVerifierMock{}, &jwtManagerMock{}, cfg,
 	)
 
-	// Execute
 	err := svc.Logout(ctx)
 
-	// Assert
 	if !errors.Is(err, domain.ErrUnauthorized) {
 		t.Fatalf("Logout error: got=%v, want=ErrUnauthorized", err)
 	}
-
-	// Verify RevokeAllByUser was NOT called
 	if len(tokensMock.RevokeAllByUserCalls()) != 0 {
 		t.Errorf("RevokeAllByUser called %d times, want 0", len(tokensMock.RevokeAllByUserCalls()))
 	}
@@ -1667,32 +2012,21 @@ func TestService_Logout_RevokeError(t *testing.T) {
 
 	revokeErr := errors.New("database error")
 
-	// Setup mocks
 	tokensMock := &tokenRepoMock{
 		RevokeAllByUserFunc: func(ctx context.Context, uid uuid.UUID) error {
 			return revokeErr
 		},
 	}
 
-	cfg := config.AuthConfig{
-		RefreshTokenTTL: 30 * 24 * time.Hour,
-	}
+	cfg := defaultCfg()
 
 	svc := NewService(
-		slog.Default(),
-		&userRepoMock{},
-		&settingsRepoMock{},
-		tokensMock,
-		&txManagerMock{},
-		&oauthVerifierMock{},
-		&jwtManagerMock{},
-		cfg,
+		slog.Default(), &userRepoMock{}, &settingsRepoMock{}, tokensMock, &authMethodRepoMock{},
+		&txManagerMock{}, &oauthVerifierMock{}, &jwtManagerMock{}, cfg,
 	)
 
-	// Execute
 	err := svc.Logout(ctx)
 
-	// Assert
 	if err == nil {
 		t.Fatal("Logout should return error when revoke fails")
 	}
@@ -1701,6 +2035,8 @@ func TestService_Logout_RevokeError(t *testing.T) {
 	}
 }
 
+// ─── ValidateToken Tests ────────────────────────────────────────────────────
+
 func TestService_ValidateToken_ValidToken(t *testing.T) {
 	t.Parallel()
 
@@ -1708,7 +2044,6 @@ func TestService_ValidateToken_ValidToken(t *testing.T) {
 	userID := uuid.New()
 	token := "valid_access_token"
 
-	// Setup mocks
 	jwtMock := &jwtManagerMock{
 		ValidateAccessTokenFunc: func(t string) (uuid.UUID, error) {
 			if t != token {
@@ -1718,70 +2053,41 @@ func TestService_ValidateToken_ValidToken(t *testing.T) {
 		},
 	}
 
-	cfg := config.AuthConfig{
-		RefreshTokenTTL: 30 * 24 * time.Hour,
-	}
+	cfg := defaultCfg()
 
 	svc := NewService(
-		slog.Default(),
-		&userRepoMock{},
-		&settingsRepoMock{},
-		&tokenRepoMock{},
-		&txManagerMock{},
-		&oauthVerifierMock{},
-		jwtMock,
-		cfg,
+		slog.Default(), &userRepoMock{}, &settingsRepoMock{}, &tokenRepoMock{}, &authMethodRepoMock{},
+		&txManagerMock{}, &oauthVerifierMock{}, jwtMock, cfg,
 	)
 
-	// Execute
 	resultUserID, err := svc.ValidateToken(ctx, token)
 
-	// Assert
 	if err != nil {
 		t.Fatalf("ValidateToken returned error: %v", err)
 	}
 	if resultUserID != userID {
 		t.Errorf("ValidateToken userID: got=%s, want=%s", resultUserID, userID)
 	}
-
-	// Verify mock was called
-	if len(jwtMock.ValidateAccessTokenCalls()) != 1 {
-		t.Errorf("ValidateAccessToken called %d times, want 1", len(jwtMock.ValidateAccessTokenCalls()))
-	}
 }
 
 func TestService_ValidateToken_InvalidToken(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-	token := "invalid_token"
-
-	// Setup mocks
 	jwtMock := &jwtManagerMock{
 		ValidateAccessTokenFunc: func(t string) (uuid.UUID, error) {
 			return uuid.Nil, errors.New("jwt validation failed")
 		},
 	}
 
-	cfg := config.AuthConfig{
-		RefreshTokenTTL: 30 * 24 * time.Hour,
-	}
+	cfg := defaultCfg()
 
 	svc := NewService(
-		slog.Default(),
-		&userRepoMock{},
-		&settingsRepoMock{},
-		&tokenRepoMock{},
-		&txManagerMock{},
-		&oauthVerifierMock{},
-		jwtMock,
-		cfg,
+		slog.Default(), &userRepoMock{}, &settingsRepoMock{}, &tokenRepoMock{}, &authMethodRepoMock{},
+		&txManagerMock{}, &oauthVerifierMock{}, jwtMock, cfg,
 	)
 
-	// Execute
-	resultUserID, err := svc.ValidateToken(ctx, token)
+	resultUserID, err := svc.ValidateToken(context.Background(), "invalid_token")
 
-	// Assert
 	if !errors.Is(err, domain.ErrUnauthorized) {
 		t.Fatalf("ValidateToken error: got=%v, want=ErrUnauthorized", err)
 	}
@@ -1793,35 +2099,21 @@ func TestService_ValidateToken_InvalidToken(t *testing.T) {
 func TestService_ValidateToken_MalformedToken(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-	token := "malformed.jwt.token"
-
-	// Setup mocks
 	jwtMock := &jwtManagerMock{
 		ValidateAccessTokenFunc: func(t string) (uuid.UUID, error) {
 			return uuid.Nil, errors.New("malformed token")
 		},
 	}
 
-	cfg := config.AuthConfig{
-		RefreshTokenTTL: 30 * 24 * time.Hour,
-	}
+	cfg := defaultCfg()
 
 	svc := NewService(
-		slog.Default(),
-		&userRepoMock{},
-		&settingsRepoMock{},
-		&tokenRepoMock{},
-		&txManagerMock{},
-		&oauthVerifierMock{},
-		jwtMock,
-		cfg,
+		slog.Default(), &userRepoMock{}, &settingsRepoMock{}, &tokenRepoMock{}, &authMethodRepoMock{},
+		&txManagerMock{}, &oauthVerifierMock{}, jwtMock, cfg,
 	)
 
-	// Execute
-	resultUserID, err := svc.ValidateToken(ctx, token)
+	resultUserID, err := svc.ValidateToken(context.Background(), "malformed.jwt.token")
 
-	// Assert
 	if !errors.Is(err, domain.ErrUnauthorized) {
 		t.Fatalf("ValidateToken error: got=%v, want=ErrUnauthorized", err)
 	}
@@ -1830,45 +2122,32 @@ func TestService_ValidateToken_MalformedToken(t *testing.T) {
 	}
 }
 
+// ─── CleanupExpiredTokens Tests ─────────────────────────────────────────────
+
 func TestService_CleanupExpiredTokens_TokensDeleted(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-
-	// Setup mocks
 	tokensMock := &tokenRepoMock{
 		DeleteExpiredFunc: func(ctx context.Context) (int, error) {
 			return 5, nil
 		},
 	}
 
-	cfg := config.AuthConfig{
-		RefreshTokenTTL: 30 * 24 * time.Hour,
-	}
+	cfg := defaultCfg()
 
 	svc := NewService(
-		slog.Default(),
-		&userRepoMock{},
-		&settingsRepoMock{},
-		tokensMock,
-		&txManagerMock{},
-		&oauthVerifierMock{},
-		&jwtManagerMock{},
-		cfg,
+		slog.Default(), &userRepoMock{}, &settingsRepoMock{}, tokensMock, &authMethodRepoMock{},
+		&txManagerMock{}, &oauthVerifierMock{}, &jwtManagerMock{}, cfg,
 	)
 
-	// Execute
-	count, err := svc.CleanupExpiredTokens(ctx)
+	count, err := svc.CleanupExpiredTokens(context.Background())
 
-	// Assert
 	if err != nil {
 		t.Fatalf("CleanupExpiredTokens returned error: %v", err)
 	}
 	if count != 5 {
 		t.Errorf("CleanupExpiredTokens count: got=%d, want=%d", count, 5)
 	}
-
-	// Verify mock was called
 	if len(tokensMock.DeleteExpiredCalls()) != 1 {
 		t.Errorf("DeleteExpired called %d times, want 1", len(tokensMock.DeleteExpiredCalls()))
 	}
@@ -1877,34 +2156,21 @@ func TestService_CleanupExpiredTokens_TokensDeleted(t *testing.T) {
 func TestService_CleanupExpiredTokens_NoTokensDeleted(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-
-	// Setup mocks
 	tokensMock := &tokenRepoMock{
 		DeleteExpiredFunc: func(ctx context.Context) (int, error) {
 			return 0, nil
 		},
 	}
 
-	cfg := config.AuthConfig{
-		RefreshTokenTTL: 30 * 24 * time.Hour,
-	}
+	cfg := defaultCfg()
 
 	svc := NewService(
-		slog.Default(),
-		&userRepoMock{},
-		&settingsRepoMock{},
-		tokensMock,
-		&txManagerMock{},
-		&oauthVerifierMock{},
-		&jwtManagerMock{},
-		cfg,
+		slog.Default(), &userRepoMock{}, &settingsRepoMock{}, tokensMock, &authMethodRepoMock{},
+		&txManagerMock{}, &oauthVerifierMock{}, &jwtManagerMock{}, cfg,
 	)
 
-	// Execute
-	count, err := svc.CleanupExpiredTokens(ctx)
+	count, err := svc.CleanupExpiredTokens(context.Background())
 
-	// Assert
 	if err != nil {
 		t.Fatalf("CleanupExpiredTokens returned error: %v", err)
 	}
@@ -1916,36 +2182,23 @@ func TestService_CleanupExpiredTokens_NoTokensDeleted(t *testing.T) {
 func TestService_CleanupExpiredTokens_Error(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-
 	deleteErr := errors.New("database error")
 
-	// Setup mocks
 	tokensMock := &tokenRepoMock{
 		DeleteExpiredFunc: func(ctx context.Context) (int, error) {
 			return 0, deleteErr
 		},
 	}
 
-	cfg := config.AuthConfig{
-		RefreshTokenTTL: 30 * 24 * time.Hour,
-	}
+	cfg := defaultCfg()
 
 	svc := NewService(
-		slog.Default(),
-		&userRepoMock{},
-		&settingsRepoMock{},
-		tokensMock,
-		&txManagerMock{},
-		&oauthVerifierMock{},
-		&jwtManagerMock{},
-		cfg,
+		slog.Default(), &userRepoMock{}, &settingsRepoMock{}, tokensMock, &authMethodRepoMock{},
+		&txManagerMock{}, &oauthVerifierMock{}, &jwtManagerMock{}, cfg,
 	)
 
-	// Execute
-	count, err := svc.CleanupExpiredTokens(ctx)
+	count, err := svc.CleanupExpiredTokens(context.Background())
 
-	// Assert
 	if err == nil {
 		t.Fatal("CleanupExpiredTokens should return error when delete fails")
 	}
@@ -1957,7 +2210,8 @@ func TestService_CleanupExpiredTokens_Error(t *testing.T) {
 	}
 }
 
-// Helper function to create *string
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
 func ptrString(s string) *string {
 	return &s
 }

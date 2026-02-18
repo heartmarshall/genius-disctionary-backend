@@ -421,14 +421,13 @@ type Translation struct {
 }
 
 type User struct {
-	ID            uuid.UUID
-	Email         string
-	Name          pgtype.Text
-	AvatarUrl     pgtype.Text
-	OauthProvider string
-	OauthID       string
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
+	ID        uuid.UUID
+	Email     string
+	Username  string
+	Name      pgtype.Text
+	AvatarUrl pgtype.Text
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type UserImage struct {

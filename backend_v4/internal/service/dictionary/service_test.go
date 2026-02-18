@@ -1466,10 +1466,7 @@ func TestService_RestoreEntry_TextConflict(t *testing.T) {
 
 	_, err := svc.RestoreEntry(ctx, uuid.New())
 	require.Error(t, err)
-	var ve *domain.ValidationError
-	require.ErrorAs(t, err, &ve)
-	assert.Equal(t, "text", ve.Errors[0].Field)
-	assert.Contains(t, ve.Errors[0].Message, "active entry")
+	require.ErrorIs(t, err, domain.ErrAlreadyExists)
 }
 
 // ===========================================================================

@@ -39,8 +39,7 @@ func TestService_GetProfile_Success(t *testing.T) {
 		ID:            userID,
 		Email:         "test@example.com",
 		Name:          "Test User",
-		OAuthProvider: domain.OAuthProviderGoogle,
-		OAuthID:       "google-123",
+		Username: "testuser",
 		CreatedAt:     time.Now().UTC(),
 		UpdatedAt:     time.Now().UTC(),
 	}

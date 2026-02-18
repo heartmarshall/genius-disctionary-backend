@@ -94,10 +94,16 @@ func (r *Repo) GetByCardID(ctx context.Context, cardID uuid.UUID, limit, offset 
 		return nil, 0, fmt.Errorf("count review_logs by card_id: %w", err)
 	}
 
+	// limit=0 means "no limit" — use a large value for SQL LIMIT
+	effectiveLimit := limit
+	if effectiveLimit <= 0 {
+		effectiveLimit = 2147483647
+	}
+
 	q := sqlc.New(querier)
 	rows, err := q.GetByCardID(ctx, sqlc.GetByCardIDParams{
 		CardID: cardID,
-		Lim:    int32(limit),
+		Lim:    int32(effectiveLimit),
 		Off:    int32(offset),
 	})
 	if err != nil {

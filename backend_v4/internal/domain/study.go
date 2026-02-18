@@ -63,10 +63,11 @@ type DayReviewCount struct {
 
 // CardStats holds statistics for a single card.
 type CardStats struct {
-	TotalReviews  int
-	AccuracyRate  float64
-	AverageTimeMs *int
-	CurrentStatus LearningStatus
-	IntervalDays  int
-	EaseFactor    float64
+	TotalReviews      int
+	AccuracyRate      float64
+	AverageTimeMs     *int
+	CurrentStatus     LearningStatus
+	IntervalDays      int
+	EaseFactor        float64
+	GradeDistribution *GradeCounts
 }

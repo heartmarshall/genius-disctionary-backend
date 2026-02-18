@@ -134,32 +134,47 @@ func TestAuditAction_String(t *testing.T) {
 	}
 }
 
-func TestOAuthProvider_IsValid(t *testing.T) {
+func TestAuthMethodType_IsValid(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		provider OAuthProvider
-		want     bool
+		method AuthMethodType
+		want   bool
 	}{
-		{OAuthProviderGoogle, true},
-		{OAuthProviderApple, true},
-		{OAuthProvider("facebook"), false},
-		{OAuthProvider(""), false},
+		{AuthMethodPassword, true},
+		{AuthMethodGoogle, true},
+		{AuthMethodApple, true},
+		{AuthMethodType("facebook"), false},
+		{AuthMethodType(""), false},
 	}
 	for _, tt := range tests {
-		t.Run(string(tt.provider), func(t *testing.T) {
+		t.Run(string(tt.method), func(t *testing.T) {
 			t.Parallel()
-			if got := tt.provider.IsValid(); got != tt.want {
-				t.Errorf("OAuthProvider(%q).IsValid() = %v, want %v", tt.provider, got, tt.want)
+			if got := tt.method.IsValid(); got != tt.want {
+				t.Errorf("AuthMethodType(%q).IsValid() = %v, want %v", tt.method, got, tt.want)
 			}
 		})
 	}
 }
 
-func TestOAuthProvider_String(t *testing.T) {
+func TestAuthMethodType_IsOAuth(t *testing.T) {
 	t.Parallel()
-	if got := OAuthProviderGoogle.String(); got != "google" {
-		t.Errorf("got %q, want google", got)
+
+	tests := []struct {
+		method AuthMethodType
+		want   bool
+	}{
+		{AuthMethodGoogle, true},
+		{AuthMethodApple, true},
+		{AuthMethodPassword, false},
+	}
+	for _, tt := range tests {
+		t.Run(string(tt.method), func(t *testing.T) {
+			t.Parallel()
+			if got := tt.method.IsOAuth(); got != tt.want {
+				t.Errorf("AuthMethodType(%q).IsOAuth() = %v, want %v", tt.method, got, tt.want)
+			}
+		})
 	}
 }
 

@@ -11,6 +11,7 @@ import (
 
 	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres"
 	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/audit"
+	authmethodrepo "github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/authmethod"
 	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/card"
 	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/entry"
 	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/example"
@@ -91,6 +92,7 @@ func Run(ctx context.Context) error {
 	// 5. Create repositories (15 packages)
 	// -----------------------------------------------------------------------
 	auditRepo := audit.New(pool)
+	authMethodRepo := authmethodrepo.New(pool)
 	cardRepo := card.New(pool)
 	entryRepo := entry.New(pool)
 	exampleRepo := example.New(pool, txm)
@@ -132,7 +134,7 @@ func Run(ctx context.Context) error {
 	// 8. Create services (8 packages)
 	// -----------------------------------------------------------------------
 	authService := authsvc.NewService(
-		logger, userRepo, userRepo, tokenRepo, txm, oauthVerifier, jwtManager, cfg.Auth,
+		logger, userRepo, userRepo, tokenRepo, authMethodRepo, txm, oauthVerifier, jwtManager, cfg.Auth,
 	)
 
 	userService := usersvc.NewService(
@@ -214,9 +216,10 @@ func Run(ctx context.Context) error {
 	}
 
 	// -----------------------------------------------------------------------
-	// 11. Create Health handler
+	// 11. Create Health + Auth handlers
 	// -----------------------------------------------------------------------
 	healthHandler := rest.NewHealthHandler(pool, BuildVersion())
+	authHandler := rest.NewAuthHandler(authService, logger)
 
 	// -----------------------------------------------------------------------
 	// 12. Assemble middleware chain
@@ -239,6 +242,17 @@ func Run(ctx context.Context) error {
 	mux.HandleFunc("GET /live", healthHandler.Live)
 	mux.HandleFunc("GET /ready", healthHandler.Ready)
 	mux.HandleFunc("GET /health", healthHandler.Health)
+
+	// Auth endpoints - CORS only (no auth middleware)
+	authCORS := middleware.CORS(cfg.CORS)
+	mux.Handle("POST /auth/register", authCORS(http.HandlerFunc(authHandler.Register)))
+	mux.Handle("POST /auth/login", authCORS(http.HandlerFunc(authHandler.Login)))
+	mux.Handle("POST /auth/login/password", authCORS(http.HandlerFunc(authHandler.LoginWithPassword)))
+	mux.Handle("POST /auth/refresh", authCORS(http.HandlerFunc(authHandler.Refresh)))
+	mux.Handle("POST /auth/logout", authCORS(http.HandlerFunc(authHandler.Logout)))
+	mux.Handle("OPTIONS /auth/{path...}", authCORS(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNoContent)
+	})))
 
 	// GraphQL - full middleware chain
 	mux.Handle("POST /query", graphqlHandler)

@@ -7,7 +7,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
@@ -16,6 +15,7 @@ import (
 
 	gqlhandler "github.com/99designs/gqlgen/graphql/handler"
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/require"
 
 	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres"
 	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/audit"
@@ -57,6 +57,52 @@ import (
 )
 
 // ---------------------------------------------------------------------------
+// GraphQL assertion / extraction helpers.
+// ---------------------------------------------------------------------------
+
+// gqlData extracts the "data" map from a GraphQL response.
+func gqlData(t *testing.T, result map[string]any) map[string]any {
+	t.Helper()
+	data, ok := result["data"].(map[string]any)
+	require.True(t, ok, "expected data object in response")
+	return data
+}
+
+// gqlPayload extracts a specific field from the data map.
+func gqlPayload(t *testing.T, result map[string]any, field string) map[string]any {
+	t.Helper()
+	data := gqlData(t, result)
+	payload, ok := data[field].(map[string]any)
+	require.True(t, ok, "expected %q in data", field)
+	return payload
+}
+
+// gqlErrorCode extracts the error code from the first GraphQL error.
+func gqlErrorCode(t *testing.T, result map[string]any) string {
+	t.Helper()
+	errors, ok := result["errors"].([]any)
+	require.True(t, ok, "expected errors array")
+	require.NotEmpty(t, errors)
+
+	firstErr, ok := errors[0].(map[string]any)
+	require.True(t, ok)
+	extensions, ok := firstErr["extensions"].(map[string]any)
+	require.True(t, ok, "expected extensions in error")
+
+	code, ok := extensions["code"].(string)
+	require.True(t, ok, "expected code string in extensions")
+	return code
+}
+
+// requireNoErrors asserts that the GraphQL response has no errors.
+func requireNoErrors(t *testing.T, result map[string]any) {
+	t.Helper()
+	if errs, ok := result["errors"]; ok && errs != nil {
+		t.Fatalf("unexpected GraphQL errors: %v", errs)
+	}
+}
+
+// ---------------------------------------------------------------------------
 // testServer wraps the full-stack HTTP server for E2E tests.
 // ---------------------------------------------------------------------------
 
@@ -65,6 +111,15 @@ type testServer struct {
 	Client *http.Client
 	Pool   *pgxpool.Pool
 	jwt    *authpkg.JWTManager
+}
+
+// testLogWriter adapts testing.T to io.Writer for slog.
+type testLogWriter struct{ t *testing.T }
+
+func (w testLogWriter) Write(p []byte) (int, error) {
+	w.t.Helper()
+	w.t.Log(string(p))
+	return len(p), nil
 }
 
 // ---------------------------------------------------------------------------
@@ -89,7 +144,7 @@ func setupTestServer(t *testing.T) *testServer {
 	pool := testhelper.SetupTestDB(t)
 
 	// 2. Infrastructure.
-	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	logger := slog.New(slog.NewTextHandler(testLogWriter{t}, nil))
 	txm := postgres.NewTxManager(pool)
 
 	// 3. Repositories.
@@ -287,13 +342,12 @@ func createTestUserAndGetToken(t *testing.T, ts *testServer) string {
 
 	// Insert user.
 	_, err := ts.Pool.Exec(context.Background(),
-		`INSERT INTO users (id, email, name, avatar_url, oauth_provider, oauth_id, created_at, updated_at)
-		 VALUES ($1, $2, $3, NULL, $4, $5, $6, $7)`,
+		`INSERT INTO users (id, email, username, name, created_at, updated_at)
+		 VALUES ($1, $2, $3, $4, $5, $6)`,
 		userID,
 		fmt.Sprintf("test-%s@example.com", userID.String()[:8]),
+		fmt.Sprintf("test-%s", userID.String()[:8]),
 		"Test User",
-		"google",
-		fmt.Sprintf("test-oauth-%s", userID.String()[:8]),
 		now, now,
 	)
 	if err != nil {
@@ -317,4 +371,45 @@ func createTestUserAndGetToken(t *testing.T, ts *testServer) string {
 	}
 
 	return tok
+}
+
+// ---------------------------------------------------------------------------
+// createTestUserWithID is like createTestUserAndGetToken but also returns
+// the user's UUID (needed for DB verification and seed helpers).
+// ---------------------------------------------------------------------------
+
+func createTestUserWithID(t *testing.T, ts *testServer) (string, uuid.UUID) {
+	t.Helper()
+
+	userID := uuid.New()
+	now := time.Now()
+
+	_, err := ts.Pool.Exec(context.Background(),
+		`INSERT INTO users (id, email, username, name, created_at, updated_at)
+		 VALUES ($1, $2, $3, $4, $5, $6)`,
+		userID,
+		fmt.Sprintf("test-%s@example.com", userID.String()[:8]),
+		fmt.Sprintf("test-%s", userID.String()[:8]),
+		"Test User",
+		now, now,
+	)
+	if err != nil {
+		t.Fatalf("insert test user: %v", err)
+	}
+
+	_, err = ts.Pool.Exec(context.Background(),
+		`INSERT INTO user_settings (user_id, new_cards_per_day, reviews_per_day, max_interval_days, timezone, updated_at)
+		 VALUES ($1, $2, $3, $4, $5, $6)`,
+		userID, 20, 200, 365, "UTC", now,
+	)
+	if err != nil {
+		t.Fatalf("insert test settings: %v", err)
+	}
+
+	tok, err := ts.jwt.GenerateAccessToken(userID)
+	if err != nil {
+		t.Fatalf("generate token: %v", err)
+	}
+
+	return tok, userID
 }

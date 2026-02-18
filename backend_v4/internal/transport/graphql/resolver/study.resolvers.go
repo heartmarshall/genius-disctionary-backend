@@ -1,7 +1,5 @@
 package resolver
 
-//go:generate moq -out study_service_mock_test.go -pkg resolver . studyService
-
 // This file will be automatically regenerated based on the schema, any resolver
 // implementations
 // will be copied through when generating and any unknown code will be moved to the end.
@@ -18,106 +16,31 @@ import (
 	"github.com/heartmarshall/myenglish-backend/pkg/ctxutil"
 )
 
-// ---------------------------------------------------------------------------
-// Queries
-// ---------------------------------------------------------------------------
+// AverageDurationMs is the resolver for the averageDurationMs field.
+func (r *cardStatsResolver) AverageDurationMs(ctx context.Context, obj *domain.CardStats) (int, error) {
+	if obj.AverageTimeMs == nil {
+		return 0, nil
+	}
+	return *obj.AverageTimeMs, nil
+}
 
-// StudyQueue is the resolver for the studyQueue field.
-func (r *queryResolver) StudyQueue(ctx context.Context, limit *int) ([]*domain.Entry, error) {
-	_, ok := ctxutil.UserIDFromCtx(ctx)
-	if !ok {
-		return nil, domain.ErrUnauthorized
+// Accuracy is the resolver for the accuracy field.
+func (r *cardStatsResolver) Accuracy(ctx context.Context, obj *domain.CardStats) (float64, error) {
+	return obj.AccuracyRate, nil
+}
+
+// ActiveSession is the resolver for the activeSession field.
+func (r *dashboardResolver) ActiveSession(ctx context.Context, obj *domain.Dashboard) (*domain.StudySession, error) {
+	if obj.ActiveSession == nil {
+		return nil, nil
 	}
 
-	l := 20
-	if limit != nil {
-		l = *limit
-	}
-
-	serviceInput := study.GetQueueInput{Limit: l}
-	cards, err := r.study.GetStudyQueue(ctx, serviceInput)
+	session, err := r.study.GetActiveSession(ctx)
 	if err != nil {
 		return nil, err
 	}
-
-	// Load entries for each card
-	entries := make([]*domain.Entry, len(cards))
-	for i, card := range cards {
-		entry, err := r.dictionary.GetEntry(ctx, card.EntryID)
-		if err != nil {
-			return nil, fmt.Errorf("failed to load entry for card %s: %w", card.ID, err)
-		}
-		entries[i] = entry
-	}
-
-	return entries, nil
+	return session, nil
 }
-
-// Dashboard is the resolver for the dashboard field.
-func (r *queryResolver) Dashboard(ctx context.Context) (*domain.Dashboard, error) {
-	_, ok := ctxutil.UserIDFromCtx(ctx)
-	if !ok {
-		return nil, domain.ErrUnauthorized
-	}
-
-	dashboard, err := r.study.GetDashboard(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return &dashboard, nil
-}
-
-// CardHistory is the resolver for the cardHistory field.
-func (r *queryResolver) CardHistory(ctx context.Context, input generated.GetCardHistoryInput) ([]*domain.ReviewLog, error) {
-	_, ok := ctxutil.UserIDFromCtx(ctx)
-	if !ok {
-		return nil, domain.ErrUnauthorized
-	}
-
-	limit := 50
-	if input.Limit != nil {
-		limit = *input.Limit
-	}
-
-	offset := 0
-	if input.Offset != nil {
-		offset = *input.Offset
-	}
-
-	serviceInput := study.GetCardHistoryInput{
-		CardID: input.CardID,
-		Limit:  limit,
-		Offset: offset,
-	}
-
-	logs, _, err := r.study.GetCardHistory(ctx, serviceInput)
-	if err != nil {
-		return nil, err
-	}
-
-	return logs, nil
-}
-
-// CardStats is the resolver for the cardStats field.
-func (r *queryResolver) CardStats(ctx context.Context, cardID uuid.UUID) (*domain.CardStats, error) {
-	_, ok := ctxutil.UserIDFromCtx(ctx)
-	if !ok {
-		return nil, domain.ErrUnauthorized
-	}
-
-	input := study.GetCardHistoryInput{CardID: cardID}
-	stats, err := r.study.GetCardStats(ctx, input)
-	if err != nil {
-		return nil, err
-	}
-
-	return &stats, nil
-}
-
-// ---------------------------------------------------------------------------
-// Mutations
-// ---------------------------------------------------------------------------
 
 // ReviewCard is the resolver for the reviewCard field.
 func (r *mutationResolver) ReviewCard(ctx context.Context, input generated.ReviewCardInput) (*generated.ReviewCardPayload, error) {
@@ -265,54 +188,98 @@ func (r *mutationResolver) AbandonStudySession(ctx context.Context) (*generated.
 	return &generated.AbandonSessionPayload{Success: true}, nil
 }
 
-// ---------------------------------------------------------------------------
-// Field Resolvers for CardStats
-// ---------------------------------------------------------------------------
-
-// AverageDurationMs is the resolver for the averageDurationMs field.
-func (r *cardStatsResolver) AverageDurationMs(ctx context.Context, obj *domain.CardStats) (int, error) {
-	if obj.AverageTimeMs == nil {
-		return 0, nil
-	}
-	return *obj.AverageTimeMs, nil
-}
-
-// Accuracy is the resolver for the accuracy field.
-func (r *cardStatsResolver) Accuracy(ctx context.Context, obj *domain.CardStats) (float64, error) {
-	return obj.AccuracyRate, nil
-}
-
-// GradeDistribution is the resolver for the gradeDistribution field.
-func (r *cardStatsResolver) GradeDistribution(ctx context.Context, obj *domain.CardStats) (*domain.GradeCounts, error) {
-	// TODO: Service doesn't provide GradeDistribution, need to load review logs
-	// and calculate distribution. For now, return empty counts.
-	return &domain.GradeCounts{
-		Again: 0,
-		Hard:  0,
-		Good:  0,
-		Easy:  0,
-	}, nil
-}
-
-// ---------------------------------------------------------------------------
-// Field Resolvers for Dashboard
-// ---------------------------------------------------------------------------
-
-// ActiveSession is the resolver for the activeSession field.
-func (r *dashboardResolver) ActiveSession(ctx context.Context, obj *domain.Dashboard) (*domain.StudySession, error) {
-	if obj.ActiveSession == nil {
-		return nil, nil
+// StudyQueue is the resolver for the studyQueue field.
+func (r *queryResolver) StudyQueue(ctx context.Context, limit *int) ([]*domain.Entry, error) {
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
 	}
 
-	// Load full session by ID (assuming we have a service method for this)
-	// For now, we'll return nil as the schema might just need the session ID
-	// which is already in the Dashboard.ActiveSession field
-	return nil, nil
+	l := 20
+	if limit != nil {
+		l = *limit
+	}
+
+	serviceInput := study.GetQueueInput{Limit: l}
+	cards, err := r.study.GetStudyQueue(ctx, serviceInput)
+	if err != nil {
+		return nil, err
+	}
+
+	// Load entries for each card
+	entries := make([]*domain.Entry, len(cards))
+	for i, card := range cards {
+		entry, err := r.dictionary.GetEntry(ctx, card.EntryID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to load entry for card %s: %w", card.ID, err)
+		}
+		entries[i] = entry
+	}
+
+	return entries, nil
 }
 
-// ---------------------------------------------------------------------------
-// Field Resolvers for SessionResult
-// ---------------------------------------------------------------------------
+// Dashboard is the resolver for the dashboard field.
+func (r *queryResolver) Dashboard(ctx context.Context) (*domain.Dashboard, error) {
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	dashboard, err := r.study.GetDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dashboard, nil
+}
+
+// CardHistory is the resolver for the cardHistory field.
+func (r *queryResolver) CardHistory(ctx context.Context, input generated.GetCardHistoryInput) ([]*domain.ReviewLog, error) {
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	limit := 50
+	if input.Limit != nil {
+		limit = *input.Limit
+	}
+
+	offset := 0
+	if input.Offset != nil {
+		offset = *input.Offset
+	}
+
+	serviceInput := study.GetCardHistoryInput{
+		CardID: input.CardID,
+		Limit:  limit,
+		Offset: offset,
+	}
+
+	logs, _, err := r.study.GetCardHistory(ctx, serviceInput)
+	if err != nil {
+		return nil, err
+	}
+
+	return logs, nil
+}
+
+// CardStats is the resolver for the cardStats field.
+func (r *queryResolver) CardStats(ctx context.Context, cardID uuid.UUID) (*domain.CardStats, error) {
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	input := study.GetCardHistoryInput{CardID: cardID}
+	stats, err := r.study.GetCardStats(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	return &stats, nil
+}
 
 // TotalReviews is the resolver for the totalReviews field.
 func (r *sessionResultResolver) TotalReviews(ctx context.Context, obj *domain.SessionResult) (int, error) {
@@ -336,3 +303,18 @@ func (r *Resolver) SessionResult() generated.SessionResultResolver { return &ses
 type cardStatsResolver struct{ *Resolver }
 type dashboardResolver struct{ *Resolver }
 type sessionResultResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+/*
+	func (r *cardStatsResolver) GradeDistribution(ctx context.Context, obj *domain.CardStats) (*domain.GradeCounts, error) {
+	if obj.GradeDistribution != nil {
+		return obj.GradeDistribution, nil
+	}
+	return &domain.GradeCounts{}, nil
+}
+*/

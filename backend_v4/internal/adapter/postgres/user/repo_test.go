@@ -32,14 +32,13 @@ func TestRepo_Create_HappyPath(t *testing.T) {
 
 	now := time.Now().UTC().Truncate(time.Microsecond)
 	u := domain.User{
-		ID:            uuid.New(),
-		Email:         "create-happy-" + uuid.New().String()[:8] + "@example.com",
-		Name:          "Happy User",
-		AvatarURL:     ptrStr("https://example.com/avatar.png"),
-		OAuthProvider: domain.OAuthProviderGoogle,
-		OAuthID:       "google-" + uuid.New().String()[:8],
-		CreatedAt:     now,
-		UpdatedAt:     now,
+		ID:        uuid.New(),
+		Email:     "create-happy-" + uuid.New().String()[:8] + "@example.com",
+		Username:  "create-happy-" + uuid.New().String()[:8],
+		Name:      "Happy User",
+		AvatarURL: ptrStr("https://example.com/avatar.png"),
+		CreatedAt: now,
+		UpdatedAt: now,
 	}
 
 	got, err := repo.Create(ctx, &u)
@@ -59,61 +58,56 @@ func TestRepo_Create_DuplicateEmail(t *testing.T) {
 	now := time.Now().UTC().Truncate(time.Microsecond)
 
 	u1 := domain.User{
-		ID:            uuid.New(),
-		Email:         email,
-		Name:          "User 1",
-		OAuthProvider: domain.OAuthProviderGoogle,
-		OAuthID:       "oauth-dup-email-1-" + uuid.New().String()[:8],
-		CreatedAt:     now,
-		UpdatedAt:     now,
+		ID:        uuid.New(),
+		Email:     email,
+		Username:  "dup-email-1-" + uuid.New().String()[:8],
+		Name:      "User 1",
+		CreatedAt: now,
+		UpdatedAt: now,
 	}
 	if _, err := repo.Create(ctx, &u1); err != nil {
 		t.Fatalf("Create first user: %v", err)
 	}
 
 	u2 := domain.User{
-		ID:            uuid.New(),
-		Email:         email, // same email
-		Name:          "User 2",
-		OAuthProvider: domain.OAuthProviderApple,
-		OAuthID:       "oauth-dup-email-2-" + uuid.New().String()[:8],
-		CreatedAt:     now,
-		UpdatedAt:     now,
+		ID:        uuid.New(),
+		Email:     email, // same email
+		Username:  "dup-email-2-" + uuid.New().String()[:8],
+		Name:      "User 2",
+		CreatedAt: now,
+		UpdatedAt: now,
 	}
 	_, err := repo.Create(ctx, &u2)
 	assertIsDomainError(t, err, domain.ErrAlreadyExists)
 }
 
-func TestRepo_Create_DuplicateOAuth(t *testing.T) {
+func TestRepo_Create_DuplicateUsername(t *testing.T) {
 	t.Parallel()
 	repo, _ := newRepo(t)
 	ctx := context.Background()
 
-	provider := domain.OAuthProviderGoogle
-	oauthID := "oauth-dup-" + uuid.New().String()[:8]
+	username := "dup-username-" + uuid.New().String()[:8]
 	now := time.Now().UTC().Truncate(time.Microsecond)
 
 	u1 := domain.User{
-		ID:            uuid.New(),
-		Email:         "dup-oauth-1-" + uuid.New().String()[:8] + "@example.com",
-		Name:          "User 1",
-		OAuthProvider: provider,
-		OAuthID:       oauthID,
-		CreatedAt:     now,
-		UpdatedAt:     now,
+		ID:        uuid.New(),
+		Email:     "dup-uname-1-" + uuid.New().String()[:8] + "@example.com",
+		Username:  username,
+		Name:      "User 1",
+		CreatedAt: now,
+		UpdatedAt: now,
 	}
 	if _, err := repo.Create(ctx, &u1); err != nil {
 		t.Fatalf("Create first user: %v", err)
 	}
 
 	u2 := domain.User{
-		ID:            uuid.New(),
-		Email:         "dup-oauth-2-" + uuid.New().String()[:8] + "@example.com",
-		Name:          "User 2",
-		OAuthProvider: provider,
-		OAuthID:       oauthID, // same OAuth
-		CreatedAt:     now,
-		UpdatedAt:     now,
+		ID:        uuid.New(),
+		Email:     "dup-uname-2-" + uuid.New().String()[:8] + "@example.com",
+		Username:  username, // same username
+		Name:      "User 2",
+		CreatedAt: now,
+		UpdatedAt: now,
 	}
 	_, err := repo.Create(ctx, &u2)
 	assertIsDomainError(t, err, domain.ErrAlreadyExists)
@@ -148,32 +142,6 @@ func TestRepo_GetByID_NotFound(t *testing.T) {
 	assertIsDomainError(t, err, domain.ErrNotFound)
 }
 
-func TestRepo_GetByOAuth_HappyPath(t *testing.T) {
-	t.Parallel()
-	repo, pool := newRepo(t)
-	ctx := context.Background()
-
-	seeded := testhelper.SeedUser(t, pool)
-
-	got, err := repo.GetByOAuth(ctx, seeded.OAuthProvider, seeded.OAuthID)
-	if err != nil {
-		t.Fatalf("GetByOAuth: unexpected error: %v", err)
-	}
-
-	if got.ID != seeded.ID {
-		t.Errorf("ID mismatch: got %s, want %s", got.ID, seeded.ID)
-	}
-}
-
-func TestRepo_GetByOAuth_NotFound(t *testing.T) {
-	t.Parallel()
-	repo, _ := newRepo(t)
-	ctx := context.Background()
-
-	_, err := repo.GetByOAuth(ctx, domain.OAuthProviderGoogle, "nonexistent-oauth-id")
-	assertIsDomainError(t, err, domain.ErrNotFound)
-}
-
 func TestRepo_GetByEmail_HappyPath(t *testing.T) {
 	t.Parallel()
 	repo, pool := newRepo(t)
@@ -197,6 +165,32 @@ func TestRepo_GetByEmail_NotFound(t *testing.T) {
 	ctx := context.Background()
 
 	_, err := repo.GetByEmail(ctx, "nonexistent-"+uuid.New().String()[:8]+"@example.com")
+	assertIsDomainError(t, err, domain.ErrNotFound)
+}
+
+func TestRepo_GetByUsername_HappyPath(t *testing.T) {
+	t.Parallel()
+	repo, pool := newRepo(t)
+	ctx := context.Background()
+
+	seeded := testhelper.SeedUser(t, pool)
+
+	got, err := repo.GetByUsername(ctx, seeded.Username)
+	if err != nil {
+		t.Fatalf("GetByUsername: unexpected error: %v", err)
+	}
+
+	if got.ID != seeded.ID {
+		t.Errorf("ID mismatch: got %s, want %s", got.ID, seeded.ID)
+	}
+}
+
+func TestRepo_GetByUsername_NotFound(t *testing.T) {
+	t.Parallel()
+	repo, _ := newRepo(t)
+	ctx := context.Background()
+
+	_, err := repo.GetByUsername(ctx, "nonexistent-"+uuid.New().String()[:8])
 	assertIsDomainError(t, err, domain.ErrNotFound)
 }
 
@@ -243,14 +237,13 @@ func TestRepo_Update_ClearAvatar(t *testing.T) {
 
 	now := time.Now().UTC().Truncate(time.Microsecond)
 	u := domain.User{
-		ID:            uuid.New(),
-		Email:         "clear-avatar-" + uuid.New().String()[:8] + "@example.com",
-		Name:          "With Avatar",
-		AvatarURL:     ptrStr("https://example.com/old.png"),
-		OAuthProvider: domain.OAuthProviderGoogle,
-		OAuthID:       "oauth-clear-" + uuid.New().String()[:8],
-		CreatedAt:     now,
-		UpdatedAt:     now,
+		ID:        uuid.New(),
+		Email:     "clear-avatar-" + uuid.New().String()[:8] + "@example.com",
+		Username:  "clear-avatar-" + uuid.New().String()[:8],
+		Name:      "With Avatar",
+		AvatarURL: ptrStr("https://example.com/old.png"),
+		CreatedAt: now,
+		UpdatedAt: now,
 	}
 	if _, err := repo.Create(ctx, &u); err != nil {
 		t.Fatalf("Create: %v", err)
@@ -279,13 +272,12 @@ func TestRepo_CreateSettings_HappyPath(t *testing.T) {
 	// Create a user first (without using SeedUser to avoid auto settings creation).
 	now := time.Now().UTC().Truncate(time.Microsecond)
 	u := domain.User{
-		ID:            uuid.New(),
-		Email:         "settings-create-" + uuid.New().String()[:8] + "@example.com",
-		Name:          "Settings User",
-		OAuthProvider: domain.OAuthProviderGoogle,
-		OAuthID:       "oauth-settings-" + uuid.New().String()[:8],
-		CreatedAt:     now,
-		UpdatedAt:     now,
+		ID:        uuid.New(),
+		Email:     "settings-create-" + uuid.New().String()[:8] + "@example.com",
+		Username:  "settings-create-" + uuid.New().String()[:8],
+		Name:      "Settings User",
+		CreatedAt: now,
+		UpdatedAt: now,
 	}
 	if _, err := repo.Create(ctx, &u); err != nil {
 		t.Fatalf("Create user: %v", err)
@@ -413,60 +405,6 @@ func TestRepo_UpdateSettings_NotFound(t *testing.T) {
 }
 
 // ---------------------------------------------------------------------------
-// OAuthProvider mapping
-// ---------------------------------------------------------------------------
-
-func TestRepo_OAuthProviderMapping(t *testing.T) {
-	t.Parallel()
-	repo, _ := newRepo(t)
-	ctx := context.Background()
-
-	now := time.Now().UTC().Truncate(time.Microsecond)
-
-	tests := []struct {
-		name     string
-		provider domain.OAuthProvider
-	}{
-		{"google", domain.OAuthProviderGoogle},
-		{"apple", domain.OAuthProviderApple},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			u := domain.User{
-				ID:            uuid.New(),
-				Email:         "oauth-map-" + tt.name + "-" + uuid.New().String()[:8] + "@example.com",
-				Name:          "OAuth " + tt.name,
-				OAuthProvider: tt.provider,
-				OAuthID:       "oauth-map-" + tt.name + "-" + uuid.New().String()[:8],
-				CreatedAt:     now,
-				UpdatedAt:     now,
-			}
-
-			created, err := repo.Create(ctx, &u)
-			if err != nil {
-				t.Fatalf("Create: %v", err)
-			}
-
-			if created.OAuthProvider != tt.provider {
-				t.Errorf("OAuthProvider mismatch: got %s, want %s", created.OAuthProvider, tt.provider)
-			}
-
-			// Also verify via GetByOAuth.
-			got, err := repo.GetByOAuth(ctx, tt.provider, u.OAuthID)
-			if err != nil {
-				t.Fatalf("GetByOAuth: %v", err)
-			}
-			if got.OAuthProvider != tt.provider {
-				t.Errorf("GetByOAuth OAuthProvider mismatch: got %s, want %s", got.OAuthProvider, tt.provider)
-			}
-		})
-	}
-}
-
-// ---------------------------------------------------------------------------
 // Test helpers
 // ---------------------------------------------------------------------------
 
@@ -482,6 +420,9 @@ func assertUserEqual(t *testing.T, want, got domain.User) {
 	if got.Email != want.Email {
 		t.Errorf("Email mismatch: got %s, want %s", got.Email, want.Email)
 	}
+	if got.Username != want.Username {
+		t.Errorf("Username mismatch: got %s, want %s", got.Username, want.Username)
+	}
 	if got.Name != want.Name {
 		t.Errorf("Name mismatch: got %q, want %q", got.Name, want.Name)
 	}
@@ -489,12 +430,6 @@ func assertUserEqual(t *testing.T, want, got domain.User) {
 		t.Errorf("AvatarURL nil mismatch: got %v, want %v", got.AvatarURL, want.AvatarURL)
 	} else if got.AvatarURL != nil && *got.AvatarURL != *want.AvatarURL {
 		t.Errorf("AvatarURL mismatch: got %s, want %s", *got.AvatarURL, *want.AvatarURL)
-	}
-	if got.OAuthProvider != want.OAuthProvider {
-		t.Errorf("OAuthProvider mismatch: got %s, want %s", got.OAuthProvider, want.OAuthProvider)
-	}
-	if got.OAuthID != want.OAuthID {
-		t.Errorf("OAuthID mismatch: got %s, want %s", got.OAuthID, want.OAuthID)
 	}
 }
 

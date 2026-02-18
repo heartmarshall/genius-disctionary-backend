@@ -17,9 +17,9 @@ func TestMe_Success(t *testing.T) {
 
 	userID := uuid.New()
 	expectedUser := &domain.User{
-		ID:            userID,
-		Email:         "test@example.com",
-		OAuthProvider: domain.OAuthProviderGoogle,
+		ID:       userID,
+		Email:    "test@example.com",
+		Username: "testuser",
 	}
 
 	mock := &userServiceMock{
@@ -161,42 +161,3 @@ func TestUserResolver_Settings_Success(t *testing.T) {
 	require.Equal(t, "UTC", result.Timezone)
 }
 
-func TestUserResolver_OauthProvider_Success(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name     string
-		provider domain.OAuthProvider
-		expected string
-	}{
-		{
-			name:     "Google provider",
-			provider: domain.OAuthProviderGoogle,
-			expected: "google",
-		},
-		{
-			name:     "Apple provider",
-			provider: domain.OAuthProviderApple,
-			expected: "apple",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			resolver := &userResolver{&Resolver{}}
-			ctx := context.Background()
-
-			user := &domain.User{
-				ID:            uuid.New(),
-				OAuthProvider: tt.provider,
-			}
-
-			result, err := resolver.OauthProvider(ctx, user)
-
-			require.NoError(t, err)
-			require.Equal(t, tt.expected, result)
-		})
-	}
-}

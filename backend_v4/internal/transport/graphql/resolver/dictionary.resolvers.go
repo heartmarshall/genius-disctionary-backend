@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
 	"github.com/heartmarshall/myenglish-backend/internal/service/dictionary"
+	"github.com/heartmarshall/myenglish-backend/internal/service/topic"
 	"github.com/heartmarshall/myenglish-backend/internal/transport/graphql/dataloader"
 	"github.com/heartmarshall/myenglish-backend/internal/transport/graphql/generated"
 	"github.com/heartmarshall/myenglish-backend/pkg/ctxutil"
@@ -172,11 +173,23 @@ func (r *mutationResolver) CreateEntryCustom(ctx context.Context, input generate
 		Senses:     senses,
 		CreateCard: createCard,
 		Notes:      input.Notes,
+		TopicID:    input.TopicID,
 	}
 
 	entry, err := r.dictionary.CreateEntryCustom(ctx, serviceInput)
 	if err != nil {
 		return nil, err
+	}
+
+	// Auto-link to topic if requested.
+	if input.TopicID != nil {
+		linkInput := topic.LinkEntryInput{
+			TopicID: *input.TopicID,
+			EntryID: entry.ID,
+		}
+		if linkErr := r.topic.LinkEntry(ctx, linkInput); linkErr != nil {
+			return nil, linkErr
+		}
 	}
 
 	return &generated.CreateEntryPayload{Entry: entry}, nil
@@ -515,8 +528,6 @@ func (r *Resolver) Sense() generated.SenseResolver { return &senseResolver{r} }
 
 type dictionaryEntryResolver struct{ *Resolver }
 type senseResolver struct{ *Resolver }
-
-// Helper functions to convert value slices to pointer slices
 
 func toSensePointers(senses []domain.Sense) []*domain.Sense {
 	result := make([]*domain.Sense, len(senses))

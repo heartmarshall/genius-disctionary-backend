@@ -92,6 +92,13 @@ func (r *Repo) List(ctx context.Context, userID uuid.UUID) ([]*domain.Topic, err
 	topics := make([]*domain.Topic, len(rows))
 	for i, row := range rows {
 		t := toDomainTopic(row)
+
+		count, countErr := r.CountEntriesByTopicID(ctx, row.ID)
+		if countErr != nil {
+			return nil, fmt.Errorf("count entries for topic %s: %w", row.ID, countErr)
+		}
+		t.EntryCount = count
+
 		topics[i] = &t
 	}
 

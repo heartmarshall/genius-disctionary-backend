@@ -14,30 +14,28 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (id, email, name, avatar_url, oauth_provider, oauth_id, created_at, updated_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-RETURNING id, email, name, avatar_url, oauth_provider, oauth_id, created_at, updated_at
+INSERT INTO users (id, email, username, name, avatar_url, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING id, email, username, name, avatar_url, created_at, updated_at
 `
 
 type CreateUserParams struct {
-	ID            uuid.UUID
-	Email         string
-	Name          pgtype.Text
-	AvatarUrl     pgtype.Text
-	OauthProvider string
-	OauthID       string
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
+	ID        uuid.UUID
+	Email     string
+	Username  string
+	Name      pgtype.Text
+	AvatarUrl pgtype.Text
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
 	row := q.db.QueryRow(ctx, createUser,
 		arg.ID,
 		arg.Email,
+		arg.Username,
 		arg.Name,
 		arg.AvatarUrl,
-		arg.OauthProvider,
-		arg.OauthID,
 		arg.CreatedAt,
 		arg.UpdatedAt,
 	)
@@ -45,10 +43,9 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
+		&i.Username,
 		&i.Name,
 		&i.AvatarUrl,
-		&i.OauthProvider,
-		&i.OauthID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -90,7 +87,7 @@ func (q *Queries) CreateUserSettings(ctx context.Context, arg CreateUserSettings
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, email, name, avatar_url, oauth_provider, oauth_id, created_at, updated_at
+SELECT id, email, username, name, avatar_url, created_at, updated_at
 FROM users
 WHERE email = $1
 `
@@ -101,10 +98,9 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
+		&i.Username,
 		&i.Name,
 		&i.AvatarUrl,
-		&i.OauthProvider,
-		&i.OauthID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -112,7 +108,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, email, name, avatar_url, oauth_provider, oauth_id, created_at, updated_at
+SELECT id, email, username, name, avatar_url, created_at, updated_at
 FROM users
 WHERE id = $1
 `
@@ -123,37 +119,30 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
+		&i.Username,
 		&i.Name,
 		&i.AvatarUrl,
-		&i.OauthProvider,
-		&i.OauthID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
 	return i, err
 }
 
-const getUserByOAuth = `-- name: GetUserByOAuth :one
-SELECT id, email, name, avatar_url, oauth_provider, oauth_id, created_at, updated_at
+const getUserByUsername = `-- name: GetUserByUsername :one
+SELECT id, email, username, name, avatar_url, created_at, updated_at
 FROM users
-WHERE oauth_provider = $1 AND oauth_id = $2
+WHERE username = $1
 `
 
-type GetUserByOAuthParams struct {
-	OauthProvider string
-	OauthID       string
-}
-
-func (q *Queries) GetUserByOAuth(ctx context.Context, arg GetUserByOAuthParams) (User, error) {
-	row := q.db.QueryRow(ctx, getUserByOAuth, arg.OauthProvider, arg.OauthID)
+func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByUsername, username)
 	var i User
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
+		&i.Username,
 		&i.Name,
 		&i.AvatarUrl,
-		&i.OauthProvider,
-		&i.OauthID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -184,7 +173,7 @@ const updateUser = `-- name: UpdateUser :one
 UPDATE users
 SET name = $2, avatar_url = $3, updated_at = now()
 WHERE id = $1
-RETURNING id, email, name, avatar_url, oauth_provider, oauth_id, created_at, updated_at
+RETURNING id, email, username, name, avatar_url, created_at, updated_at
 `
 
 type UpdateUserParams struct {
@@ -199,10 +188,9 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
+		&i.Username,
 		&i.Name,
 		&i.AvatarUrl,
-		&i.OauthProvider,
-		&i.OauthID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

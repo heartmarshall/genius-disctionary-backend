@@ -44,22 +44,6 @@ func (r *Repo) GetByID(ctx context.Context, id uuid.UUID) (*domain.User, error) 
 	return &u, nil
 }
 
-// GetByOAuth returns a user by OAuth provider and external ID.
-func (r *Repo) GetByOAuth(ctx context.Context, provider domain.OAuthProvider, oauthID string) (*domain.User, error) {
-	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
-
-	row, err := q.GetUserByOAuth(ctx, sqlc.GetUserByOAuthParams{
-		OauthProvider: string(provider),
-		OauthID:       oauthID,
-	})
-	if err != nil {
-		return nil, mapError(err, "user", uuid.Nil)
-	}
-
-	u := toDomainUser(row)
-	return &u, nil
-}
-
 // GetByEmail returns a user by email address.
 func (r *Repo) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
@@ -73,19 +57,31 @@ func (r *Repo) GetByEmail(ctx context.Context, email string) (*domain.User, erro
 	return &u, nil
 }
 
+// GetByUsername returns a user by username.
+func (r *Repo) GetByUsername(ctx context.Context, username string) (*domain.User, error) {
+	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
+
+	row, err := q.GetUserByUsername(ctx, username)
+	if err != nil {
+		return nil, mapError(err, "user", uuid.Nil)
+	}
+
+	u := toDomainUser(row)
+	return &u, nil
+}
+
 // Create inserts a new user and returns the persisted domain.User.
 func (r *Repo) Create(ctx context.Context, u *domain.User) (*domain.User, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	row, err := q.CreateUser(ctx, sqlc.CreateUserParams{
-		ID:            u.ID,
-		Email:         u.Email,
-		Name:          stringToPgText(u.Name),
-		AvatarUrl:     ptrStringToPgText(u.AvatarURL),
-		OauthProvider: string(u.OAuthProvider),
-		OauthID:       u.OAuthID,
-		CreatedAt:     u.CreatedAt,
-		UpdatedAt:     u.UpdatedAt,
+		ID:        u.ID,
+		Email:     u.Email,
+		Username:  u.Username,
+		Name:      stringToPgText(u.Name),
+		AvatarUrl: ptrStringToPgText(u.AvatarURL),
+		CreatedAt: u.CreatedAt,
+		UpdatedAt: u.UpdatedAt,
 	})
 	if err != nil {
 		return nil, mapError(err, "user", u.ID)
@@ -215,14 +211,13 @@ func mapError(err error, entity string, id uuid.UUID) error {
 // toDomainUser converts a sqlc.User row into a domain.User.
 func toDomainUser(row sqlc.User) domain.User {
 	return domain.User{
-		ID:            row.ID,
-		Email:         row.Email,
-		Name:          pgTextToString(row.Name),
-		AvatarURL:     pgTextToPtr(row.AvatarUrl),
-		OAuthProvider: domain.OAuthProvider(row.OauthProvider),
-		OAuthID:       row.OauthID,
-		CreatedAt:     row.CreatedAt,
-		UpdatedAt:     row.UpdatedAt,
+		ID:        row.ID,
+		Email:     row.Email,
+		Username:  row.Username,
+		Name:      pgTextToString(row.Name),
+		AvatarURL: pgTextToPtr(row.AvatarUrl),
+		CreatedAt: row.CreatedAt,
+		UpdatedAt: row.UpdatedAt,
 	}
 }
 

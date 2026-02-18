@@ -57,6 +57,7 @@ type studyService interface {
 	StartSession(ctx context.Context) (*domain.StudySession, error)
 	FinishSession(ctx context.Context, input study.FinishSessionInput) (*domain.StudySession, error)
 	AbandonSession(ctx context.Context) error
+	GetActiveSession(ctx context.Context) (*domain.StudySession, error)
 	CreateCard(ctx context.Context, input study.CreateCardInput) (*domain.Card, error)
 	DeleteCard(ctx context.Context, input study.DeleteCardInput) error
 	BatchCreateCards(ctx context.Context, input study.BatchCreateCardsInput) (study.BatchCreateResult, error)
