@@ -5,6 +5,10 @@ import { Layout } from './components/Layout'
 import { CatalogPage } from './pages/CatalogPage'
 import { DictionaryPage } from './pages/DictionaryPage'
 import { EntryDetailPage } from './pages/EntryDetailPage'
+import { InboxPage } from './pages/InboxPage'
+import { ProfilePage } from './pages/ProfilePage'
+import { StudyPage } from './pages/StudyPage'
+import { TopicsPage } from './pages/TopicsPage'
 
 function Placeholder({ name }: { name: string }) {
   return <div className="p-6 text-gray-500">Page: {name} (coming soon)</div>
@@ -21,10 +25,10 @@ function App() {
             <Route path="/catalog" element={<CatalogPage />} />
             <Route path="/dictionary" element={<DictionaryPage />} />
             <Route path="/entry/:id" element={<EntryDetailPage />} />
-            <Route path="/study" element={<Placeholder name="Study" />} />
-            <Route path="/topics" element={<Placeholder name="Topics" />} />
-            <Route path="/inbox" element={<Placeholder name="Inbox" />} />
-            <Route path="/profile" element={<Placeholder name="Profile" />} />
+            <Route path="/study" element={<StudyPage />} />
+            <Route path="/topics" element={<TopicsPage />} />
+            <Route path="/inbox" element={<InboxPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
             <Route path="/explorer" element={<Placeholder name="API Explorer" />} />
           </Route>
         </Routes>
