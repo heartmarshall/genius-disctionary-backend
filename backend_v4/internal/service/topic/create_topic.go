@@ -24,16 +24,17 @@ func (s *Service) CreateTopic(ctx context.Context, input CreateTopicInput) (*dom
 	name := strings.TrimSpace(input.Name)
 	description := trimOrNil(input.Description)
 
-	count, err := s.topics.Count(ctx, userID)
-	if err != nil {
-		return nil, fmt.Errorf("count topics: %w", err)
-	}
-	if count >= MaxTopicsPerUser {
-		return nil, domain.NewValidationError("topics", "limit reached (max 100)")
-	}
-
 	var topic *domain.Topic
-	err = s.tx.RunInTx(ctx, func(txCtx context.Context) error {
+	err := s.tx.RunInTx(ctx, func(txCtx context.Context) error {
+		// Count inside transaction to prevent TOCTOU race on the limit.
+		count, countErr := s.topics.Count(txCtx, userID)
+		if countErr != nil {
+			return fmt.Errorf("count topics: %w", countErr)
+		}
+		if count >= MaxTopicsPerUser {
+			return domain.NewValidationError("topics", "limit reached (max 100)")
+		}
+
 		var createErr error
 		topic, createErr = s.topics.Create(txCtx, userID, &domain.Topic{
 			Name:        name,

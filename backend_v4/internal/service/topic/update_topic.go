@@ -21,11 +21,6 @@ func (s *Service) UpdateTopic(ctx context.Context, input UpdateTopicInput) (*dom
 		return nil, err
 	}
 
-	old, err := s.topics.GetByID(ctx, userID, input.TopicID)
-	if err != nil {
-		return nil, fmt.Errorf("get topic: %w", err)
-	}
-
 	params := domain.TopicUpdateParams{}
 	if input.Name != nil {
 		trimmed := strings.TrimSpace(*input.Name)
@@ -41,22 +36,31 @@ func (s *Service) UpdateTopic(ctx context.Context, input UpdateTopicInput) (*dom
 	}
 
 	var updated *domain.Topic
-	err = s.tx.RunInTx(ctx, func(txCtx context.Context) error {
+	err := s.tx.RunInTx(ctx, func(txCtx context.Context) error {
+		// Fetch old state inside transaction for accurate audit diff.
+		old, getErr := s.topics.GetByID(txCtx, userID, input.TopicID)
+		if getErr != nil {
+			return fmt.Errorf("get topic: %w", getErr)
+		}
+
 		var updateErr error
 		updated, updateErr = s.topics.Update(txCtx, userID, input.TopicID, params)
 		if updateErr != nil {
 			return fmt.Errorf("update topic: %w", updateErr)
 		}
 
-		auditErr := s.audit.Log(txCtx, domain.AuditRecord{
-			UserID:     userID,
-			EntityType: domain.EntityTypeTopic,
-			EntityID:   &input.TopicID,
-			Action:     domain.AuditActionUpdate,
-			Changes:    buildTopicChanges(old, updated),
-		})
-		if auditErr != nil {
-			return fmt.Errorf("audit log: %w", auditErr)
+		// Skip audit if nothing actually changed.
+		changes := buildTopicChanges(old, updated)
+		if len(changes) > 0 {
+			if auditErr := s.audit.Log(txCtx, domain.AuditRecord{
+				UserID:     userID,
+				EntityType: domain.EntityTypeTopic,
+				EntityID:   &input.TopicID,
+				Action:     domain.AuditActionUpdate,
+				Changes:    changes,
+			}); auditErr != nil {
+				return fmt.Errorf("audit log: %w", auditErr)
+			}
 		}
 
 		return nil

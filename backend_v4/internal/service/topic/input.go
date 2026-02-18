@@ -61,7 +61,7 @@ func (i UpdateTopicInput) Validate() error {
 			errs = append(errs, domain.FieldError{Field: "name", Message: "max 100 characters"})
 		}
 	}
-	if i.Description != nil && len(*i.Description) > 500 {
+	if i.Description != nil && len(strings.TrimSpace(*i.Description)) > 500 {
 		errs = append(errs, domain.FieldError{Field: "description", Message: "max 500 characters"})
 	}
 

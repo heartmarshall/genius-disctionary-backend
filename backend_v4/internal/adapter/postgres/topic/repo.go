@@ -59,6 +59,19 @@ WHERE et.entry_id = ANY($1::uuid[])
 ORDER BY et.entry_id, t.name`
 
 // ---------------------------------------------------------------------------
+// Raw SQL for List with entry counts (single query, no N+1)
+// ---------------------------------------------------------------------------
+
+const listTopicsWithEntryCountSQL = `
+SELECT t.id, t.user_id, t.name, t.description, t.created_at, t.updated_at,
+       COALESCE(count(et.entry_id), 0)::int AS entry_count
+FROM topics t
+LEFT JOIN entry_topics et ON et.topic_id = t.id
+WHERE t.user_id = $1
+GROUP BY t.id
+ORDER BY t.name`
+
+// ---------------------------------------------------------------------------
 // Read operations
 // ---------------------------------------------------------------------------
 
@@ -79,27 +92,44 @@ func (r *Repo) GetByID(ctx context.Context, userID, topicID uuid.UUID) (*domain.
 	return &t, nil
 }
 
-// List returns all topics for a user ordered by name.
+// List returns all topics for a user ordered by name with entry counts.
+// Uses a single query with LEFT JOIN (no N+1).
 // Returns an empty slice (not nil) when the user has no topics.
 func (r *Repo) List(ctx context.Context, userID uuid.UUID) ([]*domain.Topic, error) {
-	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
+	querier := postgres.QuerierFromCtx(ctx, r.pool)
 
-	rows, err := q.ListTopicsByUser(ctx, userID)
+	rows, err := querier.Query(ctx, listTopicsWithEntryCountSQL, userID)
 	if err != nil {
 		return nil, fmt.Errorf("list topics: %w", err)
 	}
+	defer rows.Close()
 
-	topics := make([]*domain.Topic, len(rows))
-	for i, row := range rows {
-		t := toDomainTopic(row)
+	var topics []*domain.Topic
+	for rows.Next() {
+		var (
+			id          uuid.UUID
+			uid         uuid.UUID
+			name        string
+			description pgtype.Text
+			createdAt   time.Time
+			updatedAt   time.Time
+			entryCount  int
+		)
 
-		count, countErr := r.CountEntriesByTopicID(ctx, row.ID)
-		if countErr != nil {
-			return nil, fmt.Errorf("count entries for topic %s: %w", row.ID, countErr)
+		if err := rows.Scan(&id, &uid, &name, &description, &createdAt, &updatedAt, &entryCount); err != nil {
+			return nil, fmt.Errorf("scan topic: %w", err)
 		}
-		t.EntryCount = count
 
-		topics[i] = &t
+		t := buildDomainTopic(id, uid, name, description, createdAt, updatedAt)
+		t.EntryCount = entryCount
+		topics = append(topics, &t)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("list topics: %w", err)
+	}
+
+	if topics == nil {
+		topics = []*domain.Topic{}
 	}
 
 	return topics, nil
@@ -345,27 +375,6 @@ func (r *Repo) CountEntriesByTopicID(ctx context.Context, topicID uuid.UUID) (in
 // ---------------------------------------------------------------------------
 // Row scanning helpers
 // ---------------------------------------------------------------------------
-
-// scanTopics scans multiple rows from a JOIN query into domain.Topic slices.
-func scanTopics(rows pgx.Rows) ([]domain.Topic, error) {
-	var result []domain.Topic
-	for rows.Next() {
-		t, err := scanTopicFromRows(rows)
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, t)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	if result == nil {
-		result = []domain.Topic{}
-	}
-
-	return result, nil
-}
 
 // scanTopicPointers scans multiple rows from a JOIN query into []*domain.Topic slices.
 func scanTopicPointers(rows pgx.Rows) ([]*domain.Topic, error) {

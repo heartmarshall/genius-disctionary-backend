@@ -692,3 +692,230 @@ func TestBatchLinkEntries_AllEntriesNotFound(t *testing.T) {
 		t.Fatalf("expected 0 BatchLinkEntries calls, got %d", len(topicsMock.BatchLinkEntriesCalls()))
 	}
 }
+
+// --- Audit tests for Link/Unlink (issue #4) ---
+
+func TestLinkEntry_Audit(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	topicID := uuid.New()
+	entryID := uuid.New()
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	topicsMock := &topicRepoMock{
+		GetByIDFunc: func(_ context.Context, uid, tid uuid.UUID) (*domain.Topic, error) {
+			return &domain.Topic{ID: tid, UserID: uid, Name: "test"}, nil
+		},
+		LinkEntryFunc: func(_ context.Context, _, _ uuid.UUID) error {
+			return nil
+		},
+	}
+	entriesMock := &entryRepoMock{
+		GetByIDFunc: func(_ context.Context, uid, eid uuid.UUID) (*domain.Entry, error) {
+			return &domain.Entry{ID: eid, UserID: uid, Text: "hello"}, nil
+		},
+	}
+
+	var capturedRecord domain.AuditRecord
+	auditMock := &auditLoggerMock{
+		LogFunc: func(_ context.Context, record domain.AuditRecord) error {
+			capturedRecord = record
+			return nil
+		},
+	}
+	txMock := &txManagerMock{
+		RunInTxFunc: func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		},
+	}
+
+	svc := NewService(slog.Default(), topicsMock, entriesMock, auditMock, txMock)
+	err := svc.LinkEntry(ctx, LinkEntryInput{TopicID: topicID, EntryID: entryID})
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(auditMock.LogCalls()) != 1 {
+		t.Fatalf("expected 1 audit call, got %d", len(auditMock.LogCalls()))
+	}
+	if capturedRecord.Action != domain.AuditActionUpdate {
+		t.Errorf("audit action: got %v, want %v", capturedRecord.Action, domain.AuditActionUpdate)
+	}
+	if capturedRecord.EntityType != domain.EntityTypeTopic {
+		t.Errorf("audit entity type: got %v, want %v", capturedRecord.EntityType, domain.EntityTypeTopic)
+	}
+	if capturedRecord.EntityID == nil || *capturedRecord.EntityID != topicID {
+		t.Errorf("audit entity ID: got %v, want %v", capturedRecord.EntityID, topicID)
+	}
+	linkedEntry, ok := capturedRecord.Changes["linked_entry"].(map[string]any)
+	if !ok {
+		t.Fatalf("audit changes[linked_entry]: expected map, got %T", capturedRecord.Changes["linked_entry"])
+	}
+	if linkedEntry["new"] != entryID {
+		t.Errorf("audit linked_entry[new]: got %v, want %v", linkedEntry["new"], entryID)
+	}
+}
+
+func TestUnlinkEntry_Audit(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	topicID := uuid.New()
+	entryID := uuid.New()
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	topicsMock := &topicRepoMock{
+		GetByIDFunc: func(_ context.Context, uid, tid uuid.UUID) (*domain.Topic, error) {
+			return &domain.Topic{ID: tid, UserID: uid, Name: "test"}, nil
+		},
+		UnlinkEntryFunc: func(_ context.Context, _, _ uuid.UUID) error {
+			return nil
+		},
+	}
+
+	var capturedRecord domain.AuditRecord
+	auditMock := &auditLoggerMock{
+		LogFunc: func(_ context.Context, record domain.AuditRecord) error {
+			capturedRecord = record
+			return nil
+		},
+	}
+	txMock := &txManagerMock{
+		RunInTxFunc: func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		},
+	}
+
+	svc := NewService(slog.Default(), topicsMock, &entryRepoMock{}, auditMock, txMock)
+	err := svc.UnlinkEntry(ctx, UnlinkEntryInput{TopicID: topicID, EntryID: entryID})
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(auditMock.LogCalls()) != 1 {
+		t.Fatalf("expected 1 audit call, got %d", len(auditMock.LogCalls()))
+	}
+	if capturedRecord.Action != domain.AuditActionUpdate {
+		t.Errorf("audit action: got %v, want %v", capturedRecord.Action, domain.AuditActionUpdate)
+	}
+	if capturedRecord.EntityType != domain.EntityTypeTopic {
+		t.Errorf("audit entity type: got %v, want %v", capturedRecord.EntityType, domain.EntityTypeTopic)
+	}
+	unlinkedEntry, ok := capturedRecord.Changes["unlinked_entry"].(map[string]any)
+	if !ok {
+		t.Fatalf("audit changes[unlinked_entry]: expected map, got %T", capturedRecord.Changes["unlinked_entry"])
+	}
+	if unlinkedEntry["old"] != entryID {
+		t.Errorf("audit unlinked_entry[old]: got %v, want %v", unlinkedEntry["old"], entryID)
+	}
+}
+
+func TestBatchLinkEntries_Audit(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	topicID := uuid.New()
+	entryIDs := []uuid.UUID{uuid.New(), uuid.New(), uuid.New()}
+	existMap := make(map[uuid.UUID]bool)
+	for _, id := range entryIDs {
+		existMap[id] = true
+	}
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	topicsMock := &topicRepoMock{
+		GetByIDFunc: func(_ context.Context, uid, tid uuid.UUID) (*domain.Topic, error) {
+			return &domain.Topic{ID: tid, UserID: uid, Name: "test"}, nil
+		},
+		BatchLinkEntriesFunc: func(_ context.Context, eids []uuid.UUID, _ uuid.UUID) (int, error) {
+			return len(eids), nil
+		},
+	}
+	entriesMock := &entryRepoMock{
+		ExistByIDsFunc: func(_ context.Context, _ uuid.UUID, _ []uuid.UUID) (map[uuid.UUID]bool, error) {
+			return existMap, nil
+		},
+	}
+
+	var capturedRecord domain.AuditRecord
+	auditMock := &auditLoggerMock{
+		LogFunc: func(_ context.Context, record domain.AuditRecord) error {
+			capturedRecord = record
+			return nil
+		},
+	}
+	txMock := &txManagerMock{
+		RunInTxFunc: func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		},
+	}
+
+	svc := NewService(slog.Default(), topicsMock, entriesMock, auditMock, txMock)
+	result, err := svc.BatchLinkEntries(ctx, BatchLinkEntriesInput{TopicID: topicID, EntryIDs: entryIDs})
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if result.Linked != 3 {
+		t.Fatalf("expected 3 linked, got %d", result.Linked)
+	}
+	if len(auditMock.LogCalls()) != 1 {
+		t.Fatalf("expected 1 audit call, got %d", len(auditMock.LogCalls()))
+	}
+	if capturedRecord.Action != domain.AuditActionUpdate {
+		t.Errorf("audit action: got %v, want %v", capturedRecord.Action, domain.AuditActionUpdate)
+	}
+	batchChanges, ok := capturedRecord.Changes["batch_linked_entries"].(map[string]any)
+	if !ok {
+		t.Fatalf("audit changes[batch_linked_entries]: expected map, got %T", capturedRecord.Changes["batch_linked_entries"])
+	}
+	if batchChanges["linked"] != 3 {
+		t.Errorf("audit linked count: got %v, want 3", batchChanges["linked"])
+	}
+}
+
+// --- Deduplication test (issue #8) ---
+
+func TestBatchLinkEntries_DuplicateEntryIDs(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	topicID := uuid.New()
+	entryID := uuid.New()
+	// Pass the same entry ID 3 times
+	entryIDs := []uuid.UUID{entryID, entryID, entryID}
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	topicsMock := &topicRepoMock{
+		GetByIDFunc: func(_ context.Context, uid, tid uuid.UUID) (*domain.Topic, error) {
+			return &domain.Topic{ID: tid, UserID: uid, Name: "test"}, nil
+		},
+		BatchLinkEntriesFunc: func(_ context.Context, eids []uuid.UUID, _ uuid.UUID) (int, error) {
+			if len(eids) != 1 {
+				t.Errorf("expected 1 deduplicated entry ID, got %d", len(eids))
+			}
+			return 1, nil
+		},
+	}
+	entriesMock := &entryRepoMock{
+		ExistByIDsFunc: func(_ context.Context, _ uuid.UUID, ids []uuid.UUID) (map[uuid.UUID]bool, error) {
+			if len(ids) != 1 {
+				t.Errorf("ExistByIDs should receive 1 deduplicated ID, got %d", len(ids))
+			}
+			return map[uuid.UUID]bool{entryID: true}, nil
+		},
+	}
+
+	svc := newLinkTestService(t, topicsMock, entriesMock)
+	result, err := svc.BatchLinkEntries(ctx, BatchLinkEntriesInput{TopicID: topicID, EntryIDs: entryIDs})
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if result.Linked != 1 {
+		t.Errorf("expected 1 linked, got %d", result.Linked)
+	}
+	if result.Skipped != 2 {
+		t.Errorf("expected 2 skipped (3 requested - 1 linked), got %d", result.Skipped)
+	}
+}

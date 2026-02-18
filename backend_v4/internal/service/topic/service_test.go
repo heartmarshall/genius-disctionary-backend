@@ -1105,3 +1105,158 @@ func TestListTopics_Unauthorized(t *testing.T) {
 		t.Errorf("error: got %v, want ErrUnauthorized", err)
 	}
 }
+
+// ---------------------------------------------------------------------------
+// UpdateTopic: skip audit when nothing changed (issue #9)
+// ---------------------------------------------------------------------------
+
+func TestUpdateTopic_NoChanges_SkipsAudit(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	topicID := uuid.New()
+	sameName := "Same Name"
+	sameDesc := "Same Desc"
+
+	topicMock := &topicRepoMock{
+		GetByIDFunc: func(ctx context.Context, uid, tid uuid.UUID) (*domain.Topic, error) {
+			return &domain.Topic{
+				ID:          topicID,
+				UserID:      uid,
+				Name:        sameName,
+				Description: &sameDesc,
+			}, nil
+		},
+		UpdateFunc: func(ctx context.Context, uid, tid uuid.UUID, params domain.TopicUpdateParams) (*domain.Topic, error) {
+			return &domain.Topic{
+				ID:          topicID,
+				UserID:      uid,
+				Name:        sameName,
+				Description: &sameDesc,
+			}, nil
+		},
+	}
+
+	auditMock := &auditLoggerMock{
+		LogFunc: func(ctx context.Context, record domain.AuditRecord) error {
+			t.Error("audit.Log should not be called for no-op update")
+			return nil
+		},
+	}
+
+	svc := newCRUDTestService(t, topicMock, auditMock, defaultTxMock())
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	_, err := svc.UpdateTopic(ctx, UpdateTopicInput{
+		TopicID: topicID,
+		Name:    &sameName,
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+// ---------------------------------------------------------------------------
+// GetTopic Tests (issue #10)
+// ---------------------------------------------------------------------------
+
+func TestGetTopic_Success(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	topicID := uuid.New()
+	desc := "test description"
+
+	topicMock := &topicRepoMock{
+		GetByIDFunc: func(ctx context.Context, uid, tid uuid.UUID) (*domain.Topic, error) {
+			if uid != userID {
+				t.Errorf("userID: got %v, want %v", uid, userID)
+			}
+			if tid != topicID {
+				t.Errorf("topicID: got %v, want %v", tid, topicID)
+			}
+			return &domain.Topic{
+				ID:          topicID,
+				UserID:      uid,
+				Name:        "Travel",
+				Description: &desc,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+			}, nil
+		},
+	}
+
+	svc := newCRUDTestService(t, topicMock, defaultAuditMock(), defaultTxMock())
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	result, err := svc.GetTopic(ctx, topicID)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if result.ID != topicID {
+		t.Errorf("topic ID: got %v, want %v", result.ID, topicID)
+	}
+	if result.Name != "Travel" {
+		t.Errorf("name: got %q, want %q", result.Name, "Travel")
+	}
+	if result.Description == nil || *result.Description != desc {
+		t.Errorf("description: got %v, want %q", result.Description, desc)
+	}
+}
+
+func TestGetTopic_NotFound(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	topicID := uuid.New()
+
+	topicMock := &topicRepoMock{
+		GetByIDFunc: func(ctx context.Context, uid, tid uuid.UUID) (*domain.Topic, error) {
+			return nil, domain.ErrNotFound
+		},
+	}
+
+	svc := newCRUDTestService(t, topicMock, defaultAuditMock(), defaultTxMock())
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	_, err := svc.GetTopic(ctx, topicID)
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	if !errors.Is(err, domain.ErrNotFound) {
+		t.Errorf("error: got %v, want ErrNotFound", err)
+	}
+}
+
+func TestGetTopic_Unauthorized(t *testing.T) {
+	t.Parallel()
+
+	svc := newCRUDTestService(t, &topicRepoMock{}, defaultAuditMock(), defaultTxMock())
+	ctx := context.Background()
+
+	_, err := svc.GetTopic(ctx, uuid.New())
+	if !errors.Is(err, domain.ErrUnauthorized) {
+		t.Errorf("error: got %v, want ErrUnauthorized", err)
+	}
+}
+
+func TestGetTopic_NilID(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	svc := newCRUDTestService(t, &topicRepoMock{}, defaultAuditMock(), defaultTxMock())
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	_, err := svc.GetTopic(ctx, uuid.Nil)
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+
+	var ve *domain.ValidationError
+	if !errors.As(err, &ve) {
+		t.Fatalf("expected ValidationError, got %T: %v", err, err)
+	}
+	if ve.Errors[0].Field != "topic_id" {
+		t.Errorf("field: got %q, want %q", ve.Errors[0].Field, "topic_id")
+	}
+}
