@@ -3,6 +3,8 @@ import { AuthProvider } from './auth/AuthProvider'
 import { LoginPage } from './auth/LoginPage'
 import { Layout } from './components/Layout'
 import { CatalogPage } from './pages/CatalogPage'
+import { DictionaryPage } from './pages/DictionaryPage'
+import { EntryDetailPage } from './pages/EntryDetailPage'
 
 function Placeholder({ name }: { name: string }) {
   return <div className="p-6 text-gray-500">Page: {name} (coming soon)</div>
@@ -17,8 +19,8 @@ function App() {
           <Route element={<Layout />}>
             <Route path="/" element={<Navigate to="/dictionary" replace />} />
             <Route path="/catalog" element={<CatalogPage />} />
-            <Route path="/dictionary" element={<Placeholder name="Dictionary" />} />
-            <Route path="/entry/:id" element={<Placeholder name="Entry Detail" />} />
+            <Route path="/dictionary" element={<DictionaryPage />} />
+            <Route path="/entry/:id" element={<EntryDetailPage />} />
             <Route path="/study" element={<Placeholder name="Study" />} />
             <Route path="/topics" element={<Placeholder name="Topics" />} />
             <Route path="/inbox" element={<Placeholder name="Inbox" />} />
