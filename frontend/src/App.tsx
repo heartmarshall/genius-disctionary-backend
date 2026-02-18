@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './auth/AuthProvider'
+import { LoginPage } from './auth/LoginPage'
 import { Layout } from './components/Layout'
 
 function Placeholder({ name }: { name: string }) {
@@ -11,7 +12,7 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={<Placeholder name="Login" />} />
+          <Route path="/login" element={<LoginPage />} />
           <Route element={<Layout />}>
             <Route path="/" element={<Navigate to="/dictionary" replace />} />
             <Route path="/catalog" element={<Placeholder name="Catalog" />} />
