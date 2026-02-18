@@ -172,6 +172,51 @@ SELECT id, entry_id, url, caption, created_at
 FROM user_images
 WHERE id = $1`
 
+const getUserByIDForUserSQL = `
+SELECT ui.id, ui.entry_id, ui.url, ui.caption, ui.created_at
+FROM user_images ui
+JOIN entries e ON e.id = ui.entry_id
+WHERE ui.id = $1 AND e.user_id = $2 AND e.deleted_at IS NULL`
+
+const countUserByEntrySQL = `
+SELECT COUNT(*) FROM user_images WHERE entry_id = $1`
+
+// GetUserByIDForUser returns a single user-uploaded image by its ID,
+// verifying that the parent entry belongs to the given user (single JOIN query).
+// Returns domain.ErrNotFound if the image does not exist or the entry is not owned.
+func (r *Repo) GetUserByIDForUser(ctx context.Context, userID, imageID uuid.UUID) (*domain.UserImage, error) {
+	querier := postgres.QuerierFromCtx(ctx, r.pool)
+
+	var (
+		id        uuid.UUID
+		entryID   uuid.UUID
+		url       string
+		caption   pgtype.Text
+		createdAt time.Time
+	)
+
+	err := querier.QueryRow(ctx, getUserByIDForUserSQL, imageID, userID).Scan(&id, &entryID, &url, &caption, &createdAt)
+	if err != nil {
+		return nil, mapError(err, "user_image", imageID)
+	}
+
+	img := buildDomainUserImage(id, entryID, url, caption, createdAt)
+	return &img, nil
+}
+
+// CountUserByEntry returns the number of user-uploaded images for an entry.
+func (r *Repo) CountUserByEntry(ctx context.Context, entryID uuid.UUID) (int, error) {
+	querier := postgres.QuerierFromCtx(ctx, r.pool)
+
+	var count int64
+	err := querier.QueryRow(ctx, countUserByEntrySQL, entryID).Scan(&count)
+	if err != nil {
+		return 0, fmt.Errorf("count user images: %w", err)
+	}
+
+	return int(count), nil
+}
+
 // GetUserByID returns a single user-uploaded image by its ID.
 // Returns domain.ErrNotFound if the image does not exist.
 func (r *Repo) GetUserByID(ctx context.Context, imageID uuid.UUID) (*domain.UserImage, error) {
@@ -239,6 +284,34 @@ func (r *Repo) GetUserByEntryIDs(ctx context.Context, entryIDs []uuid.UUID) ([]U
 // ---------------------------------------------------------------------------
 // User image write operations
 // ---------------------------------------------------------------------------
+
+const updateUserCaptionSQL = `
+UPDATE user_images SET caption = $1
+WHERE id = $2
+RETURNING id, entry_id, url, caption, created_at`
+
+// UpdateUser updates the caption of a user image.
+// Returns domain.ErrNotFound if the image does not exist.
+func (r *Repo) UpdateUser(ctx context.Context, imageID uuid.UUID, caption *string) (*domain.UserImage, error) {
+	querier := postgres.QuerierFromCtx(ctx, r.pool)
+
+	var (
+		id        uuid.UUID
+		entryID   uuid.UUID
+		url       string
+		cap       pgtype.Text
+		createdAt time.Time
+	)
+
+	err := querier.QueryRow(ctx, updateUserCaptionSQL, ptrStringToPgText(caption), imageID).
+		Scan(&id, &entryID, &url, &cap, &createdAt)
+	if err != nil {
+		return nil, mapError(err, "user_image", imageID)
+	}
+
+	img := buildDomainUserImage(id, entryID, url, cap, createdAt)
+	return &img, nil
+}
 
 // CreateUser creates a user-uploaded image and returns the persisted domain.UserImage.
 func (r *Repo) CreateUser(ctx context.Context, entryID uuid.UUID, url string, caption *string) (*domain.UserImage, error) {

@@ -12,66 +12,126 @@ import (
 )
 
 // ---------------------------------------------------------------------------
-// Mock extensions for translation operations
+// NoUserID Tests for Translation Operations
 // ---------------------------------------------------------------------------
 
-type mockExampleRepo struct {
-	getByIDFunc      func(ctx context.Context, exampleID uuid.UUID) (*domain.Example, error)
-	getBySenseIDFunc func(ctx context.Context, senseID uuid.UUID) ([]domain.Example, error)
-	countBySenseFunc func(ctx context.Context, senseID uuid.UUID) (int, error)
-	createCustomFunc func(ctx context.Context, senseID uuid.UUID, sentence string, translation *string, sourceSlug string) (*domain.Example, error)
-	updateFunc       func(ctx context.Context, exampleID uuid.UUID, sentence string, translation *string) (*domain.Example, error)
-	deleteFunc       func(ctx context.Context, exampleID uuid.UUID) error
-	reorderFunc      func(ctx context.Context, items []domain.ReorderItem) error
+func TestService_AddTranslation_NoUserID(t *testing.T) {
+	t.Parallel()
+
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	svc := NewService(logger, &mockEntryRepo{}, &mockSenseRepo{}, &mockTranslationRepo{}, nil, nil, &mockAuditRepo{}, &mockTxManager{})
+
+	ctx := context.Background()
+	input := AddTranslationInput{
+		SenseID: uuid.New(),
+		Text:    "перевод",
+	}
+
+	_, err := svc.AddTranslation(ctx, input)
+
+	if err != domain.ErrUnauthorized {
+		t.Errorf("expected ErrUnauthorized, got %v", err)
+	}
 }
 
-func (m *mockExampleRepo) GetByID(ctx context.Context, exampleID uuid.UUID) (*domain.Example, error) {
-	if m.getByIDFunc != nil {
-		return m.getByIDFunc(ctx, exampleID)
+func TestService_UpdateTranslation_NoUserID(t *testing.T) {
+	t.Parallel()
+
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	svc := NewService(logger, &mockEntryRepo{}, &mockSenseRepo{}, &mockTranslationRepo{}, nil, nil, &mockAuditRepo{}, &mockTxManager{})
+
+	ctx := context.Background()
+	input := UpdateTranslationInput{
+		TranslationID: uuid.New(),
+		Text:          "перевод",
 	}
-	return nil, domain.ErrNotFound
+
+	_, err := svc.UpdateTranslation(ctx, input)
+
+	if err != domain.ErrUnauthorized {
+		t.Errorf("expected ErrUnauthorized, got %v", err)
+	}
 }
 
-func (m *mockExampleRepo) GetBySenseID(ctx context.Context, senseID uuid.UUID) ([]domain.Example, error) {
-	if m.getBySenseIDFunc != nil {
-		return m.getBySenseIDFunc(ctx, senseID)
+func TestService_DeleteTranslation_NoUserID(t *testing.T) {
+	t.Parallel()
+
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	svc := NewService(logger, &mockEntryRepo{}, &mockSenseRepo{}, &mockTranslationRepo{}, nil, nil, &mockAuditRepo{}, &mockTxManager{})
+
+	ctx := context.Background()
+
+	err := svc.DeleteTranslation(ctx, uuid.New())
+
+	if err != domain.ErrUnauthorized {
+		t.Errorf("expected ErrUnauthorized, got %v", err)
 	}
-	return nil, nil
 }
 
-func (m *mockExampleRepo) CountBySense(ctx context.Context, senseID uuid.UUID) (int, error) {
-	if m.countBySenseFunc != nil {
-		return m.countBySenseFunc(ctx, senseID)
+func TestService_ReorderTranslations_NoUserID(t *testing.T) {
+	t.Parallel()
+
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	svc := NewService(logger, &mockEntryRepo{}, &mockSenseRepo{}, &mockTranslationRepo{}, nil, nil, &mockAuditRepo{}, &mockTxManager{})
+
+	ctx := context.Background()
+	input := ReorderTranslationsInput{
+		SenseID: uuid.New(),
+		Items:   []domain.ReorderItem{{ID: uuid.New(), Position: 0}},
 	}
-	return 0, nil
+
+	err := svc.ReorderTranslations(ctx, input)
+
+	if err != domain.ErrUnauthorized {
+		t.Errorf("expected ErrUnauthorized, got %v", err)
+	}
 }
 
-func (m *mockExampleRepo) CreateCustom(ctx context.Context, senseID uuid.UUID, sentence string, translation *string, sourceSlug string) (*domain.Example, error) {
-	if m.createCustomFunc != nil {
-		return m.createCustomFunc(ctx, senseID, sentence, translation, sourceSlug)
-	}
-	return &domain.Example{ID: uuid.New()}, nil
-}
+// ---------------------------------------------------------------------------
+// UpdateTranslation No-Op Test
+// ---------------------------------------------------------------------------
 
-func (m *mockExampleRepo) Update(ctx context.Context, exampleID uuid.UUID, sentence string, translation *string) (*domain.Example, error) {
-	if m.updateFunc != nil {
-		return m.updateFunc(ctx, exampleID, sentence, translation)
-	}
-	return &domain.Example{ID: exampleID}, nil
-}
+func TestService_UpdateTranslation_NoChangeSkipsAudit(t *testing.T) {
+	t.Parallel()
 
-func (m *mockExampleRepo) Delete(ctx context.Context, exampleID uuid.UUID) error {
-	if m.deleteFunc != nil {
-		return m.deleteFunc(ctx, exampleID)
-	}
-	return nil
-}
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	userID := uuid.New()
+	senseID := uuid.New()
+	translationID := uuid.New()
+	sameText := "одинаковый текст"
 
-func (m *mockExampleRepo) Reorder(ctx context.Context, items []domain.ReorderItem) error {
-	if m.reorderFunc != nil {
-		return m.reorderFunc(ctx, items)
+	translationRepo := &mockTranslationRepo{
+		getByIDForUserFunc: func(ctx context.Context, uid, tid uuid.UUID) (*domain.Translation, error) {
+			return &domain.Translation{
+				ID:      translationID,
+				SenseID: senseID,
+				Text:    &sameText,
+			}, nil
+		},
+		updateFunc: func(ctx context.Context, tid uuid.UUID, text string) (*domain.Translation, error) {
+			return &domain.Translation{ID: tid, SenseID: senseID, Text: &text}, nil
+		},
 	}
-	return nil
+
+	auditRepo := &mockAuditRepo{}
+	svc := NewService(logger, &mockEntryRepo{}, &mockSenseRepo{}, translationRepo, nil, nil, auditRepo, &mockTxManager{})
+
+	ctx := withUser(context.Background(), userID)
+	input := UpdateTranslationInput{
+		TranslationID: translationID,
+		Text:          sameText,
+	}
+
+	_, err := svc.UpdateTranslation(ctx, input)
+
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+
+	// No audit when nothing changed
+	if len(auditRepo.records) != 0 {
+		t.Errorf("expected 0 audit records for no-change update, got %d", len(auditRepo.records))
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -83,25 +143,15 @@ func TestService_AddTranslation_HappyPath(t *testing.T) {
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	userID := uuid.New()
-	entryID := uuid.New()
 	senseID := uuid.New()
 	translationID := uuid.New()
 
 	senseRepo := &mockSenseRepo{
-		getByIDFunc: func(ctx context.Context, sid uuid.UUID) (*domain.Sense, error) {
-			if sid != senseID {
+		getByIDForUserFunc: func(ctx context.Context, uid, sid uuid.UUID) (*domain.Sense, error) {
+			if uid != userID || sid != senseID {
 				return nil, domain.ErrNotFound
 			}
-			return &domain.Sense{ID: senseID, EntryID: entryID}, nil
-		},
-	}
-
-	entryRepo := &mockEntryRepo{
-		getByIDFunc: func(ctx context.Context, uid, eid uuid.UUID) (*domain.Entry, error) {
-			if uid != userID || eid != entryID {
-				return nil, domain.ErrNotFound
-			}
-			return &domain.Entry{ID: entryID, UserID: userID}, nil
+			return &domain.Sense{ID: senseID}, nil
 		},
 	}
 
@@ -119,7 +169,7 @@ func TestService_AddTranslation_HappyPath(t *testing.T) {
 
 	auditRepo := &mockAuditRepo{}
 
-	svc := NewService(logger, entryRepo, senseRepo, translationRepo, nil, nil, auditRepo, &mockTxManager{})
+	svc := NewService(logger, &mockEntryRepo{}, senseRepo, translationRepo, nil, nil, auditRepo, &mockTxManager{})
 
 	ctx := withUser(context.Background(), userID)
 	input := AddTranslationInput{
@@ -156,9 +206,6 @@ func TestService_AddTranslation_HappyPath(t *testing.T) {
 	if audit.Action != domain.AuditActionUpdate {
 		t.Errorf("expected Action UPDATE, got %v", audit.Action)
 	}
-	if audit.Changes == nil {
-		t.Fatal("expected Changes in audit record")
-	}
 	if addedChange, ok := audit.Changes["translation_added"].(map[string]any); ok {
 		if addedChange["new"] != "перевод" {
 			t.Errorf("expected new translation text in audit, got %v", addedChange["new"])
@@ -173,18 +220,11 @@ func TestService_AddTranslation_LimitReached(t *testing.T) {
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	userID := uuid.New()
-	entryID := uuid.New()
 	senseID := uuid.New()
 
 	senseRepo := &mockSenseRepo{
-		getByIDFunc: func(ctx context.Context, sid uuid.UUID) (*domain.Sense, error) {
-			return &domain.Sense{ID: senseID, EntryID: entryID}, nil
-		},
-	}
-
-	entryRepo := &mockEntryRepo{
-		getByIDFunc: func(ctx context.Context, uid, eid uuid.UUID) (*domain.Entry, error) {
-			return &domain.Entry{ID: entryID, UserID: userID}, nil
+		getByIDForUserFunc: func(ctx context.Context, uid, sid uuid.UUID) (*domain.Sense, error) {
+			return &domain.Sense{ID: senseID}, nil
 		},
 	}
 
@@ -192,12 +232,9 @@ func TestService_AddTranslation_LimitReached(t *testing.T) {
 		countBySenseFunc: func(ctx context.Context, sid uuid.UUID) (int, error) {
 			return MaxTranslationsPerSense, nil // Limit reached
 		},
-		createCustomFunc: func(ctx context.Context, sid uuid.UUID, text string, sourceSlug string) (*domain.Translation, error) {
-			return &domain.Translation{ID: uuid.New()}, nil
-		},
 	}
 
-	svc := NewService(logger, entryRepo, senseRepo, translationRepo, nil, nil, &mockAuditRepo{}, &mockTxManager{})
+	svc := NewService(logger, &mockEntryRepo{}, senseRepo, translationRepo, nil, nil, &mockAuditRepo{}, &mockTxManager{})
 
 	ctx := withUser(context.Background(), userID)
 	input := AddTranslationInput{
@@ -220,7 +257,7 @@ func TestService_AddTranslation_SenseNotFound(t *testing.T) {
 	senseID := uuid.New()
 
 	senseRepo := &mockSenseRepo{
-		getByIDFunc: func(ctx context.Context, sid uuid.UUID) (*domain.Sense, error) {
+		getByIDForUserFunc: func(ctx context.Context, uid, sid uuid.UUID) (*domain.Sense, error) {
 			return nil, domain.ErrNotFound
 		},
 	}
@@ -245,35 +282,28 @@ func TestService_AddTranslation_SenseFromForeignEntry(t *testing.T) {
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	userID := uuid.New()
-	foreignUserID := uuid.New()
-	entryID := uuid.New()
 	senseID := uuid.New()
 
+	// GetByIDForUser returns ErrNotFound for foreign user (JOIN-based ownership)
 	senseRepo := &mockSenseRepo{
-		getByIDFunc: func(ctx context.Context, sid uuid.UUID) (*domain.Sense, error) {
-			return &domain.Sense{ID: senseID, EntryID: entryID}, nil
-		},
-	}
-
-	entryRepo := &mockEntryRepo{
-		getByIDFunc: func(ctx context.Context, uid, eid uuid.UUID) (*domain.Entry, error) {
-			// Entry belongs to different user
-			if uid == foreignUserID {
-				return &domain.Entry{ID: entryID, UserID: foreignUserID}, nil
+		getByIDForUserFunc: func(ctx context.Context, uid, sid uuid.UUID) (*domain.Sense, error) {
+			if uid != userID {
+				return nil, domain.ErrNotFound
 			}
-			return nil, domain.ErrNotFound
+			return &domain.Sense{ID: senseID}, nil
 		},
 	}
 
-	svc := NewService(logger, entryRepo, senseRepo, &mockTranslationRepo{}, nil, nil, &mockAuditRepo{}, &mockTxManager{})
+	svc := NewService(logger, &mockEntryRepo{}, senseRepo, &mockTranslationRepo{}, nil, nil, &mockAuditRepo{}, &mockTxManager{})
 
-	ctx := withUser(context.Background(), userID)
+	// Different user should get ErrNotFound
+	otherCtx := withUser(context.Background(), uuid.New())
 	input := AddTranslationInput{
 		SenseID: senseID,
 		Text:    "перевод",
 	}
 
-	_, err := svc.AddTranslation(ctx, input)
+	_, err := svc.AddTranslation(otherCtx, input)
 
 	if err != domain.ErrNotFound {
 		t.Errorf("expected ErrNotFound for sense from foreign entry, got %v", err)
@@ -289,15 +319,14 @@ func TestService_UpdateTranslation_HappyPath(t *testing.T) {
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	userID := uuid.New()
-	entryID := uuid.New()
 	senseID := uuid.New()
 	translationID := uuid.New()
 	oldText := "старый перевод"
 	newText := "новый перевод"
 
 	translationRepo := &mockTranslationRepo{
-		getByIDFunc: func(ctx context.Context, tid uuid.UUID) (*domain.Translation, error) {
-			if tid != translationID {
+		getByIDForUserFunc: func(ctx context.Context, uid, tid uuid.UUID) (*domain.Translation, error) {
+			if uid != userID || tid != translationID {
 				return nil, domain.ErrNotFound
 			}
 			return &domain.Translation{
@@ -313,26 +342,11 @@ func TestService_UpdateTranslation_HappyPath(t *testing.T) {
 				Text:    &text,
 			}, nil
 		},
-		createCustomFunc: func(ctx context.Context, sid uuid.UUID, text string, sourceSlug string) (*domain.Translation, error) {
-			return &domain.Translation{ID: uuid.New()}, nil
-		},
-	}
-
-	senseRepo := &mockSenseRepo{
-		getByIDFunc: func(ctx context.Context, sid uuid.UUID) (*domain.Sense, error) {
-			return &domain.Sense{ID: senseID, EntryID: entryID}, nil
-		},
-	}
-
-	entryRepo := &mockEntryRepo{
-		getByIDFunc: func(ctx context.Context, uid, eid uuid.UUID) (*domain.Entry, error) {
-			return &domain.Entry{ID: entryID, UserID: userID}, nil
-		},
 	}
 
 	auditRepo := &mockAuditRepo{}
 
-	svc := NewService(logger, entryRepo, senseRepo, translationRepo, nil, nil, auditRepo, &mockTxManager{})
+	svc := NewService(logger, &mockEntryRepo{}, &mockSenseRepo{}, translationRepo, nil, nil, auditRepo, &mockTxManager{})
 
 	ctx := withUser(context.Background(), userID)
 	input := UpdateTranslationInput{
@@ -383,11 +397,8 @@ func TestService_UpdateTranslation_TranslationNotFound(t *testing.T) {
 	translationID := uuid.New()
 
 	translationRepo := &mockTranslationRepo{
-		getByIDFunc: func(ctx context.Context, tid uuid.UUID) (*domain.Translation, error) {
+		getByIDForUserFunc: func(ctx context.Context, uid, tid uuid.UUID) (*domain.Translation, error) {
 			return nil, domain.ErrNotFound
-		},
-		createCustomFunc: func(ctx context.Context, sid uuid.UUID, text string, sourceSlug string) (*domain.Translation, error) {
-			return &domain.Translation{ID: uuid.New()}, nil
 		},
 	}
 
@@ -411,14 +422,13 @@ func TestService_UpdateTranslation_AuditContainsOldAndNew(t *testing.T) {
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	userID := uuid.New()
-	entryID := uuid.New()
 	senseID := uuid.New()
 	translationID := uuid.New()
 	oldText := "old"
 	newText := "new"
 
 	translationRepo := &mockTranslationRepo{
-		getByIDFunc: func(ctx context.Context, tid uuid.UUID) (*domain.Translation, error) {
+		getByIDForUserFunc: func(ctx context.Context, uid, tid uuid.UUID) (*domain.Translation, error) {
 			return &domain.Translation{
 				ID:      translationID,
 				SenseID: senseID,
@@ -428,26 +438,11 @@ func TestService_UpdateTranslation_AuditContainsOldAndNew(t *testing.T) {
 		updateFunc: func(ctx context.Context, tid uuid.UUID, text string) (*domain.Translation, error) {
 			return &domain.Translation{ID: tid, Text: &text}, nil
 		},
-		createCustomFunc: func(ctx context.Context, sid uuid.UUID, text string, sourceSlug string) (*domain.Translation, error) {
-			return &domain.Translation{ID: uuid.New()}, nil
-		},
-	}
-
-	senseRepo := &mockSenseRepo{
-		getByIDFunc: func(ctx context.Context, sid uuid.UUID) (*domain.Sense, error) {
-			return &domain.Sense{ID: senseID, EntryID: entryID}, nil
-		},
-	}
-
-	entryRepo := &mockEntryRepo{
-		getByIDFunc: func(ctx context.Context, uid, eid uuid.UUID) (*domain.Entry, error) {
-			return &domain.Entry{ID: entryID, UserID: userID}, nil
-		},
 	}
 
 	auditRepo := &mockAuditRepo{}
 
-	svc := NewService(logger, entryRepo, senseRepo, translationRepo, nil, nil, auditRepo, &mockTxManager{})
+	svc := NewService(logger, &mockEntryRepo{}, &mockSenseRepo{}, translationRepo, nil, nil, auditRepo, &mockTxManager{})
 
 	ctx := withUser(context.Background(), userID)
 	input := UpdateTranslationInput{
@@ -484,13 +479,12 @@ func TestService_DeleteTranslation_HappyPath(t *testing.T) {
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	userID := uuid.New()
-	entryID := uuid.New()
 	senseID := uuid.New()
 	translationID := uuid.New()
 	text := "перевод для удаления"
 
 	translationRepo := &mockTranslationRepo{
-		getByIDFunc: func(ctx context.Context, tid uuid.UUID) (*domain.Translation, error) {
+		getByIDForUserFunc: func(ctx context.Context, uid, tid uuid.UUID) (*domain.Translation, error) {
 			return &domain.Translation{
 				ID:      translationID,
 				SenseID: senseID,
@@ -500,26 +494,11 @@ func TestService_DeleteTranslation_HappyPath(t *testing.T) {
 		deleteFunc: func(ctx context.Context, tid uuid.UUID) error {
 			return nil
 		},
-		createCustomFunc: func(ctx context.Context, sid uuid.UUID, text string, sourceSlug string) (*domain.Translation, error) {
-			return &domain.Translation{ID: uuid.New()}, nil
-		},
-	}
-
-	senseRepo := &mockSenseRepo{
-		getByIDFunc: func(ctx context.Context, sid uuid.UUID) (*domain.Sense, error) {
-			return &domain.Sense{ID: senseID, EntryID: entryID}, nil
-		},
-	}
-
-	entryRepo := &mockEntryRepo{
-		getByIDFunc: func(ctx context.Context, uid, eid uuid.UUID) (*domain.Entry, error) {
-			return &domain.Entry{ID: entryID, UserID: userID}, nil
-		},
 	}
 
 	auditRepo := &mockAuditRepo{}
 
-	svc := NewService(logger, entryRepo, senseRepo, translationRepo, nil, nil, auditRepo, &mockTxManager{})
+	svc := NewService(logger, &mockEntryRepo{}, &mockSenseRepo{}, translationRepo, nil, nil, auditRepo, &mockTxManager{})
 
 	ctx := withUser(context.Background(), userID)
 
@@ -557,13 +536,12 @@ func TestService_DeleteTranslation_LastTranslationAllowed(t *testing.T) {
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	userID := uuid.New()
-	entryID := uuid.New()
 	senseID := uuid.New()
 	translationID := uuid.New()
 	lastText := "последний перевод"
 
 	translationRepo := &mockTranslationRepo{
-		getByIDFunc: func(ctx context.Context, tid uuid.UUID) (*domain.Translation, error) {
+		getByIDForUserFunc: func(ctx context.Context, uid, tid uuid.UUID) (*domain.Translation, error) {
 			return &domain.Translation{
 				ID:      translationID,
 				SenseID: senseID,
@@ -573,24 +551,9 @@ func TestService_DeleteTranslation_LastTranslationAllowed(t *testing.T) {
 		deleteFunc: func(ctx context.Context, tid uuid.UUID) error {
 			return nil
 		},
-		createCustomFunc: func(ctx context.Context, sid uuid.UUID, text string, sourceSlug string) (*domain.Translation, error) {
-			return &domain.Translation{ID: uuid.New()}, nil
-		},
 	}
 
-	senseRepo := &mockSenseRepo{
-		getByIDFunc: func(ctx context.Context, sid uuid.UUID) (*domain.Sense, error) {
-			return &domain.Sense{ID: senseID, EntryID: entryID}, nil
-		},
-	}
-
-	entryRepo := &mockEntryRepo{
-		getByIDFunc: func(ctx context.Context, uid, eid uuid.UUID) (*domain.Entry, error) {
-			return &domain.Entry{ID: entryID, UserID: userID}, nil
-		},
-	}
-
-	svc := NewService(logger, entryRepo, senseRepo, translationRepo, nil, nil, &mockAuditRepo{}, &mockTxManager{})
+	svc := NewService(logger, &mockEntryRepo{}, &mockSenseRepo{}, translationRepo, nil, nil, &mockAuditRepo{}, &mockTxManager{})
 
 	ctx := withUser(context.Background(), userID)
 
@@ -609,11 +572,8 @@ func TestService_DeleteTranslation_TranslationNotFound(t *testing.T) {
 	translationID := uuid.New()
 
 	translationRepo := &mockTranslationRepo{
-		getByIDFunc: func(ctx context.Context, tid uuid.UUID) (*domain.Translation, error) {
+		getByIDForUserFunc: func(ctx context.Context, uid, tid uuid.UUID) (*domain.Translation, error) {
 			return nil, domain.ErrNotFound
-		},
-		createCustomFunc: func(ctx context.Context, sid uuid.UUID, text string, sourceSlug string) (*domain.Translation, error) {
-			return &domain.Translation{ID: uuid.New()}, nil
 		},
 	}
 
@@ -637,20 +597,13 @@ func TestService_ReorderTranslations_HappyPath(t *testing.T) {
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	userID := uuid.New()
-	entryID := uuid.New()
 	senseID := uuid.New()
 	tr1 := uuid.New()
 	tr2 := uuid.New()
 
 	senseRepo := &mockSenseRepo{
-		getByIDFunc: func(ctx context.Context, sid uuid.UUID) (*domain.Sense, error) {
-			return &domain.Sense{ID: senseID, EntryID: entryID}, nil
-		},
-	}
-
-	entryRepo := &mockEntryRepo{
-		getByIDFunc: func(ctx context.Context, uid, eid uuid.UUID) (*domain.Entry, error) {
-			return &domain.Entry{ID: entryID, UserID: userID}, nil
+		getByIDForUserFunc: func(ctx context.Context, uid, sid uuid.UUID) (*domain.Sense, error) {
+			return &domain.Sense{ID: senseID}, nil
 		},
 	}
 
@@ -667,12 +620,9 @@ func TestService_ReorderTranslations_HappyPath(t *testing.T) {
 			}
 			return nil
 		},
-		createCustomFunc: func(ctx context.Context, sid uuid.UUID, text string, sourceSlug string) (*domain.Translation, error) {
-			return &domain.Translation{ID: uuid.New()}, nil
-		},
 	}
 
-	svc := NewService(logger, entryRepo, senseRepo, translationRepo, nil, nil, &mockAuditRepo{}, &mockTxManager{})
+	svc := NewService(logger, &mockEntryRepo{}, senseRepo, translationRepo, nil, nil, &mockAuditRepo{}, &mockTxManager{})
 
 	ctx := withUser(context.Background(), userID)
 	input := ReorderTranslationsInput{
@@ -695,19 +645,12 @@ func TestService_ReorderTranslations_ForeignTranslationID(t *testing.T) {
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	userID := uuid.New()
-	entryID := uuid.New()
 	senseID := uuid.New()
 	foreignTrID := uuid.New()
 
 	senseRepo := &mockSenseRepo{
-		getByIDFunc: func(ctx context.Context, sid uuid.UUID) (*domain.Sense, error) {
-			return &domain.Sense{ID: senseID, EntryID: entryID}, nil
-		},
-	}
-
-	entryRepo := &mockEntryRepo{
-		getByIDFunc: func(ctx context.Context, uid, eid uuid.UUID) (*domain.Entry, error) {
-			return &domain.Entry{ID: entryID, UserID: userID}, nil
+		getByIDForUserFunc: func(ctx context.Context, uid, sid uuid.UUID) (*domain.Sense, error) {
+			return &domain.Sense{ID: senseID}, nil
 		},
 	}
 
@@ -718,12 +661,9 @@ func TestService_ReorderTranslations_ForeignTranslationID(t *testing.T) {
 				{ID: uuid.New(), SenseID: sid},
 			}, nil
 		},
-		createCustomFunc: func(ctx context.Context, sid uuid.UUID, text string, sourceSlug string) (*domain.Translation, error) {
-			return &domain.Translation{ID: uuid.New()}, nil
-		},
 	}
 
-	svc := NewService(logger, entryRepo, senseRepo, translationRepo, nil, nil, &mockAuditRepo{}, &mockTxManager{})
+	svc := NewService(logger, &mockEntryRepo{}, senseRepo, translationRepo, nil, nil, &mockAuditRepo{}, &mockTxManager{})
 
 	ctx := withUser(context.Background(), userID)
 	input := ReorderTranslationsInput{

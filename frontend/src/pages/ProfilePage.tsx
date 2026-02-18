@@ -7,7 +7,7 @@ import { RawPanel } from '../components/RawPanel'
 const ME_QUERY = `
 query Me {
   me {
-    id email name avatarUrl oauthProvider createdAt
+    id email username name avatarUrl createdAt
     settings { newCardsPerDay reviewsPerDay maxIntervalDays timezone }
   }
 }`
@@ -34,7 +34,7 @@ interface MeData {
     email: string
     name: string | null
     avatarUrl: string | null
-    oauthProvider: string
+    username: string
     createdAt: string
     settings: UserSettings
   }
@@ -200,9 +200,9 @@ export function ProfilePage() {
                 </div>
               </div>
               <div>
-                <label className="block text-xs text-gray-500 mb-0.5">OAuth Provider</label>
+                <label className="block text-xs text-gray-500 mb-0.5">Username</label>
                 <div className="text-sm text-gray-700 bg-gray-50 rounded px-2 py-1">
-                  {me.data.me.oauthProvider}
+                  {me.data.me.username}
                 </div>
               </div>
               <div>

@@ -63,6 +63,17 @@ FROM translations t
 LEFT JOIN ref_translations rt ON t.ref_translation_id = rt.id
 WHERE t.id = $1`
 
+const getByIDForUserSQL = `
+SELECT
+    t.id, t.sense_id,
+    COALESCE(t.text, rt.text) AS text,
+    t.source_slug, t.position, t.ref_translation_id
+FROM translations t
+LEFT JOIN ref_translations rt ON t.ref_translation_id = rt.id
+JOIN senses s ON s.id = t.sense_id
+JOIN entries e ON e.id = s.entry_id
+WHERE t.id = $1 AND e.user_id = $2 AND e.deleted_at IS NULL`
+
 // ---------------------------------------------------------------------------
 // Read operations
 // ---------------------------------------------------------------------------
@@ -114,6 +125,22 @@ func (r *Repo) GetByID(ctx context.Context, translationID uuid.UUID) (*domain.Tr
 	querier := postgres.QuerierFromCtx(ctx, r.pool)
 
 	row := querier.QueryRow(ctx, getByIDSQL, translationID)
+
+	tr, err := scanTranslationRow(row)
+	if err != nil {
+		return nil, mapError(err, "translation", translationID)
+	}
+
+	return &tr, nil
+}
+
+// GetByIDForUser returns a single translation with COALESCE-resolved text,
+// verifying that the parent entry belongs to the given user (single JOIN query).
+// Returns domain.ErrNotFound if the translation does not exist or the entry is not owned.
+func (r *Repo) GetByIDForUser(ctx context.Context, userID, translationID uuid.UUID) (*domain.Translation, error) {
+	querier := postgres.QuerierFromCtx(ctx, r.pool)
+
+	row := querier.QueryRow(ctx, getByIDForUserSQL, translationID, userID)
 
 	tr, err := scanTranslationRow(row)
 	if err != nil {

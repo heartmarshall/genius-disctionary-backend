@@ -67,6 +67,18 @@ FROM examples e
 LEFT JOIN ref_examples re ON e.ref_example_id = re.id
 WHERE e.id = $1`
 
+const getByIDForUserSQL = `
+SELECT
+    ex.id, ex.sense_id,
+    COALESCE(ex.sentence, re.sentence) AS sentence,
+    COALESCE(ex.translation, re.translation) AS translation,
+    ex.source_slug, ex.position, ex.ref_example_id, ex.created_at
+FROM examples ex
+LEFT JOIN ref_examples re ON ex.ref_example_id = re.id
+JOIN senses s ON s.id = ex.sense_id
+JOIN entries e ON e.id = s.entry_id
+WHERE ex.id = $1 AND e.user_id = $2 AND e.deleted_at IS NULL`
+
 // ---------------------------------------------------------------------------
 // Read operations
 // ---------------------------------------------------------------------------
@@ -118,6 +130,22 @@ func (r *Repo) GetByID(ctx context.Context, exampleID uuid.UUID) (*domain.Exampl
 	querier := postgres.QuerierFromCtx(ctx, r.pool)
 
 	row := querier.QueryRow(ctx, getByIDSQL, exampleID)
+
+	example, err := scanExampleRow(row)
+	if err != nil {
+		return nil, mapError(err, "example", exampleID)
+	}
+
+	return &example, nil
+}
+
+// GetByIDForUser returns a single example with COALESCE-resolved fields,
+// verifying that the parent entry belongs to the given user (single JOIN query).
+// Returns domain.ErrNotFound if the example does not exist or the entry is not owned.
+func (r *Repo) GetByIDForUser(ctx context.Context, userID, exampleID uuid.UUID) (*domain.Example, error) {
+	querier := postgres.QuerierFromCtx(ctx, r.pool)
+
+	row := querier.QueryRow(ctx, getByIDForUserSQL, exampleID, userID)
 
 	example, err := scanExampleRow(row)
 	if err != nil {

@@ -3,6 +3,8 @@ package content
 import (
 	"context"
 	"fmt"
+	"log/slog"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
@@ -20,33 +22,40 @@ func (s *Service) AddSense(ctx context.Context, input AddSenseInput) (*domain.Se
 		return nil, err
 	}
 
-	// Check ownership
-	_, err := s.checkEntryOwnership(ctx, userID, input.EntryID)
-	if err != nil {
-		return nil, err
-	}
-
-	// Check limit
-	count, err := s.senses.CountByEntry(ctx, input.EntryID)
-	if err != nil {
-		return nil, fmt.Errorf("count senses: %w", err)
-	}
-	if count >= MaxSensesPerEntry {
-		return nil, domain.NewValidationError("senses", fmt.Sprintf("limit reached (%d)", MaxSensesPerEntry))
+	// Trim optional text fields
+	if input.Definition != nil {
+		t := strings.TrimSpace(*input.Definition)
+		input.Definition = &t
 	}
 
 	var sense *domain.Sense
 
-	err = s.tx.RunInTx(ctx, func(txCtx context.Context) error {
+	err := s.tx.RunInTx(ctx, func(txCtx context.Context) error {
+		// Check ownership inside tx
+		_, err := s.entries.GetByID(txCtx, userID, input.EntryID)
+		if err != nil {
+			return err
+		}
+
+		// Check limit inside tx
+		count, err := s.senses.CountByEntry(txCtx, input.EntryID)
+		if err != nil {
+			return fmt.Errorf("count senses: %w", err)
+		}
+		if count >= MaxSensesPerEntry {
+			return domain.NewValidationError("senses", fmt.Sprintf("limit reached (%d)", MaxSensesPerEntry))
+		}
+
 		// Create sense
 		sense, err = s.senses.CreateCustom(txCtx, input.EntryID, input.Definition, input.PartOfSpeech, input.CEFRLevel, "user")
 		if err != nil {
 			return fmt.Errorf("create sense: %w", err)
 		}
 
-		// Create translations
+		// Create translations (trimmed)
 		for _, text := range input.Translations {
-			_, err = s.translations.CreateCustom(txCtx, sense.ID, text, "user")
+			trimmed := strings.TrimSpace(text)
+			_, err = s.translations.CreateCustom(txCtx, sense.ID, trimmed, "user")
 			if err != nil {
 				return fmt.Errorf("create translation: %w", err)
 			}
@@ -76,6 +85,12 @@ func (s *Service) AddSense(ctx context.Context, input AddSenseInput) (*domain.Se
 		return nil, err
 	}
 
+	s.log.DebugContext(ctx, "sense added",
+		slog.String("user_id", userID.String()),
+		slog.String("entry_id", input.EntryID.String()),
+		slog.String("sense_id", sense.ID.String()),
+	)
+
 	return sense, nil
 }
 
@@ -90,23 +105,32 @@ func (s *Service) UpdateSense(ctx context.Context, input UpdateSenseInput) (*dom
 		return nil, err
 	}
 
-	// Check ownership
-	oldSense, _, err := s.checkSenseOwnership(ctx, userID, input.SenseID)
-	if err != nil {
-		return nil, err
+	// Trim optional text fields
+	if input.Definition != nil {
+		t := strings.TrimSpace(*input.Definition)
+		input.Definition = &t
 	}
 
 	var sense *domain.Sense
 
-	err = s.tx.RunInTx(ctx, func(txCtx context.Context) error {
+	err := s.tx.RunInTx(ctx, func(txCtx context.Context) error {
+		// Check ownership inside tx
+		oldSense, err := s.senses.GetByIDForUser(txCtx, userID, input.SenseID)
+		if err != nil {
+			return err
+		}
+
 		// Update sense
 		sense, err = s.senses.Update(txCtx, input.SenseID, input.Definition, input.PartOfSpeech, input.CEFRLevel)
 		if err != nil {
 			return fmt.Errorf("update sense: %w", err)
 		}
 
-		// Audit with changes
+		// Audit with changes — skip if nothing changed
 		changes := buildSenseChanges(oldSense, &input)
+		if len(changes) == 0 {
+			return nil
+		}
 
 		return s.audit.Log(txCtx, domain.AuditRecord{
 			UserID:     userID,
@@ -121,6 +145,11 @@ func (s *Service) UpdateSense(ctx context.Context, input UpdateSenseInput) (*dom
 		return nil, err
 	}
 
+	s.log.DebugContext(ctx, "sense updated",
+		slog.String("user_id", userID.String()),
+		slog.String("sense_id", input.SenseID.String()),
+	)
+
 	return sense, nil
 }
 
@@ -131,16 +160,15 @@ func (s *Service) DeleteSense(ctx context.Context, senseID uuid.UUID) error {
 		return domain.ErrUnauthorized
 	}
 
-	// Check ownership
-	sense, _, err := s.checkSenseOwnership(ctx, userID, senseID)
-	if err != nil {
-		return err
-	}
-
 	return s.tx.RunInTx(ctx, func(txCtx context.Context) error {
-		// Delete sense
-		err := s.senses.Delete(txCtx, senseID)
+		// Check ownership inside tx
+		sense, err := s.senses.GetByIDForUser(txCtx, userID, senseID)
 		if err != nil {
+			return err
+		}
+
+		// Delete sense
+		if err := s.senses.Delete(txCtx, senseID); err != nil {
 			return fmt.Errorf("delete sense: %w", err)
 		}
 
@@ -151,6 +179,11 @@ func (s *Service) DeleteSense(ctx context.Context, senseID uuid.UUID) error {
 		if sense.Definition != nil {
 			changes["definition"] = map[string]any{"old": *sense.Definition}
 		}
+
+		s.log.InfoContext(txCtx, "sense deleted",
+			slog.String("user_id", userID.String()),
+			slog.String("sense_id", senseID.String()),
+		)
 
 		return s.audit.Log(txCtx, domain.AuditRecord{
 			UserID:     userID,
@@ -173,31 +206,44 @@ func (s *Service) ReorderSenses(ctx context.Context, input ReorderSensesInput) e
 		return err
 	}
 
-	// Check ownership
-	_, err := s.checkEntryOwnership(ctx, userID, input.EntryID)
+	err := s.tx.RunInTx(ctx, func(txCtx context.Context) error {
+		// Check ownership inside tx
+		_, err := s.entries.GetByID(txCtx, userID, input.EntryID)
+		if err != nil {
+			return err
+		}
+
+		// Validate items belong to entry
+		existingSenses, err := s.senses.GetByEntryID(txCtx, input.EntryID)
+		if err != nil {
+			return fmt.Errorf("get senses: %w", err)
+		}
+
+		existingIDs := make(map[uuid.UUID]bool, len(existingSenses))
+		for _, sense := range existingSenses {
+			existingIDs[sense.ID] = true
+		}
+
+		for _, item := range input.Items {
+			if !existingIDs[item.ID] {
+				return domain.NewValidationError("items", fmt.Sprintf("sense does not belong to this entry: %s", item.ID))
+			}
+		}
+
+		// Reorder
+		return s.senses.Reorder(txCtx, input.Items)
+	})
+
 	if err != nil {
 		return err
 	}
 
-	// Validate items belong to entry
-	existingSenses, err := s.senses.GetByEntryID(ctx, input.EntryID)
-	if err != nil {
-		return fmt.Errorf("get senses: %w", err)
-	}
+	s.log.DebugContext(ctx, "senses reordered",
+		slog.String("user_id", userID.String()),
+		slog.String("entry_id", input.EntryID.String()),
+	)
 
-	existingIDs := make(map[uuid.UUID]bool)
-	for _, sense := range existingSenses {
-		existingIDs[sense.ID] = true
-	}
-
-	for _, item := range input.Items {
-		if !existingIDs[item.ID] {
-			return domain.NewValidationError("items", fmt.Sprintf("sense does not belong to this entry: %s", item.ID))
-		}
-	}
-
-	// Reorder
-	return s.senses.Reorder(ctx, input.Items)
+	return nil
 }
 
 // ---------------------------------------------------------------------------

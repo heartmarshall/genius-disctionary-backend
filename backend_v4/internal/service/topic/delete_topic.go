@@ -20,12 +20,15 @@ func (s *Service) DeleteTopic(ctx context.Context, input DeleteTopicInput) error
 		return err
 	}
 
-	topic, err := s.topics.GetByID(ctx, userID, input.TopicID)
-	if err != nil {
-		return fmt.Errorf("get topic: %w", err)
-	}
+	var topic *domain.Topic
+	err := s.tx.RunInTx(ctx, func(txCtx context.Context) error {
+		// Fetch inside transaction to prevent race with concurrent delete.
+		var getErr error
+		topic, getErr = s.topics.GetByID(txCtx, userID, input.TopicID)
+		if getErr != nil {
+			return fmt.Errorf("get topic: %w", getErr)
+		}
 
-	err = s.tx.RunInTx(ctx, func(txCtx context.Context) error {
 		if deleteErr := s.topics.Delete(txCtx, userID, input.TopicID); deleteErr != nil {
 			return fmt.Errorf("delete topic: %w", deleteErr)
 		}

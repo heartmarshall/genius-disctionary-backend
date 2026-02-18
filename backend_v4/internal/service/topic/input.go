@@ -2,6 +2,7 @@ package topic
 
 import (
 	"strings"
+	"unicode/utf8"
 
 	"github.com/google/uuid"
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
@@ -21,11 +22,11 @@ func (i CreateTopicInput) Validate() error {
 	if name == "" {
 		errs = append(errs, domain.FieldError{Field: "name", Message: "required"})
 	}
-	if len(name) > 100 {
+	if utf8.RuneCountInString(name) > 100 {
 		errs = append(errs, domain.FieldError{Field: "name", Message: "max 100 characters"})
 	}
 
-	if i.Description != nil && len(strings.TrimSpace(*i.Description)) > 500 {
+	if i.Description != nil && utf8.RuneCountInString(strings.TrimSpace(*i.Description)) > 500 {
 		errs = append(errs, domain.FieldError{Field: "description", Message: "max 500 characters"})
 	}
 
@@ -57,11 +58,11 @@ func (i UpdateTopicInput) Validate() error {
 		if name == "" {
 			errs = append(errs, domain.FieldError{Field: "name", Message: "required"})
 		}
-		if len(name) > 100 {
+		if utf8.RuneCountInString(name) > 100 {
 			errs = append(errs, domain.FieldError{Field: "name", Message: "max 100 characters"})
 		}
 	}
-	if i.Description != nil && len(strings.TrimSpace(*i.Description)) > 500 {
+	if i.Description != nil && utf8.RuneCountInString(strings.TrimSpace(*i.Description)) > 500 {
 		errs = append(errs, domain.FieldError{Field: "description", Message: "max 500 characters"})
 	}
 

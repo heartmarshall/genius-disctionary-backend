@@ -726,7 +726,7 @@ const userOperations: Operation[] = [
     description: 'Get current user profile and settings.',
     query: `query Me {
   me {
-    id email name avatarUrl oauthProvider createdAt
+    id email username name avatarUrl createdAt
     settings { newCardsPerDay reviewsPerDay maxIntervalDays timezone }
   }
 }`,

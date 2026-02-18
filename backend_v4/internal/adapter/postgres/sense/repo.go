@@ -70,6 +70,18 @@ FROM senses s
 LEFT JOIN ref_senses rs ON s.ref_sense_id = rs.id
 WHERE s.id = $1`
 
+const getByIDForUserSQL = `
+SELECT
+    s.id, s.entry_id,
+    COALESCE(s.definition, rs.definition) AS definition,
+    COALESCE(s.part_of_speech, rs.part_of_speech) AS part_of_speech,
+    COALESCE(s.cefr_level, rs.cefr_level) AS cefr_level,
+    s.source_slug, s.position, s.ref_sense_id, s.created_at
+FROM senses s
+LEFT JOIN ref_senses rs ON s.ref_sense_id = rs.id
+JOIN entries e ON e.id = s.entry_id
+WHERE s.id = $1 AND e.user_id = $2 AND e.deleted_at IS NULL`
+
 // ---------------------------------------------------------------------------
 // Read operations
 // ---------------------------------------------------------------------------
@@ -121,6 +133,22 @@ func (r *Repo) GetByID(ctx context.Context, senseID uuid.UUID) (*domain.Sense, e
 	querier := postgres.QuerierFromCtx(ctx, r.pool)
 
 	row := querier.QueryRow(ctx, getByIDSQL, senseID)
+
+	sense, err := scanSenseRow(row)
+	if err != nil {
+		return nil, mapError(err, "sense", senseID)
+	}
+
+	return &sense, nil
+}
+
+// GetByIDForUser returns a single sense with COALESCE-resolved fields,
+// verifying that the parent entry belongs to the given user (single JOIN query).
+// Returns domain.ErrNotFound if the sense does not exist or the entry is not owned.
+func (r *Repo) GetByIDForUser(ctx context.Context, userID, senseID uuid.UUID) (*domain.Sense, error) {
+	querier := postgres.QuerierFromCtx(ctx, r.pool)
+
+	row := querier.QueryRow(ctx, getByIDForUserSQL, senseID, userID)
 
 	sense, err := scanSenseRow(row)
 	if err != nil {

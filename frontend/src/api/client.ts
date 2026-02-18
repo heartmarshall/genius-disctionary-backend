@@ -1,6 +1,6 @@
 import type { GraphQLResult } from './types'
 
-let getToken: () => string | null = () => null
+let getToken: () => string | null = () => localStorage.getItem('jwt_token')
 
 export function setTokenGetter(fn: () => string | null) {
   getToken = fn

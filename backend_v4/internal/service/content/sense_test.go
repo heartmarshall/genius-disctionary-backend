@@ -28,18 +28,18 @@ func (m *mockEntryRepo) GetByID(ctx context.Context, userID, entryID uuid.UUID) 
 }
 
 type mockSenseRepo struct {
-	getByIDFunc      func(ctx context.Context, senseID uuid.UUID) (*domain.Sense, error)
-	getByEntryIDFunc func(ctx context.Context, entryID uuid.UUID) ([]domain.Sense, error)
-	countByEntryFunc func(ctx context.Context, entryID uuid.UUID) (int, error)
-	createCustomFunc func(ctx context.Context, entryID uuid.UUID, definition *string, pos *domain.PartOfSpeech, cefr *string, sourceSlug string) (*domain.Sense, error)
-	updateFunc       func(ctx context.Context, senseID uuid.UUID, definition *string, pos *domain.PartOfSpeech, cefr *string) (*domain.Sense, error)
-	deleteFunc       func(ctx context.Context, senseID uuid.UUID) error
-	reorderFunc      func(ctx context.Context, items []domain.ReorderItem) error
+	getByIDForUserFunc func(ctx context.Context, userID, senseID uuid.UUID) (*domain.Sense, error)
+	getByEntryIDFunc   func(ctx context.Context, entryID uuid.UUID) ([]domain.Sense, error)
+	countByEntryFunc   func(ctx context.Context, entryID uuid.UUID) (int, error)
+	createCustomFunc   func(ctx context.Context, entryID uuid.UUID, definition *string, pos *domain.PartOfSpeech, cefr *string, sourceSlug string) (*domain.Sense, error)
+	updateFunc         func(ctx context.Context, senseID uuid.UUID, definition *string, pos *domain.PartOfSpeech, cefr *string) (*domain.Sense, error)
+	deleteFunc         func(ctx context.Context, senseID uuid.UUID) error
+	reorderFunc        func(ctx context.Context, items []domain.ReorderItem) error
 }
 
-func (m *mockSenseRepo) GetByID(ctx context.Context, senseID uuid.UUID) (*domain.Sense, error) {
-	if m.getByIDFunc != nil {
-		return m.getByIDFunc(ctx, senseID)
+func (m *mockSenseRepo) GetByIDForUser(ctx context.Context, userID, senseID uuid.UUID) (*domain.Sense, error) {
+	if m.getByIDForUserFunc != nil {
+		return m.getByIDForUserFunc(ctx, userID, senseID)
 	}
 	return nil, domain.ErrNotFound
 }
@@ -87,18 +87,18 @@ func (m *mockSenseRepo) Reorder(ctx context.Context, items []domain.ReorderItem)
 }
 
 type mockTranslationRepo struct {
-	getByIDFunc      func(ctx context.Context, translationID uuid.UUID) (*domain.Translation, error)
-	getBySenseIDFunc func(ctx context.Context, senseID uuid.UUID) ([]domain.Translation, error)
-	countBySenseFunc func(ctx context.Context, senseID uuid.UUID) (int, error)
-	createCustomFunc func(ctx context.Context, senseID uuid.UUID, text string, sourceSlug string) (*domain.Translation, error)
-	updateFunc       func(ctx context.Context, translationID uuid.UUID, text string) (*domain.Translation, error)
-	deleteFunc       func(ctx context.Context, translationID uuid.UUID) error
-	reorderFunc      func(ctx context.Context, items []domain.ReorderItem) error
+	getByIDForUserFunc func(ctx context.Context, userID, translationID uuid.UUID) (*domain.Translation, error)
+	getBySenseIDFunc   func(ctx context.Context, senseID uuid.UUID) ([]domain.Translation, error)
+	countBySenseFunc   func(ctx context.Context, senseID uuid.UUID) (int, error)
+	createCustomFunc   func(ctx context.Context, senseID uuid.UUID, text string, sourceSlug string) (*domain.Translation, error)
+	updateFunc         func(ctx context.Context, translationID uuid.UUID, text string) (*domain.Translation, error)
+	deleteFunc         func(ctx context.Context, translationID uuid.UUID) error
+	reorderFunc        func(ctx context.Context, items []domain.ReorderItem) error
 }
 
-func (m *mockTranslationRepo) GetByID(ctx context.Context, translationID uuid.UUID) (*domain.Translation, error) {
-	if m.getByIDFunc != nil {
-		return m.getByIDFunc(ctx, translationID)
+func (m *mockTranslationRepo) GetByIDForUser(ctx context.Context, userID, translationID uuid.UUID) (*domain.Translation, error) {
+	if m.getByIDForUserFunc != nil {
+		return m.getByIDForUserFunc(ctx, userID, translationID)
 	}
 	return nil, domain.ErrNotFound
 }
@@ -515,7 +515,7 @@ func TestService_UpdateSense_SenseNotFound(t *testing.T) {
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	senseRepo := &mockSenseRepo{
-		getByIDFunc: func(ctx context.Context, senseID uuid.UUID) (*domain.Sense, error) {
+		getByIDForUserFunc: func(ctx context.Context, userID, senseID uuid.UUID) (*domain.Sense, error) {
 			return nil, domain.ErrNotFound
 		},
 	}
@@ -539,27 +539,19 @@ func TestService_UpdateSense_SenseFromForeignEntry(t *testing.T) {
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	userID := uuid.New()
-	foreignUserID := uuid.New()
-	entryID := uuid.New()
 	senseID := uuid.New()
 
+	// GetByIDForUser returns ErrNotFound for foreign user (JOIN-based ownership)
 	senseRepo := &mockSenseRepo{
-		getByIDFunc: func(ctx context.Context, sid uuid.UUID) (*domain.Sense, error) {
-			return &domain.Sense{ID: senseID, EntryID: entryID}, nil
-		},
-	}
-
-	entryRepo := &mockEntryRepo{
-		getByIDFunc: func(ctx context.Context, uid, eid uuid.UUID) (*domain.Entry, error) {
-			// Entry belongs to different user
-			if uid != foreignUserID {
+		getByIDForUserFunc: func(ctx context.Context, uid, sid uuid.UUID) (*domain.Sense, error) {
+			if uid != userID {
 				return nil, domain.ErrNotFound
 			}
-			return &domain.Entry{ID: entryID, UserID: foreignUserID}, nil
+			return &domain.Sense{ID: senseID}, nil
 		},
 	}
 
-	svc := NewService(logger, entryRepo, senseRepo, &mockTranslationRepo{}, nil, nil, &mockAuditRepo{}, &mockTxManager{})
+	svc := NewService(logger, &mockEntryRepo{}, senseRepo, &mockTranslationRepo{}, nil, nil, &mockAuditRepo{}, &mockTxManager{})
 
 	ctx := withUser(context.Background(), userID)
 	input := UpdateSenseInput{
@@ -567,10 +559,17 @@ func TestService_UpdateSense_SenseFromForeignEntry(t *testing.T) {
 		Definition: strPtr("new"),
 	}
 
+	// This should succeed since userID matches
 	_, err := svc.UpdateSense(ctx, input)
+	if err != nil {
+		t.Fatalf("expected no error for own sense, got %v", err)
+	}
 
+	// Different user should get ErrNotFound
+	otherCtx := withUser(context.Background(), uuid.New())
+	_, err = svc.UpdateSense(otherCtx, input)
 	if err != domain.ErrNotFound {
-		t.Errorf("expected ErrNotFound for sense from foreign entry, got %v", err)
+		t.Errorf("expected ErrNotFound for foreign sense, got %v", err)
 	}
 }
 
@@ -587,7 +586,7 @@ func TestService_UpdateSense_HappyPath(t *testing.T) {
 	newDef := "new definition"
 
 	senseRepo := &mockSenseRepo{
-		getByIDFunc: func(ctx context.Context, sid uuid.UUID) (*domain.Sense, error) {
+		getByIDForUserFunc: func(ctx context.Context, uid, sid uuid.UUID) (*domain.Sense, error) {
 			return &domain.Sense{
 				ID:           senseID,
 				EntryID:      entryID,
@@ -604,14 +603,8 @@ func TestService_UpdateSense_HappyPath(t *testing.T) {
 		},
 	}
 
-	entryRepo := &mockEntryRepo{
-		getByIDFunc: func(ctx context.Context, uid, eid uuid.UUID) (*domain.Entry, error) {
-			return &domain.Entry{ID: entryID, UserID: uid}, nil
-		},
-	}
-
 	auditRepo := &mockAuditRepo{}
-	svc := NewService(logger, entryRepo, senseRepo, &mockTranslationRepo{}, nil, nil, auditRepo, &mockTxManager{})
+	svc := NewService(logger, &mockEntryRepo{}, senseRepo, &mockTranslationRepo{}, nil, nil, auditRepo, &mockTxManager{})
 
 	ctx := withUser(context.Background(), userID)
 	input := UpdateSenseInput{
@@ -653,7 +646,7 @@ func TestService_UpdateSense_PartialUpdate(t *testing.T) {
 	var updateCallPOS *domain.PartOfSpeech
 
 	senseRepo := &mockSenseRepo{
-		getByIDFunc: func(ctx context.Context, sid uuid.UUID) (*domain.Sense, error) {
+		getByIDForUserFunc: func(ctx context.Context, uid, sid uuid.UUID) (*domain.Sense, error) {
 			return &domain.Sense{
 				ID:           senseID,
 				EntryID:      entryID,
@@ -668,13 +661,7 @@ func TestService_UpdateSense_PartialUpdate(t *testing.T) {
 		},
 	}
 
-	entryRepo := &mockEntryRepo{
-		getByIDFunc: func(ctx context.Context, uid, eid uuid.UUID) (*domain.Entry, error) {
-			return &domain.Entry{ID: entryID, UserID: uid}, nil
-		},
-	}
-
-	svc := NewService(logger, entryRepo, senseRepo, &mockTranslationRepo{}, nil, nil, &mockAuditRepo{}, &mockTxManager{})
+	svc := NewService(logger, &mockEntryRepo{}, senseRepo, &mockTranslationRepo{}, nil, nil, &mockAuditRepo{}, &mockTxManager{})
 
 	ctx := withUser(context.Background(), userID)
 	input := UpdateSenseInput{
@@ -704,7 +691,7 @@ func TestService_UpdateSense_AllFieldsNil(t *testing.T) {
 	senseID := uuid.New()
 
 	senseRepo := &mockSenseRepo{
-		getByIDFunc: func(ctx context.Context, sid uuid.UUID) (*domain.Sense, error) {
+		getByIDForUserFunc: func(ctx context.Context, uid, sid uuid.UUID) (*domain.Sense, error) {
 			return &domain.Sense{ID: senseID, EntryID: entryID}, nil
 		},
 		updateFunc: func(ctx context.Context, sid uuid.UUID, definition *string, pos *domain.PartOfSpeech, cefr *string) (*domain.Sense, error) {
@@ -712,13 +699,7 @@ func TestService_UpdateSense_AllFieldsNil(t *testing.T) {
 		},
 	}
 
-	entryRepo := &mockEntryRepo{
-		getByIDFunc: func(ctx context.Context, uid, eid uuid.UUID) (*domain.Entry, error) {
-			return &domain.Entry{ID: entryID, UserID: uid}, nil
-		},
-	}
-
-	svc := NewService(logger, entryRepo, senseRepo, &mockTranslationRepo{}, nil, nil, &mockAuditRepo{}, &mockTxManager{})
+	svc := NewService(logger, &mockEntryRepo{}, senseRepo, &mockTranslationRepo{}, nil, nil, &mockAuditRepo{}, &mockTxManager{})
 
 	ctx := withUser(context.Background(), userID)
 	input := UpdateSenseInput{
@@ -759,7 +740,7 @@ func TestService_DeleteSense_SenseNotFound(t *testing.T) {
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	senseRepo := &mockSenseRepo{
-		getByIDFunc: func(ctx context.Context, senseID uuid.UUID) (*domain.Sense, error) {
+		getByIDForUserFunc: func(ctx context.Context, uid, sid uuid.UUID) (*domain.Sense, error) {
 			return nil, domain.ErrNotFound
 		},
 	}
@@ -784,7 +765,7 @@ func TestService_DeleteSense_HappyPath(t *testing.T) {
 
 	def := "test definition"
 	senseRepo := &mockSenseRepo{
-		getByIDFunc: func(ctx context.Context, sid uuid.UUID) (*domain.Sense, error) {
+		getByIDForUserFunc: func(ctx context.Context, uid, sid uuid.UUID) (*domain.Sense, error) {
 			return &domain.Sense{
 				ID:         senseID,
 				EntryID:    entryID,
@@ -796,14 +777,8 @@ func TestService_DeleteSense_HappyPath(t *testing.T) {
 		},
 	}
 
-	entryRepo := &mockEntryRepo{
-		getByIDFunc: func(ctx context.Context, uid, eid uuid.UUID) (*domain.Entry, error) {
-			return &domain.Entry{ID: entryID, UserID: uid}, nil
-		},
-	}
-
 	auditRepo := &mockAuditRepo{}
-	svc := NewService(logger, entryRepo, senseRepo, &mockTranslationRepo{}, nil, nil, auditRepo, &mockTxManager{})
+	svc := NewService(logger, &mockEntryRepo{}, senseRepo, &mockTranslationRepo{}, nil, nil, auditRepo, &mockTxManager{})
 
 	ctx := withUser(context.Background(), userID)
 
@@ -1028,6 +1003,81 @@ func TestService_ReorderSenses_PartialList(t *testing.T) {
 
 	if err != nil {
 		t.Fatalf("expected no error for partial reorder, got %v", err)
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Reorder Validation Edge Cases
+// ---------------------------------------------------------------------------
+
+func TestValidation_ReorderSenses_DuplicateIDs(t *testing.T) {
+	t.Parallel()
+
+	id := uuid.New()
+	input := ReorderSensesInput{
+		EntryID: uuid.New(),
+		Items: []domain.ReorderItem{
+			{ID: id, Position: 0},
+			{ID: id, Position: 1}, // Duplicate
+		},
+	}
+
+	err := input.Validate()
+
+	if !errors.Is(err, domain.ErrValidation) {
+		t.Errorf("expected ErrValidation for duplicate IDs, got %v", err)
+	}
+}
+
+func TestValidation_ReorderSenses_NegativePosition(t *testing.T) {
+	t.Parallel()
+
+	input := ReorderSensesInput{
+		EntryID: uuid.New(),
+		Items: []domain.ReorderItem{
+			{ID: uuid.New(), Position: -1}, // Invalid
+		},
+	}
+
+	err := input.Validate()
+
+	if !errors.Is(err, domain.ErrValidation) {
+		t.Errorf("expected ErrValidation for negative position, got %v", err)
+	}
+}
+
+func TestValidation_AddSense_TooManyTranslations(t *testing.T) {
+	t.Parallel()
+
+	translations := make([]string, 21)
+	for i := range translations {
+		translations[i] = "перевод"
+	}
+
+	input := AddSenseInput{
+		EntryID:      uuid.New(),
+		Translations: translations,
+	}
+
+	err := input.Validate()
+
+	if !errors.Is(err, domain.ErrValidation) {
+		t.Errorf("expected ErrValidation for too many translations, got %v", err)
+	}
+}
+
+func TestValidation_AddSense_EmptyTranslationString(t *testing.T) {
+	t.Parallel()
+
+	input := AddSenseInput{
+		EntryID:      uuid.New(),
+		Translations: []string{"valid", "  ", "also valid"},
+	}
+
+	err := input.Validate()
+
+	if !errors.Is(err, domain.ErrValidation) {
+		t.Errorf("expected ErrValidation for empty translation, got %v", err)
 	}
 }
 
