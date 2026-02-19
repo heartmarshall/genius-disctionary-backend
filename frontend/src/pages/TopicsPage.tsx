@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useGraphQL } from '../hooks/useGraphQL'
+import { useAuth } from '../auth/useAuth'
 import { RawPanel } from '../components/RawPanel'
 
 // ---------- GraphQL queries / mutations ----------
@@ -85,6 +86,8 @@ interface BatchLinkData {
 // ---------- Component ----------
 
 export function TopicsPage() {
+  const { isAuthenticated } = useAuth()
+
   // Create form state
   const [createName, setCreateName] = useState('')
   const [createDescription, setCreateDescription] = useState('')
@@ -117,6 +120,14 @@ export function TopicsPage() {
   // Raw panel shows the most recent operation
   const lastRaw = batchLink.raw ?? unlinkEntry.raw ?? linkEntry.raw
     ?? deleteTopic.raw ?? updateTopic.raw ?? createTopic.raw ?? topicsQuery.raw
+
+  // Auto-load topics on mount
+  useEffect(() => {
+    if (isAuthenticated) {
+      topicsQuery.execute(TOPICS_QUERY)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // ---------- Handlers ----------
 
@@ -348,7 +359,10 @@ export function TopicsPage() {
           </h2>
 
           {topics.length === 0 ? (
-            <div className="text-gray-500 text-sm">No topics found.</div>
+            <div className="text-center py-6">
+              <div className="text-gray-400 text-sm">No topics yet.</div>
+              <div className="text-gray-400 text-xs mt-1">Create your first topic above to organize your vocabulary.</div>
+            </div>
           ) : (
             topics.map((topic) => {
               const isEditing = editingTopicId === topic.id
