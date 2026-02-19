@@ -867,3 +867,269 @@ func TestDeleteAll_Unauthorized(t *testing.T) {
 		t.Errorf("error: got %v, want ErrUnauthorized", err)
 	}
 }
+
+func TestDeleteAll_RepoError(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	repoErr := errors.New("db connection lost")
+
+	mock := &inboxRepoMock{
+		DeleteAllFunc: func(ctx context.Context, uid uuid.UUID) (int, error) {
+			return 0, repoErr
+		},
+	}
+
+	svc := newTestService(t, mock)
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	_, err := svc.DeleteAll(ctx)
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	if !errors.Is(err, repoErr) {
+		t.Errorf("error should wrap repo error: got %v", err)
+	}
+	if !strings.Contains(err.Error(), "delete all inbox items") {
+		t.Errorf("error should contain context: got %q", err.Error())
+	}
+}
+
+// ---------------------------------------------------------------------------
+// CreateItem — repo error paths
+// ---------------------------------------------------------------------------
+
+func TestCreateItem_CountRepoError(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	repoErr := errors.New("db timeout")
+
+	mock := &inboxRepoMock{
+		CountFunc: func(ctx context.Context, uid uuid.UUID) (int, error) {
+			return 0, repoErr
+		},
+	}
+
+	svc := newTestService(t, mock)
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	_, err := svc.CreateItem(ctx, CreateItemInput{Text: "hello"})
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	if !errors.Is(err, repoErr) {
+		t.Errorf("error should wrap repo error: got %v", err)
+	}
+	if !strings.Contains(err.Error(), "count inbox items") {
+		t.Errorf("error should contain context: got %q", err.Error())
+	}
+	if len(mock.CreateCalls()) != 0 {
+		t.Error("Create should not be called when Count fails")
+	}
+}
+
+func TestCreateItem_CreateRepoError(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	repoErr := errors.New("unique constraint violation")
+
+	mock := &inboxRepoMock{
+		CountFunc: func(ctx context.Context, uid uuid.UUID) (int, error) {
+			return 0, nil
+		},
+		CreateFunc: func(ctx context.Context, uid uuid.UUID, item *domain.InboxItem) (*domain.InboxItem, error) {
+			return nil, repoErr
+		},
+	}
+
+	svc := newTestService(t, mock)
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	_, err := svc.CreateItem(ctx, CreateItemInput{Text: "hello"})
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	if !errors.Is(err, repoErr) {
+		t.Errorf("error should wrap repo error: got %v", err)
+	}
+	if !strings.Contains(err.Error(), "create inbox item") {
+		t.Errorf("error should contain context: got %q", err.Error())
+	}
+}
+
+// ---------------------------------------------------------------------------
+// ListItems — repo error path + missing validation
+// ---------------------------------------------------------------------------
+
+func TestListItems_RepoError(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	repoErr := errors.New("query failed")
+
+	mock := &inboxRepoMock{
+		ListFunc: func(ctx context.Context, uid uuid.UUID, limit, offset int) ([]*domain.InboxItem, int, error) {
+			return nil, 0, repoErr
+		},
+	}
+
+	svc := newTestService(t, mock)
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	_, _, err := svc.ListItems(ctx, ListItemsInput{Limit: 10})
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	if !errors.Is(err, repoErr) {
+		t.Errorf("error should wrap repo error: got %v", err)
+	}
+	if !strings.Contains(err.Error(), "list inbox items") {
+		t.Errorf("error should contain context: got %q", err.Error())
+	}
+}
+
+func TestListItems_NegativeOffset(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	svc := newTestService(t, &inboxRepoMock{})
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	_, _, err := svc.ListItems(ctx, ListItemsInput{Limit: 10, Offset: -1})
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+
+	var ve *domain.ValidationError
+	if !errors.As(err, &ve) {
+		t.Fatalf("expected ValidationError, got %T: %v", err, err)
+	}
+	if ve.Errors[0].Field != "offset" {
+		t.Errorf("field: got %q, want %q", ve.Errors[0].Field, "offset")
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Boundary tests
+// ---------------------------------------------------------------------------
+
+func TestCreateItem_TextExactlyAtLimit(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	text := strings.Repeat("a", 500) // exactly at limit
+
+	mock := &inboxRepoMock{
+		CountFunc: func(ctx context.Context, uid uuid.UUID) (int, error) {
+			return 0, nil
+		},
+		CreateFunc: func(ctx context.Context, uid uuid.UUID, item *domain.InboxItem) (*domain.InboxItem, error) {
+			return &domain.InboxItem{
+				ID:        uuid.New(),
+				UserID:    uid,
+				Text:      item.Text,
+				CreatedAt: time.Now(),
+			}, nil
+		},
+	}
+
+	svc := newTestService(t, mock)
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	result, err := svc.CreateItem(ctx, CreateItemInput{Text: text})
+	if err != nil {
+		t.Fatalf("500-char text should be accepted, got error: %v", err)
+	}
+	if len(result.Text) != 500 {
+		t.Errorf("text length: got %d, want 500", len(result.Text))
+	}
+}
+
+func TestCreateItem_ContextExactlyAtLimit(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	ctxText := strings.Repeat("b", 2000) // exactly at limit
+
+	mock := &inboxRepoMock{
+		CountFunc: func(ctx context.Context, uid uuid.UUID) (int, error) {
+			return 0, nil
+		},
+		CreateFunc: func(ctx context.Context, uid uuid.UUID, item *domain.InboxItem) (*domain.InboxItem, error) {
+			return &domain.InboxItem{
+				ID:        uuid.New(),
+				UserID:    uid,
+				Text:      item.Text,
+				Context:   item.Context,
+				CreatedAt: time.Now(),
+			}, nil
+		},
+	}
+
+	svc := newTestService(t, mock)
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	_, err := svc.CreateItem(ctx, CreateItemInput{
+		Text:    "hello",
+		Context: &ctxText,
+	})
+	if err != nil {
+		t.Fatalf("2000-char context should be accepted, got error: %v", err)
+	}
+}
+
+func TestCreateItem_InboxAtCapacityMinusOne(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+
+	mock := &inboxRepoMock{
+		CountFunc: func(ctx context.Context, uid uuid.UUID) (int, error) {
+			return MaxInboxItems - 1, nil
+		},
+		CreateFunc: func(ctx context.Context, uid uuid.UUID, item *domain.InboxItem) (*domain.InboxItem, error) {
+			return &domain.InboxItem{
+				ID:        uuid.New(),
+				UserID:    uid,
+				Text:      item.Text,
+				CreatedAt: time.Now(),
+			}, nil
+		},
+	}
+
+	svc := newTestService(t, mock)
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	_, err := svc.CreateItem(ctx, CreateItemInput{Text: "last slot"})
+	if err != nil {
+		t.Fatalf("item 500 (count=499) should be accepted, got error: %v", err)
+	}
+	if len(mock.CreateCalls()) != 1 {
+		t.Errorf("Create calls: got %d, want 1", len(mock.CreateCalls()))
+	}
+}
+
+func TestListItems_LimitExactlyAtMax(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+
+	mock := &inboxRepoMock{
+		ListFunc: func(ctx context.Context, uid uuid.UUID, limit, offset int) ([]*domain.InboxItem, int, error) {
+			if limit != 200 {
+				t.Errorf("limit: got %d, want 200", limit)
+			}
+			return []*domain.InboxItem{}, 0, nil
+		},
+	}
+
+	svc := newTestService(t, mock)
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	_, _, err := svc.ListItems(ctx, ListItemsInput{Limit: 200})
+	if err != nil {
+		t.Fatalf("limit=200 should be accepted, got error: %v", err)
+	}
+}

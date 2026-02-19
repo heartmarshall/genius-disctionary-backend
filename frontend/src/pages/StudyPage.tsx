@@ -472,12 +472,12 @@ export function StudyPage() {
 
             {/* Status counts */}
             <div className="bg-gray-50 border border-gray-200 rounded p-3">
-              <h3 className="text-xs font-semibold text-gray-500 mb-2">Status Breakdown</h3>
+              <h3 className="text-xs font-semibold text-gray-500 mb-2" title="Распределение карточек по статусам SRS">Status Breakdown</h3>
               <div className="flex gap-4 text-sm">
-                <span className="text-blue-700">New: {d.statusCounts.new}</span>
-                <span className="text-yellow-700">Learning: {d.statusCounts.learning}</span>
-                <span className="text-purple-700">Review: {d.statusCounts.review}</span>
-                <span className="text-green-700">Mastered: {d.statusCounts.mastered}</span>
+                <span className="text-blue-700 cursor-help" title="NEW -- новая карточка, ещё не повторялась">New: {d.statusCounts.new}</span>
+                <span className="text-yellow-700 cursor-help" title="LEARNING -- карточка в процессе первичного изучения">Learning: {d.statusCounts.learning}</span>
+                <span className="text-purple-700 cursor-help" title="REVIEW -- карточка на регулярном повторении">Review: {d.statusCounts.review}</span>
+                <span className="text-green-700 cursor-help" title="MASTERED -- карточка выучена, интервал повторения максимальный">Mastered: {d.statusCounts.mastered}</span>
               </div>
             </div>
 
@@ -642,7 +642,7 @@ export function StudyPage() {
                   <span className="font-medium text-gray-900">{entry.text}</span>
                   {entry.card && (
                     <span className="ml-2 text-xs text-gray-500">
-                      [{entry.card.status} | interval: {entry.card.intervalDays}d | EF: {entry.card.easeFactor.toFixed(2)}]
+                      [{entry.card.status} | interval: {entry.card.intervalDays}d | <span className="cursor-help" title="Ease Factor -- множитель интервала. Показывает насколько легко вы запоминаете это слово. Чем выше EF, тем реже повторения">EF: {entry.card.easeFactor.toFixed(2)}</span>]
                     </span>
                   )}
                 </div>
@@ -723,6 +723,7 @@ export function StudyPage() {
             <button
               onClick={() => handleGrade('AGAIN')}
               disabled={reviewCard.loading}
+              title="Не помню -- карточка сбрасывается в начало"
               className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 font-medium"
             >
               Again
@@ -730,6 +731,7 @@ export function StudyPage() {
             <button
               onClick={() => handleGrade('HARD')}
               disabled={reviewCard.loading}
+              title="Трудно вспомнил -- интервал уменьшается, EF снижается"
               className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 font-medium"
             >
               Hard
@@ -737,6 +739,7 @@ export function StudyPage() {
             <button
               onClick={() => handleGrade('GOOD')}
               disabled={reviewCard.loading}
+              title="Хорошо помню -- стандартное увеличение интервала"
               className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 font-medium"
             >
               Good
@@ -744,6 +747,7 @@ export function StudyPage() {
             <button
               onClick={() => handleGrade('EASY')}
               disabled={reviewCard.loading}
+              title="Легко помню -- интервал значительно увеличивается, EF растёт"
               className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium"
             >
               Easy
@@ -765,7 +769,7 @@ export function StudyPage() {
         {lastReviewResult && (
           <div className="bg-green-50 border border-green-200 rounded p-3 text-center text-sm text-green-800">
             Updated: {lastReviewResult.status} | Next review: {lastReviewResult.nextReviewAt ? new Date(lastReviewResult.nextReviewAt).toLocaleDateString() : 'N/A'} |
-            Interval: {lastReviewResult.intervalDays}d | EF: {lastReviewResult.easeFactor.toFixed(2)}
+            Interval: {lastReviewResult.intervalDays}d | <span className="cursor-help" title="Ease Factor -- множитель интервала">EF: {lastReviewResult.easeFactor.toFixed(2)}</span>
           </div>
         )}
       </div>
@@ -1030,9 +1034,12 @@ export function StudyPage() {
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-6">
       <h1 className="text-2xl font-bold text-gray-800">Study</h1>
-      <p className="text-sm text-gray-500">
-        Spaced repetition study flow. Dashboard and queue load automatically.
-      </p>
+      <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-3 text-sm text-gray-600 space-y-1">
+        <p>Изучение слов методом интервального повторения (SRS -- Spaced Repetition System). Алгоритм подбирает оптимальные интервалы между повторениями для каждого слова.</p>
+        <p><strong>Dashboard</strong> -- статистика: Due (на сегодня), New (новые карточки), Reviewed Today (повторено сегодня), Streak (серия дней подряд), Overdue (просроченные). <strong>Study Queue</strong> -- очередь карточек, отсортированная по приоритету.</p>
+        <p>При review вы оцениваете знание слова: <span className="text-red-600">Again</span> (не помню), <span className="text-orange-600">Hard</span> (трудно), <span className="text-green-600">Good</span> (хорошо), <span className="text-blue-600">Easy</span> (легко). Алгоритм рассчитывает следующую дату повторения и обновляет Ease Factor (EF) -- множитель интервала.</p>
+        <p className="text-xs text-gray-400">Dashboard и очередь загружаются автоматически. Session -- группировка review в рамках одной учебной сессии.</p>
+      </div>
 
       {/* Success message */}
       {successMsg && (

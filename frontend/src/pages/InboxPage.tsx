@@ -164,9 +164,10 @@ export function InboxPage() {
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
       <h1 className="text-2xl font-bold text-gray-800">Inbox</h1>
-      <p className="text-sm text-gray-500">
-        Quick-capture words and phrases for later review. All operations require authentication.
-      </p>
+      <div className="bg-orange-50 border border-orange-100 rounded-lg p-3 text-sm text-gray-600 space-y-1">
+        <p>Входящие -- быстрый захват слов для последующей обработки. Когда вы встречаете незнакомое слово, запишите его сюда с контекстом (где встретили).</p>
+        <p>Позже вы сможете найти это слово в справочнике (Reference) и добавить в свой персональный словарь (My Dictionary). Clear All -- удалить все записи из входящих.</p>
+      </div>
 
       {/* Create form */}
       <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">

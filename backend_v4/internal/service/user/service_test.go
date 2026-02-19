@@ -187,6 +187,59 @@ func TestService_UpdateProfile_NoUserIDInContext(t *testing.T) {
 	assert.Nil(t, user)
 }
 
+func TestService_UpdateProfile_RepoError(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	input := UpdateProfileInput{Name: "Valid Name"}
+	repoErr := errors.New("db connection lost")
+
+	users := &userRepoMock{
+		UpdateFunc: func(ctx context.Context, id uuid.UUID, name *string, avatarURL *string) (*domain.User, error) {
+			return nil, repoErr
+		},
+	}
+
+	svc := newTestService(users, nil, nil, nil)
+	user, err := svc.UpdateProfile(ctx, input)
+
+	require.Error(t, err)
+	require.ErrorIs(t, err, repoErr)
+	assert.Nil(t, user)
+}
+
+func TestService_UpdateProfile_NilAvatarURL(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	input := UpdateProfileInput{
+		Name:      "New Name",
+		AvatarURL: nil,
+	}
+
+	expected := domain.User{
+		ID:   userID,
+		Name: "New Name",
+	}
+
+	users := &userRepoMock{
+		UpdateFunc: func(ctx context.Context, id uuid.UUID, name *string, avatarURL *string) (*domain.User, error) {
+			assert.Nil(t, avatarURL, "nil AvatarURL should be passed through to repo")
+			return &expected, nil
+		},
+	}
+
+	svc := newTestService(users, nil, nil, nil)
+	user, err := svc.UpdateProfile(ctx, input)
+
+	require.NoError(t, err)
+	assert.Equal(t, &expected, user)
+}
+
 // ---------------------------------------------------------------------------
 // GetSettings tests
 // ---------------------------------------------------------------------------
@@ -503,6 +556,67 @@ func TestService_UpdateSettings_TransactionRollback(t *testing.T) {
 	require.Error(t, err)
 	assert.Nil(t, result)
 	assert.Contains(t, err.Error(), "audit failed")
+}
+
+func TestService_UpdateSettings_GetSettingsRepoError(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	input := UpdateSettingsInput{NewCardsPerDay: ptr(30)}
+	repoErr := errors.New("settings repo down")
+
+	settingsRepo := &settingsRepoMock{
+		GetSettingsFunc: func(ctx context.Context, uid uuid.UUID) (*domain.UserSettings, error) {
+			return nil, repoErr
+		},
+	}
+
+	txMgr := &txManagerMock{
+		RunInTxFunc: func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		},
+	}
+
+	svc := newTestService(nil, settingsRepo, nil, txMgr)
+	result, err := svc.UpdateSettings(ctx, input)
+
+	require.Error(t, err)
+	require.ErrorIs(t, err, repoErr)
+	assert.Nil(t, result)
+}
+
+func TestService_UpdateSettings_UpdateSettingsRepoError(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	input := UpdateSettingsInput{NewCardsPerDay: ptr(30)}
+	repoErr := errors.New("update failed")
+
+	settingsRepo := &settingsRepoMock{
+		GetSettingsFunc: func(ctx context.Context, uid uuid.UUID) (*domain.UserSettings, error) {
+			return &domain.UserSettings{UserID: userID, NewCardsPerDay: 20}, nil
+		},
+		UpdateSettingsFunc: func(ctx context.Context, uid uuid.UUID, s domain.UserSettings) (*domain.UserSettings, error) {
+			return nil, repoErr
+		},
+	}
+
+	txMgr := &txManagerMock{
+		RunInTxFunc: func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		},
+	}
+
+	svc := newTestService(nil, settingsRepo, nil, txMgr)
+	result, err := svc.UpdateSettings(ctx, input)
+
+	require.Error(t, err)
+	require.ErrorIs(t, err, repoErr)
+	assert.Nil(t, result)
 }
 
 // ---------------------------------------------------------------------------

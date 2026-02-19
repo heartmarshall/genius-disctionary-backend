@@ -449,19 +449,12 @@ func TestService_PreviewRefEntry_Success(t *testing.T) {
 	assert.Equal(t, expected, result)
 }
 
-func TestService_PreviewRefEntry_FetchOK(t *testing.T) {
+func TestService_PreviewRefEntry_NoAuth(t *testing.T) {
 	t.Parallel()
-	svc, deps := newTestService(defaultCfg())
-	ctx, _ := authCtx()
+	svc, _ := newTestService(defaultCfg())
 
-	fetched := makeRefEntry("world")
-	deps.refCatalog.GetOrFetchEntryFunc = func(_ context.Context, _ string) (*domain.RefEntry, error) {
-		return fetched, nil
-	}
-
-	result, err := svc.PreviewRefEntry(ctx, "World")
-	require.NoError(t, err)
-	assert.Equal(t, fetched.ID, result.ID)
+	_, err := svc.PreviewRefEntry(context.Background(), "hello")
+	require.ErrorIs(t, err, domain.ErrUnauthorized)
 }
 
 func TestService_PreviewRefEntry_APIError(t *testing.T) {
@@ -1161,18 +1154,18 @@ func TestService_FindEntries_LimitClamp(t *testing.T) {
 	assert.Equal(t, 200, capturedLimit)
 }
 
-func TestService_FindEntries_DefaultSort(t *testing.T) {
+func TestService_FindEntries_CustomSort(t *testing.T) {
 	t.Parallel()
 	svc, deps := newTestService(defaultCfg())
 	ctx, _ := authCtx()
 
 	deps.entries.FindFunc = func(_ context.Context, _ uuid.UUID, f domain.EntryFilter) ([]domain.Entry, int, error) {
-		assert.Equal(t, "created_at", f.SortBy)
-		assert.Equal(t, "DESC", f.SortOrder)
+		assert.Equal(t, "text", f.SortBy)
+		assert.Equal(t, "ASC", f.SortOrder)
 		return nil, 0, nil
 	}
 
-	_, err := svc.FindEntries(ctx, FindInput{Limit: 20})
+	_, err := svc.FindEntries(ctx, FindInput{SortBy: "text", SortOrder: "ASC", Limit: 20})
 	require.NoError(t, err)
 }
 
@@ -1949,4 +1942,420 @@ func TestImportInput_Validate_CollectsAllErrors(t *testing.T) {
 	var ve *domain.ValidationError
 	require.ErrorAs(t, err, &ve)
 	assert.Len(t, ve.Errors, 2)
+}
+
+// ===========================================================================
+// Missing NoAuth Tests
+// ===========================================================================
+
+func TestService_CreateCustom_NoAuth(t *testing.T) {
+	t.Parallel()
+	svc, _ := newTestService(defaultCfg())
+
+	_, err := svc.CreateEntryCustom(context.Background(), CreateCustomInput{Text: "hello"})
+	require.ErrorIs(t, err, domain.ErrUnauthorized)
+}
+
+func TestService_UpdateNotes_NoAuth(t *testing.T) {
+	t.Parallel()
+	svc, _ := newTestService(defaultCfg())
+
+	_, err := svc.UpdateNotes(context.Background(), UpdateNotesInput{EntryID: uuid.New()})
+	require.ErrorIs(t, err, domain.ErrUnauthorized)
+}
+
+func TestService_FindDeletedEntries_NoAuth(t *testing.T) {
+	t.Parallel()
+	svc, _ := newTestService(defaultCfg())
+
+	_, _, err := svc.FindDeletedEntries(context.Background(), 20, 0)
+	require.ErrorIs(t, err, domain.ErrUnauthorized)
+}
+
+func TestService_RestoreEntry_NoAuth(t *testing.T) {
+	t.Parallel()
+	svc, _ := newTestService(defaultCfg())
+
+	_, err := svc.RestoreEntry(context.Background(), uuid.New())
+	require.ErrorIs(t, err, domain.ErrUnauthorized)
+}
+
+func TestService_BatchDelete_NoAuth(t *testing.T) {
+	t.Parallel()
+	svc, _ := newTestService(defaultCfg())
+
+	_, err := svc.BatchDeleteEntries(context.Background(), []uuid.UUID{uuid.New()})
+	require.ErrorIs(t, err, domain.ErrUnauthorized)
+}
+
+func TestService_ImportEntries_NoAuth(t *testing.T) {
+	t.Parallel()
+	svc, _ := newTestService(defaultCfg())
+
+	_, err := svc.ImportEntries(context.Background(), ImportInput{
+		Items: []ImportItem{{Text: "hello"}},
+	})
+	require.ErrorIs(t, err, domain.ErrUnauthorized)
+}
+
+func TestService_ExportEntries_NoAuth(t *testing.T) {
+	t.Parallel()
+	svc, _ := newTestService(defaultCfg())
+
+	_, err := svc.ExportEntries(context.Background())
+	require.ErrorIs(t, err, domain.ErrUnauthorized)
+}
+
+func TestService_FindEntries_NoAuth(t *testing.T) {
+	t.Parallel()
+	svc, _ := newTestService(defaultCfg())
+
+	_, err := svc.FindEntries(context.Background(), FindInput{Limit: 20})
+	require.ErrorIs(t, err, domain.ErrUnauthorized)
+}
+
+// ===========================================================================
+// Missing CreateEntryCustom Edge Cases
+// ===========================================================================
+
+func TestService_CreateCustom_WhitespaceOnlyText(t *testing.T) {
+	t.Parallel()
+	svc, _ := newTestService(defaultCfg())
+	ctx, _ := authCtx()
+
+	// Text passes initial empty check but normalizes to empty string.
+	_, err := svc.CreateEntryCustom(ctx, CreateCustomInput{Text: "   "})
+	require.Error(t, err)
+	var ve *domain.ValidationError
+	require.ErrorAs(t, err, &ve)
+	assert.Equal(t, "text", ve.Errors[0].Field)
+}
+
+func TestService_CreateCustom_LimitReached(t *testing.T) {
+	t.Parallel()
+	svc, deps := newTestService(defaultCfg())
+	ctx, _ := authCtx()
+
+	deps.entries.CountByUserFunc = func(_ context.Context, _ uuid.UUID) (int, error) {
+		return 10000, nil
+	}
+
+	_, err := svc.CreateEntryCustom(ctx, CreateCustomInput{Text: "hello"})
+	require.Error(t, err)
+	var ve *domain.ValidationError
+	require.ErrorAs(t, err, &ve)
+	assert.Equal(t, "entries", ve.Errors[0].Field)
+}
+
+func TestService_CreateCustom_DuplicateUniqueConstraint(t *testing.T) {
+	t.Parallel()
+	svc, deps := newTestService(defaultCfg())
+	ctx, _ := authCtx()
+
+	deps.entries.CreateFunc = func(_ context.Context, _ *domain.Entry) (*domain.Entry, error) {
+		return nil, domain.ErrAlreadyExists
+	}
+
+	_, err := svc.CreateEntryCustom(ctx, CreateCustomInput{Text: "hello"})
+	require.ErrorIs(t, err, domain.ErrAlreadyExists)
+}
+
+func TestService_CreateCustom_AuditRecord(t *testing.T) {
+	t.Parallel()
+	svc, deps := newTestService(defaultCfg())
+	ctx, userID := authCtx()
+
+	auditCreated := false
+	deps.audit.CreateFunc = func(_ context.Context, rec domain.AuditRecord) (domain.AuditRecord, error) {
+		assert.Equal(t, userID, rec.UserID)
+		assert.Equal(t, domain.AuditActionCreate, rec.Action)
+		assert.Equal(t, domain.EntityTypeEntry, rec.EntityType)
+		assert.Equal(t, "user", rec.Changes["source"])
+		auditCreated = true
+		return rec, nil
+	}
+
+	_, err := svc.CreateEntryCustom(ctx, CreateCustomInput{Text: "hello"})
+	require.NoError(t, err)
+	assert.True(t, auditCreated)
+}
+
+// ===========================================================================
+// Missing CreateCustomInput.Validate Nested Fields
+// ===========================================================================
+
+func TestCreateCustomInput_Validate_SenseFields(t *testing.T) {
+	t.Parallel()
+
+	longDef := make([]byte, 2001)
+	for i := range longDef {
+		longDef[i] = 'a'
+	}
+	longDefStr := string(longDef)
+
+	invalidPOS := domain.PartOfSpeech("INVALID")
+
+	input := CreateCustomInput{
+		Text: "hello",
+		Senses: []SenseInput{
+			{
+				Definition:   &longDefStr,
+				PartOfSpeech: &invalidPOS,
+				Translations: make([]string, 21),
+				Examples:     make([]ExampleInput, 21),
+			},
+		},
+	}
+
+	err := input.Validate()
+	require.Error(t, err)
+	var ve *domain.ValidationError
+	require.ErrorAs(t, err, &ve)
+	// definition too long, invalid POS, too many translations, too many examples = 4 errors
+	assert.GreaterOrEqual(t, len(ve.Errors), 4)
+}
+
+func TestCreateCustomInput_Validate_TranslationFields(t *testing.T) {
+	t.Parallel()
+
+	longTr := make([]byte, 501)
+	for i := range longTr {
+		longTr[i] = 'a'
+	}
+
+	input := CreateCustomInput{
+		Text: "hello",
+		Senses: []SenseInput{
+			{
+				Translations: []string{"", string(longTr)},
+			},
+		},
+	}
+
+	err := input.Validate()
+	require.Error(t, err)
+	var ve *domain.ValidationError
+	require.ErrorAs(t, err, &ve)
+	// empty translation + too long translation = 2 errors
+	assert.Len(t, ve.Errors, 2)
+}
+
+func TestCreateCustomInput_Validate_ExampleFields(t *testing.T) {
+	t.Parallel()
+
+	longSentence := make([]byte, 2001)
+	for i := range longSentence {
+		longSentence[i] = 'a'
+	}
+
+	longTranslation := make([]byte, 2001)
+	for i := range longTranslation {
+		longTranslation[i] = 'a'
+	}
+	longTrStr := string(longTranslation)
+
+	input := CreateCustomInput{
+		Text: "hello",
+		Senses: []SenseInput{
+			{
+				Examples: []ExampleInput{
+					{Sentence: ""},                                     // required
+					{Sentence: string(longSentence)},                   // too long
+					{Sentence: "ok", Translation: &longTrStr},          // translation too long
+				},
+			},
+		},
+	}
+
+	err := input.Validate()
+	require.Error(t, err)
+	var ve *domain.ValidationError
+	require.ErrorAs(t, err, &ve)
+	// empty sentence + long sentence + long translation = 3 errors
+	assert.Len(t, ve.Errors, 3)
+}
+
+// ===========================================================================
+// Missing FindInput.Validate Edge Cases
+// ===========================================================================
+
+func TestFindInput_Validate_InvalidPartOfSpeech(t *testing.T) {
+	t.Parallel()
+
+	invalidPOS := domain.PartOfSpeech("INVALID")
+	input := FindInput{PartOfSpeech: &invalidPOS}
+
+	err := input.Validate()
+	require.Error(t, err)
+	var ve *domain.ValidationError
+	require.ErrorAs(t, err, &ve)
+	assert.Equal(t, "part_of_speech", ve.Errors[0].Field)
+}
+
+func TestFindInput_Validate_InvalidStatus(t *testing.T) {
+	t.Parallel()
+
+	invalidStatus := domain.LearningStatus("INVALID")
+	input := FindInput{Status: &invalidStatus}
+
+	err := input.Validate()
+	require.Error(t, err)
+	var ve *domain.ValidationError
+	require.ErrorAs(t, err, &ve)
+	assert.Equal(t, "status", ve.Errors[0].Field)
+}
+
+// ===========================================================================
+// Missing UpdateNotesInput.Validate Edge Cases
+// ===========================================================================
+
+func TestUpdateNotesInput_Validate_NotesTooLong(t *testing.T) {
+	t.Parallel()
+
+	longNotes := make([]byte, 5001)
+	for i := range longNotes {
+		longNotes[i] = 'a'
+	}
+	notesStr := string(longNotes)
+
+	input := UpdateNotesInput{EntryID: uuid.New(), Notes: &notesStr}
+
+	err := input.Validate()
+	require.Error(t, err)
+	var ve *domain.ValidationError
+	require.ErrorAs(t, err, &ve)
+	assert.Equal(t, "notes", ve.Errors[0].Field)
+}
+
+// ===========================================================================
+// Missing FindEntries Edge Cases
+// ===========================================================================
+
+func TestService_FindEntries_OffsetPagination_HasNextPage(t *testing.T) {
+	t.Parallel()
+	svc, deps := newTestService(defaultCfg())
+	ctx, _ := authCtx()
+
+	entries := []domain.Entry{{ID: uuid.New()}, {ID: uuid.New()}}
+	deps.entries.FindFunc = func(_ context.Context, _ uuid.UUID, _ domain.EntryFilter) ([]domain.Entry, int, error) {
+		return entries, 5, nil // 5 total but only 2 returned
+	}
+
+	offset := 0
+	result, err := svc.FindEntries(ctx, FindInput{Limit: 2, Offset: &offset})
+	require.NoError(t, err)
+	assert.True(t, result.HasNextPage, "should have next page when offset+len < total")
+	assert.Equal(t, 5, result.TotalCount)
+}
+
+func TestService_FindEntries_InvalidSortOrder(t *testing.T) {
+	t.Parallel()
+	svc, _ := newTestService(defaultCfg())
+	ctx, _ := authCtx()
+
+	_, err := svc.FindEntries(ctx, FindInput{SortOrder: "invalid", Limit: 20})
+	require.Error(t, err)
+	var ve *domain.ValidationError
+	require.ErrorAs(t, err, &ve)
+	assert.Equal(t, "sort_order", ve.Errors[0].Field)
+}
+
+// ===========================================================================
+// Missing clampLimit Branch
+// ===========================================================================
+
+func TestService_SearchCatalog_LimitDefaultsWhenZero(t *testing.T) {
+	t.Parallel()
+	svc, deps := newTestService(defaultCfg())
+	ctx, _ := authCtx()
+
+	var capturedLimit int
+	deps.refCatalog.SearchFunc = func(_ context.Context, _ string, l int) ([]domain.RefEntry, error) {
+		capturedLimit = l
+		return nil, nil
+	}
+
+	// Limit 0 should default to 20.
+	_, _ = svc.SearchCatalog(ctx, "test", 0)
+	assert.Equal(t, 20, capturedLimit)
+}
+
+func TestService_FindEntries_LimitDefaultsWhenZero(t *testing.T) {
+	t.Parallel()
+	svc, deps := newTestService(defaultCfg())
+	ctx, _ := authCtx()
+
+	var capturedLimit int
+	deps.entries.FindFunc = func(_ context.Context, _ uuid.UUID, f domain.EntryFilter) ([]domain.Entry, int, error) {
+		capturedLimit = f.Limit
+		return nil, 0, nil
+	}
+
+	_, err := svc.FindEntries(ctx, FindInput{Limit: 0})
+	require.NoError(t, err)
+	assert.Equal(t, 20, capturedLimit)
+}
+
+// ===========================================================================
+// Missing ExportEntries Edge Cases
+// ===========================================================================
+
+func TestService_ExportEntries_EntryWithoutCard(t *testing.T) {
+	t.Parallel()
+	svc, deps := newTestService(defaultCfg())
+	ctx, _ := authCtx()
+
+	entryID := uuid.New()
+	deps.entries.FindFunc = func(_ context.Context, _ uuid.UUID, _ domain.EntryFilter) ([]domain.Entry, int, error) {
+		return []domain.Entry{{ID: entryID, Text: "hello"}}, 1, nil
+	}
+	deps.senses.GetByEntryIDsFunc = func(_ context.Context, _ []uuid.UUID) ([]domain.Sense, error) {
+		return nil, nil
+	}
+	deps.cards.GetByEntryIDsFunc = func(_ context.Context, _ []uuid.UUID) ([]domain.Card, error) {
+		return nil, nil // no cards
+	}
+
+	result, err := svc.ExportEntries(ctx)
+	require.NoError(t, err)
+	require.Len(t, result.Items, 1)
+	assert.Nil(t, result.Items[0].CardStatus, "entry without card should have nil CardStatus")
+}
+
+// ===========================================================================
+// Missing ImportEntries Edge Cases
+// ===========================================================================
+
+func TestService_ImportEntries_ChunkRollbackResetsSeenMap(t *testing.T) {
+	t.Parallel()
+	cfg := defaultCfg()
+	cfg.ImportChunkSize = 1 // one item per chunk
+
+	svc, deps := newTestService(cfg)
+	ctx, _ := authCtx()
+
+	callCount := 0
+	deps.tx.RunInTxFunc = func(ctx context.Context, fn func(context.Context) error) error {
+		callCount++
+		if callCount == 1 {
+			return errors.New("db error") // first chunk fails
+		}
+		return fn(ctx) // second chunk succeeds
+	}
+
+	deps.entries.CreateFunc = func(_ context.Context, entry *domain.Entry) (*domain.Entry, error) {
+		entry.ID = uuid.New()
+		return entry, nil
+	}
+
+	result, err := svc.ImportEntries(ctx, ImportInput{
+		Items: []ImportItem{
+			{Text: "hello"}, // chunk 1 — will fail
+			{Text: "hello"}, // chunk 2 — same text, should succeed because chunk 1 was rolled back
+		},
+	})
+
+	require.NoError(t, err)
+	assert.Equal(t, 1, result.Imported, "second chunk should succeed after first chunk rollback")
+	assert.Equal(t, 1, result.Skipped, "first chunk items should be skipped")
 }

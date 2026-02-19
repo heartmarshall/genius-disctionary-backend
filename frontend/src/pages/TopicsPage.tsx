@@ -253,9 +253,10 @@ export function TopicsPage() {
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
       <h1 className="text-2xl font-bold text-gray-800">Topics</h1>
-      <p className="text-sm text-gray-500">
-        Manage topics and link dictionary entries. All operations require authentication.
-      </p>
+      <div className="bg-amber-50 border border-amber-100 rounded-lg p-3 text-sm text-gray-600 space-y-1">
+        <p>Темы для организации словаря. Каждая тема -- это категория, к которой можно привязать слова из персонального словаря (например: "Food", "Travel", "IT").</p>
+        <p>Одно слово может принадлежать нескольким темам. Entry Count показывает количество привязанных слов. Привязка (Link/Unlink) работает по UUID записи из My Dictionary.</p>
+      </div>
 
       {/* Fetch button */}
       <button

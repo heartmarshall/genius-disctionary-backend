@@ -563,6 +563,95 @@ func TestService_GetOrFetchEntry_TranslationsExistSensesEmpty(t *testing.T) {
 	assert.Empty(t, createdEntry.Senses)
 }
 
+func TestService_GetOrFetchEntry_RepoErrorOnLookup(t *testing.T) {
+	t.Parallel()
+
+	repoErr := errors.New("database connection lost")
+	repo := &mockRefEntryRepo{
+		GetFullTreeByTextFunc: func(_ context.Context, _ string) (*domain.RefEntry, error) {
+			return nil, repoErr
+		},
+	}
+
+	svc := newTestService(repo, nil, nil, nil)
+	_, err := svc.GetOrFetchEntry(context.Background(), "hello")
+
+	require.Error(t, err)
+	assert.ErrorIs(t, err, repoErr)
+}
+
+func TestService_GetOrFetchEntry_CreateTransactionError(t *testing.T) {
+	t.Parallel()
+
+	dictResult := makeDictResult("hello", []provider.SenseResult{
+		{Definition: "greeting"},
+	}, nil)
+
+	repo := &mockRefEntryRepo{
+		GetFullTreeByTextFunc: func(_ context.Context, _ string) (*domain.RefEntry, error) {
+			return nil, domain.ErrNotFound
+		},
+		CreateWithTreeFunc: func(_ context.Context, _ *domain.RefEntry) (*domain.RefEntry, error) {
+			return nil, errors.New("disk full")
+		},
+	}
+	dict := &mockDictionaryProvider{
+		FetchEntryFunc: func(_ context.Context, _ string) (*provider.DictionaryResult, error) {
+			return dictResult, nil
+		},
+	}
+	trans := &mockTranslationProvider{
+		FetchTranslationsFunc: func(_ context.Context, _ string) ([]string, error) {
+			return nil, nil
+		},
+	}
+
+	svc := newTestService(repo, nil, dict, trans)
+	_, err := svc.GetOrFetchEntry(context.Background(), "hello")
+
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "create ref entry")
+}
+
+func TestService_GetOrFetchEntry_ConflictThenFetchFails(t *testing.T) {
+	t.Parallel()
+
+	dictResult := makeDictResult("hello", []provider.SenseResult{
+		{Definition: "greeting"},
+	}, nil)
+
+	refetchErr := errors.New("database gone")
+	getByTextCallCount := 0
+	repo := &mockRefEntryRepo{
+		GetFullTreeByTextFunc: func(_ context.Context, _ string) (*domain.RefEntry, error) {
+			getByTextCallCount++
+			if getByTextCallCount == 1 {
+				return nil, domain.ErrNotFound
+			}
+			return nil, refetchErr // second call: also fails
+		},
+		CreateWithTreeFunc: func(_ context.Context, _ *domain.RefEntry) (*domain.RefEntry, error) {
+			return nil, domain.ErrAlreadyExists
+		},
+	}
+	dict := &mockDictionaryProvider{
+		FetchEntryFunc: func(_ context.Context, _ string) (*provider.DictionaryResult, error) {
+			return dictResult, nil
+		},
+	}
+	trans := &mockTranslationProvider{
+		FetchTranslationsFunc: func(_ context.Context, _ string) ([]string, error) {
+			return nil, nil
+		},
+	}
+
+	svc := newTestService(repo, nil, dict, trans)
+	_, err := svc.GetOrFetchEntry(context.Background(), "hello")
+
+	require.Error(t, err)
+	assert.ErrorIs(t, err, refetchErr)
+}
+
 // ---------------------------------------------------------------------------
 // GetRefEntry tests
 // ---------------------------------------------------------------------------
@@ -793,8 +882,33 @@ func TestMapPartOfSpeech(t *testing.T) {
 			expected: ptrPOS(domain.PartOfSpeechVerb),
 		},
 		{
+			name:     "adjective lowercase",
+			input:    ptrString("adjective"),
+			expected: ptrPOS(domain.PartOfSpeechAdjective),
+		},
+		{
+			name:     "interjection lowercase",
+			input:    ptrString("interjection"),
+			expected: ptrPOS(domain.PartOfSpeechInterjection),
+		},
+		{
+			name:     "already uppercase NOUN",
+			input:    ptrString("NOUN"),
+			expected: ptrPOS(domain.PartOfSpeechNoun),
+		},
+		{
+			name:     "mixed case Verb",
+			input:    ptrString("Verb"),
+			expected: ptrPOS(domain.PartOfSpeechVerb),
+		},
+		{
 			name:     "unknown maps to OTHER",
 			input:    ptrString("unknown"),
+			expected: ptrPOS(domain.PartOfSpeechOther),
+		},
+		{
+			name:     "empty string maps to OTHER",
+			input:    ptrString(""),
 			expected: ptrPOS(domain.PartOfSpeechOther),
 		},
 		{

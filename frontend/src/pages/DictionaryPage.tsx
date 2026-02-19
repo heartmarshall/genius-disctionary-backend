@@ -758,8 +758,8 @@ export function DictionaryPage() {
               </th>
               <th className="px-3 py-2 text-left">Text</th>
               <th className="px-3 py-2 text-left">Notes</th>
-              <th className="px-3 py-2 text-left">Card Status</th>
-              <th className="px-3 py-2 text-left">Senses</th>
+              <th className="px-3 py-2 text-left" title="Статус SRS-карточки: NEW (новая), LEARNING (изучается), REVIEW (на повторении), MASTERED (выучена)">Card Status</th>
+              <th className="px-3 py-2 text-left" title="Sense -- значение слова. Одно слово может иметь несколько значений (senses)">Senses</th>
               <th className="px-3 py-2 text-left">Created</th>
             </tr>
           </thead>
@@ -879,7 +879,7 @@ export function DictionaryPage() {
           {/* Senses */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <label className="text-sm font-semibold text-gray-700">Senses *</label>
+              <label className="text-sm font-semibold text-gray-700" title="Sense -- значение слова. Одно слово может иметь несколько значений">Senses *</label>
               <button type="button" onClick={addSense} className="text-xs px-2 py-1 bg-green-200 text-green-800 rounded hover:bg-green-300">
                 + Add Sense
               </button>
@@ -1139,10 +1139,12 @@ export function DictionaryPage() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold text-gray-800">Dictionary</h1>
-      <p className="text-sm text-gray-500">
-        Manage your vocabulary entries. Data loads automatically when authenticated.
-      </p>
+      <h1 className="text-2xl font-bold text-gray-800">My Dictionary</h1>
+      <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-3 text-sm text-gray-600 space-y-1">
+        <p>Ваш персональный словарь. Здесь хранятся слова, которые вы добавили из справочника (Reference) или создали вручную.</p>
+        <p>Каждое слово (Entry) может содержать несколько значений (Senses), переводы (Translations), примеры (Examples) и заметки (Notes). К слову можно привязать карточку для интервального повторения (SRS) -- статусы: <span className="text-blue-600">NEW</span> (новая), <span className="text-yellow-600">LEARNING</span> (изучается), <span className="text-purple-600">REVIEW</span> (на повторении), <span className="text-green-600">MASTERED</span> (выучена).</p>
+        <p className="text-xs text-gray-400">Данные загружаются автоматически при авторизации. Вкладка "Deleted" -- корзина с мягким удалением.</p>
+      </div>
 
       {/* Tab switcher */}
       <div className="flex gap-1 border-b border-gray-200">

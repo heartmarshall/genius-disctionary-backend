@@ -1082,6 +1082,162 @@ func TestValidation_AddSense_EmptyTranslationString(t *testing.T) {
 }
 
 // ---------------------------------------------------------------------------
+// buildSenseChanges Tests
+// ---------------------------------------------------------------------------
+
+func TestBuildSenseChanges_DefinitionChanged(t *testing.T) {
+	t.Parallel()
+
+	oldDef := "old definition"
+	newDef := "new definition"
+
+	old := &domain.Sense{Definition: &oldDef}
+	input := &UpdateSenseInput{SenseID: uuid.New(), Definition: &newDef}
+
+	changes := buildSenseChanges(old, input)
+
+	defChange, ok := changes["definition"].(map[string]any)
+	if !ok {
+		t.Fatal("expected 'definition' in changes")
+	}
+	if defChange["old"] != oldDef {
+		t.Errorf("expected old=%q, got %v", oldDef, defChange["old"])
+	}
+	if defChange["new"] != newDef {
+		t.Errorf("expected new=%q, got %v", newDef, defChange["new"])
+	}
+}
+
+func TestBuildSenseChanges_PartOfSpeechChanged(t *testing.T) {
+	t.Parallel()
+
+	oldPOS := domain.PartOfSpeechNoun
+	newPOS := domain.PartOfSpeechVerb
+
+	old := &domain.Sense{PartOfSpeech: &oldPOS}
+	input := &UpdateSenseInput{SenseID: uuid.New(), PartOfSpeech: &newPOS}
+
+	changes := buildSenseChanges(old, input)
+
+	posChange, ok := changes["part_of_speech"].(map[string]any)
+	if !ok {
+		t.Fatal("expected 'part_of_speech' in changes")
+	}
+	if posChange["old"] != string(oldPOS) {
+		t.Errorf("expected old=%q, got %v", oldPOS, posChange["old"])
+	}
+	if posChange["new"] != string(newPOS) {
+		t.Errorf("expected new=%q, got %v", newPOS, posChange["new"])
+	}
+}
+
+func TestBuildSenseChanges_CEFRLevelChanged(t *testing.T) {
+	t.Parallel()
+
+	oldCEFR := "A1"
+	newCEFR := "C2"
+
+	old := &domain.Sense{CEFRLevel: &oldCEFR}
+	input := &UpdateSenseInput{SenseID: uuid.New(), CEFRLevel: &newCEFR}
+
+	changes := buildSenseChanges(old, input)
+
+	cefrChange, ok := changes["cefr_level"].(map[string]any)
+	if !ok {
+		t.Fatal("expected 'cefr_level' in changes")
+	}
+	if cefrChange["old"] != oldCEFR {
+		t.Errorf("expected old=%q, got %v", oldCEFR, cefrChange["old"])
+	}
+	if cefrChange["new"] != newCEFR {
+		t.Errorf("expected new=%q, got %v", newCEFR, cefrChange["new"])
+	}
+}
+
+func TestBuildSenseChanges_NoChanges(t *testing.T) {
+	t.Parallel()
+
+	def := "same definition"
+	pos := domain.PartOfSpeechNoun
+	cefr := "B1"
+
+	old := &domain.Sense{
+		Definition:   &def,
+		PartOfSpeech: &pos,
+		CEFRLevel:    &cefr,
+	}
+	input := &UpdateSenseInput{
+		SenseID:      uuid.New(),
+		Definition:   &def,
+		PartOfSpeech: &pos,
+		CEFRLevel:    &cefr,
+	}
+
+	changes := buildSenseChanges(old, input)
+
+	if len(changes) != 0 {
+		t.Errorf("expected empty changes for identical values, got %v", changes)
+	}
+}
+
+func TestBuildSenseChanges_NilFieldsNotTracked(t *testing.T) {
+	t.Parallel()
+
+	def := "old definition"
+	old := &domain.Sense{Definition: &def}
+	input := &UpdateSenseInput{
+		SenseID:      uuid.New(),
+		Definition:   nil, // Not changing
+		PartOfSpeech: nil,
+		CEFRLevel:    nil,
+	}
+
+	changes := buildSenseChanges(old, input)
+
+	if len(changes) != 0 {
+		t.Errorf("expected empty changes for nil input fields, got %v", changes)
+	}
+}
+
+func TestBuildSenseChanges_OldNilNewSet(t *testing.T) {
+	t.Parallel()
+
+	newDef := "brand new"
+	newPOS := domain.PartOfSpeechAdverb
+	newCEFR := "C1"
+
+	old := &domain.Sense{
+		Definition:   nil,
+		PartOfSpeech: nil,
+		CEFRLevel:    nil,
+	}
+	input := &UpdateSenseInput{
+		SenseID:      uuid.New(),
+		Definition:   &newDef,
+		PartOfSpeech: &newPOS,
+		CEFRLevel:    &newCEFR,
+	}
+
+	changes := buildSenseChanges(old, input)
+
+	if len(changes) != 3 {
+		t.Fatalf("expected 3 changes, got %d: %v", len(changes), changes)
+	}
+
+	// Definition: old was nil → treated as ""
+	if defChange, ok := changes["definition"].(map[string]any); ok {
+		if defChange["old"] != "" {
+			t.Errorf("expected old definition '', got %v", defChange["old"])
+		}
+		if defChange["new"] != newDef {
+			t.Errorf("expected new definition %q, got %v", newDef, defChange["new"])
+		}
+	} else {
+		t.Error("expected 'definition' in changes")
+	}
+}
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 

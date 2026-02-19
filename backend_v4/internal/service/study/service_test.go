@@ -182,11 +182,9 @@ func TestService_GetStudyQueue_SettingsLoadError(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}
-	if !errors.Is(err, errors.New("db error")) {
-		// Check that error is wrapped
-		if err.Error() == "" {
-			t.Error("expected wrapped error")
-		}
+	// Verify error wrapping: should contain context about the operation
+	if got := err.Error(); got == "" {
+		t.Error("expected non-empty error message")
 	}
 }
 
@@ -4051,6 +4049,254 @@ func TestService_GetCardStats_NoReviews_ZerosAndNil(t *testing.T) {
 	}
 	if stats.CurrentStatus != domain.LearningStatusNew {
 		t.Errorf("CurrentStatus: got %v, want New", stats.CurrentStatus)
+	}
+}
+
+// ---------------------------------------------------------------------------
+// GetActiveSession Tests
+// ---------------------------------------------------------------------------
+
+func TestService_GetActiveSession_Success_ReturnsSession(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	sessionID := uuid.New()
+	now := time.Now()
+
+	activeSession := &domain.StudySession{
+		ID:        sessionID,
+		UserID:    userID,
+		Status:    domain.SessionStatusActive,
+		StartedAt: now.Add(-10 * time.Minute),
+	}
+
+	mockSessions := &sessionRepoMock{
+		GetActiveFunc: func(ctx context.Context, uid uuid.UUID) (*domain.StudySession, error) {
+			if uid != userID {
+				t.Errorf("userID: got %v, want %v", uid, userID)
+			}
+			return activeSession, nil
+		},
+	}
+
+	svc := &Service{
+		sessions: mockSessions,
+		log:      slog.Default(),
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	result, err := svc.GetActiveSession(ctx)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if result == nil {
+		t.Fatal("expected session, got nil")
+	}
+	if result.ID != sessionID {
+		t.Errorf("result.ID: got %v, want %v", result.ID, sessionID)
+	}
+}
+
+func TestService_GetActiveSession_NoActiveSession_ReturnsNil(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+
+	mockSessions := &sessionRepoMock{
+		GetActiveFunc: func(ctx context.Context, uid uuid.UUID) (*domain.StudySession, error) {
+			return nil, domain.ErrNotFound
+		},
+	}
+
+	svc := &Service{
+		sessions: mockSessions,
+		log:      slog.Default(),
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	result, err := svc.GetActiveSession(ctx)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if result != nil {
+		t.Errorf("expected nil, got %+v", result)
+	}
+}
+
+func TestService_GetActiveSession_NoUserID(t *testing.T) {
+	t.Parallel()
+
+	svc := &Service{
+		log: slog.Default(),
+	}
+
+	ctx := context.Background()
+
+	_, err := svc.GetActiveSession(ctx)
+	if !errors.Is(err, domain.ErrUnauthorized) {
+		t.Errorf("error: got %v, want ErrUnauthorized", err)
+	}
+}
+
+func TestService_GetActiveSession_RepoError(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+
+	mockSessions := &sessionRepoMock{
+		GetActiveFunc: func(ctx context.Context, uid uuid.UUID) (*domain.StudySession, error) {
+			return nil, errors.New("db connection error")
+		},
+	}
+
+	svc := &Service{
+		sessions: mockSessions,
+		log:      slog.Default(),
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	_, err := svc.GetActiveSession(ctx)
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+}
+
+// ---------------------------------------------------------------------------
+// StartSession Race Condition Test
+// ---------------------------------------------------------------------------
+
+func TestService_StartSession_RaceCondition_ErrAlreadyExists(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	sessionID := uuid.New()
+	now := time.Now()
+
+	raceSession := &domain.StudySession{
+		ID:        sessionID,
+		UserID:    userID,
+		Status:    domain.SessionStatusActive,
+		StartedAt: now,
+	}
+
+	mockSessions := &sessionRepoMock{
+		GetActiveFunc: func() func(ctx context.Context, uid uuid.UUID) (*domain.StudySession, error) {
+			callCount := 0
+			return func(ctx context.Context, uid uuid.UUID) (*domain.StudySession, error) {
+				callCount++
+				if callCount == 1 {
+					// First call: no active session
+					return nil, domain.ErrNotFound
+				}
+				// Second call (after race): session now exists
+				return raceSession, nil
+			}
+		}(),
+		CreateFunc: func(ctx context.Context, session *domain.StudySession) (*domain.StudySession, error) {
+			// Simulate race: another request created between check and create
+			return nil, domain.ErrAlreadyExists
+		},
+	}
+
+	svc := &Service{
+		sessions: mockSessions,
+		log:      slog.Default(),
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	result, err := svc.StartSession(ctx)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if result == nil {
+		t.Fatal("result is nil")
+	}
+	if result.ID != sessionID {
+		t.Errorf("result.ID: got %v, want %v", result.ID, sessionID)
+	}
+
+	// GetActive should be called twice: initial check + retry after race
+	if len(mockSessions.GetActiveCalls()) != 2 {
+		t.Errorf("GetActive calls: got %d, want 2", len(mockSessions.GetActiveCalls()))
+	}
+	if len(mockSessions.CreateCalls()) != 1 {
+		t.Errorf("Create calls: got %d, want 1", len(mockSessions.CreateCalls()))
+	}
+}
+
+func TestService_StartSession_NoUserID(t *testing.T) {
+	t.Parallel()
+
+	svc := &Service{
+		log: slog.Default(),
+	}
+
+	ctx := context.Background()
+
+	_, err := svc.StartSession(ctx)
+	if !errors.Is(err, domain.ErrUnauthorized) {
+		t.Errorf("error: got %v, want ErrUnauthorized", err)
+	}
+}
+
+// ---------------------------------------------------------------------------
+// GetStudyQueue Default Limit Test
+// ---------------------------------------------------------------------------
+
+func TestService_GetStudyQueue_DefaultLimit_WhenZero(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+
+	settings := &domain.UserSettings{
+		UserID:          userID,
+		NewCardsPerDay:  20,
+		MaxIntervalDays: 365,
+		Timezone:        "UTC",
+	}
+
+	mockSettings := &settingsRepoMock{
+		GetByUserIDFunc: func(ctx context.Context, uid uuid.UUID) (*domain.UserSettings, error) {
+			return settings, nil
+		},
+	}
+
+	mockReviews := &reviewLogRepoMock{
+		CountNewTodayFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
+			return 0, nil
+		},
+	}
+
+	mockCards := &cardRepoMock{
+		GetDueCardsFunc: func(ctx context.Context, uid uuid.UUID, nowTime time.Time, limit int) ([]*domain.Card, error) {
+			if limit != 50 {
+				t.Errorf("expected default limit 50, got %d", limit)
+			}
+			return []*domain.Card{}, nil
+		},
+		GetNewCardsFunc: func(ctx context.Context, uid uuid.UUID, limit int) ([]*domain.Card, error) {
+			return []*domain.Card{}, nil
+		},
+	}
+
+	svc := &Service{
+		cards:    mockCards,
+		reviews:  mockReviews,
+		settings: mockSettings,
+		log:      slog.Default(),
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+	input := GetQueueInput{Limit: 0} // Should use default 50
+
+	_, err := svc.GetStudyQueue(ctx, input)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
 	}
 }
 

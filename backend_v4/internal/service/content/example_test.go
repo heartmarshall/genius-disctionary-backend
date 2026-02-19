@@ -515,6 +515,58 @@ func TestService_UpdateExample_RemoveTranslation(t *testing.T) {
 	}
 }
 
+func TestService_UpdateExample_NoChangeSkipsAudit(t *testing.T) {
+	t.Parallel()
+
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	userID := uuid.New()
+	senseID := uuid.New()
+	exampleID := uuid.New()
+	sentence := "Same sentence."
+	translation := "Тот же перевод."
+
+	exampleRepo := &mockExampleRepo{
+		getByIDForUserFunc: func(ctx context.Context, uid, eid uuid.UUID) (*domain.Example, error) {
+			return &domain.Example{
+				ID:          exampleID,
+				SenseID:     senseID,
+				Sentence:    &sentence,
+				Translation: &translation,
+			}, nil
+		},
+		updateFunc: func(ctx context.Context, eid uuid.UUID, sent string, trans *string) (*domain.Example, error) {
+			return &domain.Example{
+				ID:          eid,
+				SenseID:     senseID,
+				Sentence:    &sent,
+				Translation: trans,
+			}, nil
+		},
+	}
+
+	auditRepo := &mockAuditRepo{}
+
+	svc := NewService(logger, &mockEntryRepo{}, &mockSenseRepo{}, &mockTranslationRepo{}, exampleRepo, nil, auditRepo, &mockTxManager{})
+
+	ctx := withUser(context.Background(), userID)
+	input := UpdateExampleInput{
+		ExampleID:   exampleID,
+		Sentence:    sentence,
+		Translation: &translation,
+	}
+
+	_, err := svc.UpdateExample(ctx, input)
+
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+
+	// No audit when nothing changed
+	if len(auditRepo.records) != 0 {
+		t.Errorf("expected 0 audit records for no-change update, got %d", len(auditRepo.records))
+	}
+}
+
 func TestService_UpdateExample_ExampleNotFound(t *testing.T) {
 	t.Parallel()
 

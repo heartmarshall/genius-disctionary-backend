@@ -135,9 +135,10 @@ export function ProfilePage() {
   return (
     <div className="p-6 max-w-3xl mx-auto space-y-6">
       <h1 className="text-2xl font-bold text-gray-800">Profile</h1>
-      <p className="text-sm text-gray-500">
-        View your profile information and manage SRS settings.
-      </p>
+      <div className="bg-gray-100 border border-gray-200 rounded-lg p-3 text-sm text-gray-600 space-y-1">
+        <p>Профиль и настройки алгоритма интервального повторения (SRS).</p>
+        <p><strong>New Cards/Day</strong> -- сколько новых карточек показывать в день. <strong>Reviews/Day</strong> -- лимит повторений за день. <strong>Max Interval</strong> -- максимальный интервал между повторениями (дни). <strong>Timezone</strong> -- часовой пояс для расчёта "сегодня" при подсчёте streak и due cards.</p>
+      </div>
 
       {/* Loading state */}
       {me.loading && (

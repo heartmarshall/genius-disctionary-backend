@@ -199,7 +199,7 @@ export function CatalogPage() {
         <div className="text-sm">
           <span className="font-medium text-indigo-700">{sense.partOfSpeech}</span>
           {sense.cefrLevel && (
-            <span className="ml-2 text-xs bg-yellow-100 text-yellow-800 px-1 rounded">
+            <span className="ml-2 text-xs bg-yellow-100 text-yellow-800 px-1 rounded cursor-help" title="CEFR Level -- уровень сложности слова по шкале A1-C2 (Common European Framework of Reference)">
               {sense.cefrLevel}
             </span>
           )}
@@ -263,11 +263,12 @@ export function CatalogPage() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold text-gray-800">Reference Catalog</h1>
-      <p className="text-sm text-gray-500">
-        Search the reference catalog (public, no auth required). Add entries to your dictionary
-        (requires auth).
-      </p>
+      <h1 className="text-2xl font-bold text-gray-800">Reference Dictionary</h1>
+      <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 text-sm text-gray-600 space-y-1">
+        <p>Справочный словарь (Reference Dictionary). Содержит общую базу английских слов с определениями, переводами, примерами употребления и произношением. Данные из внешних источников (FreeDict).</p>
+        <p>Найдите слово и добавьте его в свой персональный словарь (My Dictionary) -- при добавлении можно выбрать нужные значения (Senses) и сразу создать карточку для изучения через SRS.</p>
+        <p className="text-xs text-gray-400">Поиск не требует авторизации. Добавление в словарь -- требует.</p>
+      </div>
 
       {/* Search bar */}
       <form onSubmit={handleSearch} className="flex items-center gap-3">
@@ -380,7 +381,7 @@ export function CatalogPage() {
             </div>
           )}
           <div className="space-y-1">
-            <h3 className="text-sm font-semibold text-gray-700">Senses:</h3>
+            <h3 className="text-sm font-semibold text-gray-700" title="Sense -- значение слова. Одно слово может иметь несколько значений">Senses:</h3>
             {previewEntry.senses.map(renderSense)}
           </div>
           <div className="mt-3">
@@ -428,7 +429,7 @@ export function CatalogPage() {
           <form onSubmit={handleAddSubmit} className="space-y-4">
             {/* Sense checkboxes */}
             <div>
-              <h3 className="text-sm font-semibold text-gray-700 mb-2">Select senses to include:</h3>
+              <h3 className="text-sm font-semibold text-gray-700 mb-2" title="Sense -- значение слова. Выберите нужные значения для добавления в словарь">Select senses to include:</h3>
               {addForm.senses.map((sense) => (
                 <label
                   key={sense.id}
@@ -443,7 +444,7 @@ export function CatalogPage() {
                   <div className="text-sm">
                     <span className="font-medium text-indigo-700">{sense.partOfSpeech}</span>
                     {sense.cefrLevel && (
-                      <span className="ml-1 text-xs bg-yellow-100 text-yellow-800 px-1 rounded">
+                      <span className="ml-1 text-xs bg-yellow-100 text-yellow-800 px-1 rounded cursor-help" title="CEFR Level -- уровень сложности (A1-C2)">
                         {sense.cefrLevel}
                       </span>
                     )}
