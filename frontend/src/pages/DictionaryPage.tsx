@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useGraphQL } from '../hooks/useGraphQL'
 import { useAuth } from '../auth/useAuth'
@@ -239,6 +239,14 @@ export function DictionaryPage() {
     ?? batchDelete.raw ?? importEntries.raw ?? exportEntries.raw
     ?? deletedEntries.raw ?? dictionary.raw
 
+  // Auto-load dictionary on mount
+  useEffect(() => {
+    if (isAuthenticated) {
+      dictionary.execute(DICTIONARY_QUERY, { input: buildFilterInput() })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   // ---------- Handlers ----------
 
   function buildFilterInput() {
@@ -462,6 +470,57 @@ export function DictionaryPage() {
 
   // ---------- Render: Active Entries Tab ----------
 
+  function renderSummaryBar() {
+    if (!dictionary.data) return null
+    const edges = dictionary.data.dictionary.edges
+    const totalCount = dictionary.data.dictionary.totalCount
+
+    // Compute stats from loaded entries
+    let withCard = 0
+    let withoutCard = 0
+    const statusCounts: Record<string, number> = { NEW: 0, LEARNING: 0, REVIEW: 0, MASTERED: 0 }
+
+    for (const edge of edges) {
+      if (edge.node.card) {
+        withCard++
+        const status = edge.node.card.status
+        if (status in statusCounts) statusCounts[status]++
+      } else {
+        withoutCard++
+      }
+    }
+
+    const statusColors: Record<string, string> = {
+      NEW: 'bg-blue-50 border-blue-200 text-blue-700',
+      LEARNING: 'bg-yellow-50 border-yellow-200 text-yellow-700',
+      REVIEW: 'bg-purple-50 border-purple-200 text-purple-700',
+      MASTERED: 'bg-green-50 border-green-200 text-green-700',
+    }
+
+    return (
+      <div className="grid grid-cols-3 md:grid-cols-7 gap-3">
+        <div className="bg-white border border-gray-200 rounded-lg p-3 text-center">
+          <div className="text-2xl font-bold text-gray-800">{totalCount}</div>
+          <div className="text-xs text-gray-500">Total Entries</div>
+        </div>
+        <div className="bg-white border border-gray-200 rounded-lg p-3 text-center">
+          <div className="text-2xl font-bold text-gray-700">{withCard}</div>
+          <div className="text-xs text-gray-500">With Card</div>
+        </div>
+        <div className="bg-white border border-gray-200 rounded-lg p-3 text-center">
+          <div className="text-2xl font-bold text-gray-400">{withoutCard}</div>
+          <div className="text-xs text-gray-500">No Card</div>
+        </div>
+        {Object.entries(statusCounts).map(([status, count]) => (
+          <div key={status} className={`border rounded-lg p-3 text-center ${statusColors[status]}`}>
+            <div className="text-2xl font-bold">{count}</div>
+            <div className="text-xs">{status}</div>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
   function renderFilterBar() {
     return (
       <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
@@ -674,14 +733,21 @@ export function DictionaryPage() {
   function renderEntryTable() {
     const edges = dictionary.data?.dictionary.edges ?? []
     if (edges.length === 0 && dictionary.data) {
-      return <div className="text-gray-500 text-sm">No entries found.</div>
+      return (
+        <div className="text-center py-8">
+          <div className="text-gray-400 text-sm">No entries found.</div>
+          <div className="text-gray-400 text-xs mt-1">
+            Visit the Catalog to search and add your first words, or adjust your filters.
+          </div>
+        </div>
+      )
     }
     if (!dictionary.data) return null
 
     return (
       <div className="overflow-x-auto">
         <table className="w-full text-sm border border-gray-200 rounded-lg">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-100">
             <tr>
               <th className="px-3 py-2 text-left w-8">
                 <input
@@ -1154,6 +1220,7 @@ export function DictionaryPage() {
       {/* Active tab content */}
       {activeTab === 'active' && (
         <div className="space-y-4">
+          {renderSummaryBar()}
           {renderFilterBar()}
           {renderPagination()}
           {renderActionsBar()}
