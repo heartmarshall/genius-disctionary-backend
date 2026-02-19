@@ -1,6 +1,7 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { useGraphQL } from '../hooks/useGraphQL'
 import { RawPanel } from '../components/RawPanel'
+import { useAuth } from '../auth/useAuth'
 
 // ---------- GraphQL queries / mutations ----------
 
@@ -198,6 +199,8 @@ interface AbandonSessionData {
 // ---------- Component ----------
 
 export function StudyPage() {
+  const { isAuthenticated } = useAuth()
+
   // Dashboard
   const dashboard = useGraphQL<DashboardData>()
 
@@ -244,6 +247,26 @@ export function StudyPage() {
   const lastRaw = reviewCard.raw ?? undoReview.raw ?? batchCreate.raw
     ?? finishSession.raw ?? startSession.raw ?? abandonSession.raw
     ?? cardHistory.raw ?? cardStats.raw ?? studyQueue.raw ?? dashboard.raw
+
+  // Auto-load dashboard on mount
+  useEffect(() => {
+    if (isAuthenticated) {
+      dashboard.execute(DASHBOARD_QUERY)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Auto-load study queue after dashboard loads
+  useEffect(() => {
+    if (isAuthenticated && dashboard.data && !studyQueue.data && !studyQueue.loading) {
+      studyQueue.execute(STUDY_QUEUE_QUERY, { limit: queueLimit }).then((data) => {
+        if (data?.studyQueue) {
+          setQueue(data.studyQueue)
+        }
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dashboard.data])
 
   // ---------- Handlers ----------
 
@@ -392,15 +415,32 @@ export function StudyPage() {
           <button
             onClick={handleLoadDashboard}
             disabled={dashboard.loading}
-            className="px-4 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+            className="px-2 py-1.5 text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50"
+            title="Refresh dashboard"
           >
-            {dashboard.loading ? 'Loading...' : 'Load Dashboard'}
+            {dashboard.loading ? (
+              <span className="text-xs">Loading...</span>
+            ) : (
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182" />
+              </svg>
+            )}
           </button>
         </div>
 
         {dashboard.errors && (
           <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded p-3">
             {dashboard.errors.map((err, i) => <div key={i}>{err.message}</div>)}
+          </div>
+        )}
+
+        {!d && dashboard.loading && (
+          <div className="text-center py-6 text-gray-400 text-sm">Loading dashboard...</div>
+        )}
+
+        {!d && !dashboard.loading && !dashboard.errors && (
+          <div className="text-center py-6 text-gray-400 text-sm">
+            Log in to see your study dashboard.
           </div>
         )}
 
