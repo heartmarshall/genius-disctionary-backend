@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useGraphQL } from '../hooks/useGraphQL'
+import { useAuth } from '../auth/useAuth'
 import { RawPanel } from '../components/RawPanel'
 
 // ---------- GraphQL queries / mutations ----------
@@ -64,6 +65,8 @@ interface ClearInboxData {
 // ---------- Component ----------
 
 export function InboxPage() {
+  const { isAuthenticated } = useAuth()
+
   // Create form state
   const [text, setText] = useState('')
   const [context, setContext] = useState('')
@@ -83,6 +86,14 @@ export function InboxPage() {
 
   // The raw panel shows the most recent operation
   const lastRaw = createItem.raw ?? deleteItem.raw ?? clearInbox.raw ?? listItems.raw
+
+  // Auto-load inbox items on mount
+  useEffect(() => {
+    if (isAuthenticated) {
+      listItems.execute(INBOX_ITEMS_QUERY, { limit, offset })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // ---------- Handlers ----------
 
@@ -301,7 +312,10 @@ export function InboxPage() {
       {listItems.data && (
         <div className="space-y-2">
           {items.length === 0 ? (
-            <div className="text-gray-500 text-sm">No inbox items.</div>
+            <div className="text-center py-6">
+              <div className="text-gray-400 text-sm">Your inbox is empty.</div>
+              <div className="text-gray-400 text-xs mt-1">Add words you encounter for later review using the form above.</div>
+            </div>
           ) : (
             items.map((item) => (
               <div key={item.id} className="bg-white border border-gray-200 rounded-lg p-3 flex items-start justify-between">
