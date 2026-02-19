@@ -885,7 +885,7 @@ export function StudyPage() {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm border border-gray-200 rounded">
-                  <thead className="bg-gray-50">
+                  <thead className="bg-gray-100">
                     <tr>
                       <th className="px-3 py-2 text-left">Grade</th>
                       <th className="px-3 py-2 text-left">Duration (ms)</th>
@@ -1031,7 +1031,7 @@ export function StudyPage() {
     <div className="p-6 max-w-6xl mx-auto space-y-6">
       <h1 className="text-2xl font-bold text-gray-800">Study</h1>
       <p className="text-sm text-gray-500">
-        Spaced repetition study flow. Load dashboard, start sessions, review cards, inspect history.
+        Spaced repetition study flow. Dashboard and queue load automatically.
       </p>
 
       {/* Success message */}

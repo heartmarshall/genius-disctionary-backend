@@ -1141,7 +1141,7 @@ export function DictionaryPage() {
     <div className="p-6 max-w-6xl mx-auto space-y-6">
       <h1 className="text-2xl font-bold text-gray-800">Dictionary</h1>
       <p className="text-sm text-gray-500">
-        Manage your vocabulary entries. All operations require authentication.
+        Manage your vocabulary entries. Data loads automatically when authenticated.
       </p>
 
       {/* Tab switcher */}
