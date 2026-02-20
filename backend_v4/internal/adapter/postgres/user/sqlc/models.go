@@ -66,6 +66,7 @@ const (
 	EntityTypePRONUNCIATION EntityType = "PRONUNCIATION"
 	EntityTypeCARD          EntityType = "CARD"
 	EntityTypeTOPIC         EntityType = "TOPIC"
+	EntityTypeUSER          EntityType = "USER"
 )
 
 func (e *EntityType) Scan(src interface{}) error {
@@ -252,6 +253,16 @@ type AuditLog struct {
 	CreatedAt  time.Time
 }
 
+type AuthMethod struct {
+	ID           uuid.UUID
+	UserID       uuid.UUID
+	Method       string
+	ProviderID   pgtype.Text
+	PasswordHash pgtype.Text
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+}
+
 type Card struct {
 	ID           uuid.UUID
 	UserID       uuid.UUID
@@ -311,11 +322,33 @@ type InboxItem struct {
 	CreatedAt time.Time
 }
 
+type RefDataSource struct {
+	Slug           string
+	Name           string
+	Description    pgtype.Text
+	SourceType     string
+	IsActive       pgtype.Bool
+	DatasetVersion pgtype.Text
+	CreatedAt      *time.Time
+	UpdatedAt      *time.Time
+}
+
 type RefEntry struct {
 	ID             uuid.UUID
 	Text           string
 	TextNormalized string
 	CreatedAt      time.Time
+	FrequencyRank  pgtype.Int4
+	CefrLevel      pgtype.Text
+	IsCoreLexicon  pgtype.Bool
+}
+
+type RefEntrySourceCoverage struct {
+	RefEntryID     uuid.UUID
+	SourceSlug     string
+	Status         string
+	DatasetVersion pgtype.Text
+	FetchedAt      *time.Time
 }
 
 type RefExample struct {
@@ -363,6 +396,15 @@ type RefTranslation struct {
 	Position   int32
 }
 
+type RefWordRelation struct {
+	ID            uuid.UUID
+	SourceEntryID uuid.UUID
+	TargetEntryID uuid.UUID
+	RelationType  string
+	SourceSlug    string
+	CreatedAt     *time.Time
+}
+
 type RefreshToken struct {
 	ID        uuid.UUID
 	UserID    uuid.UUID
@@ -394,12 +436,13 @@ type Sense struct {
 }
 
 type StudySession struct {
-	ID           uuid.UUID
-	UserID       uuid.UUID
-	StartedAt    time.Time
-	FinishedAt   *time.Time
-	CardsStudied int32
-	AbandonedAt  *time.Time
+	ID         uuid.UUID
+	UserID     uuid.UUID
+	StartedAt  time.Time
+	FinishedAt *time.Time
+	Status     interface{}
+	Result     []byte
+	CreatedAt  time.Time
 }
 
 type Topic struct {
@@ -423,11 +466,11 @@ type Translation struct {
 type User struct {
 	ID        uuid.UUID
 	Email     string
-	Username  string
 	Name      pgtype.Text
 	AvatarUrl pgtype.Text
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	Username  string
 }
 
 type UserImage struct {

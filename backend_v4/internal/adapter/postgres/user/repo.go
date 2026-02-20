@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -40,7 +41,7 @@ func (r *Repo) GetByID(ctx context.Context, id uuid.UUID) (*domain.User, error) 
 		return nil, mapError(err, "user", id)
 	}
 
-	u := toDomainUser(row)
+	u := toDomainUser(fromGetByID(row))
 	return &u, nil
 }
 
@@ -53,7 +54,7 @@ func (r *Repo) GetByEmail(ctx context.Context, email string) (*domain.User, erro
 		return nil, mapError(err, "user", uuid.Nil)
 	}
 
-	u := toDomainUser(row)
+	u := toDomainUser(fromGetByEmail(row))
 	return &u, nil
 }
 
@@ -66,7 +67,7 @@ func (r *Repo) GetByUsername(ctx context.Context, username string) (*domain.User
 		return nil, mapError(err, "user", uuid.Nil)
 	}
 
-	u := toDomainUser(row)
+	u := toDomainUser(fromGetByUsername(row))
 	return &u, nil
 }
 
@@ -87,7 +88,7 @@ func (r *Repo) Create(ctx context.Context, u *domain.User) (*domain.User, error)
 		return nil, mapError(err, "user", u.ID)
 	}
 
-	result := toDomainUser(row)
+	result := toDomainUser(fromCreate(row))
 	return &result, nil
 }
 
@@ -104,7 +105,7 @@ func (r *Repo) Update(ctx context.Context, id uuid.UUID, name *string, avatarURL
 		return nil, mapError(err, "user", id)
 	}
 
-	u := toDomainUser(row)
+	u := toDomainUser(fromUpdate(row))
 	return &u, nil
 }
 
@@ -208,8 +209,39 @@ func mapError(err error, entity string, id uuid.UUID) error {
 // Mapping helpers: sqlc → domain
 // ---------------------------------------------------------------------------
 
-// toDomainUser converts a sqlc.User row into a domain.User.
-func toDomainUser(row sqlc.User) domain.User {
+// userRow is the common field set returned by all user queries.
+type userRow struct {
+	ID        uuid.UUID
+	Email     string
+	Username  string
+	Name      pgtype.Text
+	AvatarUrl pgtype.Text
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+func fromGetByID(r sqlc.GetUserByIDRow) userRow {
+	return userRow{r.ID, r.Email, r.Username, r.Name, r.AvatarUrl, r.CreatedAt, r.UpdatedAt}
+}
+
+func fromGetByEmail(r sqlc.GetUserByEmailRow) userRow {
+	return userRow{r.ID, r.Email, r.Username, r.Name, r.AvatarUrl, r.CreatedAt, r.UpdatedAt}
+}
+
+func fromGetByUsername(r sqlc.GetUserByUsernameRow) userRow {
+	return userRow{r.ID, r.Email, r.Username, r.Name, r.AvatarUrl, r.CreatedAt, r.UpdatedAt}
+}
+
+func fromCreate(r sqlc.CreateUserRow) userRow {
+	return userRow{r.ID, r.Email, r.Username, r.Name, r.AvatarUrl, r.CreatedAt, r.UpdatedAt}
+}
+
+func fromUpdate(r sqlc.UpdateUserRow) userRow {
+	return userRow{r.ID, r.Email, r.Username, r.Name, r.AvatarUrl, r.CreatedAt, r.UpdatedAt}
+}
+
+// toDomainUser converts a userRow into a domain.User.
+func toDomainUser(row userRow) domain.User {
 	return domain.User{
 		ID:        row.ID,
 		Email:     row.Email,

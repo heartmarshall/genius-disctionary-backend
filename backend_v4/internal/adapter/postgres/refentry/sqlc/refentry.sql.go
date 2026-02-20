@@ -15,39 +15,65 @@ import (
 
 const getRefEntryByID = `-- name: GetRefEntryByID :one
 
-SELECT id, text, text_normalized, created_at
+SELECT id, text, text_normalized, frequency_rank, cefr_level, is_core_lexicon, created_at
 FROM ref_entries
 WHERE id = $1
 `
 
+type GetRefEntryByIDRow struct {
+	ID             uuid.UUID
+	Text           string
+	TextNormalized string
+	FrequencyRank  pgtype.Int4
+	CefrLevel      pgtype.Text
+	IsCoreLexicon  pgtype.Bool
+	CreatedAt      time.Time
+}
+
 // ---------------------------------------------------------------------------
 // ref_entries
 // ---------------------------------------------------------------------------
-func (q *Queries) GetRefEntryByID(ctx context.Context, id uuid.UUID) (RefEntry, error) {
+func (q *Queries) GetRefEntryByID(ctx context.Context, id uuid.UUID) (GetRefEntryByIDRow, error) {
 	row := q.db.QueryRow(ctx, getRefEntryByID, id)
-	var i RefEntry
+	var i GetRefEntryByIDRow
 	err := row.Scan(
 		&i.ID,
 		&i.Text,
 		&i.TextNormalized,
+		&i.FrequencyRank,
+		&i.CefrLevel,
+		&i.IsCoreLexicon,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const getRefEntryByNormalizedText = `-- name: GetRefEntryByNormalizedText :one
-SELECT id, text, text_normalized, created_at
+SELECT id, text, text_normalized, frequency_rank, cefr_level, is_core_lexicon, created_at
 FROM ref_entries
 WHERE text_normalized = $1
 `
 
-func (q *Queries) GetRefEntryByNormalizedText(ctx context.Context, textNormalized string) (RefEntry, error) {
+type GetRefEntryByNormalizedTextRow struct {
+	ID             uuid.UUID
+	Text           string
+	TextNormalized string
+	FrequencyRank  pgtype.Int4
+	CefrLevel      pgtype.Text
+	IsCoreLexicon  pgtype.Bool
+	CreatedAt      time.Time
+}
+
+func (q *Queries) GetRefEntryByNormalizedText(ctx context.Context, textNormalized string) (GetRefEntryByNormalizedTextRow, error) {
 	row := q.db.QueryRow(ctx, getRefEntryByNormalizedText, textNormalized)
-	var i RefEntry
+	var i GetRefEntryByNormalizedTextRow
 	err := row.Scan(
 		&i.ID,
 		&i.Text,
 		&i.TextNormalized,
+		&i.FrequencyRank,
+		&i.CefrLevel,
+		&i.IsCoreLexicon,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -410,30 +436,49 @@ func (q *Queries) GetRefTranslationsBySenseIDs(ctx context.Context, senseIds []u
 }
 
 const insertRefEntry = `-- name: InsertRefEntry :one
-INSERT INTO ref_entries (id, text, text_normalized, created_at)
-VALUES ($1, $2, $3, $4)
-RETURNING id, text, text_normalized, created_at
+INSERT INTO ref_entries (id, text, text_normalized, frequency_rank, cefr_level, is_core_lexicon, created_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING id, text, text_normalized, frequency_rank, cefr_level, is_core_lexicon, created_at
 `
 
 type InsertRefEntryParams struct {
 	ID             uuid.UUID
 	Text           string
 	TextNormalized string
+	FrequencyRank  pgtype.Int4
+	CefrLevel      pgtype.Text
+	IsCoreLexicon  pgtype.Bool
 	CreatedAt      time.Time
 }
 
-func (q *Queries) InsertRefEntry(ctx context.Context, arg InsertRefEntryParams) (RefEntry, error) {
+type InsertRefEntryRow struct {
+	ID             uuid.UUID
+	Text           string
+	TextNormalized string
+	FrequencyRank  pgtype.Int4
+	CefrLevel      pgtype.Text
+	IsCoreLexicon  pgtype.Bool
+	CreatedAt      time.Time
+}
+
+func (q *Queries) InsertRefEntry(ctx context.Context, arg InsertRefEntryParams) (InsertRefEntryRow, error) {
 	row := q.db.QueryRow(ctx, insertRefEntry,
 		arg.ID,
 		arg.Text,
 		arg.TextNormalized,
+		arg.FrequencyRank,
+		arg.CefrLevel,
+		arg.IsCoreLexicon,
 		arg.CreatedAt,
 	)
-	var i RefEntry
+	var i InsertRefEntryRow
 	err := row.Scan(
 		&i.ID,
 		&i.Text,
 		&i.TextNormalized,
+		&i.FrequencyRank,
+		&i.CefrLevel,
+		&i.IsCoreLexicon,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -620,7 +665,7 @@ func (q *Queries) InsertRefTranslation(ctx context.Context, arg InsertRefTransla
 }
 
 const searchRefEntries = `-- name: SearchRefEntries :many
-SELECT id, text, text_normalized, created_at
+SELECT id, text, text_normalized, frequency_rank, cefr_level, is_core_lexicon, created_at
 FROM ref_entries
 WHERE text_normalized % $1::text
 ORDER BY similarity(text_normalized, $1::text) DESC
@@ -632,19 +677,32 @@ type SearchRefEntriesParams struct {
 	Lim   int32
 }
 
-func (q *Queries) SearchRefEntries(ctx context.Context, arg SearchRefEntriesParams) ([]RefEntry, error) {
+type SearchRefEntriesRow struct {
+	ID             uuid.UUID
+	Text           string
+	TextNormalized string
+	FrequencyRank  pgtype.Int4
+	CefrLevel      pgtype.Text
+	IsCoreLexicon  pgtype.Bool
+	CreatedAt      time.Time
+}
+
+func (q *Queries) SearchRefEntries(ctx context.Context, arg SearchRefEntriesParams) ([]SearchRefEntriesRow, error) {
 	rows, err := q.db.Query(ctx, searchRefEntries, arg.Query, arg.Lim)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []RefEntry{}
+	items := []SearchRefEntriesRow{}
 	for rows.Next() {
-		var i RefEntry
+		var i SearchRefEntriesRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Text,
 			&i.TextNormalized,
+			&i.FrequencyRank,
+			&i.CefrLevel,
+			&i.IsCoreLexicon,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err

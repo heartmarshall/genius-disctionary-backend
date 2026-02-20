@@ -15,41 +15,106 @@ import (
 var _ authMethodRepo = &authMethodRepoMock{}
 
 // authMethodRepoMock is a mock implementation of authMethodRepo.
+//
+//	func TestSomethingThatUsesauthMethodRepo(t *testing.T) {
+//
+//		// make and configure a mocked authMethodRepo
+//		mockedauthMethodRepo := &authMethodRepoMock{
+//			CreateFunc: func(ctx context.Context, am *domain.AuthMethod) (*domain.AuthMethod, error) {
+//				panic("mock out the Create method")
+//			},
+//			GetByOAuthFunc: func(ctx context.Context, method domain.AuthMethodType, providerID string) (*domain.AuthMethod, error) {
+//				panic("mock out the GetByOAuth method")
+//			},
+//			GetByUserAndMethodFunc: func(ctx context.Context, userID uuid.UUID, method domain.AuthMethodType) (*domain.AuthMethod, error) {
+//				panic("mock out the GetByUserAndMethod method")
+//			},
+//		}
+//
+//		// use mockedauthMethodRepo in code that requires authMethodRepo
+//		// and then make assertions.
+//
+//	}
 type authMethodRepoMock struct {
+	// CreateFunc mocks the Create method.
+	CreateFunc func(ctx context.Context, am *domain.AuthMethod) (*domain.AuthMethod, error)
+
 	// GetByOAuthFunc mocks the GetByOAuth method.
 	GetByOAuthFunc func(ctx context.Context, method domain.AuthMethodType, providerID string) (*domain.AuthMethod, error)
 
 	// GetByUserAndMethodFunc mocks the GetByUserAndMethod method.
 	GetByUserAndMethodFunc func(ctx context.Context, userID uuid.UUID, method domain.AuthMethodType) (*domain.AuthMethod, error)
 
-	// CreateFunc mocks the Create method.
-	CreateFunc func(ctx context.Context, am *domain.AuthMethod) (*domain.AuthMethod, error)
-
 	// calls tracks calls to the methods.
 	calls struct {
+		// Create holds details about calls to the Create method.
+		Create []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Am is the am argument value.
+			Am *domain.AuthMethod
+		}
 		// GetByOAuth holds details about calls to the GetByOAuth method.
 		GetByOAuth []struct {
-			Ctx        context.Context
-			Method     domain.AuthMethodType
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Method is the method argument value.
+			Method domain.AuthMethodType
+			// ProviderID is the providerID argument value.
 			ProviderID string
 		}
 		// GetByUserAndMethod holds details about calls to the GetByUserAndMethod method.
 		GetByUserAndMethod []struct {
-			Ctx    context.Context
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// UserID is the userID argument value.
 			UserID uuid.UUID
+			// Method is the method argument value.
 			Method domain.AuthMethodType
 		}
-		// Create holds details about calls to the Create method.
-		Create []struct {
-			Ctx context.Context
-			Am  *domain.AuthMethod
-		}
 	}
+	lockCreate             sync.RWMutex
 	lockGetByOAuth         sync.RWMutex
 	lockGetByUserAndMethod sync.RWMutex
-	lockCreate             sync.RWMutex
 }
 
+// Create calls CreateFunc.
+func (mock *authMethodRepoMock) Create(ctx context.Context, am *domain.AuthMethod) (*domain.AuthMethod, error) {
+	if mock.CreateFunc == nil {
+		panic("authMethodRepoMock.CreateFunc: method is nil but authMethodRepo.Create was just called")
+	}
+	callInfo := struct {
+		Ctx context.Context
+		Am  *domain.AuthMethod
+	}{
+		Ctx: ctx,
+		Am:  am,
+	}
+	mock.lockCreate.Lock()
+	mock.calls.Create = append(mock.calls.Create, callInfo)
+	mock.lockCreate.Unlock()
+	return mock.CreateFunc(ctx, am)
+}
+
+// CreateCalls gets all the calls that were made to Create.
+// Check the length with:
+//
+//	len(mockedauthMethodRepo.CreateCalls())
+func (mock *authMethodRepoMock) CreateCalls() []struct {
+	Ctx context.Context
+	Am  *domain.AuthMethod
+} {
+	var calls []struct {
+		Ctx context.Context
+		Am  *domain.AuthMethod
+	}
+	mock.lockCreate.RLock()
+	calls = mock.calls.Create
+	mock.lockCreate.RUnlock()
+	return calls
+}
+
+// GetByOAuth calls GetByOAuthFunc.
 func (mock *authMethodRepoMock) GetByOAuth(ctx context.Context, method domain.AuthMethodType, providerID string) (*domain.AuthMethod, error) {
 	if mock.GetByOAuthFunc == nil {
 		panic("authMethodRepoMock.GetByOAuthFunc: method is nil but authMethodRepo.GetByOAuth was just called")
@@ -69,17 +134,27 @@ func (mock *authMethodRepoMock) GetByOAuth(ctx context.Context, method domain.Au
 	return mock.GetByOAuthFunc(ctx, method, providerID)
 }
 
+// GetByOAuthCalls gets all the calls that were made to GetByOAuth.
+// Check the length with:
+//
+//	len(mockedauthMethodRepo.GetByOAuthCalls())
 func (mock *authMethodRepoMock) GetByOAuthCalls() []struct {
 	Ctx        context.Context
 	Method     domain.AuthMethodType
 	ProviderID string
 } {
+	var calls []struct {
+		Ctx        context.Context
+		Method     domain.AuthMethodType
+		ProviderID string
+	}
 	mock.lockGetByOAuth.RLock()
-	calls := mock.calls.GetByOAuth
+	calls = mock.calls.GetByOAuth
 	mock.lockGetByOAuth.RUnlock()
 	return calls
 }
 
+// GetByUserAndMethod calls GetByUserAndMethodFunc.
 func (mock *authMethodRepoMock) GetByUserAndMethod(ctx context.Context, userID uuid.UUID, method domain.AuthMethodType) (*domain.AuthMethod, error) {
 	if mock.GetByUserAndMethodFunc == nil {
 		panic("authMethodRepoMock.GetByUserAndMethodFunc: method is nil but authMethodRepo.GetByUserAndMethod was just called")
@@ -99,40 +174,22 @@ func (mock *authMethodRepoMock) GetByUserAndMethod(ctx context.Context, userID u
 	return mock.GetByUserAndMethodFunc(ctx, userID, method)
 }
 
+// GetByUserAndMethodCalls gets all the calls that were made to GetByUserAndMethod.
+// Check the length with:
+//
+//	len(mockedauthMethodRepo.GetByUserAndMethodCalls())
 func (mock *authMethodRepoMock) GetByUserAndMethodCalls() []struct {
 	Ctx    context.Context
 	UserID uuid.UUID
 	Method domain.AuthMethodType
 } {
+	var calls []struct {
+		Ctx    context.Context
+		UserID uuid.UUID
+		Method domain.AuthMethodType
+	}
 	mock.lockGetByUserAndMethod.RLock()
-	calls := mock.calls.GetByUserAndMethod
+	calls = mock.calls.GetByUserAndMethod
 	mock.lockGetByUserAndMethod.RUnlock()
-	return calls
-}
-
-func (mock *authMethodRepoMock) Create(ctx context.Context, am *domain.AuthMethod) (*domain.AuthMethod, error) {
-	if mock.CreateFunc == nil {
-		panic("authMethodRepoMock.CreateFunc: method is nil but authMethodRepo.Create was just called")
-	}
-	callInfo := struct {
-		Ctx context.Context
-		Am  *domain.AuthMethod
-	}{
-		Ctx: ctx,
-		Am:  am,
-	}
-	mock.lockCreate.Lock()
-	mock.calls.Create = append(mock.calls.Create, callInfo)
-	mock.lockCreate.Unlock()
-	return mock.CreateFunc(ctx, am)
-}
-
-func (mock *authMethodRepoMock) CreateCalls() []struct {
-	Ctx context.Context
-	Am  *domain.AuthMethod
-} {
-	mock.lockCreate.RLock()
-	calls := mock.calls.Create
-	mock.lockCreate.RUnlock()
 	return calls
 }

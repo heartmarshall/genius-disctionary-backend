@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -44,7 +45,7 @@ func (r *Repo) GetFullTreeByID(ctx context.Context, id uuid.UUID) (*domain.RefEn
 		return nil, mapError(err, "ref_entry", id)
 	}
 
-	entry := toDomainRefEntry(row)
+	entry := toDomainRefEntry(fromGetByID(row))
 
 	if err := r.loadFullTree(ctx, q, &entry); err != nil {
 		return nil, err
@@ -64,7 +65,7 @@ func (r *Repo) GetFullTreeByText(ctx context.Context, textNormalized string) (*d
 		return nil, mapError(err, "ref_entry", uuid.Nil)
 	}
 
-	entry := toDomainRefEntry(row)
+	entry := toDomainRefEntry(fromGetByText(row))
 
 	if err := r.loadFullTree(ctx, q, &entry); err != nil {
 		return nil, err
@@ -92,7 +93,7 @@ func (r *Repo) Search(ctx context.Context, query string, limit int) ([]domain.Re
 
 	entries := make([]domain.RefEntry, len(rows))
 	for i, row := range rows {
-		entries[i] = toDomainRefEntry(row)
+		entries[i] = toDomainRefEntry(fromSearch(row))
 	}
 
 	return entries, nil
@@ -115,12 +116,15 @@ func (r *Repo) CreateWithTree(ctx context.Context, entry *domain.RefEntry) (*dom
 			ID:             entry.ID,
 			Text:           entry.Text,
 			TextNormalized: entry.TextNormalized,
+			FrequencyRank:  intPtrToPgInt4(entry.FrequencyRank),
+			CefrLevel:      ptrStringToPgText(entry.CEFRLevel),
+			IsCoreLexicon:  boolToPgBool(entry.IsCoreLexicon),
 			CreatedAt:      entry.CreatedAt,
 		})
 		if err != nil {
 			return mapError(err, "ref_entry", entry.ID)
 		}
-		result = toDomainRefEntry(reRow)
+		result = toDomainRefEntry(fromInsert(reRow))
 
 		// Insert senses with their children.
 		result.Senses = make([]domain.RefSense, len(entry.Senses))
@@ -240,7 +244,7 @@ func (r *Repo) GetOrCreate(ctx context.Context, id uuid.UUID, text, textNormaliz
 		return domain.RefEntry{}, mapError(err, "ref_entry", id)
 	}
 
-	return toDomainRefEntry(row), nil
+	return toDomainRefEntry(fromGetByText(row)), nil
 }
 
 // ---------------------------------------------------------------------------
@@ -463,13 +467,72 @@ func mapError(err error, entity string, id uuid.UUID) error {
 // Mapping helpers: sqlc -> domain
 // ---------------------------------------------------------------------------
 
-func toDomainRefEntry(row sqlc.RefEntry) domain.RefEntry {
+// refEntryRow is the common field set returned by all ref_entry queries.
+type refEntryRow struct {
+	ID             uuid.UUID
+	Text           string
+	TextNormalized string
+	FrequencyRank  pgtype.Int4
+	CefrLevel      pgtype.Text
+	IsCoreLexicon  pgtype.Bool
+	CreatedAt      time.Time
+}
+
+func fromGetByID(r sqlc.GetRefEntryByIDRow) refEntryRow {
+	return refEntryRow{r.ID, r.Text, r.TextNormalized, r.FrequencyRank, r.CefrLevel, r.IsCoreLexicon, r.CreatedAt}
+}
+
+func fromGetByText(r sqlc.GetRefEntryByNormalizedTextRow) refEntryRow {
+	return refEntryRow{r.ID, r.Text, r.TextNormalized, r.FrequencyRank, r.CefrLevel, r.IsCoreLexicon, r.CreatedAt}
+}
+
+func fromSearch(r sqlc.SearchRefEntriesRow) refEntryRow {
+	return refEntryRow{r.ID, r.Text, r.TextNormalized, r.FrequencyRank, r.CefrLevel, r.IsCoreLexicon, r.CreatedAt}
+}
+
+func fromInsert(r sqlc.InsertRefEntryRow) refEntryRow {
+	return refEntryRow{r.ID, r.Text, r.TextNormalized, r.FrequencyRank, r.CefrLevel, r.IsCoreLexicon, r.CreatedAt}
+}
+
+func toDomainRefEntry(row refEntryRow) domain.RefEntry {
 	return domain.RefEntry{
 		ID:             row.ID,
 		Text:           row.Text,
 		TextNormalized: row.TextNormalized,
+		FrequencyRank:  domain.Int32PtrToIntPtr(pgInt4ToPtr(row.FrequencyRank)),
+		CEFRLevel:      pgTextToPtr(row.CefrLevel),
+		IsCoreLexicon:  pgBoolValue(row.IsCoreLexicon),
 		CreatedAt:      row.CreatedAt,
 	}
+}
+
+// pgInt4ToPtr converts pgtype.Int4 to *int32.
+func pgInt4ToPtr(v pgtype.Int4) *int32 {
+	if v.Valid {
+		return &v.Int32
+	}
+	return nil
+}
+
+// pgBoolValue returns the bool value from pgtype.Bool, defaulting to false.
+func pgBoolValue(v pgtype.Bool) bool {
+	if v.Valid {
+		return v.Bool
+	}
+	return false
+}
+
+// intPtrToPgInt4 converts *int to pgtype.Int4.
+func intPtrToPgInt4(v *int) pgtype.Int4 {
+	if v == nil {
+		return pgtype.Int4{}
+	}
+	return pgtype.Int4{Int32: int32(*v), Valid: true}
+}
+
+// boolToPgBool converts bool to pgtype.Bool.
+func boolToPgBool(v bool) pgtype.Bool {
+	return pgtype.Bool{Bool: v, Valid: true}
 }
 
 func toDomainRefSense(row sqlc.RefSense) domain.RefSense {

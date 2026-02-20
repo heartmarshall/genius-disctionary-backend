@@ -3,26 +3,26 @@
 -- ---------------------------------------------------------------------------
 
 -- name: GetRefEntryByID :one
-SELECT id, text, text_normalized, created_at
+SELECT id, text, text_normalized, frequency_rank, cefr_level, is_core_lexicon, created_at
 FROM ref_entries
 WHERE id = $1;
 
 -- name: GetRefEntryByNormalizedText :one
-SELECT id, text, text_normalized, created_at
+SELECT id, text, text_normalized, frequency_rank, cefr_level, is_core_lexicon, created_at
 FROM ref_entries
 WHERE text_normalized = $1;
 
 -- name: SearchRefEntries :many
-SELECT id, text, text_normalized, created_at
+SELECT id, text, text_normalized, frequency_rank, cefr_level, is_core_lexicon, created_at
 FROM ref_entries
 WHERE text_normalized % @query::text
 ORDER BY similarity(text_normalized, @query::text) DESC
 LIMIT @lim::int;
 
 -- name: InsertRefEntry :one
-INSERT INTO ref_entries (id, text, text_normalized, created_at)
-VALUES ($1, $2, $3, $4)
-RETURNING id, text, text_normalized, created_at;
+INSERT INTO ref_entries (id, text, text_normalized, frequency_rank, cefr_level, is_core_lexicon, created_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING id, text, text_normalized, frequency_rank, cefr_level, is_core_lexicon, created_at;
 
 -- name: UpsertRefEntry :exec
 INSERT INTO ref_entries (id, text, text_normalized)

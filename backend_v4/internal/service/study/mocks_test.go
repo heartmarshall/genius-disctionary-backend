@@ -30,7 +30,7 @@ var _ cardRepo = &cardRepoMock{}
 //			CountNewFunc: func(ctx context.Context, userID uuid.UUID) (int, error) {
 //				panic("mock out the CountNew method")
 //			},
-//			CreateFunc: func(ctx context.Context, userID, entryID uuid.UUID, status domain.LearningStatus, easeFactor float64) (*domain.Card, error) {
+//			CreateFunc: func(ctx context.Context, userID uuid.UUID, entryID uuid.UUID, status domain.LearningStatus, easeFactor float64) (*domain.Card, error) {
 //				panic("mock out the Create method")
 //			},
 //			DeleteFunc: func(ctx context.Context, userID uuid.UUID, cardID uuid.UUID) error {
@@ -71,7 +71,7 @@ type cardRepoMock struct {
 	CountNewFunc func(ctx context.Context, userID uuid.UUID) (int, error)
 
 	// CreateFunc mocks the Create method.
-	CreateFunc func(ctx context.Context, userID, entryID uuid.UUID, status domain.LearningStatus, easeFactor float64) (*domain.Card, error)
+	CreateFunc func(ctx context.Context, userID uuid.UUID, entryID uuid.UUID, status domain.LearningStatus, easeFactor float64) (*domain.Card, error)
 
 	// DeleteFunc mocks the Delete method.
 	DeleteFunc func(ctx context.Context, userID uuid.UUID, cardID uuid.UUID) error
@@ -326,7 +326,7 @@ func (mock *cardRepoMock) CountNewCalls() []struct {
 }
 
 // Create calls CreateFunc.
-func (mock *cardRepoMock) Create(ctx context.Context, userID, entryID uuid.UUID, status domain.LearningStatus, easeFactor float64) (*domain.Card, error) {
+func (mock *cardRepoMock) Create(ctx context.Context, userID uuid.UUID, entryID uuid.UUID, status domain.LearningStatus, easeFactor float64) (*domain.Card, error) {
 	if mock.CreateFunc == nil {
 		panic("cardRepoMock.CreateFunc: method is nil but cardRepo.Create was just called")
 	}
