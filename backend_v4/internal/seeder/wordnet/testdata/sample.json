@@ -1,0 +1,128 @@
+{
+  "@context": "http://globalwordnet.github.io/schemas/wn",
+  "@graph": [{
+    "@id": "ewn",
+    "@type": "ontolex:Lexicon",
+    "entry": [
+      {
+        "@id": "ewn-happy-a",
+        "lemma": {"writtenForm": "happy"},
+        "sense": [
+          {
+            "@id": "ewn-happy-a-01",
+            "synset": "ewn-01148283-a",
+            "relations": [
+              {"relType": "antonym", "target": "ewn-sad-a-01"},
+              {"relType": "derivation", "target": "ewn-happiness-n-01"}
+            ]
+          }
+        ]
+      },
+      {
+        "@id": "ewn-glad-a",
+        "lemma": {"writtenForm": "glad"},
+        "sense": [
+          {
+            "@id": "ewn-glad-a-01",
+            "synset": "ewn-01148283-a",
+            "relations": []
+          }
+        ]
+      },
+      {
+        "@id": "ewn-sad-a",
+        "lemma": {"writtenForm": "sad"},
+        "sense": [
+          {
+            "@id": "ewn-sad-a-01",
+            "synset": "ewn-02345678-a",
+            "relations": [
+              {"relType": "antonym", "target": "ewn-happy-a-01"}
+            ]
+          }
+        ]
+      },
+      {
+        "@id": "ewn-happiness-n",
+        "lemma": {"writtenForm": "happiness"},
+        "sense": [
+          {
+            "@id": "ewn-happiness-n-01",
+            "synset": "ewn-03456789-n",
+            "relations": [
+              {"relType": "derivation", "target": "ewn-happy-a-01"}
+            ]
+          }
+        ]
+      },
+      {
+        "@id": "ewn-dog-n",
+        "lemma": {"writtenForm": "dog"},
+        "sense": [
+          {
+            "@id": "ewn-dog-n-01",
+            "synset": "ewn-04567890-n",
+            "relations": []
+          }
+        ]
+      },
+      {
+        "@id": "ewn-animal-n",
+        "lemma": {"writtenForm": "animal"},
+        "sense": [
+          {
+            "@id": "ewn-animal-n-01",
+            "synset": "ewn-05678901-n",
+            "relations": []
+          }
+        ]
+      },
+      {
+        "@id": "ewn-unknown-n",
+        "lemma": {"writtenForm": "xylophone"},
+        "sense": [
+          {
+            "@id": "ewn-unknown-n-01",
+            "synset": "ewn-01148283-a",
+            "relations": []
+          }
+        ]
+      },
+      {
+        "@id": "ewn-joyful-a",
+        "lemma": {"writtenForm": "joyful"},
+        "sense": [
+          {
+            "@id": "ewn-joyful-a-01",
+            "synset": "ewn-01148283-a",
+            "relations": []
+          }
+        ]
+      }
+    ],
+    "synset": [
+      {
+        "@id": "ewn-01148283-a",
+        "relations": []
+      },
+      {
+        "@id": "ewn-02345678-a",
+        "relations": []
+      },
+      {
+        "@id": "ewn-03456789-n",
+        "relations": []
+      },
+      {
+        "@id": "ewn-04567890-n",
+        "relations": [
+          {"relType": "hypernym", "target": "ewn-05678901-n"}
+        ]
+      },
+      {
+        "@id": "ewn-05678901-n",
+        "relations": []
+      }
+    ]
+  }]
+}
