@@ -65,6 +65,11 @@ docker-down: ## Stop dev environment
 docker-logs: ## Follow dev environment logs
 	docker compose logs -f
 
+##@ Seeding
+
+seed: ## Run dataset seeder pipeline
+	go run ./cmd/seeder/
+
 ##@ Quality
 
 lint: ## Run linter (golangci-lint)
@@ -80,4 +85,4 @@ help: ## Show this help message
 # ---------------------------------------------------------------------------
 .PHONY: build run test test-cover test-integration test-e2e generate \
         migrate-up migrate-down migrate-status migrate-create \
-        docker-up docker-down docker-logs lint help
+        docker-up docker-down docker-logs seed lint help
