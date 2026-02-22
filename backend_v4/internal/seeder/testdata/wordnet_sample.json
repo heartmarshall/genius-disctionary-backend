@@ -1,0 +1,177 @@
+{
+  "@graph": [
+    {
+      "entry": [
+        {
+          "@id": "ewn-house-n",
+          "lemma": {"writtenForm": "house"},
+          "sense": [
+            {"@id": "ewn-house-n-01", "synset": "ewn-building-n-01", "relations": []},
+            {"@id": "ewn-house-n-02", "synset": "ewn-dwelling-n-01", "relations": []}
+          ]
+        },
+        {
+          "@id": "ewn-building-n",
+          "lemma": {"writtenForm": "building"},
+          "sense": [
+            {"@id": "ewn-building-n-01-sense", "synset": "ewn-building-n-01", "relations": []}
+          ]
+        },
+        {
+          "@id": "ewn-dwelling-n",
+          "lemma": {"writtenForm": "dwelling"},
+          "sense": [
+            {"@id": "ewn-dwelling-n-01-sense", "synset": "ewn-dwelling-n-01", "relations": []}
+          ]
+        },
+        {
+          "@id": "ewn-good-adj",
+          "lemma": {"writtenForm": "good"},
+          "sense": [
+            {"@id": "ewn-good-adj-01", "synset": "ewn-quality-adj-01", "relations": [
+              {"relType": "antonym", "target": "ewn-bad-adj-01"}
+            ]}
+          ]
+        },
+        {
+          "@id": "ewn-bad-adj",
+          "lemma": {"writtenForm": "bad"},
+          "sense": [
+            {"@id": "ewn-bad-adj-01", "synset": "ewn-quality-adj-02", "relations": [
+              {"relType": "antonym", "target": "ewn-good-adj-01"}
+            ]}
+          ]
+        },
+        {
+          "@id": "ewn-big-adj",
+          "lemma": {"writtenForm": "big"},
+          "sense": [
+            {"@id": "ewn-big-adj-01", "synset": "ewn-size-adj-01", "relations": [
+              {"relType": "antonym", "target": "ewn-small-adj-01"}
+            ]}
+          ]
+        },
+        {
+          "@id": "ewn-small-adj",
+          "lemma": {"writtenForm": "small"},
+          "sense": [
+            {"@id": "ewn-small-adj-01", "synset": "ewn-size-adj-02", "relations": [
+              {"relType": "antonym", "target": "ewn-big-adj-01"}
+            ]}
+          ]
+        },
+        {
+          "@id": "ewn-large-adj",
+          "lemma": {"writtenForm": "large"},
+          "sense": [
+            {"@id": "ewn-large-adj-01", "synset": "ewn-size-adj-01", "relations": []}
+          ]
+        },
+        {
+          "@id": "ewn-run-v",
+          "lemma": {"writtenForm": "run"},
+          "sense": [
+            {"@id": "ewn-run-v-01", "synset": "ewn-move-v-01", "relations": [
+              {"relType": "derivation", "target": "ewn-runner-n-01-sense"}
+            ]}
+          ]
+        },
+        {
+          "@id": "ewn-walk-v",
+          "lemma": {"writtenForm": "walk"},
+          "sense": [
+            {"@id": "ewn-walk-v-01", "synset": "ewn-move-v-01", "relations": []}
+          ]
+        },
+        {
+          "@id": "ewn-runner-n",
+          "lemma": {"writtenForm": "runner"},
+          "sense": [
+            {"@id": "ewn-runner-n-01-sense", "synset": "ewn-athlete-n-01", "relations": [
+              {"relType": "derivation", "target": "ewn-run-v-01"}
+            ]}
+          ]
+        },
+        {
+          "@id": "ewn-water-n",
+          "lemma": {"writtenForm": "water"},
+          "sense": [
+            {"@id": "ewn-water-n-01", "synset": "ewn-liquid-n-01", "relations": []}
+          ]
+        },
+        {
+          "@id": "ewn-light-n",
+          "lemma": {"writtenForm": "light"},
+          "sense": [
+            {"@id": "ewn-light-n-01", "synset": "ewn-radiation-n-01", "relations": [
+              {"relType": "antonym", "target": "ewn-dark-n-01"}
+            ]}
+          ]
+        },
+        {
+          "@id": "ewn-dark-n",
+          "lemma": {"writtenForm": "dark"},
+          "sense": [
+            {"@id": "ewn-dark-n-01", "synset": "ewn-absence-n-01", "relations": [
+              {"relType": "antonym", "target": "ewn-light-n-01"}
+            ]}
+          ]
+        },
+        {
+          "@id": "ewn-fast-adj",
+          "lemma": {"writtenForm": "fast"},
+          "sense": [
+            {"@id": "ewn-fast-adj-01", "synset": "ewn-speed-adj-01", "relations": [
+              {"relType": "antonym", "target": "ewn-slow-adj-01"}
+            ]}
+          ]
+        },
+        {
+          "@id": "ewn-slow-adj",
+          "lemma": {"writtenForm": "slow"},
+          "sense": [
+            {"@id": "ewn-slow-adj-01", "synset": "ewn-speed-adj-02", "relations": [
+              {"relType": "antonym", "target": "ewn-fast-adj-01"}
+            ]}
+          ]
+        },
+        {
+          "@id": "ewn-time-n",
+          "lemma": {"writtenForm": "time"},
+          "sense": [
+            {"@id": "ewn-time-n-01", "synset": "ewn-abstract-n-01", "relations": [
+              {"relType": "derivation", "target": "ewn-nonexistent-sense-01"}
+            ]}
+          ]
+        }
+      ],
+      "synset": [
+        {"@id": "ewn-building-n-01", "relations": [
+          {"relType": "hypernym", "target": "ewn-structure-n-01"}
+        ]},
+        {"@id": "ewn-dwelling-n-01", "relations": [
+          {"relType": "hypernym", "target": "ewn-building-n-01"}
+        ]},
+        {"@id": "ewn-structure-n-01", "relations": []},
+        {"@id": "ewn-quality-adj-01", "relations": []},
+        {"@id": "ewn-quality-adj-02", "relations": []},
+        {"@id": "ewn-size-adj-01", "relations": []},
+        {"@id": "ewn-size-adj-02", "relations": []},
+        {"@id": "ewn-move-v-01", "relations": [
+          {"relType": "hypernym", "target": "ewn-travel-v-01"}
+        ]},
+        {"@id": "ewn-travel-v-01", "relations": []},
+        {"@id": "ewn-athlete-n-01", "relations": []},
+        {"@id": "ewn-liquid-n-01", "relations": [
+          {"relType": "hypernym", "target": "ewn-substance-n-01"}
+        ]},
+        {"@id": "ewn-substance-n-01", "relations": []},
+        {"@id": "ewn-radiation-n-01", "relations": []},
+        {"@id": "ewn-absence-n-01", "relations": []},
+        {"@id": "ewn-speed-adj-01", "relations": []},
+        {"@id": "ewn-speed-adj-02", "relations": []},
+        {"@id": "ewn-abstract-n-01", "relations": []}
+      ]
+    }
+  ]
+}
