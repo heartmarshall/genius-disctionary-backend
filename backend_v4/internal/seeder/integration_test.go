@@ -3,22 +3,54 @@
 package seeder
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"log/slog"
+	"net/http"
+	"net/http/httptest"
 	"os"
+	"sort"
 	"testing"
+	"time"
 
+	gqlhandler "github.com/99designs/gqlgen/graphql/handler"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	postgres "github.com/heartmarshall/myenglish-backend/internal/adapter/postgres"
+	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/audit"
+	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/card"
+	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/entry"
+	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/example"
+	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/image"
+	inboxrepo "github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/inbox"
+	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/pronunciation"
 	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/refentry"
+	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/reviewlog"
+	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/sense"
+	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/session"
 	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/testhelper"
+	topicrepo "github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/topic"
+	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/translation"
+	userrepo "github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/user"
+	"github.com/heartmarshall/myenglish-backend/internal/config"
+	"github.com/heartmarshall/myenglish-backend/internal/domain"
 	"github.com/heartmarshall/myenglish-backend/internal/provider"
+	"github.com/heartmarshall/myenglish-backend/internal/service/content"
+	"github.com/heartmarshall/myenglish-backend/internal/service/dictionary"
+	inboxsvc "github.com/heartmarshall/myenglish-backend/internal/service/inbox"
 	"github.com/heartmarshall/myenglish-backend/internal/service/refcatalog"
+	"github.com/heartmarshall/myenglish-backend/internal/service/study"
+	topicsvc "github.com/heartmarshall/myenglish-backend/internal/service/topic"
+	usersvc "github.com/heartmarshall/myenglish-backend/internal/service/user"
+	gqlpkg "github.com/heartmarshall/myenglish-backend/internal/transport/graphql"
+	"github.com/heartmarshall/myenglish-backend/internal/transport/graphql/generated"
+	"github.com/heartmarshall/myenglish-backend/internal/transport/graphql/resolver"
+	"github.com/heartmarshall/myenglish-backend/pkg/ctxutil"
 )
 
 // ---------------------------------------------------------------------------
@@ -404,4 +436,302 @@ func TestIntegration_SinglePhaseExecution(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, rank2, "time should still have frequency_rank after ngsl-only run")
 	assert.Equal(t, 1, *rank2, "time should still be rank 1")
+}
+
+// ---------------------------------------------------------------------------
+// Test 8 — GraphQL resolvers for seeded data
+// ---------------------------------------------------------------------------
+
+// graphqlQuery sends a GraphQL POST request and returns the decoded response.
+func graphqlQuery(t *testing.T, client *http.Client, url, query string, variables map[string]any) map[string]any {
+	t.Helper()
+	body := map[string]any{"query": query, "variables": variables}
+	jsonBody, err := json.Marshal(body)
+	require.NoError(t, err)
+
+	resp, err := client.Post(url+"/query", "application/json", bytes.NewReader(jsonBody))
+	require.NoError(t, err)
+	defer resp.Body.Close()
+
+	var result map[string]any
+	require.NoError(t, json.NewDecoder(resp.Body).Decode(&result))
+	return result
+}
+
+// requireNoGQLErrors asserts that the GraphQL response has no errors.
+func requireNoGQLErrors(t *testing.T, result map[string]any) {
+	t.Helper()
+	if errs, ok := result["errors"]; ok && errs != nil {
+		t.Fatalf("unexpected GraphQL errors: %v", errs)
+	}
+}
+
+// fakeAuthMiddleware injects a fixed user ID into every request context,
+// so that resolvers requiring authentication (e.g. searchCatalog) succeed.
+func fakeAuthMiddleware(userID uuid.UUID) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := ctxutil.WithUserID(r.Context(), userID)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
+}
+
+// setupGraphQLServer creates a minimal HTTP test server with a GraphQL handler
+// backed by real services and repositories against the given database pool.
+func setupGraphQLServer(t *testing.T, pool *pgxpool.Pool, txm *postgres.TxManager) *httptest.Server {
+	t.Helper()
+	logger := integrationLogger()
+
+	// Repositories.
+	auditRepo := audit.New(pool)
+	cardRepo := card.New(pool)
+	entryRepo := entry.New(pool)
+	exampleRepo := example.New(pool, txm)
+	imageRepo := image.New(pool)
+	inboxRepo := inboxrepo.New(pool)
+	pronunciationRepo := pronunciation.New(pool)
+	refentryRepo := refentry.New(pool, txm)
+	reviewlogRepo := reviewlog.New(pool)
+	senseRepo := sense.New(pool, txm)
+	sessionRepo := session.New(pool)
+	topicRepo := topicrepo.New(pool)
+	translationRepo := translation.New(pool, txm)
+	userRepo := userrepo.New(pool)
+
+	// Services.
+	refCatalogService := refcatalog.NewService(logger, refentryRepo, txm, &failDictProvider{}, &noopTransProvider{})
+
+	dictionaryService := dictionary.NewService(
+		logger, entryRepo, senseRepo, translationRepo, exampleRepo,
+		pronunciationRepo, imageRepo, cardRepo, auditRepo, txm,
+		refCatalogService, config.DictionaryConfig{
+			MaxEntriesPerUser: 10000,
+			DefaultEaseFactor: 2.5,
+		},
+	)
+
+	contentService := content.NewService(
+		logger, entryRepo, senseRepo, translationRepo, exampleRepo,
+		imageRepo, auditRepo, txm,
+	)
+
+	srsConfig := domain.SRSConfig{
+		DefaultEaseFactor:    2.5,
+		MinEaseFactor:        1.3,
+		MaxIntervalDays:      365,
+		GraduatingInterval:   1,
+		LearningSteps:        []time.Duration{time.Minute, 10 * time.Minute},
+		NewCardsPerDay:       20,
+		ReviewsPerDay:        200,
+		EasyInterval:         4,
+		RelearningSteps:      []time.Duration{10 * time.Minute},
+		IntervalModifier:     1.0,
+		HardIntervalModifier: 1.2,
+		EasyBonus:            1.3,
+		LapseNewInterval:     0.0,
+		UndoWindowMinutes:    10,
+	}
+
+	studyService := study.NewService(
+		logger, cardRepo, reviewlogRepo, sessionRepo, entryRepo,
+		senseRepo, userRepo, auditRepo, txm, srsConfig,
+	)
+
+	topicService := topicsvc.NewService(logger, topicRepo, entryRepo, auditRepo, txm)
+	inboxService := inboxsvc.NewService(logger, inboxRepo)
+	userService := usersvc.NewService(logger, userRepo, userRepo, auditRepo, txm)
+
+	// Resolver + GraphQL handler.
+	res := resolver.NewResolver(
+		logger, dictionaryService, contentService, studyService,
+		topicService, inboxService, userService, refCatalogService,
+	)
+
+	schema := generated.NewExecutableSchema(generated.Config{Resolvers: res})
+	gqlSrv := gqlhandler.NewDefaultServer(schema)
+	gqlSrv.SetErrorPresenter(gqlpkg.NewErrorPresenter(logger))
+
+	// Wrap with fake auth middleware so searchCatalog gets a user ID.
+	fakeUserID := uuid.New()
+	handler := fakeAuthMiddleware(fakeUserID)(gqlSrv)
+
+	mux := http.NewServeMux()
+	mux.Handle("POST /query", handler)
+
+	srv := httptest.NewServer(mux)
+	t.Cleanup(srv.Close)
+	return srv
+}
+
+func TestIntegration_GraphQL_Resolvers(t *testing.T) {
+	p, _, pool, txm := setupPipeline(t)
+	cleanSeederData(t, pool)
+	ctx := context.Background()
+
+	// Seed the database.
+	err := p.Run(ctx, nil)
+	require.NoError(t, err, "pipeline should complete without error")
+
+	// Set up the GraphQL server.
+	srv := setupGraphQLServer(t, pool, txm)
+	client := srv.Client()
+
+	// ---------------------------------------------------------------
+	// Sub-test 1: refDataSources returns 8 sources.
+	// ---------------------------------------------------------------
+	t.Run("refDataSources", func(t *testing.T) {
+		query := `query { refDataSources { slug name sourceType isActive } }`
+		result := graphqlQuery(t, client, srv.URL, query, nil)
+		requireNoGQLErrors(t, result)
+
+		data, ok := result["data"].(map[string]any)
+		require.True(t, ok, "expected data object")
+
+		sources, ok := data["refDataSources"].([]any)
+		require.True(t, ok, "expected refDataSources array")
+		require.Len(t, sources, 8, "expected 8 data sources")
+
+		// Collect slugs.
+		slugs := make([]string, 0, len(sources))
+		for _, s := range sources {
+			src, ok := s.(map[string]any)
+			require.True(t, ok)
+			slug, ok := src["slug"].(string)
+			require.True(t, ok)
+			slugs = append(slugs, slug)
+
+			// Verify isActive is true for all sources.
+			isActive, ok := src["isActive"].(bool)
+			require.True(t, ok)
+			assert.True(t, isActive, "source %q should be active", slug)
+		}
+
+		sort.Strings(slugs)
+		expectedSlugs := []string{"cmu", "freedict", "nawl", "ngsl", "tatoeba", "translate", "wiktionary", "wordnet"}
+		assert.Equal(t, expectedSlugs, slugs, "data source slugs should match")
+	})
+
+	// ---------------------------------------------------------------
+	// Sub-test 2: searchCatalog returns correct data for "house".
+	// ---------------------------------------------------------------
+	t.Run("searchCatalog", func(t *testing.T) {
+		query := `query { searchCatalog(query: "house", limit: 1) { id text frequencyRank cefrLevel isCoreLexicon } }`
+		result := graphqlQuery(t, client, srv.URL, query, nil)
+		requireNoGQLErrors(t, result)
+
+		data, ok := result["data"].(map[string]any)
+		require.True(t, ok, "expected data object")
+
+		entries, ok := data["searchCatalog"].([]any)
+		require.True(t, ok, "expected searchCatalog array")
+		require.NotEmpty(t, entries, "searchCatalog should return at least 1 result")
+
+		first, ok := entries[0].(map[string]any)
+		require.True(t, ok)
+
+		// text should contain "house".
+		text, ok := first["text"].(string)
+		require.True(t, ok)
+		assert.Contains(t, text, "house", "text should contain 'house'")
+
+		// frequencyRank should be 2 (rank 2 in NGSL sample).
+		freqRank, ok := first["frequencyRank"].(float64)
+		require.True(t, ok, "frequencyRank should be a number")
+		assert.Equal(t, float64(2), freqRank, "house should have frequency rank 2")
+
+		// cefrLevel should be "A1".
+		cefrLevel, ok := first["cefrLevel"].(string)
+		require.True(t, ok, "cefrLevel should be a string")
+		assert.Equal(t, "A1", cefrLevel, "house should have CEFR level A1")
+
+		// isCoreLexicon should be true.
+		isCore, ok := first["isCoreLexicon"].(bool)
+		require.True(t, ok, "isCoreLexicon should be a bool")
+		assert.True(t, isCore, "house should be core lexicon")
+	})
+
+	// ---------------------------------------------------------------
+	// Sub-test 3: refEntryRelations returns WordNet relations.
+	// ---------------------------------------------------------------
+	t.Run("refEntryRelations", func(t *testing.T) {
+		// Get the entry ID for "big" from the database.
+		var bigID uuid.UUID
+		err := pool.QueryRow(ctx,
+			`SELECT id FROM ref_entries WHERE text_normalized = 'big'`,
+		).Scan(&bigID)
+		require.NoError(t, err, "should find 'big' in ref_entries")
+
+		query := `query($id: UUID!) { refEntryRelations(entryId: $id) { id relationType sourceSlug } }`
+		vars := map[string]any{"id": bigID.String()}
+		result := graphqlQuery(t, client, srv.URL, query, vars)
+		requireNoGQLErrors(t, result)
+
+		data, ok := result["data"].(map[string]any)
+		require.True(t, ok, "expected data object")
+
+		relations, ok := data["refEntryRelations"].([]any)
+		require.True(t, ok, "expected refEntryRelations array")
+		require.NotEmpty(t, relations, "big should have at least one relation")
+
+		// Verify there is an antonym relation.
+		foundAntonym := false
+		for _, r := range relations {
+			rel, ok := r.(map[string]any)
+			require.True(t, ok)
+			if rel["relationType"] == "antonym" {
+				foundAntonym = true
+				// sourceSlug should be "wordnet".
+				assert.Equal(t, "wordnet", rel["sourceSlug"], "antonym relation should come from wordnet")
+			}
+		}
+		assert.True(t, foundAntonym, "big should have an antonym relation")
+	})
+
+	// ---------------------------------------------------------------
+	// Sub-test 4: RefEntry.sourceCoverage returns per-source status.
+	// ---------------------------------------------------------------
+	t.Run("sourceCoverage", func(t *testing.T) {
+		query := `query { searchCatalog(query: "house", limit: 1) { id text sourceCoverage { source { slug } status } } }`
+		result := graphqlQuery(t, client, srv.URL, query, nil)
+		requireNoGQLErrors(t, result)
+
+		data, ok := result["data"].(map[string]any)
+		require.True(t, ok, "expected data object")
+
+		entries, ok := data["searchCatalog"].([]any)
+		require.True(t, ok, "expected searchCatalog array")
+		require.NotEmpty(t, entries, "searchCatalog should return at least 1 result")
+
+		first, ok := entries[0].(map[string]any)
+		require.True(t, ok)
+
+		coverageList, ok := first["sourceCoverage"].([]any)
+		require.True(t, ok, "expected sourceCoverage array")
+		require.NotEmpty(t, coverageList, "house should have source coverage entries")
+
+		// Build slug -> status map.
+		coverageMap := make(map[string]string)
+		for _, c := range coverageList {
+			cov, ok := c.(map[string]any)
+			require.True(t, ok)
+			src, ok := cov["source"].(map[string]any)
+			require.True(t, ok)
+			slug, ok := src["slug"].(string)
+			require.True(t, ok)
+			status, ok := cov["status"].(string)
+			require.True(t, ok)
+			coverageMap[slug] = status
+		}
+
+		// "house" should have wiktionary coverage with "fetched" status.
+		wiktStatus, ok := coverageMap["wiktionary"]
+		assert.True(t, ok, "house should have wiktionary coverage")
+		assert.Equal(t, "fetched", wiktStatus, "wiktionary coverage should be 'fetched'")
+
+		// "house" should have CMU coverage with "fetched" status.
+		cmuStatus, ok := coverageMap["cmu"]
+		assert.True(t, ok, "house should have CMU coverage")
+		assert.Equal(t, "fetched", cmuStatus, "CMU coverage should be 'fetched'")
+	})
 }
