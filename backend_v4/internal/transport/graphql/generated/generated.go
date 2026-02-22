@@ -46,6 +46,9 @@ type ResolverRoot interface {
 	DictionaryEntry() DictionaryEntryResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
+	RefEntry() RefEntryResolver
+	RefEntrySourceCoverage() RefEntrySourceCoverageResolver
+	RefWordRelation() RefWordRelationResolver
 	Sense() SenseResolver
 	SessionResult() SessionResultResolver
 	User() UserResolver
@@ -355,29 +358,52 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		CardHistory     func(childComplexity int, input GetCardHistoryInput) int
-		CardStats       func(childComplexity int, cardID uuid.UUID) int
-		Dashboard       func(childComplexity int) int
-		DeletedEntries  func(childComplexity int, limit *int, offset *int) int
-		Dictionary      func(childComplexity int, input DictionaryFilterInput) int
-		DictionaryEntry func(childComplexity int, id uuid.UUID) int
-		ExportEntries   func(childComplexity int) int
-		InboxItem       func(childComplexity int, id uuid.UUID) int
-		InboxItems      func(childComplexity int, limit *int, offset *int) int
-		Me              func(childComplexity int) int
-		PreviewRefEntry func(childComplexity int, text string) int
-		SearchCatalog   func(childComplexity int, query string, limit *int) int
-		StudyQueue      func(childComplexity int, limit *int) int
-		Topics          func(childComplexity int) int
+		CardHistory       func(childComplexity int, input GetCardHistoryInput) int
+		CardStats         func(childComplexity int, cardID uuid.UUID) int
+		Dashboard         func(childComplexity int) int
+		DeletedEntries    func(childComplexity int, limit *int, offset *int) int
+		Dictionary        func(childComplexity int, input DictionaryFilterInput) int
+		DictionaryEntry   func(childComplexity int, id uuid.UUID) int
+		ExportEntries     func(childComplexity int) int
+		InboxItem         func(childComplexity int, id uuid.UUID) int
+		InboxItems        func(childComplexity int, limit *int, offset *int) int
+		Me                func(childComplexity int) int
+		PreviewRefEntry   func(childComplexity int, text string) int
+		RefDataSources    func(childComplexity int) int
+		RefEntryRelations func(childComplexity int, entryID uuid.UUID) int
+		SearchCatalog     func(childComplexity int, query string, limit *int) int
+		StudyQueue        func(childComplexity int, limit *int) int
+		Topics            func(childComplexity int) int
+	}
+
+	RefDataSource struct {
+		DatasetVersion func(childComplexity int) int
+		Description    func(childComplexity int) int
+		IsActive       func(childComplexity int) int
+		Name           func(childComplexity int) int
+		Slug           func(childComplexity int) int
+		SourceType     func(childComplexity int) int
 	}
 
 	RefEntry struct {
+		CEFRLevel      func(childComplexity int) int
+		FrequencyRank  func(childComplexity int) int
 		ID             func(childComplexity int) int
 		Images         func(childComplexity int) int
+		IsCoreLexicon  func(childComplexity int) int
 		Pronunciations func(childComplexity int) int
+		Relations      func(childComplexity int) int
 		Senses         func(childComplexity int) int
+		SourceCoverage func(childComplexity int) int
 		Text           func(childComplexity int) int
 		TextNormalized func(childComplexity int) int
+	}
+
+	RefEntrySourceCoverage struct {
+		DatasetVersion func(childComplexity int) int
+		FetchedAt      func(childComplexity int) int
+		Source         func(childComplexity int) int
+		Status         func(childComplexity int) int
 	}
 
 	RefExample struct {
@@ -415,6 +441,14 @@ type ComplexityRoot struct {
 		ID         func(childComplexity int) int
 		SourceSlug func(childComplexity int) int
 		Text       func(childComplexity int) int
+	}
+
+	RefWordRelation struct {
+		ID           func(childComplexity int) int
+		RelationType func(childComplexity int) int
+		SourceEntry  func(childComplexity int) int
+		SourceSlug   func(childComplexity int) int
+		TargetEntry  func(childComplexity int) int
 	}
 
 	ReorderPayload struct {
@@ -602,6 +636,8 @@ type QueryResolver interface {
 	DictionaryEntry(ctx context.Context, id uuid.UUID) (*domain.Entry, error)
 	DeletedEntries(ctx context.Context, limit *int, offset *int) (*DeletedEntriesList, error)
 	ExportEntries(ctx context.Context) (*dictionary.ExportResult, error)
+	RefEntryRelations(ctx context.Context, entryID uuid.UUID) ([]*domain.RefWordRelation, error)
+	RefDataSources(ctx context.Context) ([]*domain.RefDataSource, error)
 	Topics(ctx context.Context) ([]*domain.Topic, error)
 	InboxItems(ctx context.Context, limit *int, offset *int) (*InboxItemList, error)
 	InboxItem(ctx context.Context, id uuid.UUID) (*domain.InboxItem, error)
@@ -610,6 +646,17 @@ type QueryResolver interface {
 	CardHistory(ctx context.Context, input GetCardHistoryInput) ([]*domain.ReviewLog, error)
 	CardStats(ctx context.Context, cardID uuid.UUID) (*domain.CardStats, error)
 	Me(ctx context.Context) (*domain.User, error)
+}
+type RefEntryResolver interface {
+	Relations(ctx context.Context, obj *domain.RefEntry) ([]*domain.RefWordRelation, error)
+	SourceCoverage(ctx context.Context, obj *domain.RefEntry) ([]*domain.RefEntrySourceCoverage, error)
+}
+type RefEntrySourceCoverageResolver interface {
+	Source(ctx context.Context, obj *domain.RefEntrySourceCoverage) (*domain.RefDataSource, error)
+}
+type RefWordRelationResolver interface {
+	SourceEntry(ctx context.Context, obj *domain.RefWordRelation) (*domain.RefEntry, error)
+	TargetEntry(ctx context.Context, obj *domain.RefWordRelation) (*domain.RefEntry, error)
 }
 type SenseResolver interface {
 	Translations(ctx context.Context, obj *domain.Sense) ([]*domain.Translation, error)
@@ -1924,6 +1971,23 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Query.PreviewRefEntry(childComplexity, args["text"].(string)), true
+	case "Query.refDataSources":
+		if e.complexity.Query.RefDataSources == nil {
+			break
+		}
+
+		return e.complexity.Query.RefDataSources(childComplexity), true
+	case "Query.refEntryRelations":
+		if e.complexity.Query.RefEntryRelations == nil {
+			break
+		}
+
+		args, err := ec.field_Query_refEntryRelations_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.RefEntryRelations(childComplexity, args["entryId"].(uuid.UUID)), true
 	case "Query.searchCatalog":
 		if e.complexity.Query.SearchCatalog == nil {
 			break
@@ -1953,6 +2017,55 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Query.Topics(childComplexity), true
 
+	case "RefDataSource.datasetVersion":
+		if e.complexity.RefDataSource.DatasetVersion == nil {
+			break
+		}
+
+		return e.complexity.RefDataSource.DatasetVersion(childComplexity), true
+	case "RefDataSource.description":
+		if e.complexity.RefDataSource.Description == nil {
+			break
+		}
+
+		return e.complexity.RefDataSource.Description(childComplexity), true
+	case "RefDataSource.isActive":
+		if e.complexity.RefDataSource.IsActive == nil {
+			break
+		}
+
+		return e.complexity.RefDataSource.IsActive(childComplexity), true
+	case "RefDataSource.name":
+		if e.complexity.RefDataSource.Name == nil {
+			break
+		}
+
+		return e.complexity.RefDataSource.Name(childComplexity), true
+	case "RefDataSource.slug":
+		if e.complexity.RefDataSource.Slug == nil {
+			break
+		}
+
+		return e.complexity.RefDataSource.Slug(childComplexity), true
+	case "RefDataSource.sourceType":
+		if e.complexity.RefDataSource.SourceType == nil {
+			break
+		}
+
+		return e.complexity.RefDataSource.SourceType(childComplexity), true
+
+	case "RefEntry.cefrLevel":
+		if e.complexity.RefEntry.CEFRLevel == nil {
+			break
+		}
+
+		return e.complexity.RefEntry.CEFRLevel(childComplexity), true
+	case "RefEntry.frequencyRank":
+		if e.complexity.RefEntry.FrequencyRank == nil {
+			break
+		}
+
+		return e.complexity.RefEntry.FrequencyRank(childComplexity), true
 	case "RefEntry.id":
 		if e.complexity.RefEntry.ID == nil {
 			break
@@ -1965,18 +2078,36 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.RefEntry.Images(childComplexity), true
+	case "RefEntry.isCoreLexicon":
+		if e.complexity.RefEntry.IsCoreLexicon == nil {
+			break
+		}
+
+		return e.complexity.RefEntry.IsCoreLexicon(childComplexity), true
 	case "RefEntry.pronunciations":
 		if e.complexity.RefEntry.Pronunciations == nil {
 			break
 		}
 
 		return e.complexity.RefEntry.Pronunciations(childComplexity), true
+	case "RefEntry.relations":
+		if e.complexity.RefEntry.Relations == nil {
+			break
+		}
+
+		return e.complexity.RefEntry.Relations(childComplexity), true
 	case "RefEntry.senses":
 		if e.complexity.RefEntry.Senses == nil {
 			break
 		}
 
 		return e.complexity.RefEntry.Senses(childComplexity), true
+	case "RefEntry.sourceCoverage":
+		if e.complexity.RefEntry.SourceCoverage == nil {
+			break
+		}
+
+		return e.complexity.RefEntry.SourceCoverage(childComplexity), true
 	case "RefEntry.text":
 		if e.complexity.RefEntry.Text == nil {
 			break
@@ -1989,6 +2120,31 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.RefEntry.TextNormalized(childComplexity), true
+
+	case "RefEntrySourceCoverage.datasetVersion":
+		if e.complexity.RefEntrySourceCoverage.DatasetVersion == nil {
+			break
+		}
+
+		return e.complexity.RefEntrySourceCoverage.DatasetVersion(childComplexity), true
+	case "RefEntrySourceCoverage.fetchedAt":
+		if e.complexity.RefEntrySourceCoverage.FetchedAt == nil {
+			break
+		}
+
+		return e.complexity.RefEntrySourceCoverage.FetchedAt(childComplexity), true
+	case "RefEntrySourceCoverage.source":
+		if e.complexity.RefEntrySourceCoverage.Source == nil {
+			break
+		}
+
+		return e.complexity.RefEntrySourceCoverage.Source(childComplexity), true
+	case "RefEntrySourceCoverage.status":
+		if e.complexity.RefEntrySourceCoverage.Status == nil {
+			break
+		}
+
+		return e.complexity.RefEntrySourceCoverage.Status(childComplexity), true
 
 	case "RefExample.id":
 		if e.complexity.RefExample.ID == nil {
@@ -2126,6 +2282,37 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.RefTranslation.Text(childComplexity), true
+
+	case "RefWordRelation.id":
+		if e.complexity.RefWordRelation.ID == nil {
+			break
+		}
+
+		return e.complexity.RefWordRelation.ID(childComplexity), true
+	case "RefWordRelation.relationType":
+		if e.complexity.RefWordRelation.RelationType == nil {
+			break
+		}
+
+		return e.complexity.RefWordRelation.RelationType(childComplexity), true
+	case "RefWordRelation.sourceEntry":
+		if e.complexity.RefWordRelation.SourceEntry == nil {
+			break
+		}
+
+		return e.complexity.RefWordRelation.SourceEntry(childComplexity), true
+	case "RefWordRelation.sourceSlug":
+		if e.complexity.RefWordRelation.SourceSlug == nil {
+			break
+		}
+
+		return e.complexity.RefWordRelation.SourceSlug(childComplexity), true
+	case "RefWordRelation.targetEntry":
+		if e.complexity.RefWordRelation.TargetEntry == nil {
+			break
+		}
+
+		return e.complexity.RefWordRelation.TargetEntry(childComplexity), true
 
 	case "ReorderPayload.success":
 		if e.complexity.ReorderPayload.Success == nil {
@@ -2849,9 +3036,38 @@ type RefEntry {
   id: UUID!
   text: String!
   textNormalized: String!
+  frequencyRank: Int
+  cefrLevel: String
+  isCoreLexicon: Boolean!
   senses: [RefSense!]!
   pronunciations: [RefPronunciation!]!
   images: [RefImage!]!
+  relations: [RefWordRelation!]!
+  sourceCoverage: [RefEntrySourceCoverage!]!
+}
+
+type RefWordRelation {
+  id: UUID!
+  sourceEntry: RefEntry!
+  targetEntry: RefEntry!
+  relationType: String!
+  sourceSlug: String!
+}
+
+type RefDataSource {
+  slug: String!
+  name: String!
+  description: String
+  sourceType: String!
+  isActive: Boolean!
+  datasetVersion: String
+}
+
+type RefEntrySourceCoverage {
+  source: RefDataSource!
+  status: String!
+  datasetVersion: String
+  fetchedAt: DateTime
 }
 
 type RefSense {
@@ -3049,6 +3265,12 @@ extend type Query {
 
   """Экспорт всего словаря в структурированном формате."""
   exportEntries: ExportResult!
+
+  """Связи слова (синонимы, антонимы и т.д.)."""
+  refEntryRelations(entryId: UUID!): [RefWordRelation!]!
+
+  """Реестр источников данных Reference Catalog. Публичный, без авторизации."""
+  refDataSources: [RefDataSource!]!
 }
 
 # ============================================================
@@ -4026,6 +4248,17 @@ func (ec *executionContext) field_Query_previewRefEntry_args(ctx context.Context
 		return nil, err
 	}
 	args["text"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_refEntryRelations_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "entryId", ec.unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID)
+	if err != nil {
+		return nil, err
+	}
+	args["entryId"] = arg0
 	return args, nil
 }
 
@@ -9693,12 +9926,22 @@ func (ec *executionContext) fieldContext_Query_searchCatalog(ctx context.Context
 				return ec.fieldContext_RefEntry_text(ctx, field)
 			case "textNormalized":
 				return ec.fieldContext_RefEntry_textNormalized(ctx, field)
+			case "frequencyRank":
+				return ec.fieldContext_RefEntry_frequencyRank(ctx, field)
+			case "cefrLevel":
+				return ec.fieldContext_RefEntry_cefrLevel(ctx, field)
+			case "isCoreLexicon":
+				return ec.fieldContext_RefEntry_isCoreLexicon(ctx, field)
 			case "senses":
 				return ec.fieldContext_RefEntry_senses(ctx, field)
 			case "pronunciations":
 				return ec.fieldContext_RefEntry_pronunciations(ctx, field)
 			case "images":
 				return ec.fieldContext_RefEntry_images(ctx, field)
+			case "relations":
+				return ec.fieldContext_RefEntry_relations(ctx, field)
+			case "sourceCoverage":
+				return ec.fieldContext_RefEntry_sourceCoverage(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type RefEntry", field.Name)
 		},
@@ -9748,12 +9991,22 @@ func (ec *executionContext) fieldContext_Query_previewRefEntry(ctx context.Conte
 				return ec.fieldContext_RefEntry_text(ctx, field)
 			case "textNormalized":
 				return ec.fieldContext_RefEntry_textNormalized(ctx, field)
+			case "frequencyRank":
+				return ec.fieldContext_RefEntry_frequencyRank(ctx, field)
+			case "cefrLevel":
+				return ec.fieldContext_RefEntry_cefrLevel(ctx, field)
+			case "isCoreLexicon":
+				return ec.fieldContext_RefEntry_isCoreLexicon(ctx, field)
 			case "senses":
 				return ec.fieldContext_RefEntry_senses(ctx, field)
 			case "pronunciations":
 				return ec.fieldContext_RefEntry_pronunciations(ctx, field)
 			case "images":
 				return ec.fieldContext_RefEntry_images(ctx, field)
+			case "relations":
+				return ec.fieldContext_RefEntry_relations(ctx, field)
+			case "sourceCoverage":
+				return ec.fieldContext_RefEntry_sourceCoverage(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type RefEntry", field.Name)
 		},
@@ -9967,6 +10220,102 @@ func (ec *executionContext) fieldContext_Query_exportEntries(_ context.Context, 
 				return ec.fieldContext_ExportResult_exportedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ExportResult", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_refEntryRelations(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Query_refEntryRelations,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Query().RefEntryRelations(ctx, fc.Args["entryId"].(uuid.UUID))
+		},
+		nil,
+		ec.marshalNRefWordRelation2ᚕᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐRefWordRelationᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Query_refEntryRelations(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_RefWordRelation_id(ctx, field)
+			case "sourceEntry":
+				return ec.fieldContext_RefWordRelation_sourceEntry(ctx, field)
+			case "targetEntry":
+				return ec.fieldContext_RefWordRelation_targetEntry(ctx, field)
+			case "relationType":
+				return ec.fieldContext_RefWordRelation_relationType(ctx, field)
+			case "sourceSlug":
+				return ec.fieldContext_RefWordRelation_sourceSlug(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RefWordRelation", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_refEntryRelations_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_refDataSources(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Query_refDataSources,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.Query().RefDataSources(ctx)
+		},
+		nil,
+		ec.marshalNRefDataSource2ᚕᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐRefDataSourceᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Query_refDataSources(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "slug":
+				return ec.fieldContext_RefDataSource_slug(ctx, field)
+			case "name":
+				return ec.fieldContext_RefDataSource_name(ctx, field)
+			case "description":
+				return ec.fieldContext_RefDataSource_description(ctx, field)
+			case "sourceType":
+				return ec.fieldContext_RefDataSource_sourceType(ctx, field)
+			case "isActive":
+				return ec.fieldContext_RefDataSource_isActive(ctx, field)
+			case "datasetVersion":
+				return ec.fieldContext_RefDataSource_datasetVersion(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RefDataSource", field.Name)
 		},
 	}
 	return fc, nil
@@ -10484,6 +10833,180 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 	return fc, nil
 }
 
+func (ec *executionContext) _RefDataSource_slug(ctx context.Context, field graphql.CollectedField, obj *domain.RefDataSource) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_RefDataSource_slug,
+		func(ctx context.Context) (any, error) {
+			return obj.Slug, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_RefDataSource_slug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefDataSource",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefDataSource_name(ctx context.Context, field graphql.CollectedField, obj *domain.RefDataSource) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_RefDataSource_name,
+		func(ctx context.Context) (any, error) {
+			return obj.Name, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_RefDataSource_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefDataSource",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefDataSource_description(ctx context.Context, field graphql.CollectedField, obj *domain.RefDataSource) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_RefDataSource_description,
+		func(ctx context.Context) (any, error) {
+			return obj.Description, nil
+		},
+		nil,
+		ec.marshalOString2string,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_RefDataSource_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefDataSource",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefDataSource_sourceType(ctx context.Context, field graphql.CollectedField, obj *domain.RefDataSource) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_RefDataSource_sourceType,
+		func(ctx context.Context) (any, error) {
+			return obj.SourceType, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_RefDataSource_sourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefDataSource",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefDataSource_isActive(ctx context.Context, field graphql.CollectedField, obj *domain.RefDataSource) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_RefDataSource_isActive,
+		func(ctx context.Context) (any, error) {
+			return obj.IsActive, nil
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_RefDataSource_isActive(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefDataSource",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefDataSource_datasetVersion(ctx context.Context, field graphql.CollectedField, obj *domain.RefDataSource) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_RefDataSource_datasetVersion,
+		func(ctx context.Context) (any, error) {
+			return obj.DatasetVersion, nil
+		},
+		nil,
+		ec.marshalOString2string,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_RefDataSource_datasetVersion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefDataSource",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _RefEntry_id(ctx context.Context, field graphql.CollectedField, obj *domain.RefEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -10566,6 +11089,93 @@ func (ec *executionContext) fieldContext_RefEntry_textNormalized(_ context.Conte
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefEntry_frequencyRank(ctx context.Context, field graphql.CollectedField, obj *domain.RefEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_RefEntry_frequencyRank,
+		func(ctx context.Context) (any, error) {
+			return obj.FrequencyRank, nil
+		},
+		nil,
+		ec.marshalOInt2ᚖint,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_RefEntry_frequencyRank(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefEntry_cefrLevel(ctx context.Context, field graphql.CollectedField, obj *domain.RefEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_RefEntry_cefrLevel,
+		func(ctx context.Context) (any, error) {
+			return obj.CEFRLevel, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_RefEntry_cefrLevel(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefEntry_isCoreLexicon(ctx context.Context, field graphql.CollectedField, obj *domain.RefEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_RefEntry_isCoreLexicon,
+		func(ctx context.Context) (any, error) {
+			return obj.IsCoreLexicon, nil
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_RefEntry_isCoreLexicon(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -10689,6 +11299,216 @@ func (ec *executionContext) fieldContext_RefEntry_images(_ context.Context, fiel
 				return ec.fieldContext_RefImage_caption(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type RefImage", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefEntry_relations(ctx context.Context, field graphql.CollectedField, obj *domain.RefEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_RefEntry_relations,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.RefEntry().Relations(ctx, obj)
+		},
+		nil,
+		ec.marshalNRefWordRelation2ᚕᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐRefWordRelationᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_RefEntry_relations(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_RefWordRelation_id(ctx, field)
+			case "sourceEntry":
+				return ec.fieldContext_RefWordRelation_sourceEntry(ctx, field)
+			case "targetEntry":
+				return ec.fieldContext_RefWordRelation_targetEntry(ctx, field)
+			case "relationType":
+				return ec.fieldContext_RefWordRelation_relationType(ctx, field)
+			case "sourceSlug":
+				return ec.fieldContext_RefWordRelation_sourceSlug(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RefWordRelation", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefEntry_sourceCoverage(ctx context.Context, field graphql.CollectedField, obj *domain.RefEntry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_RefEntry_sourceCoverage,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.RefEntry().SourceCoverage(ctx, obj)
+		},
+		nil,
+		ec.marshalNRefEntrySourceCoverage2ᚕᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐRefEntrySourceCoverageᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_RefEntry_sourceCoverage(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "source":
+				return ec.fieldContext_RefEntrySourceCoverage_source(ctx, field)
+			case "status":
+				return ec.fieldContext_RefEntrySourceCoverage_status(ctx, field)
+			case "datasetVersion":
+				return ec.fieldContext_RefEntrySourceCoverage_datasetVersion(ctx, field)
+			case "fetchedAt":
+				return ec.fieldContext_RefEntrySourceCoverage_fetchedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RefEntrySourceCoverage", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefEntrySourceCoverage_source(ctx context.Context, field graphql.CollectedField, obj *domain.RefEntrySourceCoverage) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_RefEntrySourceCoverage_source,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.RefEntrySourceCoverage().Source(ctx, obj)
+		},
+		nil,
+		ec.marshalNRefDataSource2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐRefDataSource,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_RefEntrySourceCoverage_source(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefEntrySourceCoverage",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "slug":
+				return ec.fieldContext_RefDataSource_slug(ctx, field)
+			case "name":
+				return ec.fieldContext_RefDataSource_name(ctx, field)
+			case "description":
+				return ec.fieldContext_RefDataSource_description(ctx, field)
+			case "sourceType":
+				return ec.fieldContext_RefDataSource_sourceType(ctx, field)
+			case "isActive":
+				return ec.fieldContext_RefDataSource_isActive(ctx, field)
+			case "datasetVersion":
+				return ec.fieldContext_RefDataSource_datasetVersion(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RefDataSource", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefEntrySourceCoverage_status(ctx context.Context, field graphql.CollectedField, obj *domain.RefEntrySourceCoverage) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_RefEntrySourceCoverage_status,
+		func(ctx context.Context) (any, error) {
+			return obj.Status, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_RefEntrySourceCoverage_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefEntrySourceCoverage",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefEntrySourceCoverage_datasetVersion(ctx context.Context, field graphql.CollectedField, obj *domain.RefEntrySourceCoverage) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_RefEntrySourceCoverage_datasetVersion,
+		func(ctx context.Context) (any, error) {
+			return obj.DatasetVersion, nil
+		},
+		nil,
+		ec.marshalOString2string,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_RefEntrySourceCoverage_datasetVersion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefEntrySourceCoverage",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefEntrySourceCoverage_fetchedAt(ctx context.Context, field graphql.CollectedField, obj *domain.RefEntrySourceCoverage) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_RefEntrySourceCoverage_fetchedAt,
+		func(ctx context.Context) (any, error) {
+			return obj.FetchedAt, nil
+		},
+		nil,
+		ec.marshalODateTime2timeᚐTime,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_RefEntrySourceCoverage_fetchedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefEntrySourceCoverage",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
 		},
 	}
 	return fc, nil
@@ -11340,6 +12160,199 @@ func (ec *executionContext) _RefTranslation_sourceSlug(ctx context.Context, fiel
 func (ec *executionContext) fieldContext_RefTranslation_sourceSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "RefTranslation",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefWordRelation_id(ctx context.Context, field graphql.CollectedField, obj *domain.RefWordRelation) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_RefWordRelation_id,
+		func(ctx context.Context) (any, error) {
+			return obj.ID, nil
+		},
+		nil,
+		ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_RefWordRelation_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefWordRelation",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UUID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefWordRelation_sourceEntry(ctx context.Context, field graphql.CollectedField, obj *domain.RefWordRelation) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_RefWordRelation_sourceEntry,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.RefWordRelation().SourceEntry(ctx, obj)
+		},
+		nil,
+		ec.marshalNRefEntry2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐRefEntry,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_RefWordRelation_sourceEntry(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefWordRelation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_RefEntry_id(ctx, field)
+			case "text":
+				return ec.fieldContext_RefEntry_text(ctx, field)
+			case "textNormalized":
+				return ec.fieldContext_RefEntry_textNormalized(ctx, field)
+			case "frequencyRank":
+				return ec.fieldContext_RefEntry_frequencyRank(ctx, field)
+			case "cefrLevel":
+				return ec.fieldContext_RefEntry_cefrLevel(ctx, field)
+			case "isCoreLexicon":
+				return ec.fieldContext_RefEntry_isCoreLexicon(ctx, field)
+			case "senses":
+				return ec.fieldContext_RefEntry_senses(ctx, field)
+			case "pronunciations":
+				return ec.fieldContext_RefEntry_pronunciations(ctx, field)
+			case "images":
+				return ec.fieldContext_RefEntry_images(ctx, field)
+			case "relations":
+				return ec.fieldContext_RefEntry_relations(ctx, field)
+			case "sourceCoverage":
+				return ec.fieldContext_RefEntry_sourceCoverage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RefEntry", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefWordRelation_targetEntry(ctx context.Context, field graphql.CollectedField, obj *domain.RefWordRelation) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_RefWordRelation_targetEntry,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.RefWordRelation().TargetEntry(ctx, obj)
+		},
+		nil,
+		ec.marshalNRefEntry2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐRefEntry,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_RefWordRelation_targetEntry(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefWordRelation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_RefEntry_id(ctx, field)
+			case "text":
+				return ec.fieldContext_RefEntry_text(ctx, field)
+			case "textNormalized":
+				return ec.fieldContext_RefEntry_textNormalized(ctx, field)
+			case "frequencyRank":
+				return ec.fieldContext_RefEntry_frequencyRank(ctx, field)
+			case "cefrLevel":
+				return ec.fieldContext_RefEntry_cefrLevel(ctx, field)
+			case "isCoreLexicon":
+				return ec.fieldContext_RefEntry_isCoreLexicon(ctx, field)
+			case "senses":
+				return ec.fieldContext_RefEntry_senses(ctx, field)
+			case "pronunciations":
+				return ec.fieldContext_RefEntry_pronunciations(ctx, field)
+			case "images":
+				return ec.fieldContext_RefEntry_images(ctx, field)
+			case "relations":
+				return ec.fieldContext_RefEntry_relations(ctx, field)
+			case "sourceCoverage":
+				return ec.fieldContext_RefEntry_sourceCoverage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RefEntry", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefWordRelation_relationType(ctx context.Context, field graphql.CollectedField, obj *domain.RefWordRelation) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_RefWordRelation_relationType,
+		func(ctx context.Context) (any, error) {
+			return obj.RelationType, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_RefWordRelation_relationType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefWordRelation",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefWordRelation_sourceSlug(ctx context.Context, field graphql.CollectedField, obj *domain.RefWordRelation) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_RefWordRelation_sourceSlug,
+		func(ctx context.Context) (any, error) {
+			return obj.SourceSlug, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_RefWordRelation_sourceSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefWordRelation",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -18737,6 +19750,50 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "refEntryRelations":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_refEntryRelations(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "refDataSources":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_refDataSources(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "topics":
 			field := field
 
@@ -18941,6 +19998,64 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 	return out
 }
 
+var refDataSourceImplementors = []string{"RefDataSource"}
+
+func (ec *executionContext) _RefDataSource(ctx context.Context, sel ast.SelectionSet, obj *domain.RefDataSource) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, refDataSourceImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RefDataSource")
+		case "slug":
+			out.Values[i] = ec._RefDataSource_slug(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._RefDataSource_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "description":
+			out.Values[i] = ec._RefDataSource_description(ctx, field, obj)
+		case "sourceType":
+			out.Values[i] = ec._RefDataSource_sourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "isActive":
+			out.Values[i] = ec._RefDataSource_isActive(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "datasetVersion":
+			out.Values[i] = ec._RefDataSource_datasetVersion(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var refEntryImplementors = []string{"RefEntry"}
 
 func (ec *executionContext) _RefEntry(ctx context.Context, sel ast.SelectionSet, obj *domain.RefEntry) graphql.Marshaler {
@@ -18955,33 +20070,193 @@ func (ec *executionContext) _RefEntry(ctx context.Context, sel ast.SelectionSet,
 		case "id":
 			out.Values[i] = ec._RefEntry_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "text":
 			out.Values[i] = ec._RefEntry_text(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "textNormalized":
 			out.Values[i] = ec._RefEntry_textNormalized(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "frequencyRank":
+			out.Values[i] = ec._RefEntry_frequencyRank(ctx, field, obj)
+		case "cefrLevel":
+			out.Values[i] = ec._RefEntry_cefrLevel(ctx, field, obj)
+		case "isCoreLexicon":
+			out.Values[i] = ec._RefEntry_isCoreLexicon(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "senses":
 			out.Values[i] = ec._RefEntry_senses(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "pronunciations":
 			out.Values[i] = ec._RefEntry_pronunciations(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "images":
 			out.Values[i] = ec._RefEntry_images(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "relations":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._RefEntry_relations(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "sourceCoverage":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._RefEntry_sourceCoverage(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var refEntrySourceCoverageImplementors = []string{"RefEntrySourceCoverage"}
+
+func (ec *executionContext) _RefEntrySourceCoverage(ctx context.Context, sel ast.SelectionSet, obj *domain.RefEntrySourceCoverage) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, refEntrySourceCoverageImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RefEntrySourceCoverage")
+		case "source":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._RefEntrySourceCoverage_source(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "status":
+			out.Values[i] = ec._RefEntrySourceCoverage_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "datasetVersion":
+			out.Values[i] = ec._RefEntrySourceCoverage_datasetVersion(ctx, field, obj)
+		case "fetchedAt":
+			out.Values[i] = ec._RefEntrySourceCoverage_fetchedAt(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -19240,6 +20515,127 @@ func (ec *executionContext) _RefTranslation(ctx context.Context, sel ast.Selecti
 			out.Values[i] = ec._RefTranslation_sourceSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var refWordRelationImplementors = []string{"RefWordRelation"}
+
+func (ec *executionContext) _RefWordRelation(ctx context.Context, sel ast.SelectionSet, obj *domain.RefWordRelation) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, refWordRelationImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RefWordRelation")
+		case "id":
+			out.Values[i] = ec._RefWordRelation_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "sourceEntry":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._RefWordRelation_sourceEntry(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "targetEntry":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._RefWordRelation_targetEntry(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "relationType":
+			out.Values[i] = ec._RefWordRelation_relationType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "sourceSlug":
+			out.Values[i] = ec._RefWordRelation_sourceSlug(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -22002,6 +23398,68 @@ func (ec *executionContext) marshalNPronunciation2ᚖgithubᚗcomᚋheartmarshal
 	return ec._Pronunciation(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNRefDataSource2githubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐRefDataSource(ctx context.Context, sel ast.SelectionSet, v domain.RefDataSource) graphql.Marshaler {
+	return ec._RefDataSource(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRefDataSource2ᚕᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐRefDataSourceᚄ(ctx context.Context, sel ast.SelectionSet, v []*domain.RefDataSource) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNRefDataSource2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐRefDataSource(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNRefDataSource2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐRefDataSource(ctx context.Context, sel ast.SelectionSet, v *domain.RefDataSource) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RefDataSource(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNRefEntry2githubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐRefEntry(ctx context.Context, sel ast.SelectionSet, v domain.RefEntry) graphql.Marshaler {
+	return ec._RefEntry(ctx, sel, &v)
+}
+
 func (ec *executionContext) marshalNRefEntry2ᚕᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐRefEntryᚄ(ctx context.Context, sel ast.SelectionSet, v []*domain.RefEntry) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -22054,6 +23512,60 @@ func (ec *executionContext) marshalNRefEntry2ᚖgithubᚗcomᚋheartmarshallᚋm
 		return graphql.Null
 	}
 	return ec._RefEntry(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNRefEntrySourceCoverage2ᚕᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐRefEntrySourceCoverageᚄ(ctx context.Context, sel ast.SelectionSet, v []*domain.RefEntrySourceCoverage) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNRefEntrySourceCoverage2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐRefEntrySourceCoverage(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNRefEntrySourceCoverage2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐRefEntrySourceCoverage(ctx context.Context, sel ast.SelectionSet, v *domain.RefEntrySourceCoverage) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RefEntrySourceCoverage(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNRefExample2githubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐRefExample(ctx context.Context, sel ast.SelectionSet, v domain.RefExample) graphql.Marshaler {
@@ -22294,6 +23806,60 @@ func (ec *executionContext) marshalNRefTranslation2ᚕgithubᚗcomᚋheartmarsha
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalNRefWordRelation2ᚕᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐRefWordRelationᚄ(ctx context.Context, sel ast.SelectionSet, v []*domain.RefWordRelation) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNRefWordRelation2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐRefWordRelation(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNRefWordRelation2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐRefWordRelation(ctx context.Context, sel ast.SelectionSet, v *domain.RefWordRelation) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RefWordRelation(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNReorderExamplesInput2githubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋtransportᚋgraphqlᚋgeneratedᚐReorderExamplesInput(ctx context.Context, v any) (ReorderExamplesInput, error) {
@@ -23294,6 +24860,15 @@ func (ec *executionContext) unmarshalOCustomExampleInput2ᚕᚖgithubᚗcomᚋhe
 		}
 	}
 	return res, nil
+}
+
+func (ec *executionContext) unmarshalODateTime2timeᚐTime(ctx context.Context, v any) (time.Time, error) {
+	res, err := ec.unmarshalInputDateTime(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalODateTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
+	return ec._DateTime(ctx, sel, &v)
 }
 
 func (ec *executionContext) unmarshalODateTime2ᚖtimeᚐTime(ctx context.Context, v any) (*time.Time, error) {

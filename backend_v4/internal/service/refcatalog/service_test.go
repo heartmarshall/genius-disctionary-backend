@@ -19,10 +19,14 @@ import (
 // ---------------------------------------------------------------------------
 
 type mockRefEntryRepo struct {
-	SearchFunc            func(ctx context.Context, query string, limit int) ([]domain.RefEntry, error)
-	GetFullTreeByIDFunc   func(ctx context.Context, id uuid.UUID) (*domain.RefEntry, error)
-	GetFullTreeByTextFunc func(ctx context.Context, textNormalized string) (*domain.RefEntry, error)
-	CreateWithTreeFunc    func(ctx context.Context, entry *domain.RefEntry) (*domain.RefEntry, error)
+	SearchFunc              func(ctx context.Context, query string, limit int) ([]domain.RefEntry, error)
+	GetFullTreeByIDFunc     func(ctx context.Context, id uuid.UUID) (*domain.RefEntry, error)
+	GetFullTreeByTextFunc   func(ctx context.Context, textNormalized string) (*domain.RefEntry, error)
+	CreateWithTreeFunc      func(ctx context.Context, entry *domain.RefEntry) (*domain.RefEntry, error)
+	GetRelationsByEntryIDFunc func(ctx context.Context, entryID uuid.UUID) ([]domain.RefWordRelation, error)
+	GetAllDataSourcesFunc   func(ctx context.Context) ([]domain.RefDataSource, error)
+	GetDataSourceBySlugFunc func(ctx context.Context, slug string) (*domain.RefDataSource, error)
+	GetCoverageByEntryIDFunc func(ctx context.Context, entryID uuid.UUID) ([]domain.RefEntrySourceCoverage, error)
 }
 
 func (m *mockRefEntryRepo) Search(ctx context.Context, query string, limit int) ([]domain.RefEntry, error) {
@@ -39,6 +43,34 @@ func (m *mockRefEntryRepo) GetFullTreeByText(ctx context.Context, textNormalized
 
 func (m *mockRefEntryRepo) CreateWithTree(ctx context.Context, entry *domain.RefEntry) (*domain.RefEntry, error) {
 	return m.CreateWithTreeFunc(ctx, entry)
+}
+
+func (m *mockRefEntryRepo) GetRelationsByEntryID(ctx context.Context, entryID uuid.UUID) ([]domain.RefWordRelation, error) {
+	if m.GetRelationsByEntryIDFunc != nil {
+		return m.GetRelationsByEntryIDFunc(ctx, entryID)
+	}
+	return nil, nil
+}
+
+func (m *mockRefEntryRepo) GetAllDataSources(ctx context.Context) ([]domain.RefDataSource, error) {
+	if m.GetAllDataSourcesFunc != nil {
+		return m.GetAllDataSourcesFunc(ctx)
+	}
+	return nil, nil
+}
+
+func (m *mockRefEntryRepo) GetDataSourceBySlug(ctx context.Context, slug string) (*domain.RefDataSource, error) {
+	if m.GetDataSourceBySlugFunc != nil {
+		return m.GetDataSourceBySlugFunc(ctx, slug)
+	}
+	return nil, nil
+}
+
+func (m *mockRefEntryRepo) GetCoverageByEntryID(ctx context.Context, entryID uuid.UUID) ([]domain.RefEntrySourceCoverage, error) {
+	if m.GetCoverageByEntryIDFunc != nil {
+		return m.GetCoverageByEntryIDFunc(ctx, entryID)
+	}
+	return nil, nil
 }
 
 type mockTxManager struct {
@@ -933,3 +965,202 @@ func TestMapPartOfSpeech(t *testing.T) {
 }
 
 func ptrPOS(p domain.PartOfSpeech) *domain.PartOfSpeech { return &p }
+
+// ---------------------------------------------------------------------------
+// GetRelationsByEntryID tests
+// ---------------------------------------------------------------------------
+
+func TestService_GetRelationsByEntryID(t *testing.T) {
+	t.Parallel()
+
+	entryID := uuid.New()
+	expected := []domain.RefWordRelation{
+		{ID: uuid.New(), SourceEntryID: entryID, TargetEntryID: uuid.New(), RelationType: "synonym", SourceSlug: "wordnet"},
+	}
+	repo := &mockRefEntryRepo{
+		GetRelationsByEntryIDFunc: func(_ context.Context, id uuid.UUID) ([]domain.RefWordRelation, error) {
+			assert.Equal(t, entryID, id)
+			return expected, nil
+		},
+	}
+
+	svc := newTestService(repo, nil, nil, nil)
+	result, err := svc.GetRelationsByEntryID(context.Background(), entryID)
+
+	require.NoError(t, err)
+	assert.Equal(t, expected, result)
+}
+
+func TestService_GetRelationsByEntryID_Error(t *testing.T) {
+	t.Parallel()
+
+	repoErr := errors.New("db error")
+	repo := &mockRefEntryRepo{
+		GetRelationsByEntryIDFunc: func(_ context.Context, _ uuid.UUID) ([]domain.RefWordRelation, error) {
+			return nil, repoErr
+		},
+	}
+
+	svc := newTestService(repo, nil, nil, nil)
+	_, err := svc.GetRelationsByEntryID(context.Background(), uuid.New())
+
+	require.ErrorIs(t, err, repoErr)
+}
+
+// ---------------------------------------------------------------------------
+// GetAllDataSources tests
+// ---------------------------------------------------------------------------
+
+func TestService_GetAllDataSources(t *testing.T) {
+	t.Parallel()
+
+	expected := []domain.RefDataSource{
+		{Slug: "freedict", Name: "Free Dictionary", SourceType: "definitions", IsActive: true},
+		{Slug: "wordnet", Name: "WordNet", SourceType: "relations", IsActive: true},
+	}
+	repo := &mockRefEntryRepo{
+		GetAllDataSourcesFunc: func(_ context.Context) ([]domain.RefDataSource, error) {
+			return expected, nil
+		},
+	}
+
+	svc := newTestService(repo, nil, nil, nil)
+	result, err := svc.GetAllDataSources(context.Background())
+
+	require.NoError(t, err)
+	assert.Equal(t, expected, result)
+}
+
+func TestService_GetAllDataSources_Error(t *testing.T) {
+	t.Parallel()
+
+	repoErr := errors.New("db error")
+	repo := &mockRefEntryRepo{
+		GetAllDataSourcesFunc: func(_ context.Context) ([]domain.RefDataSource, error) {
+			return nil, repoErr
+		},
+	}
+
+	svc := newTestService(repo, nil, nil, nil)
+	_, err := svc.GetAllDataSources(context.Background())
+
+	require.ErrorIs(t, err, repoErr)
+}
+
+// ---------------------------------------------------------------------------
+// GetDataSourceBySlug tests
+// ---------------------------------------------------------------------------
+
+func TestService_GetDataSourceBySlug(t *testing.T) {
+	t.Parallel()
+
+	expected := &domain.RefDataSource{
+		Slug: "freedict", Name: "Free Dictionary", SourceType: "definitions", IsActive: true,
+	}
+	repo := &mockRefEntryRepo{
+		GetDataSourceBySlugFunc: func(_ context.Context, slug string) (*domain.RefDataSource, error) {
+			assert.Equal(t, "freedict", slug)
+			return expected, nil
+		},
+	}
+
+	svc := newTestService(repo, nil, nil, nil)
+	result, err := svc.GetDataSourceBySlug(context.Background(), "freedict")
+
+	require.NoError(t, err)
+	assert.Equal(t, expected, result)
+}
+
+func TestService_GetDataSourceBySlug_NotFound(t *testing.T) {
+	t.Parallel()
+
+	repo := &mockRefEntryRepo{
+		GetDataSourceBySlugFunc: func(_ context.Context, _ string) (*domain.RefDataSource, error) {
+			return nil, domain.ErrNotFound
+		},
+	}
+
+	svc := newTestService(repo, nil, nil, nil)
+	_, err := svc.GetDataSourceBySlug(context.Background(), "nonexistent")
+
+	require.ErrorIs(t, err, domain.ErrNotFound)
+}
+
+// ---------------------------------------------------------------------------
+// GetCoverageByEntryID tests
+// ---------------------------------------------------------------------------
+
+func TestService_GetCoverageByEntryID(t *testing.T) {
+	t.Parallel()
+
+	entryID := uuid.New()
+	expected := []domain.RefEntrySourceCoverage{
+		{RefEntryID: entryID, SourceSlug: "freedict", Status: "fetched"},
+		{RefEntryID: entryID, SourceSlug: "wordnet", Status: "no_data"},
+	}
+	repo := &mockRefEntryRepo{
+		GetCoverageByEntryIDFunc: func(_ context.Context, id uuid.UUID) ([]domain.RefEntrySourceCoverage, error) {
+			assert.Equal(t, entryID, id)
+			return expected, nil
+		},
+	}
+
+	svc := newTestService(repo, nil, nil, nil)
+	result, err := svc.GetCoverageByEntryID(context.Background(), entryID)
+
+	require.NoError(t, err)
+	assert.Equal(t, expected, result)
+}
+
+func TestService_GetCoverageByEntryID_Error(t *testing.T) {
+	t.Parallel()
+
+	repoErr := errors.New("db error")
+	repo := &mockRefEntryRepo{
+		GetCoverageByEntryIDFunc: func(_ context.Context, _ uuid.UUID) ([]domain.RefEntrySourceCoverage, error) {
+			return nil, repoErr
+		},
+	}
+
+	svc := newTestService(repo, nil, nil, nil)
+	_, err := svc.GetCoverageByEntryID(context.Background(), uuid.New())
+
+	require.ErrorIs(t, err, repoErr)
+}
+
+// ---------------------------------------------------------------------------
+// GetRefEntryByID tests
+// ---------------------------------------------------------------------------
+
+func TestService_GetRefEntryByID(t *testing.T) {
+	t.Parallel()
+
+	expected := makeRefEntry("hello")
+	repo := &mockRefEntryRepo{
+		GetFullTreeByIDFunc: func(_ context.Context, id uuid.UUID) (*domain.RefEntry, error) {
+			assert.Equal(t, expected.ID, id)
+			return expected, nil
+		},
+	}
+
+	svc := newTestService(repo, nil, nil, nil)
+	result, err := svc.GetRefEntryByID(context.Background(), expected.ID)
+
+	require.NoError(t, err)
+	assert.Equal(t, expected, result)
+}
+
+func TestService_GetRefEntryByID_NotFound(t *testing.T) {
+	t.Parallel()
+
+	repo := &mockRefEntryRepo{
+		GetFullTreeByIDFunc: func(_ context.Context, _ uuid.UUID) (*domain.RefEntry, error) {
+			return nil, domain.ErrNotFound
+		},
+	}
+
+	svc := newTestService(repo, nil, nil, nil)
+	_, err := svc.GetRefEntryByID(context.Background(), uuid.New())
+
+	require.ErrorIs(t, err, domain.ErrNotFound)
+}

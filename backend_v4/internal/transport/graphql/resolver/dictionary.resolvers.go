@@ -486,6 +486,74 @@ func (r *queryResolver) ExportEntries(ctx context.Context) (*dictionary.ExportRe
 	return r.dictionary.ExportEntries(ctx)
 }
 
+// RefEntryRelations is the resolver for the refEntryRelations field.
+func (r *queryResolver) RefEntryRelations(ctx context.Context, entryID uuid.UUID) ([]*domain.RefWordRelation, error) {
+	relations, err := r.refCatalog.GetRelationsByEntryID(ctx, entryID)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]*domain.RefWordRelation, len(relations))
+	for i := range relations {
+		result[i] = &relations[i]
+	}
+	return result, nil
+}
+
+// RefDataSources is the resolver for the refDataSources field.
+func (r *queryResolver) RefDataSources(ctx context.Context) ([]*domain.RefDataSource, error) {
+	// Public query — no auth required.
+	sources, err := r.refCatalog.GetAllDataSources(ctx)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]*domain.RefDataSource, len(sources))
+	for i := range sources {
+		result[i] = &sources[i]
+	}
+	return result, nil
+}
+
+// Relations is the resolver for the relations field.
+func (r *refEntryResolver) Relations(ctx context.Context, obj *domain.RefEntry) ([]*domain.RefWordRelation, error) {
+	relations, err := r.refCatalog.GetRelationsByEntryID(ctx, obj.ID)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]*domain.RefWordRelation, len(relations))
+	for i := range relations {
+		result[i] = &relations[i]
+	}
+	return result, nil
+}
+
+// SourceCoverage is the resolver for the sourceCoverage field.
+func (r *refEntryResolver) SourceCoverage(ctx context.Context, obj *domain.RefEntry) ([]*domain.RefEntrySourceCoverage, error) {
+	coverage, err := r.refCatalog.GetCoverageByEntryID(ctx, obj.ID)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]*domain.RefEntrySourceCoverage, len(coverage))
+	for i := range coverage {
+		result[i] = &coverage[i]
+	}
+	return result, nil
+}
+
+// Source is the resolver for the source field.
+func (r *refEntrySourceCoverageResolver) Source(ctx context.Context, obj *domain.RefEntrySourceCoverage) (*domain.RefDataSource, error) {
+	return r.refCatalog.GetDataSourceBySlug(ctx, obj.SourceSlug)
+}
+
+// SourceEntry is the resolver for the sourceEntry field.
+func (r *refWordRelationResolver) SourceEntry(ctx context.Context, obj *domain.RefWordRelation) (*domain.RefEntry, error) {
+	return r.refCatalog.GetRefEntryByID(ctx, obj.SourceEntryID)
+}
+
+// TargetEntry is the resolver for the targetEntry field.
+func (r *refWordRelationResolver) TargetEntry(ctx context.Context, obj *domain.RefWordRelation) (*domain.RefEntry, error) {
+	return r.refCatalog.GetRefEntryByID(ctx, obj.TargetEntryID)
+}
+
 // Translations is the resolver for the translations field.
 func (r *senseResolver) Translations(ctx context.Context, obj *domain.Sense) ([]*domain.Translation, error) {
 	if len(obj.Translations) > 0 {
@@ -523,64 +591,24 @@ func (r *Resolver) DictionaryEntry() generated.DictionaryEntryResolver {
 	return &dictionaryEntryResolver{r}
 }
 
+// RefEntry returns generated.RefEntryResolver implementation.
+func (r *Resolver) RefEntry() generated.RefEntryResolver { return &refEntryResolver{r} }
+
+// RefEntrySourceCoverage returns generated.RefEntrySourceCoverageResolver implementation.
+func (r *Resolver) RefEntrySourceCoverage() generated.RefEntrySourceCoverageResolver {
+	return &refEntrySourceCoverageResolver{r}
+}
+
+// RefWordRelation returns generated.RefWordRelationResolver implementation.
+func (r *Resolver) RefWordRelation() generated.RefWordRelationResolver {
+	return &refWordRelationResolver{r}
+}
+
 // Sense returns generated.SenseResolver implementation.
 func (r *Resolver) Sense() generated.SenseResolver { return &senseResolver{r} }
 
 type dictionaryEntryResolver struct{ *Resolver }
+type refEntryResolver struct{ *Resolver }
+type refEntrySourceCoverageResolver struct{ *Resolver }
+type refWordRelationResolver struct{ *Resolver }
 type senseResolver struct{ *Resolver }
-
-func toSensePointers(senses []domain.Sense) []*domain.Sense {
-	result := make([]*domain.Sense, len(senses))
-	for i := range senses {
-		result[i] = &senses[i]
-	}
-	return result
-}
-
-func toTranslationPointers(translations []domain.Translation) []*domain.Translation {
-	result := make([]*domain.Translation, len(translations))
-	for i := range translations {
-		result[i] = &translations[i]
-	}
-	return result
-}
-
-func toExamplePointers(examples []domain.Example) []*domain.Example {
-	result := make([]*domain.Example, len(examples))
-	for i := range examples {
-		result[i] = &examples[i]
-	}
-	return result
-}
-
-func toPronunciationPointers(prons []domain.RefPronunciation) []*domain.RefPronunciation {
-	result := make([]*domain.RefPronunciation, len(prons))
-	for i := range prons {
-		result[i] = &prons[i]
-	}
-	return result
-}
-
-func toRefImagePointers(images []domain.RefImage) []*domain.RefImage {
-	result := make([]*domain.RefImage, len(images))
-	for i := range images {
-		result[i] = &images[i]
-	}
-	return result
-}
-
-func toUserImagePointers(images []domain.UserImage) []*domain.UserImage {
-	result := make([]*domain.UserImage, len(images))
-	for i := range images {
-		result[i] = &images[i]
-	}
-	return result
-}
-
-func toTopicPointers(topics []domain.Topic) []*domain.Topic {
-	result := make([]*domain.Topic, len(topics))
-	for i := range topics {
-		result[i] = &topics[i]
-	}
-	return result
-}

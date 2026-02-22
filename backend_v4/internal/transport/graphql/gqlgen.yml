@@ -109,6 +109,28 @@ models:
   RefEntry:
     model:
       - "github.com/heartmarshall/myenglish-backend/internal/domain.RefEntry"
+    fields:
+      relations:
+        resolver: true
+      sourceCoverage:
+        resolver: true
+  RefWordRelation:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.RefWordRelation"
+    fields:
+      sourceEntry:
+        resolver: true
+      targetEntry:
+        resolver: true
+  RefDataSource:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.RefDataSource"
+  RefEntrySourceCoverage:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.RefEntrySourceCoverage"
+    fields:
+      source:
+        resolver: true
   RefSense:
     model:
       - "github.com/heartmarshall/myenglish-backend/internal/domain.RefSense"

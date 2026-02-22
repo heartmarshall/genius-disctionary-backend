@@ -14,6 +14,10 @@ type refEntryRepo interface {
 	GetFullTreeByID(ctx context.Context, id uuid.UUID) (*domain.RefEntry, error)
 	GetFullTreeByText(ctx context.Context, textNormalized string) (*domain.RefEntry, error)
 	CreateWithTree(ctx context.Context, entry *domain.RefEntry) (*domain.RefEntry, error)
+	GetRelationsByEntryID(ctx context.Context, entryID uuid.UUID) ([]domain.RefWordRelation, error)
+	GetAllDataSources(ctx context.Context) ([]domain.RefDataSource, error)
+	GetDataSourceBySlug(ctx context.Context, slug string) (*domain.RefDataSource, error)
+	GetCoverageByEntryID(ctx context.Context, entryID uuid.UUID) ([]domain.RefEntrySourceCoverage, error)
 }
 
 type txManager interface {

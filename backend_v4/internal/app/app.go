@@ -191,7 +191,7 @@ func Run(ctx context.Context) error {
 	// -----------------------------------------------------------------------
 	res := resolver.NewResolver(
 		logger, dictionaryService, contentService, studyService,
-		topicService, inboxService, userService,
+		topicService, inboxService, userService, refCatalogService,
 	)
 
 	schema := generated.NewExecutableSchema(generated.Config{

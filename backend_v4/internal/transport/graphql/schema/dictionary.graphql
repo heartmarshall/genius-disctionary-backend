@@ -74,9 +74,38 @@ type RefEntry {
   id: UUID!
   text: String!
   textNormalized: String!
+  frequencyRank: Int
+  cefrLevel: String
+  isCoreLexicon: Boolean!
   senses: [RefSense!]!
   pronunciations: [RefPronunciation!]!
   images: [RefImage!]!
+  relations: [RefWordRelation!]!
+  sourceCoverage: [RefEntrySourceCoverage!]!
+}
+
+type RefWordRelation {
+  id: UUID!
+  sourceEntry: RefEntry!
+  targetEntry: RefEntry!
+  relationType: String!
+  sourceSlug: String!
+}
+
+type RefDataSource {
+  slug: String!
+  name: String!
+  description: String
+  sourceType: String!
+  isActive: Boolean!
+  datasetVersion: String
+}
+
+type RefEntrySourceCoverage {
+  source: RefDataSource!
+  status: String!
+  datasetVersion: String
+  fetchedAt: DateTime
 }
 
 type RefSense {
@@ -274,6 +303,12 @@ extend type Query {
 
   """Экспорт всего словаря в структурированном формате."""
   exportEntries: ExportResult!
+
+  """Связи слова (синонимы, антонимы и т.д.)."""
+  refEntryRelations(entryId: UUID!): [RefWordRelation!]!
+
+  """Реестр источников данных Reference Catalog. Публичный, без авторизации."""
+  refDataSources: [RefDataSource!]!
 }
 
 # ============================================================

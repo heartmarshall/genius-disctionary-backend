@@ -93,6 +93,15 @@ type userService interface {
 	UpdateSettings(ctx context.Context, input user.UpdateSettingsInput) (*domain.UserSettings, error)
 }
 
+// refCatalogService defines what resolver needs from RefCatalog service.
+type refCatalogService interface {
+	GetRelationsByEntryID(ctx context.Context, entryID uuid.UUID) ([]domain.RefWordRelation, error)
+	GetAllDataSources(ctx context.Context) ([]domain.RefDataSource, error)
+	GetDataSourceBySlug(ctx context.Context, slug string) (*domain.RefDataSource, error)
+	GetCoverageByEntryID(ctx context.Context, entryID uuid.UUID) ([]domain.RefEntrySourceCoverage, error)
+	GetRefEntryByID(ctx context.Context, id uuid.UUID) (*domain.RefEntry, error)
+}
+
 // Resolver is the root resolver containing all service dependencies.
 type Resolver struct {
 	dictionary dictionaryService
@@ -101,6 +110,7 @@ type Resolver struct {
 	topic      topicService
 	inbox      inboxService
 	user       userService
+	refCatalog refCatalogService
 	log        *slog.Logger
 }
 
@@ -113,6 +123,7 @@ func NewResolver(
 	topic topicService,
 	inbox inboxService,
 	user userService,
+	refCatalog refCatalogService,
 ) *Resolver {
 	return &Resolver{
 		dictionary: dictionary,
@@ -121,6 +132,7 @@ func NewResolver(
 		topic:      topic,
 		inbox:      inbox,
 		user:       user,
+		refCatalog: refCatalog,
 		log:        log.With("component", "graphql"),
 	}
 }
