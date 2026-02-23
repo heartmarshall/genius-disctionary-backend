@@ -18,7 +18,10 @@ def load_books() -> dict[str, dict]:
         sys.exit(1)
     with open(config_path) as f:
         data = yaml.safe_load(f)
-    return {name: info for name, info in data["books"].items()}
+    return {
+        name: {**info, "label": str(info["label"])}
+        for name, info in data["books"].items()
+    }
 
 
 def book_dir(book_name: str) -> Path:
