@@ -28,6 +28,7 @@ type RefSense struct {
 	Definition   string
 	PartOfSpeech *PartOfSpeech
 	CEFRLevel    *string
+	Notes        *string
 	SourceSlug   string
 	Position     int
 	CreatedAt    time.Time

@@ -57,10 +57,10 @@ func (r *Repo) BulkInsertSenses(ctx context.Context, senses []domain.RefSense) (
 		}
 
 		batch.Queue(
-			`INSERT INTO ref_senses (id, ref_entry_id, definition, part_of_speech, cefr_level, source_slug, position, created_at)
-			 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+			`INSERT INTO ref_senses (id, ref_entry_id, definition, part_of_speech, cefr_level, notes, source_slug, position, created_at)
+			 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 			 ON CONFLICT (id) DO NOTHING`,
-			s.ID, s.RefEntryID, s.Definition, pos, s.CEFRLevel, s.SourceSlug, s.Position, s.CreatedAt,
+			s.ID, s.RefEntryID, s.Definition, pos, s.CEFRLevel, s.Notes, s.SourceSlug, s.Position, s.CreatedAt,
 		)
 	}
 
@@ -289,6 +289,42 @@ func (r *Repo) GetFirstSenseIDsByEntryIDs(ctx context.Context, entryIDs []uuid.U
 	}
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("iterate first sense IDs: %w", err)
+	}
+
+	return result, nil
+}
+
+// GetPronunciationIPAsByEntryIDs returns a map of entry_id → set of existing IPA transcriptions.
+// Used by CMU phase to skip duplicates already inserted by Wiktionary.
+func (r *Repo) GetPronunciationIPAsByEntryIDs(ctx context.Context, entryIDs []uuid.UUID) (map[uuid.UUID]map[string]bool, error) {
+	if len(entryIDs) == 0 {
+		return map[uuid.UUID]map[string]bool{}, nil
+	}
+
+	q := postgres.QuerierFromCtx(ctx, r.pool)
+	rows, err := q.Query(ctx,
+		`SELECT ref_entry_id, transcription FROM ref_pronunciations WHERE ref_entry_id = ANY($1)`,
+		entryIDs,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("get pronunciation IPAs: %w", err)
+	}
+	defer rows.Close()
+
+	result := make(map[uuid.UUID]map[string]bool, len(entryIDs))
+	for rows.Next() {
+		var entryID uuid.UUID
+		var ipa string
+		if err := rows.Scan(&entryID, &ipa); err != nil {
+			return nil, fmt.Errorf("scan pronunciation IPA: %w", err)
+		}
+		if result[entryID] == nil {
+			result[entryID] = make(map[string]bool)
+		}
+		result[entryID][ipa] = true
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate pronunciation IPAs: %w", err)
 	}
 
 	return result, nil
