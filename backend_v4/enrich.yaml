@@ -1,0 +1,11 @@
+# Enricher pipeline configuration.
+# Override any field via ENRICH_* environment variables.
+word_list_path: ../datasets/common_words.txt
+wiktionary_path: ../datasets/kaikki.org-dictionary-English.jsonl
+wordnet_path: ../datasets/english-wordnet-2025
+cmu_path: ../datasets/cmudict.dict
+enrich_output_dir: ./enrich-output
+llm_output_dir: ./llm-output
+mode: manual
+batch_size: 50
+llm_model: "claude-opus-4-6"
