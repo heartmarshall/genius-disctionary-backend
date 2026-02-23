@@ -13,6 +13,7 @@ import (
 	"context"
 	"flag"
 	"log"
+	"log/slog"
 	"os"
 	"time"
 
@@ -21,7 +22,11 @@ import (
 	"github.com/heartmarshall/myenglish-backend/internal/app"
 	"github.com/heartmarshall/myenglish-backend/internal/config"
 	"github.com/heartmarshall/myenglish-backend/internal/llm_importer"
+	"github.com/heartmarshall/myenglish-backend/internal/seeder"
 )
+
+// Compile-time interface assertion.
+var _ seeder.RefEntryBulkRepo = (*refentry.Repo)(nil)
 
 func main() {
 	importConfigPath := flag.String("import-config", "", "path to llm-import config YAML")
@@ -38,7 +43,7 @@ func main() {
 	// Load llm-import config.
 	importCfg, err := llm_importer.LoadConfig(*importConfigPath)
 	if err != nil {
-		logger.Error("load import config", "error", err)
+		logger.Error("load import config", slog.String("error", err.Error()))
 		os.Exit(1)
 	}
 
@@ -49,7 +54,7 @@ func main() {
 	// Connect to DB.
 	pool, err := postgres.NewPool(ctx, appCfg.Database)
 	if err != nil {
-		logger.Error("connect to database", "error", err)
+		logger.Error("connect to database", slog.String("error", err.Error()))
 		os.Exit(1)
 	}
 	defer pool.Close()
@@ -62,7 +67,7 @@ func main() {
 	}
 
 	if _, err := llm_importer.Run(ctx, importCfg, repo, logger); err != nil {
-		logger.Error("import failed", "error", err)
+		logger.Error("import failed", slog.String("error", err.Error()))
 		os.Exit(1)
 	}
 }

@@ -81,6 +81,10 @@ func Run(ctx context.Context, cfg *Config, repo seeder.RefEntryBulkRepo, log *sl
 			continue
 		}
 
+		if entry.SourceSlug == "" {
+			entry.SourceSlug = cfg.SourceSlug
+		}
+
 		if err := Validate(entry); err != nil {
 			log.Error("invalid entry", "path", path, "err", err)
 			result.Errors++
