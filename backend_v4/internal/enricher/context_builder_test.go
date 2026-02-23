@@ -60,6 +60,9 @@ func TestBuildContext_fullWord(t *testing.T) {
 	if len(ctx.Relations.Antonyms) != 1 {
 		t.Errorf("Antonyms = %v", ctx.Relations.Antonyms)
 	}
+	if len(ctx.Relations.Hypernyms) != 1 {
+		t.Errorf("Hypernyms = %v, want 1 element", ctx.Relations.Hypernyms)
+	}
 }
 
 func TestBuildContext_unknownWord(t *testing.T) {
@@ -76,5 +79,14 @@ func TestBuildContext_unknownWord(t *testing.T) {
 	}
 	if ctx.IPA != "" {
 		t.Errorf("expected empty IPA for unknown word")
+	}
+	if len(ctx.Relations.Synonyms) != 0 {
+		t.Errorf("expected no Synonyms for unknown word, got %v", ctx.Relations.Synonyms)
+	}
+	if len(ctx.Relations.Antonyms) != 0 {
+		t.Errorf("expected no Antonyms for unknown word, got %v", ctx.Relations.Antonyms)
+	}
+	if len(ctx.Relations.Hypernyms) != 0 {
+		t.Errorf("expected no Hypernyms for unknown word, got %v", ctx.Relations.Hypernyms)
 	}
 }

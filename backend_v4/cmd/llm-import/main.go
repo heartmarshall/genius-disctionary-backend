@@ -4,7 +4,6 @@
 //
 // Flags:
 //
-//	--config         path to app config YAML (optional; falls back to env)
 //	--import-config  path to llm-import config YAML (optional; falls back to env)
 //
 // Exit codes: 0 = success, 1 = error.
