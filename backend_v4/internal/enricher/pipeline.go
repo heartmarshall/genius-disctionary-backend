@@ -2,6 +2,7 @@ package enricher
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"fmt"
 	"log/slog"
@@ -99,6 +100,12 @@ func Run(cfg *Config, log *slog.Logger) (PipelineResult, error) {
 			continue
 		}
 		result.Written++
+
+		if cfg.Mode == "api" {
+			if err := callLLM(context.Background(), cfg, enrichCtx, log); err != nil {
+				log.Error("llm api call", slog.String("word", word), slog.String("error", err.Error()))
+			}
+		}
 
 		batch = append(batch, word)
 		if len(batch) >= cfg.BatchSize {
