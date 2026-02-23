@@ -5,6 +5,7 @@ go 1.24.0
 require (
 	github.com/99designs/gqlgen v0.17.86
 	github.com/Masterminds/squirrel v1.5.4
+	github.com/anthropics/anthropic-sdk-go v1.26.0
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/google/uuid v1.6.0
 	github.com/graph-gophers/dataloader/v7 v7.1.3
@@ -28,7 +29,6 @@ require (
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/agnivade/levenshtein v1.2.1 // indirect
 	github.com/andybalholm/brotli v1.2.0 // indirect
-	github.com/anthropics/anthropic-sdk-go v1.26.0 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/coder/websocket v1.8.12 // indirect

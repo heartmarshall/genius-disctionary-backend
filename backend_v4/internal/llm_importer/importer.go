@@ -69,14 +69,14 @@ func Run(ctx context.Context, cfg *Config, repo seeder.RefEntryBulkRepo, log *sl
 
 		data, err := os.ReadFile(path)
 		if err != nil {
-			log.Error("read file", "path", path, "err", err)
+			log.Error("read file", slog.String("path", path), slog.String("error", err.Error()))
 			result.Errors++
 			continue
 		}
 
 		var entry LLMWordEntry
 		if err := json.Unmarshal(data, &entry); err != nil {
-			log.Error("unmarshal JSON", "path", path, "err", err)
+			log.Error("unmarshal JSON", slog.String("path", path), slog.String("error", err.Error()))
 			result.Errors++
 			continue
 		}
@@ -86,7 +86,7 @@ func Run(ctx context.Context, cfg *Config, repo seeder.RefEntryBulkRepo, log *sl
 		}
 
 		if err := Validate(entry); err != nil {
-			log.Error("invalid entry", "path", path, "err", err)
+			log.Error("invalid entry", slog.String("path", path), slog.String("error", err.Error()))
 			result.Errors++
 			continue
 		}
@@ -109,10 +109,10 @@ func Run(ctx context.Context, cfg *Config, repo seeder.RefEntryBulkRepo, log *sl
 	}
 
 	log.Info("llm-import complete",
-		"files", result.FilesProcessed,
-		"inserted", result.Inserted,
-		"skipped", result.Skipped,
-		"errors", result.Errors,
+		slog.Int("files", result.FilesProcessed),
+		slog.Int("inserted", result.Inserted),
+		slog.Int("skipped", result.Skipped),
+		slog.Int("errors", result.Errors),
 	)
 	return result, nil
 }

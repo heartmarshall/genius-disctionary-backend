@@ -113,6 +113,7 @@ type RefSense {
   definition: String
   partOfSpeech: PartOfSpeech
   cefrLevel: String
+  notes: String
   sourceSlug: String!
   position: Int!
   translations: [RefTranslation!]!

@@ -291,7 +291,7 @@ func (q *Queries) GetRefPronunciationsByIDs(ctx context.Context, ids []uuid.UUID
 
 const getRefSensesByEntryID = `-- name: GetRefSensesByEntryID :many
 
-SELECT id, ref_entry_id, definition, part_of_speech, cefr_level, source_slug, position, created_at
+SELECT id, ref_entry_id, definition, part_of_speech, cefr_level, source_slug, position, created_at, notes
 FROM ref_senses
 WHERE ref_entry_id = $1
 ORDER BY position
@@ -318,6 +318,7 @@ func (q *Queries) GetRefSensesByEntryID(ctx context.Context, refEntryID uuid.UUI
 			&i.SourceSlug,
 			&i.Position,
 			&i.CreatedAt,
+			&i.Notes,
 		); err != nil {
 			return nil, err
 		}
@@ -330,7 +331,7 @@ func (q *Queries) GetRefSensesByEntryID(ctx context.Context, refEntryID uuid.UUI
 }
 
 const getRefSensesByIDs = `-- name: GetRefSensesByIDs :many
-SELECT id, ref_entry_id, definition, part_of_speech, cefr_level, source_slug, position, created_at
+SELECT id, ref_entry_id, definition, part_of_speech, cefr_level, source_slug, position, created_at, notes
 FROM ref_senses
 WHERE id = ANY($1::uuid[])
 ORDER BY position
@@ -354,6 +355,7 @@ func (q *Queries) GetRefSensesByIDs(ctx context.Context, ids []uuid.UUID) ([]Ref
 			&i.SourceSlug,
 			&i.Position,
 			&i.CreatedAt,
+			&i.Notes,
 		); err != nil {
 			return nil, err
 		}
@@ -590,9 +592,9 @@ func (q *Queries) InsertRefPronunciation(ctx context.Context, arg InsertRefPronu
 }
 
 const insertRefSense = `-- name: InsertRefSense :one
-INSERT INTO ref_senses (id, ref_entry_id, definition, part_of_speech, cefr_level, source_slug, position, created_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-RETURNING id, ref_entry_id, definition, part_of_speech, cefr_level, source_slug, position, created_at
+INSERT INTO ref_senses (id, ref_entry_id, definition, part_of_speech, cefr_level, notes, source_slug, position, created_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+RETURNING id, ref_entry_id, definition, part_of_speech, cefr_level, source_slug, position, created_at, notes
 `
 
 type InsertRefSenseParams struct {
@@ -601,6 +603,7 @@ type InsertRefSenseParams struct {
 	Definition   pgtype.Text
 	PartOfSpeech NullPartOfSpeech
 	CefrLevel    pgtype.Text
+	Notes        pgtype.Text
 	SourceSlug   string
 	Position     int32
 	CreatedAt    time.Time
@@ -613,6 +616,7 @@ func (q *Queries) InsertRefSense(ctx context.Context, arg InsertRefSenseParams) 
 		arg.Definition,
 		arg.PartOfSpeech,
 		arg.CefrLevel,
+		arg.Notes,
 		arg.SourceSlug,
 		arg.Position,
 		arg.CreatedAt,
@@ -627,6 +631,7 @@ func (q *Queries) InsertRefSense(ctx context.Context, arg InsertRefSenseParams) 
 		&i.SourceSlug,
 		&i.Position,
 		&i.CreatedAt,
+		&i.Notes,
 	)
 	return i, err
 }

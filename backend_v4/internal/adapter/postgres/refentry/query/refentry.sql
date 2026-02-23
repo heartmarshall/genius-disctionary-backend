@@ -34,18 +34,18 @@ ON CONFLICT (text_normalized) DO NOTHING;
 -- ---------------------------------------------------------------------------
 
 -- name: GetRefSensesByEntryID :many
-SELECT id, ref_entry_id, definition, part_of_speech, cefr_level, source_slug, position, created_at
+SELECT id, ref_entry_id, definition, part_of_speech, cefr_level, source_slug, position, created_at, notes
 FROM ref_senses
 WHERE ref_entry_id = $1
 ORDER BY position;
 
 -- name: InsertRefSense :one
-INSERT INTO ref_senses (id, ref_entry_id, definition, part_of_speech, cefr_level, source_slug, position, created_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-RETURNING id, ref_entry_id, definition, part_of_speech, cefr_level, source_slug, position, created_at;
+INSERT INTO ref_senses (id, ref_entry_id, definition, part_of_speech, cefr_level, notes, source_slug, position, created_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+RETURNING id, ref_entry_id, definition, part_of_speech, cefr_level, source_slug, position, created_at, notes;
 
 -- name: GetRefSensesByIDs :many
-SELECT id, ref_entry_id, definition, part_of_speech, cefr_level, source_slug, position, created_at
+SELECT id, ref_entry_id, definition, part_of_speech, cefr_level, source_slug, position, created_at, notes
 FROM ref_senses
 WHERE id = ANY(@ids::uuid[])
 ORDER BY position;
