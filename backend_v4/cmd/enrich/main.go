@@ -11,6 +11,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"log/slog"
 	"os"
@@ -39,7 +40,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if _, err := enricher.Run(cfg, logger); err != nil {
+	if _, err := enricher.Run(context.Background(), cfg, logger); err != nil {
 		logger.Error("enrichment failed", slog.String("error", err.Error()))
 		os.Exit(1)
 	}

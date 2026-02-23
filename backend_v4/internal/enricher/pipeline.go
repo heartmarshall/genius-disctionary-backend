@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	anthropic "github.com/anthropics/anthropic-sdk-go"
+	"github.com/anthropics/anthropic-sdk-go/option"
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
 	"github.com/heartmarshall/myenglish-backend/internal/seeder/cmu"
 	"github.com/heartmarshall/myenglish-backend/internal/seeder/wordnet"
@@ -27,7 +29,7 @@ type PipelineResult struct {
 // Run loads datasets and generates enrich-output/<word>.json for all words in the word list.
 // In manual mode it also writes batch word list files.
 // In api mode it additionally calls the LLM API (see llm_client.go).
-func Run(cfg *Config, log *slog.Logger) (PipelineResult, error) {
+func Run(ctx context.Context, cfg *Config, log *slog.Logger) (PipelineResult, error) {
 	var result PipelineResult
 
 	// 1. Read word list.
@@ -75,6 +77,11 @@ func Run(cfg *Config, log *slog.Logger) (PipelineResult, error) {
 		return result, fmt.Errorf("create enrich-output dir: %w", err)
 	}
 
+	var llmClient anthropic.Client
+	if cfg.Mode == "api" {
+		llmClient = anthropic.NewClient(option.WithAPIKey(cfg.LLMAPIKey))
+	}
+
 	// 4. Build context files + batch word lists.
 	var batch []string
 	batchNum := 1
@@ -102,7 +109,7 @@ func Run(cfg *Config, log *slog.Logger) (PipelineResult, error) {
 		result.Written++
 
 		if cfg.Mode == "api" {
-			if err := callLLM(context.Background(), cfg, enrichCtx, log); err != nil {
+			if err := callLLM(ctx, llmClient, cfg, enrichCtx, log); err != nil {
 				log.Error("llm api call", slog.String("word", word), slog.String("error", err.Error()))
 			}
 		}

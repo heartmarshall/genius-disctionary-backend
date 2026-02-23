@@ -10,14 +10,13 @@ import (
 	"strings"
 
 	anthropic "github.com/anthropics/anthropic-sdk-go"
-	"github.com/anthropics/anthropic-sdk-go/option"
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
 )
 
 // callLLM sends one EnrichContext to Claude and saves the LLM output JSON.
 // Output is saved to llmOutputDir/<normalized_word>.json.
 // If the file already exists, it is skipped (resume support).
-func callLLM(ctx context.Context, cfg *Config, enrichCtx EnrichContext, log *slog.Logger) error {
+func callLLM(ctx context.Context, client anthropic.Client, cfg *Config, enrichCtx EnrichContext, log *slog.Logger) error {
 	normalized := domain.NormalizeText(enrichCtx.Word)
 	outPath := filepath.Join(cfg.LLMOutputDir, normalized+".json")
 
@@ -36,8 +35,6 @@ func callLLM(ctx context.Context, cfg *Config, enrichCtx EnrichContext, log *slo
 	}
 
 	prompt := buildPrompt(enrichCtx.Word, string(contextJSON))
-
-	client := anthropic.NewClient(option.WithAPIKey(cfg.LLMAPIKey))
 
 	msg, err := client.Messages.New(ctx, anthropic.MessageNewParams{
 		Model:     anthropic.Model(cfg.LLMModel),
@@ -60,6 +57,11 @@ func callLLM(ctx context.Context, cfg *Config, enrichCtx EnrichContext, log *slo
 	jsonStr, err := extractJSON(responseText)
 	if err != nil {
 		return fmt.Errorf("extract json from response for %q: %w", enrichCtx.Word, err)
+	}
+
+	// Verify the extracted string is actually valid JSON before persisting.
+	if !json.Valid([]byte(jsonStr)) {
+		return fmt.Errorf("response for %q does not contain valid JSON", enrichCtx.Word)
 	}
 
 	if err := os.WriteFile(outPath, []byte(jsonStr), 0644); err != nil {
