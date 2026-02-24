@@ -131,3 +131,25 @@ func (s SessionStatus) IsValid() bool {
 	}
 	return false
 }
+
+// UserRole represents the authorization level of a user.
+type UserRole string
+
+const (
+	UserRoleUser  UserRole = "user"
+	UserRoleAdmin UserRole = "admin"
+)
+
+func (r UserRole) String() string { return string(r) }
+
+func (r UserRole) IsValid() bool {
+	switch r {
+	case UserRoleUser, UserRoleAdmin:
+		return true
+	}
+	return false
+}
+
+func (r UserRole) IsAdmin() bool {
+	return r == UserRoleAdmin
+}

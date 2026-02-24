@@ -13,6 +13,7 @@ type User struct {
 	Username  string
 	Name      string
 	AvatarURL *string
+	Role      UserRole
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
