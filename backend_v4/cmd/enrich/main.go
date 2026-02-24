@@ -16,7 +16,7 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/heartmarshall/myenglish-backend/internal/enricher"
+	"github.com/heartmarshall/myenglish-backend/internal/app/enricher"
 )
 
 func main() {

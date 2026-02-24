@@ -3,8 +3,8 @@ package enricher
 import (
 	"testing"
 
-	"github.com/heartmarshall/myenglish-backend/internal/seeder/cmu"
-	"github.com/heartmarshall/myenglish-backend/internal/seeder/wiktionary"
+	"github.com/heartmarshall/myenglish-backend/internal/app/seeder/cmu"
+	"github.com/heartmarshall/myenglish-backend/internal/app/seeder/wiktionary"
 )
 
 func TestBuildContext_fullWord(t *testing.T) {

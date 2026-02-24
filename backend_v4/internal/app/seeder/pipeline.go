@@ -10,11 +10,11 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
-	"github.com/heartmarshall/myenglish-backend/internal/seeder/cmu"
-	"github.com/heartmarshall/myenglish-backend/internal/seeder/ngsl"
-	"github.com/heartmarshall/myenglish-backend/internal/seeder/tatoeba"
-	"github.com/heartmarshall/myenglish-backend/internal/seeder/wiktionary"
-	"github.com/heartmarshall/myenglish-backend/internal/seeder/wordnet"
+	"github.com/heartmarshall/myenglish-backend/internal/app/seeder/cmu"
+	"github.com/heartmarshall/myenglish-backend/internal/app/seeder/ngsl"
+	"github.com/heartmarshall/myenglish-backend/internal/app/seeder/tatoeba"
+	"github.com/heartmarshall/myenglish-backend/internal/app/seeder/wiktionary"
+	"github.com/heartmarshall/myenglish-backend/internal/app/seeder/wordnet"
 )
 
 // allPhases defines the canonical execution order.

@@ -21,8 +21,8 @@ import (
 	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/refentry"
 	"github.com/heartmarshall/myenglish-backend/internal/app"
 	"github.com/heartmarshall/myenglish-backend/internal/config"
-	"github.com/heartmarshall/myenglish-backend/internal/llm_importer"
-	"github.com/heartmarshall/myenglish-backend/internal/seeder"
+	"github.com/heartmarshall/myenglish-backend/internal/app/llm_importer"
+	"github.com/heartmarshall/myenglish-backend/internal/app/seeder"
 )
 
 // Compile-time interface assertion.

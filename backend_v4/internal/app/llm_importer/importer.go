@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
-	"github.com/heartmarshall/myenglish-backend/internal/seeder"
+	"github.com/heartmarshall/myenglish-backend/internal/app/seeder"
 )
 
 // Result holds import statistics.

@@ -13,9 +13,9 @@ import (
 	anthropic "github.com/anthropics/anthropic-sdk-go"
 	"github.com/anthropics/anthropic-sdk-go/option"
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
-	"github.com/heartmarshall/myenglish-backend/internal/seeder/cmu"
-	"github.com/heartmarshall/myenglish-backend/internal/seeder/wordnet"
-	"github.com/heartmarshall/myenglish-backend/internal/seeder/wiktionary"
+	"github.com/heartmarshall/myenglish-backend/internal/app/seeder/cmu"
+	"github.com/heartmarshall/myenglish-backend/internal/app/seeder/wordnet"
+	"github.com/heartmarshall/myenglish-backend/internal/app/seeder/wiktionary"
 )
 
 // PipelineResult holds enrichment statistics.
