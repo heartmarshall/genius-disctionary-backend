@@ -19,7 +19,9 @@ import (
 
 	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres"
 	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/audit"
+	authmethodrepo "github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/authmethod"
 	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/card"
+	enrichmentrepo "github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/enrichment"
 	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/entry"
 	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/example"
 	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/image"
@@ -42,6 +44,7 @@ import (
 	authsvc "github.com/heartmarshall/myenglish-backend/internal/service/auth"
 	"github.com/heartmarshall/myenglish-backend/internal/service/content"
 	"github.com/heartmarshall/myenglish-backend/internal/service/dictionary"
+	enrichmentsvc "github.com/heartmarshall/myenglish-backend/internal/service/enrichment"
 	inboxsvc "github.com/heartmarshall/myenglish-backend/internal/service/inbox"
 	"github.com/heartmarshall/myenglish-backend/internal/service/refcatalog"
 	"github.com/heartmarshall/myenglish-backend/internal/service/study"
@@ -149,7 +152,9 @@ func setupTestServer(t *testing.T) *testServer {
 
 	// 3. Repositories.
 	auditRepo := audit.New(pool)
+	authMethodRepo := authmethodrepo.New(pool)
 	cardRepo := card.New(pool)
+	enrichmentQueueRepo := enrichmentrepo.New(pool)
 	entryRepo := entry.New(pool)
 	exampleRepo := example.New(pool, txm)
 	imageRepo := image.New(pool)
@@ -179,7 +184,7 @@ func setupTestServer(t *testing.T) *testServer {
 
 	// 7. Services.
 	authService := authsvc.NewService(
-		logger, userRepo, userRepo, tokenRepo, txm, oauthVerifier, jwtMgr,
+		logger, userRepo, userRepo, tokenRepo, authMethodRepo, txm, oauthVerifier, jwtMgr,
 		config.AuthConfig{
 			JWTSecret:       jwtSecret,
 			JWTIssuer:       jwtIssuer,
@@ -209,6 +214,8 @@ func setupTestServer(t *testing.T) *testServer {
 		UndoWindowMinutes:    10,
 	}
 
+	enrichmentService := enrichmentsvc.NewService(logger, enrichmentQueueRepo)
+
 	dictionaryService := dictionary.NewService(
 		logger, entryRepo, senseRepo, translationRepo, exampleRepo,
 		pronunciationRepo, imageRepo, cardRepo, auditRepo, txm,
@@ -217,6 +224,7 @@ func setupTestServer(t *testing.T) *testServer {
 			DefaultEaseFactor: 2.5,
 		},
 	)
+	dictionaryService.SetEnrichment(enrichmentService)
 
 	contentService := content.NewService(
 		logger, entryRepo, senseRepo, translationRepo, exampleRepo,
@@ -236,6 +244,7 @@ func setupTestServer(t *testing.T) *testServer {
 	res := resolver.NewResolver(
 		logger, dictionaryService, contentService, studyService,
 		topicService, inboxService, userService, refCatalogService,
+		enrichmentService,
 	)
 
 	schema := generated.NewExecutableSchema(generated.Config{Resolvers: res})
@@ -365,7 +374,7 @@ func createTestUserAndGetToken(t *testing.T, ts *testServer) string {
 	}
 
 	// Generate JWT.
-	tok, err := ts.jwt.GenerateAccessToken(userID)
+	tok, err := ts.jwt.GenerateAccessToken(userID, "user")
 	if err != nil {
 		t.Fatalf("generate token: %v", err)
 	}
@@ -406,7 +415,7 @@ func createTestUserWithID(t *testing.T, ts *testServer) (string, uuid.UUID) {
 		t.Fatalf("insert test settings: %v", err)
 	}
 
-	tok, err := ts.jwt.GenerateAccessToken(userID)
+	tok, err := ts.jwt.GenerateAccessToken(userID, "user")
 	if err != nil {
 		t.Fatalf("generate token: %v", err)
 	}
