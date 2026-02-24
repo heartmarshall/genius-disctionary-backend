@@ -160,5 +160,14 @@ func (s *Service) CreateEntryFromCatalog(ctx context.Context, input CreateFromCa
 		return nil, txErr
 	}
 
+	// Best-effort: enqueue for enrichment (don't fail the request).
+	if s.enrichment != nil && input.RefEntryID != uuid.Nil {
+		go func() {
+			if err := s.enrichment.Enqueue(context.Background(), input.RefEntryID); err != nil {
+				s.log.Warn("enrichment enqueue failed", "error", err.Error())
+			}
+		}()
+	}
+
 	return created, nil
 }

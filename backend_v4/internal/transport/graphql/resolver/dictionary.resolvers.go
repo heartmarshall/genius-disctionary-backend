@@ -329,6 +329,19 @@ func (r *queryResolver) SearchCatalog(ctx context.Context, query string, limit *
 		return nil, err
 	}
 
+	// Best-effort: enqueue returned entries for enrichment.
+	if r.enrichment != nil && len(entries) > 0 {
+		ids := make([]uuid.UUID, len(entries))
+		for i := range entries {
+			ids[i] = entries[i].ID
+		}
+		go func() {
+			for _, id := range ids {
+				_ = r.enrichment.Enqueue(context.Background(), id)
+			}
+		}()
+	}
+
 	// Convert []domain.RefEntry to []*domain.RefEntry
 	result := make([]*domain.RefEntry, len(entries))
 	for i := range entries {
@@ -340,7 +353,19 @@ func (r *queryResolver) SearchCatalog(ctx context.Context, query string, limit *
 // PreviewRefEntry is the resolver for the previewRefEntry field.
 func (r *queryResolver) PreviewRefEntry(ctx context.Context, text string) (*domain.RefEntry, error) {
 	// No auth required - public RefCatalog
-	return r.dictionary.PreviewRefEntry(ctx, text)
+	entry, err := r.dictionary.PreviewRefEntry(ctx, text)
+	if err != nil {
+		return nil, err
+	}
+
+	// Best-effort: enqueue for enrichment.
+	if r.enrichment != nil && entry != nil {
+		go func() {
+			_ = r.enrichment.Enqueue(context.Background(), entry.ID)
+		}()
+	}
+
+	return entry, nil
 }
 
 // Dictionary is the resolver for the dictionary field.

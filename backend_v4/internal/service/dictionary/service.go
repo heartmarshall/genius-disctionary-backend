@@ -68,6 +68,10 @@ type txManager interface {
 	RunInTx(ctx context.Context, fn func(ctx context.Context) error) error
 }
 
+type enrichmentEnqueuer interface {
+	Enqueue(ctx context.Context, refEntryID uuid.UUID) error
+}
+
 type refCatalogService interface {
 	GetOrFetchEntry(ctx context.Context, text string) (*domain.RefEntry, error)
 	GetRefEntry(ctx context.Context, refEntryID uuid.UUID) (*domain.RefEntry, error)
@@ -91,6 +95,7 @@ type Service struct {
 	audit          auditRepo
 	tx             txManager
 	refCatalog     refCatalogService
+	enrichment     enrichmentEnqueuer
 	cfg            config.DictionaryConfig
 }
 
@@ -123,6 +128,11 @@ func NewService(
 		refCatalog:     refCatalog,
 		cfg:            cfg,
 	}
+}
+
+// SetEnrichment injects the optional enrichment enqueuer.
+func (s *Service) SetEnrichment(e enrichmentEnqueuer) {
+	s.enrichment = e
 }
 
 // ---------------------------------------------------------------------------

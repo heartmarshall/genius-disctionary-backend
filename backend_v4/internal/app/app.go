@@ -26,6 +26,7 @@ import (
 	topicrepo "github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/topic"
 	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/translation"
 	userrepo "github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/user"
+	enrichmentrepo "github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/enrichment"
 	"github.com/heartmarshall/myenglish-backend/internal/adapter/provider/freedict"
 	"github.com/heartmarshall/myenglish-backend/internal/adapter/provider/google"
 	"github.com/heartmarshall/myenglish-backend/internal/adapter/provider/translate"
@@ -36,6 +37,7 @@ import (
 	"github.com/heartmarshall/myenglish-backend/internal/service/content"
 	"github.com/heartmarshall/myenglish-backend/internal/service/dictionary"
 	inboxsvc "github.com/heartmarshall/myenglish-backend/internal/service/inbox"
+	enrichmentsvc "github.com/heartmarshall/myenglish-backend/internal/service/enrichment"
 	"github.com/heartmarshall/myenglish-backend/internal/service/refcatalog"
 	"github.com/heartmarshall/myenglish-backend/internal/service/study"
 	topicsvc "github.com/heartmarshall/myenglish-backend/internal/service/topic"
@@ -107,6 +109,7 @@ func Run(ctx context.Context) error {
 	topicRepo := topicrepo.New(pool)
 	translationRepo := translation.New(pool, txm)
 	userRepo := userrepo.New(pool)
+	enrichmentQueueRepo := enrichmentrepo.New(pool)
 
 	// -----------------------------------------------------------------------
 	// 6. Create external providers
@@ -162,11 +165,16 @@ func Run(ctx context.Context) error {
 		UndoWindowMinutes:    cfg.SRS.UndoWindowMinutes,
 	}
 
+	enrichmentService := enrichmentsvc.NewService(
+		logger, enrichmentQueueRepo,
+	)
+
 	dictionaryService := dictionary.NewService(
 		logger, entryRepo, senseRepo, translationRepo, exampleRepo,
 		pronunciationRepo, imageRepo, cardRepo, auditRepo, txm,
 		refCatalogService, cfg.Dictionary,
 	)
+	dictionaryService.SetEnrichment(enrichmentService)
 
 	contentService := content.NewService(
 		logger, entryRepo, senseRepo, translationRepo, exampleRepo,
@@ -192,6 +200,7 @@ func Run(ctx context.Context) error {
 	res := resolver.NewResolver(
 		logger, dictionaryService, contentService, studyService,
 		topicService, inboxService, userService, refCatalogService,
+		enrichmentService,
 	)
 
 	schema := generated.NewExecutableSchema(generated.Config{
