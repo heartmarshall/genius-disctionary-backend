@@ -16,9 +16,11 @@ type Config struct {
 	EnrichOutputDir string `yaml:"enrich_output_dir" env:"ENRICH_OUTPUT_DIR"      env-default:"./enrich-output"`
 	LLMOutputDir    string `yaml:"llm_output_dir"    env:"ENRICH_LLM_OUTPUT_DIR"  env-default:"./llm-output"`
 	Mode            string `yaml:"mode"              env:"ENRICH_MODE"             env-default:"manual"`
+	Source          string `yaml:"source"            env:"ENRICH_SOURCE"           env-default:"file"`
 	BatchSize       int    `yaml:"batch_size"        env:"ENRICH_BATCH_SIZE"       env-default:"50"`
 	LLMAPIKey       string `yaml:"llm_api_key"       env:"ENRICH_LLM_API_KEY"`
 	LLMModel        string `yaml:"llm_model"         env:"ENRICH_LLM_MODEL"        env-default:"claude-opus-4-6"`
+	DatabaseDSN     string `yaml:"database_dsn"      env:"DATABASE_DSN"`
 }
 
 // LoadConfig reads enricher config from YAML or environment variables.

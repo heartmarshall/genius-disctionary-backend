@@ -26,17 +26,26 @@ type PipelineResult struct {
 	BatchFiles int
 }
 
+// RunWithWords runs the enrichment pipeline for a given word list.
+// This is the core function used by both file-based and queue-based modes.
+func RunWithWords(ctx context.Context, cfg *Config, words []string, log *slog.Logger) (PipelineResult, error) {
+	return runPipeline(ctx, cfg, words, log)
+}
+
 // Run loads datasets and generates enrich-output/<word>.json for all words in the word list.
 // In manual mode it also writes batch word list files.
 // In api mode it additionally calls the LLM API (see llm_client.go).
 func Run(ctx context.Context, cfg *Config, log *slog.Logger) (PipelineResult, error) {
-	var result PipelineResult
-
-	// 1. Read word list.
+	// Read word list from file.
 	words, err := readWordList(cfg.WordListPath)
 	if err != nil {
-		return result, fmt.Errorf("read word list: %w", err)
+		return PipelineResult{}, fmt.Errorf("read word list: %w", err)
 	}
+	return runPipeline(ctx, cfg, words, log)
+}
+
+func runPipeline(ctx context.Context, cfg *Config, words []string, log *slog.Logger) (PipelineResult, error) {
+	var result PipelineResult
 	result.TotalWords = len(words)
 	log.Info("word list loaded", slog.Int("count", len(words)))
 
