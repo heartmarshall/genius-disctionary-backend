@@ -1,0 +1,53 @@
+{
+  "word": "include",
+  "ipa": "/ɪnklud/",
+  "wiktionary_senses": [
+    {
+      "pos": "verb",
+      "definition": "To bring into a group, class, set, or total as a (new) part or member.",
+      "translations_ru": [
+        "включа́ть",
+        "включи́ть",
+        "присоединя́ть",
+        "присоедини́ть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To consider as part of something; to comprehend."
+    },
+    {
+      "pos": "verb",
+      "definition": "To enclose, confine.",
+      "translations_ru": [
+        "включа́ть",
+        "включи́ть",
+        "содержа́ть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To conclude; to terminate."
+    },
+    {
+      "pos": "verb",
+      "definition": "To use a directive that allows the use of source code from another file."
+    },
+    {
+      "pos": "noun",
+      "definition": "A piece of source code or other content that is dynamically retrieved for inclusion in another item."
+    }
+  ],
+  "relations": {
+    "hypernyms": [
+      "allow",
+      "let",
+      "hold",
+      "add",
+      "consider",
+      "regard",
+      "see",
+      "view"
+    ]
+  }
+}

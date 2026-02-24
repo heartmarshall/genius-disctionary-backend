@@ -1,0 +1,41 @@
+{
+  "word": "exception",
+  "ipa": "/ɪksɛpʃʌn/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "The act of excepting or excluding; exclusion; restriction by taking out something which would otherwise be included, as in a class, statement, rule.",
+      "translations_ru": [
+        "исключе́ние",
+        "изъя́тие"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "That which is excluded from others; a person, thing, or case, specified as distinct, or not included."
+    },
+    {
+      "pos": "noun",
+      "definition": "An objection, on legal grounds; also, as in conveyancing, a clause by which the grantor excepts or reserves something before the right is transferred."
+    },
+    {
+      "pos": "noun",
+      "definition": "An objection; cavil; dissent; disapprobation; offense; cause of offense.",
+      "translations_ru": [
+        "возраже́ние"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "An interruption in normal processing, typically caused by an error condition, that can be raised (\"thrown\") by one part of the program and handled (\"caught\") by another part.",
+      "translations_ru": [
+        "оши́бка"
+      ]
+    }
+  ],
+  "relations": {
+    "hypernyms": [
+      "example"
+    ]
+  }
+}

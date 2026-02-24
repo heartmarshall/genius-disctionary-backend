@@ -16,8 +16,6 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/heartmarshall/myenglish-backend/internal/app"
-	"github.com/heartmarshall/myenglish-backend/internal/config"
 	"github.com/heartmarshall/myenglish-backend/internal/enricher"
 )
 
@@ -25,14 +23,7 @@ func main() {
 	enrichConfigPath := flag.String("enrich-config", "", "path to enrich YAML config")
 	flag.Parse()
 
-	appCfg, err := config.Load()
-	if err != nil {
-		// Fall back to a basic logger before the app logger is available.
-		slog.Error("load app config", slog.String("error", err.Error()))
-		os.Exit(1)
-	}
-
-	logger := app.NewLogger(appCfg.Log)
+	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
 
 	cfg, err := enricher.LoadConfig(*enrichConfigPath)
 	if err != nil {

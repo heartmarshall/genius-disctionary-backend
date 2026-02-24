@@ -1,0 +1,4749 @@
+You are a professional English-Russian dictionary editor.
+Below are 50 English words with their context from reference datasets (IPA, existing definitions, Russian translations, semantic relations).
+
+For EACH word produce an improved dictionary entry in JSON format.
+Separate consecutive JSON objects with a line containing only "---".
+Output NOTHING except the JSON objects and the "---" separators — no markdown, no explanations.
+
+Each JSON must match this exact schema:
+{
+  "word": "<word>",
+  "source_slug": "llm",
+  "senses": [
+    {
+      "pos": "<NOUN|VERB|ADJECTIVE|ADVERB|PRONOUN|PREPOSITION|CONJUNCTION|INTERJECTION|PHRASE|IDIOM|OTHER>",
+      "definition": "<clear English definition for B1+ learners>",
+      "cefr_level": "<A1|A2|B1|B2|C1|C2>",
+      "notes": "<learning tip in Russian: collocations, register, common mistakes>",
+      "translations": ["<Russian 1>", "<Russian 2>"],
+      "examples": [
+        {"sentence": "<English example>", "translation": "<Russian translation>"}
+      ]
+    }
+  ]
+}
+
+Rules:
+- Rewrite definitions to be clearer and more useful for learners
+- Provide 2-4 Russian translations per sense
+- Write notes in Russian
+- Generate 1-3 natural example sentences with Russian translations
+- Preserve the word order — output exactly 50 JSON objects in the same order
+
+=== WORD 1: aside ===
+{
+  "word": "aside",
+  "ipa": "/ʌsaɪd/",
+  "wiktionary_senses": [
+    {
+      "pos": "adv",
+      "definition": "To or on one side so as to be out of the way.",
+      "translations_ru": [
+        "в сто́рону",
+        "в стороне́",
+        "поо́даль"
+      ]
+    },
+    {
+      "pos": "adv",
+      "definition": "Excluded from consideration."
+    },
+    {
+      "pos": "adj",
+      "definition": "Not in perfect symmetry; distorted laterally, especially of the human body."
+    },
+    {
+      "pos": "noun",
+      "definition": "An incidental remark to a person next to one made discreetly but not in private, audible only to that person."
+    },
+    {
+      "pos": "noun",
+      "definition": "An incidental remark to a person next to one made discreetly but not in private, audible only to that person. (theater) A brief comment by a character addressing the audience, unheard by other characters."
+    },
+    {
+      "pos": "noun",
+      "definition": "A minor related mention, an afterthought."
+    }
+  ],
+  "relations": {
+    "synonyms": [
+      "away"
+    ],
+    "hypernyms": [
+      "content",
+      "message",
+      "speech"
+    ]
+  }
+}
+
+=== WORD 2: boys ===
+{
+  "word": "boys",
+  "ipa": "/bɔɪz/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "plural of boy"
+    },
+    {
+      "pos": "noun",
+      "definition": "The testicles."
+    },
+    {
+      "pos": "name",
+      "definition": "A surname."
+    }
+  ],
+  "relations": {}
+}
+
+=== WORD 3: broken ===
+{
+  "word": "broken",
+  "ipa": "/bɹoʊkʌn/",
+  "wiktionary_senses": [
+    {
+      "pos": "verb",
+      "definition": "past participle of break"
+    },
+    {
+      "pos": "adj",
+      "definition": "Fragmented; in separate pieces."
+    },
+    {
+      "pos": "adj",
+      "definition": "Fragmented; in separate pieces."
+    },
+    {
+      "pos": "adj",
+      "definition": "Fragmented; in separate pieces."
+    },
+    {
+      "pos": "adj",
+      "definition": "Fragmented; in separate pieces."
+    },
+    {
+      "pos": "adj",
+      "definition": "Fragmented; in separate pieces."
+    },
+    {
+      "pos": "adj",
+      "definition": "Fragmented; in separate pieces."
+    },
+    {
+      "pos": "adj",
+      "definition": "Fragmented; in separate pieces."
+    },
+    {
+      "pos": "adj",
+      "definition": "Breached; violated; not kept."
+    },
+    {
+      "pos": "adj",
+      "definition": "Non-functional; not functioning properly."
+    },
+    {
+      "pos": "adj",
+      "definition": "Non-functional; not functioning properly."
+    },
+    {
+      "pos": "adj",
+      "definition": "Non-functional; not functioning properly."
+    },
+    {
+      "pos": "adj",
+      "definition": "Non-functional; not functioning properly."
+    },
+    {
+      "pos": "adj",
+      "definition": "Non-functional; not functioning properly."
+    },
+    {
+      "pos": "adj",
+      "definition": "Completely defeated and dispirited; shattered; destroyed."
+    },
+    {
+      "pos": "adj",
+      "definition": "Having no money; bankrupt, broke."
+    },
+    {
+      "pos": "adj",
+      "definition": "Uneven."
+    },
+    {
+      "pos": "adj",
+      "definition": "Overpowered; overly powerful; giving a player too much power."
+    },
+    {
+      "pos": "name",
+      "definition": "Torres Strait Creole."
+    }
+  ],
+  "relations": {
+    "synonyms": [
+      "confused",
+      "upset",
+      "low"
+    ]
+  }
+}
+
+=== WORD 4: drag ===
+{
+  "word": "drag",
+  "ipa": "/dɹæɡ/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "Resistance of a fluid to something moving through it.",
+      "translations_ru": [
+        "сопротивле́ние"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "Any force acting in opposition to the motion of an object."
+    },
+    {
+      "pos": "noun",
+      "definition": "A device dragged along the bottom of a body of water in search of something, e.g. a dead body, or in fishing.",
+      "translations_ru": [
+        "дра́га"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A systematic search for someone over a wide area, especially by the authorities; a dragnet."
+    },
+    {
+      "pos": "noun",
+      "definition": "A double drum-stroke played at twice the speed of the context in which it is placed."
+    },
+    {
+      "pos": "noun",
+      "definition": "A puff on a cigarette or joint.",
+      "translations_ru": [
+        "затя́жка"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "Someone or something that is annoying or frustrating, or disappointing; an obstacle to progress or enjoyment.",
+      "translations_ru": [
+        "обу́за",
+        "разочарова́ние"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A long open horse-drawn carriage with transverse or side seats."
+    },
+    {
+      "pos": "noun",
+      "definition": "A street."
+    },
+    {
+      "pos": "noun",
+      "definition": "The scent-path left by dragging a fox, or some other substance such as aniseed, for training hounds to follow scents."
+    },
+    {
+      "pos": "noun",
+      "definition": "A large amount of backspin on the cue ball, causing the cue ball to slow down."
+    },
+    {
+      "pos": "noun",
+      "definition": "A heavy harrow for breaking up ground."
+    },
+    {
+      "pos": "noun",
+      "definition": "A kind of sledge for conveying heavy objects; also, a kind of low car or handcart."
+    },
+    {
+      "pos": "noun",
+      "definition": "The bottom part of a sand casting mold."
+    },
+    {
+      "pos": "noun",
+      "definition": "A steel instrument for completing the dressing of soft stone."
+    },
+    {
+      "pos": "noun",
+      "definition": "The difference between the speed of a screw steamer under sail and that of the screw when the ship outruns the screw; or between the propulsive effects of the different floats of a paddle wheel."
+    },
+    {
+      "pos": "noun",
+      "definition": "Anything towed in the water to retard a ship's progress, or to keep her head up to the wind; especially, a canvas bag with a hooped mouth (drag sail), so used."
+    },
+    {
+      "pos": "noun",
+      "definition": "A pulled load."
+    },
+    {
+      "pos": "noun",
+      "definition": "A skid or shoe for retarding the motion of a carriage wheel."
+    },
+    {
+      "pos": "noun",
+      "definition": "Motion affected with slowness and difficulty, as if clogged."
+    },
+    {
+      "pos": "noun",
+      "definition": "Witch house music."
+    },
+    {
+      "pos": "noun",
+      "definition": "The last position in a line of hikers."
+    },
+    {
+      "pos": "noun",
+      "definition": "A push somewhat under the centre of the cue ball, causing it to follow the object ball a short way."
+    },
+    {
+      "pos": "noun",
+      "definition": "A device for guiding wood to the saw."
+    },
+    {
+      "pos": "noun",
+      "definition": "A mailcoach."
+    },
+    {
+      "pos": "noun",
+      "definition": "A prison sentence of three months."
+    },
+    {
+      "pos": "verb",
+      "definition": "To pull along a surface or through a medium, sometimes with difficulty.",
+      "translations_ru": [
+        "таска́ть",
+        "тащи́ть",
+        "волочи́ть",
+        "тяга́ть",
+        "воло́чь"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To proceed heavily, laboriously, or slowly; to advance with weary effort; to go on lingeringly."
+    },
+    {
+      "pos": "verb",
+      "definition": "To act or proceed slowly or without enthusiasm; to be reluctant."
+    },
+    {
+      "pos": "verb",
+      "definition": "To draw along (something burdensome); hence, to pass in pain or with difficulty."
+    },
+    {
+      "pos": "verb",
+      "definition": "To serve as a clog or hindrance; to hold back."
+    },
+    {
+      "pos": "verb",
+      "definition": "To operate a pointing device by moving it with a button held down; to move, copy, etc. (an item) in this way.",
+      "translations_ru": [
+        "тащи́ться",
+        "волочи́ться"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To unintentionally rub or scrape on a surface."
+    },
+    {
+      "pos": "verb",
+      "definition": "To hit or kick off target."
+    },
+    {
+      "pos": "verb",
+      "definition": "To fish with a dragnet."
+    },
+    {
+      "pos": "verb",
+      "definition": "To search for something, as a lost object or body, by dragging something along the bottom of a body of water."
+    },
+    {
+      "pos": "verb",
+      "definition": "To break (land) by drawing a drag or harrow over it; to harrow."
+    },
+    {
+      "pos": "verb",
+      "definition": "To search exhaustively, as if with a dragnet."
+    },
+    {
+      "pos": "verb",
+      "definition": "To roast, say negative things about, or call attention to the flaws of (someone)."
+    },
+    {
+      "pos": "verb",
+      "definition": "To play at a slower tempo than one is supposed to or than the other musicians one is playing with, or to inadvertently gradually decrease tempo while one is playing."
+    },
+    {
+      "pos": "verb",
+      "definition": "To inhale from a cigarette, cigar, etc."
+    },
+    {
+      "pos": "noun",
+      "definition": "Women's clothing worn by men for the purpose of entertainment."
+    },
+    {
+      "pos": "noun",
+      "definition": "Women's clothing worn by men for the purpose of entertainment."
+    },
+    {
+      "pos": "noun",
+      "definition": "A men's party attended in women's clothing."
+    },
+    {
+      "pos": "noun",
+      "definition": "A drag king or drag queen."
+    },
+    {
+      "pos": "noun",
+      "definition": "Any type of clothing or costume associated with a particular occupation or subculture."
+    },
+    {
+      "pos": "verb",
+      "definition": "To perform as a drag queen or drag king."
+    },
+    {
+      "pos": "noun",
+      "definition": "Clipping of dragon."
+    }
+  ],
+  "relations": {
+    "synonyms": [
+      "sweep",
+      "pull",
+      "haul",
+      "draw"
+    ],
+    "hypernyms": [
+      "move",
+      "involve",
+      "check",
+      "draw",
+      "pull",
+      "inspiration",
+      "clothing",
+      "wear",
+      "go",
+      "travel",
+      "search",
+      "seek",
+      "proceed",
+      "inspire"
+    ]
+  }
+}
+
+=== WORD 5: exact ===
+{
+  "word": "exact",
+  "ipa": "/ɪɡzækt/",
+  "wiktionary_senses": [
+    {
+      "pos": "adj",
+      "definition": "Precisely agreeing with a standard, a fact, or the truth; perfectly conforming; neither exceeding nor falling short in any respect.",
+      "translations_ru": [
+        "то́чный"
+      ]
+    },
+    {
+      "pos": "adj",
+      "definition": "Habitually careful to agree with a standard, a rule, or a promise; accurate; methodical; punctual.",
+      "translations_ru": [
+        "аккура́тный"
+      ]
+    },
+    {
+      "pos": "adj",
+      "definition": "Precisely or definitely conceived or stated; strict.",
+      "translations_ru": [
+        "ве́рный"
+      ]
+    },
+    {
+      "pos": "adj",
+      "definition": "Such that the kernel of each morphism is the image of the preceding one."
+    },
+    {
+      "pos": "adj",
+      "definition": "Such that it preserves short exact sequences."
+    },
+    {
+      "pos": "verb",
+      "definition": "To demand and enforce the payment or performance of, sometimes in a forcible or imperious way."
+    },
+    {
+      "pos": "verb",
+      "definition": "To make desirable or necessary."
+    },
+    {
+      "pos": "verb",
+      "definition": "To inflict; to forcibly obtain or produce; to visit."
+    },
+    {
+      "pos": "adv",
+      "definition": "exactly"
+    }
+  ],
+  "relations": {
+    "synonyms": [
+      "precise",
+      "take"
+    ],
+    "hypernyms": [
+      "ask",
+      "demand",
+      "involve",
+      "need",
+      "require",
+      "take",
+      "claim"
+    ]
+  }
+}
+
+=== WORD 6: exercise ===
+{
+  "word": "exercise",
+  "ipa": "/ɛksɝsaɪz/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "Any activity designed to develop or hone a skill or ability.",
+      "translations_ru": [
+        "упражне́ние",
+        "трениро́вка",
+        "пра́ктика"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "Activity intended to improve physical, or sometimes mental, strength and fitness.",
+      "translations_ru": [
+        "упражне́ние",
+        "заря́дка",
+        "физзаря́дка",
+        "трениро́вка"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A setting in action or practicing; employment in the proper mode of activity; exertion; application; use."
+    },
+    {
+      "pos": "noun",
+      "definition": "The performance of an office, ceremony, or duty."
+    },
+    {
+      "pos": "noun",
+      "definition": "That which gives practice; a trial; a test."
+    },
+    {
+      "pos": "verb",
+      "definition": "To exert for the sake of training or improvement; to practice in order to develop.",
+      "translations_ru": [
+        "упражня́ться",
+        "тренирова́ться",
+        "практикова́ться"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To perform physical activity for health or training."
+    },
+    {
+      "pos": "verb",
+      "definition": "To use (a right, an option, etc.); to put into practice."
+    },
+    {
+      "pos": "verb",
+      "definition": "To occupy the attention and effort of; to task; to tax, especially in a painful or vexatious manner; harass; to vex; to worry or make anxious."
+    },
+    {
+      "pos": "verb",
+      "definition": "To set in action; to cause to act, move, or make exertion; to give employment to."
+    }
+  ],
+  "relations": {
+    "synonyms": [
+      "practice",
+      "work",
+      "use"
+    ],
+    "hypernyms": [
+      "learn",
+      "read",
+      "study",
+      "take",
+      "action",
+      "training",
+      "ceremony",
+      "effort",
+      "sweat",
+      "act",
+      "move",
+      "lesson",
+      "work",
+      "apply",
+      "use",
+      "activity"
+    ]
+  }
+}
+
+=== WORD 7: lack ===
+{
+  "word": "lack",
+  "ipa": "/læk/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "A deficiency or need (of something desirable or necessary); an absence, want, dearth.",
+      "translations_ru": [
+        "отсу́тствие",
+        "нехва́тка",
+        "недоста́ток",
+        "нужда́"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A defect or failing; moral or spiritual degeneracy."
+    },
+    {
+      "pos": "verb",
+      "definition": "To be without, not to have, to need, to require.",
+      "translations_ru": [
+        "отсу́тствовать",
+        "недостава́ть",
+        "недоста́ть",
+        "нужда́ться"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To be short (of or for something)."
+    },
+    {
+      "pos": "verb",
+      "definition": "To be in want."
+    },
+    {
+      "pos": "verb",
+      "definition": "To see the deficiency in (someone or something); to find fault with, to malign, reproach."
+    },
+    {
+      "pos": "verb",
+      "definition": "To be off one's guard."
+    },
+    {
+      "pos": "noun",
+      "definition": "Archaic form of lakh."
+    }
+  ],
+  "relations": {
+    "synonyms": [
+      "miss",
+      "want"
+    ],
+    "hypernyms": [
+      "demand",
+      "need",
+      "miss"
+    ]
+  }
+}
+
+=== WORD 8: respond ===
+{
+  "word": "respond",
+  "ipa": "/ɹɪspɑnd/",
+  "wiktionary_senses": [
+    {
+      "pos": "verb",
+      "definition": "To say something in return; to answer; to reply.",
+      "translations_ru": [
+        "отвеча́ть",
+        "отве́тить"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To act in return; to carry out an action or in return to a force or stimulus; to do something in response."
+    },
+    {
+      "pos": "verb",
+      "definition": "To correspond with; to suit."
+    },
+    {
+      "pos": "verb",
+      "definition": "To satisfy; to answer."
+    },
+    {
+      "pos": "verb",
+      "definition": "To be liable for payment."
+    },
+    {
+      "pos": "noun",
+      "definition": "A response."
+    },
+    {
+      "pos": "noun",
+      "definition": "A versicle or short anthem chanted at intervals during the reading of a lection."
+    },
+    {
+      "pos": "noun",
+      "definition": "A half-pillar, pilaster, or any corresponding device engaged in a wall to receive the impost of an arch."
+    }
+  ],
+  "relations": {
+    "hypernyms": [
+      "state",
+      "say",
+      "tell",
+      "act",
+      "move"
+    ]
+  }
+}
+
+=== WORD 9: separate ===
+{
+  "word": "separate",
+  "ipa": "/sɛpɝeɪt/",
+  "wiktionary_senses": [
+    {
+      "pos": "verb",
+      "definition": "To divide (a thing) into separate parts."
+    },
+    {
+      "pos": "verb",
+      "definition": "To disunite from a group or mass; to disconnect.",
+      "translations_ru": [
+        "отделя́ть",
+        "отдели́ть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To cause (things or people) to be separate.",
+      "translations_ru": [
+        "разделя́ть",
+        "разъединя́ть",
+        "разлуча́ть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To divide itself into separate pieces or substances.",
+      "translations_ru": [
+        "разделя́ться"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To set apart; to select from among others, as for a special use or service."
+    },
+    {
+      "pos": "adj",
+      "definition": "Apart from (the rest); not connected to or attached to (anything else).",
+      "translations_ru": [
+        "отде́льный",
+        "обосо́бленный"
+      ]
+    },
+    {
+      "pos": "adj",
+      "definition": "Not together (with); not united (to).",
+      "translations_ru": [
+        "разде́льный"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "Anything that is sold by itself, especially articles of clothing such as blouses, skirts, jackets, and pants."
+    },
+    {
+      "pos": "noun",
+      "definition": "A printing of an article from a periodical as its own distinct publication and distributed independently, often with different page numbers."
+    }
+  ],
+  "relations": {
+    "synonyms": [
+      "split",
+      "sort",
+      "tell"
+    ],
+    "hypernyms": [
+      "move",
+      "change",
+      "break",
+      "quit",
+      "stop",
+      "place",
+      "tell",
+      "act",
+      "work"
+    ]
+  }
+}
+
+=== WORD 10: split ===
+{
+  "word": "split",
+  "ipa": "/splɪt/",
+  "wiktionary_senses": [
+    {
+      "pos": "verb",
+      "definition": "To divide fully or partly along a more or less straight line."
+    },
+    {
+      "pos": "verb",
+      "definition": "To break along the grain fully or partly along a more or less straight line."
+    },
+    {
+      "pos": "verb",
+      "definition": "To share; to divide."
+    },
+    {
+      "pos": "verb",
+      "definition": "To leave."
+    },
+    {
+      "pos": "verb",
+      "definition": "To separate.",
+      "translations_ru": [
+        "разделя́ться",
+        "раздели́ться",
+        "расходи́ться",
+        "разойти́сь"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To (cause to) break up; to throw into discord."
+    },
+    {
+      "pos": "verb",
+      "definition": "To factor into linear factors."
+    },
+    {
+      "pos": "verb",
+      "definition": "To factor into linear factors."
+    },
+    {
+      "pos": "verb",
+      "definition": "To factor into linear factors."
+    },
+    {
+      "pos": "verb",
+      "definition": "To be broken; to be dashed to pieces."
+    },
+    {
+      "pos": "verb",
+      "definition": "To burst out laughing.",
+      "translations_ru": [
+        "дели́ть",
+        "раздели́ть",
+        "подели́ть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To divulge a secret; to betray confidence; to peach."
+    },
+    {
+      "pos": "verb",
+      "definition": "For both teams involved in a doubleheader to win one game each and lose another."
+    },
+    {
+      "pos": "verb",
+      "definition": "To vote for candidates of opposite parties."
+    },
+    {
+      "pos": "adj",
+      "definition": "Divided."
+    },
+    {
+      "pos": "adj",
+      "definition": "Having the middle object (group, module, etc.) equal to the direct sum of the others."
+    },
+    {
+      "pos": "adj",
+      "definition": "Comprising half decaffeinated and half caffeinated espresso."
+    },
+    {
+      "pos": "adj",
+      "definition": "Divided so as to be done or executed part at one time or price and part at another time or price."
+    },
+    {
+      "pos": "adj",
+      "definition": "Given in sixteenths rather than eighths."
+    },
+    {
+      "pos": "adj",
+      "definition": "Designating ordinary stock that has been divided into preferred ordinary and deferred ordinary."
+    },
+    {
+      "pos": "noun",
+      "definition": "A crack or longitudinal fissure.",
+      "translations_ru": [
+        "щель",
+        "расще́лина"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A breach or separation, as in a political party; a division.",
+      "translations_ru": [
+        "раско́л",
+        "разры́в"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A piece that is split off, or made thin, by splitting; a splinter; a fragment.",
+      "translations_ru": [
+        "ще́пка"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "One of the sections of a skin made by dividing it into two or more thicknesses."
+    },
+    {
+      "pos": "noun",
+      "definition": "A maneuver of spreading or sliding the feet apart until the legs are flat on the floor 180 degrees apart, either sideways to the body or with one leg in front and one behind, thus lowering the body completely to the floor in an upright position."
+    },
+    {
+      "pos": "noun",
+      "definition": "A workout routine as seen by its distribution of muscle groups or the extent and manner they are targeted in a microcycle."
+    },
+    {
+      "pos": "noun",
+      "definition": "A split-finger fastball."
+    },
+    {
+      "pos": "noun",
+      "definition": "A result of a first throw that leaves two or more pins standing with one or more pins between them knocked down."
+    },
+    {
+      "pos": "noun",
+      "definition": "A split shot or split stroke."
+    },
+    {
+      "pos": "noun",
+      "definition": "A dessert or confection resembling a banana split.",
+      "translations_ru": [
+        "сплит"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A unit of measure used for champagne or other spirits: 18.75 centiliters or one quarter of a standard 75-centiliter bottle. Commercially comparable to ¹⁄₂₀ (US) gallon, which is ¹⁄₂ of a fifth."
+    },
+    {
+      "pos": "noun",
+      "definition": "A bottle of wine containing 37.5 centiliters, half the volume of a standard 75-centiliter bottle; a demi."
+    },
+    {
+      "pos": "noun",
+      "definition": "The elapsed time at specific intermediate points in a race or speedrun.",
+      "translations_ru": [
+        "шпагат"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A tear resulting from tensile stresses."
+    },
+    {
+      "pos": "noun",
+      "definition": "A division of a stake happening when two cards of the kind on which the stake is laid are dealt in the same turn."
+    },
+    {
+      "pos": "noun",
+      "definition": "A recording containing songs by multiple artists; a split single or split album."
+    },
+    {
+      "pos": "noun",
+      "definition": "The division of a single taxon into two or more taxa; as opposed to a lump."
+    },
+    {
+      "pos": "name",
+      "definition": "A port city in Croatia.",
+      "translations_ru": [
+        "Сплит"
+      ]
+    }
+  ],
+  "relations": {
+    "synonyms": [
+      "tear"
+    ],
+    "hypernyms": [
+      "increase",
+      "tear",
+      "move",
+      "part",
+      "share",
+      "break",
+      "quit",
+      "stop",
+      "separate",
+      "crack",
+      "bottle"
+    ]
+  }
+}
+
+=== WORD 11: swing ===
+{
+  "word": "swing",
+  "ipa": "/swɪŋ/",
+  "wiktionary_senses": [
+    {
+      "pos": "verb",
+      "definition": "To rotate about an off-centre fixed point.",
+      "translations_ru": [
+        "кача́ться",
+        "раска́чиваться"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To dance."
+    },
+    {
+      "pos": "verb",
+      "definition": "To ride on a swing.",
+      "translations_ru": [
+        "кача́ться"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To participate in the swinging lifestyle; to participate in wifeswapping."
+    },
+    {
+      "pos": "verb",
+      "definition": "To hang from the gallows; to be punished by hanging, swing for something or someone; (often hyperbolic) to be severely punished."
+    },
+    {
+      "pos": "verb",
+      "definition": "To move sideways in its trajectory."
+    },
+    {
+      "pos": "verb",
+      "definition": "(of a bowler) To make the ball move sideways in its trajectory."
+    },
+    {
+      "pos": "verb",
+      "definition": "To fluctuate or change."
+    },
+    {
+      "pos": "verb",
+      "definition": "To move (an object) backward and forward; to wave."
+    },
+    {
+      "pos": "verb",
+      "definition": "To change (a numerical result); especially to change the outcome of an election."
+    },
+    {
+      "pos": "verb",
+      "definition": "To make (something) work; especially to afford (something) financially."
+    },
+    {
+      "pos": "verb",
+      "definition": "To play notes that are in pairs by making the first of the pair slightly longer than written (augmentation) and the second shorter, resulting in a bouncy, uneven rhythm."
+    },
+    {
+      "pos": "verb",
+      "definition": "To move one's arm in a punching motion."
+    },
+    {
+      "pos": "verb",
+      "definition": "In dancing, to turn around in a small circle with one's partner, holding hands or arms."
+    },
+    {
+      "pos": "verb",
+      "definition": "To admit or turn something for the purpose of shaping it; said of a lathe."
+    },
+    {
+      "pos": "verb",
+      "definition": "To put (a door, gate, etc.) on hinges so that it can swing or turn."
+    },
+    {
+      "pos": "verb",
+      "definition": "To turn round by action of wind or tide when at anchor."
+    },
+    {
+      "pos": "verb",
+      "definition": "To turn in a different direction."
+    },
+    {
+      "pos": "verb",
+      "definition": "To be sexually oriented."
+    },
+    {
+      "pos": "noun",
+      "definition": "The act, or an instance, of swinging."
+    },
+    {
+      "pos": "noun",
+      "definition": "The manner in which something is swung.",
+      "translations_ru": [
+        "разма́х",
+        "зама́х",
+        "взма́х"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "The sweep or compass of a swinging body."
+    },
+    {
+      "pos": "noun",
+      "definition": "A line, cord, or other thing suspended and hanging loose, upon which anything may swing."
+    },
+    {
+      "pos": "noun",
+      "definition": "A hanging seat that can swing back and forth, in a children's playground, for acrobats in a circus, or on a porch for relaxing.",
+      "translations_ru": [
+        "каче́ли"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "An energetic and acrobatic late-1930s partner-based dance style, also known as jitterbug and lindy-hop."
+    },
+    {
+      "pos": "noun",
+      "definition": "The genre of music associated with this dance style.",
+      "translations_ru": [
+        "свинг"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "The amount of change towards or away from something."
+    },
+    {
+      "pos": "noun",
+      "definition": "The amount of change towards or away from something."
+    },
+    {
+      "pos": "noun",
+      "definition": "Sideways movement of the ball as it flies through the air."
+    },
+    {
+      "pos": "noun",
+      "definition": "Capacity of a turning lathe, as determined by the diameter of the largest object that can be turned in it."
+    },
+    {
+      "pos": "noun",
+      "definition": "In a musical theater production, a performer who understudies several roles."
+    },
+    {
+      "pos": "noun",
+      "definition": "A basic dance step in which a pair link hands and turn round together in a circle."
+    },
+    {
+      "pos": "noun",
+      "definition": "The maximum amount of change that has occurred or can occur; the sum of the maximum changes in any direction."
+    },
+    {
+      "pos": "noun",
+      "definition": "Free course; unrestrained liberty."
+    },
+    {
+      "pos": "noun",
+      "definition": "Influence or power of anything put in motion."
+    },
+    {
+      "pos": "noun",
+      "definition": "A type of hook with the arm more extended.",
+      "translations_ru": [
+        "свинг"
+      ]
+    },
+    {
+      "pos": "name",
+      "definition": "A surname."
+    }
+  ],
+  "relations": {
+    "hypernyms": [
+      "stroke",
+      "shot",
+      "live",
+      "direct",
+      "take",
+      "train",
+      "movement",
+      "move",
+      "sound",
+      "change",
+      "toy",
+      "blow",
+      "hang",
+      "go",
+      "travel",
+      "play",
+      "handle",
+      "manage",
+      "influence",
+      "work",
+      "action",
+      "activity"
+    ]
+  }
+}
+
+=== WORD 12: competition ===
+{
+  "word": "competition",
+  "ipa": "/kɑmpʌtɪʃʌn/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "The action of competing.",
+      "translations_ru": [
+        "соревнова́ние",
+        "состяза́ние",
+        "конкуре́нция",
+        "сопе́рничество"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A contest for a prize or award.",
+      "translations_ru": [
+        "соревнова́ние",
+        "состяза́ние",
+        "ко́нкурс"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "The competitors in such a contest."
+    }
+  ],
+  "relations": {
+    "synonyms": [
+      "rival",
+      "contest"
+    ]
+  }
+}
+
+=== WORD 13: damage ===
+{
+  "word": "damage",
+  "ipa": "/dæmʌdʒ/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "Injury or harm; the condition or measure of something not being intact.",
+      "translations_ru": [
+        "поврежде́ние",
+        "уще́рб",
+        "вред"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "Cost or expense.",
+      "translations_ru": [
+        "уще́рб",
+        "убы́ток"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To impair the soundness, goodness, or value of; to harm or cause destruction.",
+      "translations_ru": [
+        "поврежда́ть",
+        "повреди́ть",
+        "по́ртить",
+        "испо́ртить",
+        "наноси́ть уще́рб",
+        "нанести́ уще́рб"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To undergo damage; to take damage."
+    },
+    {
+      "pos": "verb",
+      "definition": "To remove a damaged or unsalable item from the sales floor for processing."
+    }
+  ],
+  "relations": {
+    "synonyms": [
+      "harm",
+      "hurt",
+      "wrong",
+      "price"
+    ],
+    "hypernyms": [
+      "cost",
+      "change"
+    ]
+  }
+}
+
+=== WORD 14: desert ===
+{
+  "word": "desert",
+  "ipa": "/dɛzɝt/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "A barren area of land or desolate terrain, especially one with little water or vegetation; a wasteland."
+    },
+    {
+      "pos": "noun",
+      "definition": "A barren area of land or desolate terrain, especially one with little water or vegetation; a wasteland."
+    },
+    {
+      "pos": "noun",
+      "definition": "Any barren place or situation."
+    },
+    {
+      "pos": "adj",
+      "definition": "Usually of a place: abandoned, deserted, or uninhabited.",
+      "translations_ru": [
+        "пусто́й",
+        "пусты́нный"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To leave (anything that depends on one's presence to survive, exist, or succeed), especially when contrary to a promise or obligation; to abandon; to forsake.",
+      "translations_ru": [
+        "бро́сить",
+        "забро́сить",
+        "поки́нуть",
+        "оста́вить"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To leave one's duty or post, especially to leave a military or naval unit without permission."
+    },
+    {
+      "pos": "noun",
+      "definition": "That which is deserved or merited; a just punishment or reward.",
+      "translations_ru": [
+        "заслу́женное"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "Obsolete form of dessert."
+    }
+  ],
+  "relations": {
+    "hypernyms": [
+      "fly",
+      "leave"
+    ]
+  }
+}
+
+=== WORD 15: mission ===
+{
+  "word": "mission",
+  "ipa": "/mɪʃʌn/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "A set of tasks that fulfills a purpose or duty; an assignment set by an employer, or by oneself.",
+      "translations_ru": [
+        "ми́ссия",
+        "поруче́ние",
+        "зада́ние",
+        "зада́ча"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A important goal or purpose; an objective."
+    },
+    {
+      "pos": "noun",
+      "definition": "A missionary expedition."
+    },
+    {
+      "pos": "noun",
+      "definition": "Third World charities, particularly those which preach as well as provide aid."
+    },
+    {
+      "pos": "noun",
+      "definition": "An infrequent gathering of religious believers in a parish, usually part of a larger regional event with a central theme."
+    },
+    {
+      "pos": "noun",
+      "definition": "A number of people appointed to perform any service; a delegation; an embassy."
+    },
+    {
+      "pos": "noun",
+      "definition": "Dismissal; discharge from service"
+    },
+    {
+      "pos": "noun",
+      "definition": "A settlement or building serving as a base for missionary work."
+    },
+    {
+      "pos": "noun",
+      "definition": "An settlement predominantly inhabited by Indigenous Australians living in housing commission."
+    },
+    {
+      "pos": "noun",
+      "definition": "A drug run."
+    },
+    {
+      "pos": "noun",
+      "definition": "An ordeal; an difficult, trying task."
+    },
+    {
+      "pos": "verb",
+      "definition": "To send on a mission."
+    },
+    {
+      "pos": "verb",
+      "definition": "To do missionary work, proselytize."
+    },
+    {
+      "pos": "name",
+      "definition": "A district municipality of British Columbia, Canada."
+    },
+    {
+      "pos": "name",
+      "definition": "A neighborhood of San Francisco."
+    }
+  ],
+  "relations": {
+    "hypernyms": [
+      "work",
+      "operation",
+      "organization"
+    ]
+  }
+}
+
+=== WORD 16: permission ===
+{
+  "word": "permission",
+  "ipa": "/pɝmɪʃʌn/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "authorisation; consent (especially formal consent from someone in authority)",
+      "translations_ru": [
+        "разреше́ние",
+        "позволе́ние"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "The act of permitting.",
+      "translations_ru": [
+        "разреше́ние"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "Flags or access control lists pertaining to a file that dictate who can access it, and how."
+    },
+    {
+      "pos": "verb",
+      "definition": "To grant or obtain authorization for."
+    }
+  ],
+  "relations": {}
+}
+
+=== WORD 17: rap ===
+{
+  "word": "rap",
+  "ipa": "/ɹæp/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "A sharp blow with something hard.",
+      "translations_ru": [
+        "уда́р"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "The blame for something."
+    },
+    {
+      "pos": "noun",
+      "definition": "A casual talk."
+    },
+    {
+      "pos": "noun",
+      "definition": "Rap music."
+    },
+    {
+      "pos": "noun",
+      "definition": "A song, verse, or instance of singing in the style of rap music."
+    },
+    {
+      "pos": "noun",
+      "definition": "An appraisal."
+    },
+    {
+      "pos": "noun",
+      "definition": "A positive appraisal; a recommendation."
+    },
+    {
+      "pos": "verb",
+      "definition": "To strike something sharply with one's knuckles; knock.",
+      "translations_ru": [
+        "стуча́ть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To strike with a quick blow; to knock on."
+    },
+    {
+      "pos": "verb",
+      "definition": "To free (a pattern) in a mould by light blows on the pattern, so as to facilitate its removal."
+    },
+    {
+      "pos": "verb",
+      "definition": "To utter quickly and sharply."
+    },
+    {
+      "pos": "verb",
+      "definition": "To speak (lyrics) in the style of rap music.",
+      "translations_ru": [
+        "рэповать"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To talk casually; to engage in conversation."
+    },
+    {
+      "pos": "noun",
+      "definition": "A lea or skein of yarn that forms the standard length taken from the reel, 80 yards of worsted or 120 yards of silk or cotton."
+    },
+    {
+      "pos": "noun",
+      "definition": "Any of the tokens that passed current for a halfpenny in Ireland in the early part of the eighteenth century; any coin of trifling value."
+    },
+    {
+      "pos": "noun",
+      "definition": "A whit; a jot."
+    },
+    {
+      "pos": "verb",
+      "definition": "To seize and carry off."
+    },
+    {
+      "pos": "verb",
+      "definition": "To transport out of oneself; to affect with rapture."
+    },
+    {
+      "pos": "noun",
+      "definition": "Acronym of record of arrest and prosecution."
+    },
+    {
+      "pos": "noun",
+      "definition": "A charge, whether or not it results in a conviction."
+    },
+    {
+      "pos": "verb",
+      "definition": "to rappel"
+    },
+    {
+      "pos": "noun",
+      "definition": "recognized air picture"
+    },
+    {
+      "pos": "noun",
+      "definition": "Initialism of retirement annuity plan."
+    },
+    {
+      "pos": "noun",
+      "definition": "Acronym of record of arrest and prosecution."
+    },
+    {
+      "pos": "name",
+      "definition": "The Rapaport Diamond Report, the diamond industry standard for the pricing of diamonds."
+    }
+  ],
+  "relations": {
+    "synonyms": [
+      "strike",
+      "tap"
+    ],
+    "hypernyms": [
+      "speak",
+      "talk",
+      "conversation",
+      "blow",
+      "bump",
+      "strike",
+      "perform",
+      "go",
+      "sound"
+    ]
+  }
+}
+
+=== WORD 18: tub ===
+{
+  "word": "tub",
+  "ipa": "/tʌb/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "A flat-bottomed vessel, of width similar to or greater than its height, used for storing or packing things, or for washing things in.",
+      "translations_ru": [
+        "ка́дка",
+        "бадья́",
+        "уша́т",
+        "коры́то"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "The contents or capacity of such a vessel."
+    },
+    {
+      "pos": "noun",
+      "definition": "A bathtub."
+    },
+    {
+      "pos": "noun",
+      "definition": "A slow-moving craft.",
+      "translations_ru": [
+        "посудина"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "Any structure shaped like a tub, such as a certain old form of pulpit, a short broad boat, etc."
+    },
+    {
+      "pos": "noun",
+      "definition": "A small cask."
+    },
+    {
+      "pos": "noun",
+      "definition": "Any of various historically designated quantities of goods to be sold by the tub (butter, oysters, etc)."
+    },
+    {
+      "pos": "noun",
+      "definition": "A box or bucket in which coal or ore is sent up a shaft."
+    },
+    {
+      "pos": "noun",
+      "definition": "A sweating in a tub; a tub fast."
+    },
+    {
+      "pos": "noun",
+      "definition": "A corpulent or obese person."
+    },
+    {
+      "pos": "noun",
+      "definition": "The bare body shell of an automobile (minus the doors, hood, trunk lid, fenders, etc.) which is lowered onto the chassis at the time of assembly, or in the case of modern unibody designed vehicles, is itself a monocoque around which the rest of the vehicle is built."
+    },
+    {
+      "pos": "verb",
+      "definition": "To plant, set, or store in a tub."
+    },
+    {
+      "pos": "verb",
+      "definition": "To bathe in a tub."
+    }
+  ],
+  "relations": {}
+}
+
+=== WORD 19: benefit ===
+{
+  "word": "benefit",
+  "ipa": "/bɛnʌfɪt/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "An advantage; help or aid from something.",
+      "translations_ru": [
+        "преиму́щество",
+        "вы́года",
+        "по́льза",
+        "при́быль",
+        "льго́та",
+        "бла́го",
+        "толк",
+        "прок"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A payment made in accordance with an insurance policy or a public assistance scheme.",
+      "translations_ru": [
+        "посо́бие",
+        "социа́льная по́мощь"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "An event, such as a theatrical performance, given to raise funds for some cause.",
+      "translations_ru": [
+        "бенефи́с"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "beneficence; liberality"
+    },
+    {
+      "pos": "noun",
+      "definition": "Intended audience (as for the benefit of)."
+    },
+    {
+      "pos": "verb",
+      "definition": "To be or to provide a benefit to."
+    },
+    {
+      "pos": "verb",
+      "definition": "To receive a benefit (from); to be a beneficiary."
+    }
+  ],
+  "relations": {
+    "synonyms": [
+      "profit",
+      "gain"
+    ],
+    "hypernyms": [
+      "get",
+      "payment",
+      "help",
+      "performance",
+      "good",
+      "goodness"
+    ]
+  }
+}
+
+=== WORD 20: crash ===
+{
+  "word": "crash",
+  "ipa": "/kɹæʃ/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "A sudden, intense, loud sound, as made for example by cymbals.",
+      "translations_ru": [
+        "гро́хот",
+        "треск"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "An automobile, airplane, or other vehicle accident.",
+      "translations_ru": [
+        "ава́рия",
+        "круше́ние",
+        "катастро́фа"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A malfunction of computer software or hardware which causes it to shut down or become partially or totally inoperable.",
+      "translations_ru": [
+        "авари́йное заверше́ние",
+        "паде́ние",
+        "вылета́ние",
+        "поло́мка"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A sudden large decline of business or the prices of stocks (especially one that causes additional failures).",
+      "translations_ru": [
+        "крах",
+        "прова́л",
+        "колла́пс"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A comedown from a drug."
+    },
+    {
+      "pos": "noun",
+      "definition": "A group of rhinoceroses."
+    },
+    {
+      "pos": "noun",
+      "definition": "A sudden decline in any living form's population levels, often leading to extinction."
+    },
+    {
+      "pos": "adj",
+      "definition": "Quick, fast, intensive, impromptu."
+    },
+    {
+      "pos": "verb",
+      "definition": "To collide with something destructively; to fall or come down violently.",
+      "translations_ru": [
+        "разби́ться",
+        "вре́заться",
+        "гро́хнуться"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To cause something to collide with something else, especially when this results in damage.",
+      "translations_ru": [
+        "разби́ть",
+        "гро́хнуть",
+        "слома́ть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To hit or strike with force."
+    },
+    {
+      "pos": "verb",
+      "definition": "To make a sudden loud noise."
+    },
+    {
+      "pos": "verb",
+      "definition": "Ellipsis of gatecrash."
+    },
+    {
+      "pos": "verb",
+      "definition": "To accelerate a project or a task or its schedule by devoting more resources to it."
+    },
+    {
+      "pos": "verb",
+      "definition": "To make or experience informal temporary living arrangements, especially overnight.",
+      "translations_ru": [
+        "переночева́ть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To give, as a favor."
+    },
+    {
+      "pos": "verb",
+      "definition": "To lie down for a long rest, sleep or nap, as from tiredness or exhaustion."
+    },
+    {
+      "pos": "verb",
+      "definition": "To experience a period of depression and/or lethargy after a period of euphoria, as after the euphoric effect of a psychotropic drug has dissipated."
+    },
+    {
+      "pos": "verb",
+      "definition": "To terminate or halt execution due to an exception."
+    },
+    {
+      "pos": "verb",
+      "definition": "To cause an exception that terminates or halts execution."
+    },
+    {
+      "pos": "verb",
+      "definition": "To take a sudden and severe turn for the worse; to rapidly and catastrophically deteriorate."
+    },
+    {
+      "pos": "verb",
+      "definition": "To take a subject at higher level without having previously studied it.",
+      "translations_ru": [
+        "нагря́нуть"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A type of rough linen."
+    }
+  ],
+  "relations": {
+    "hypernyms": [
+      "accident",
+      "pass",
+      "cast",
+      "hit",
+      "fall",
+      "change",
+      "noise",
+      "break",
+      "die",
+      "fail",
+      "go",
+      "move",
+      "sound"
+    ]
+  }
+}
+
+=== WORD 21: describe ===
+{
+  "word": "describe",
+  "ipa": "/dɪskɹaɪb/",
+  "wiktionary_senses": [
+    {
+      "pos": "verb",
+      "definition": "To represent in words.",
+      "translations_ru": [
+        "опи́сывать",
+        "описа́ть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To represent by drawing; to draw a plan of; to delineate; to trace or mark out."
+    },
+    {
+      "pos": "verb",
+      "definition": "To give rise to a geometrical structure.",
+      "translations_ru": [
+        "опи́сывать",
+        "описа́ть",
+        "оче́рчивать",
+        "очерти́ть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To introduce a new taxon to science by explaining its characteristics and particularly how it differs from other taxa."
+    },
+    {
+      "pos": "verb",
+      "definition": "To distribute into parts, groups, or classes; to mark off; to class."
+    }
+  ],
+  "relations": {
+    "synonyms": [
+      "draw",
+      "key",
+      "name",
+      "trace",
+      "line",
+      "report"
+    ],
+    "hypernyms": [
+      "inform",
+      "determine",
+      "set",
+      "mark"
+    ]
+  }
+}
+
+=== WORD 22: freeze ===
+{
+  "word": "freeze",
+  "ipa": "/fɹiz/",
+  "wiktionary_senses": [
+    {
+      "pos": "verb",
+      "definition": "Especially of a liquid, to become solid due to low temperature.",
+      "translations_ru": [
+        "замерза́ть",
+        "замёрзнуть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To lower something's temperature to the point that it freezes or becomes hard.",
+      "translations_ru": [
+        "замора́живать",
+        "заморо́зить"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To drop to a temperature below zero degrees celsius, where water turns to ice.",
+      "translations_ru": [
+        "моро́зить"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To be affected by extreme cold.",
+      "translations_ru": [
+        "мёрзнуть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "Of a machine or system, to come to a sudden halt, to stop working (functioning).",
+      "translations_ru": [
+        "ви́снуть",
+        "зави́снуть",
+        "закли́нивать",
+        "закли́нить",
+        "встава́ть",
+        "вста́ть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "Of a person or other animal, to stop (become motionless) or be stopped due to attentiveness, fear, surprise, etc."
+    },
+    {
+      "pos": "verb",
+      "definition": "To cause someone to become motionless.",
+      "translations_ru": [
+        "замира́ть",
+        "замере́ть",
+        "застыва́ть",
+        "засты́ть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To lose or cause to lose warmth of feeling; to shut out; to ostracize."
+    },
+    {
+      "pos": "verb",
+      "definition": "To cause loss of animation or life in, from lack of heat; to give the sensation of cold to; to chill."
+    },
+    {
+      "pos": "verb",
+      "definition": "To prevent the movement or liquidation of a person's financial assets",
+      "translations_ru": [
+        "замора́живать",
+        "заморо́зить"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "Of prices, spending etc., to keep at the same level, without any increase."
+    },
+    {
+      "pos": "verb",
+      "definition": "To prevent from showing any visible change."
+    },
+    {
+      "pos": "verb",
+      "definition": "To trap (the puck) so that it cannot be played."
+    },
+    {
+      "pos": "noun",
+      "definition": "A period of intensely cold weather.",
+      "translations_ru": [
+        "моро́зы",
+        "за́морозки"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A halt of a regular operation."
+    },
+    {
+      "pos": "noun",
+      "definition": "The state when either a single computer program, or the whole system ceases to respond to inputs.",
+      "translations_ru": [
+        "зависа́ние",
+        "фриз"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A precise draw weight shot where a delivered stone comes to a stand-still against a stationary stone, making it nearly impossible to knock out."
+    },
+    {
+      "pos": "noun",
+      "definition": "A block on pay rises or on the hiring of new employees etc."
+    },
+    {
+      "pos": "noun",
+      "definition": "Obsolete form of frieze."
+    },
+    {
+      "pos": "name",
+      "definition": "A surname."
+    }
+  ],
+  "relations": {
+    "hypernyms": [
+      "change",
+      "break",
+      "interrupt",
+      "act",
+      "bear",
+      "behave",
+      "conduct",
+      "carry",
+      "hurt",
+      "suffer",
+      "turn"
+    ]
+  }
+}
+
+=== WORD 23: gather ===
+{
+  "word": "gather",
+  "ipa": "/ɡæðɝ/",
+  "wiktionary_senses": [
+    {
+      "pos": "verb",
+      "definition": "To collect normally separate things."
+    },
+    {
+      "pos": "verb",
+      "definition": "To collect normally separate things.",
+      "translations_ru": [
+        "собира́ть",
+        "собра́ть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To collect normally separate things.",
+      "translations_ru": [
+        "аккумули́ровать"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To collect normally separate things.",
+      "translations_ru": [
+        "собира́ть",
+        "собра́ть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To collect normally separate things."
+    },
+    {
+      "pos": "verb",
+      "definition": "To bring parts of a whole closer."
+    },
+    {
+      "pos": "verb",
+      "definition": "To bring parts of a whole closer."
+    },
+    {
+      "pos": "verb",
+      "definition": "To bring parts of a whole closer."
+    },
+    {
+      "pos": "verb",
+      "definition": "To bring parts of a whole closer.",
+      "translations_ru": [
+        "собира́ть",
+        "собра́ть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To bring parts of a whole closer."
+    },
+    {
+      "pos": "verb",
+      "definition": "To infer or conclude; to know from a different source.",
+      "translations_ru": [
+        "де́лать вы́вод",
+        "заключа́ть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To be filled with pus"
+    },
+    {
+      "pos": "verb",
+      "definition": "To collect molten glass on the end of a tool."
+    },
+    {
+      "pos": "verb",
+      "definition": "To gain; to win."
+    },
+    {
+      "pos": "noun",
+      "definition": "A plait or fold in cloth, made by drawing a thread through it; a pucker."
+    },
+    {
+      "pos": "noun",
+      "definition": "The inclination forward of the axle journals to keep the wheels from working outward."
+    },
+    {
+      "pos": "noun",
+      "definition": "The soffit or under surface of the masonry required in gathering. See gather."
+    },
+    {
+      "pos": "noun",
+      "definition": "A blob of molten glass collected on the end of a blowpipe."
+    },
+    {
+      "pos": "noun",
+      "definition": "A gathering."
+    }
+  ],
+  "relations": {
+    "synonyms": [
+      "meet",
+      "tuck"
+    ],
+    "antonyms": [
+      "spread"
+    ],
+    "hypernyms": [
+      "increase",
+      "pull",
+      "group",
+      "search",
+      "seek",
+      "collection",
+      "conclude",
+      "reason"
+    ]
+  }
+}
+
+=== WORD 24: pitch ===
+{
+  "word": "pitch",
+  "ipa": "/pɪtʃ/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "A sticky, gummy substance secreted by trees; sap.",
+      "translations_ru": [
+        "смола́"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A dark, extremely viscous material still remaining after distilling crude oil or natural tar.",
+      "translations_ru": [
+        "дёготь",
+        "пек"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "Pitchstone."
+    },
+    {
+      "pos": "verb",
+      "definition": "To cover or smear with pitch."
+    },
+    {
+      "pos": "verb",
+      "definition": "To darken; to blacken; to obscure."
+    },
+    {
+      "pos": "adj",
+      "definition": "Very dark black; pitch-black."
+    },
+    {
+      "pos": "adj",
+      "definition": "Intense, deep, dark."
+    },
+    {
+      "pos": "noun",
+      "definition": "A throw; a toss; a cast, as of something from the hand.",
+      "translations_ru": [
+        "бросо́к"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "The act of pitching a baseball.",
+      "translations_ru": [
+        "пода́ча"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "The field on which cricket, soccer, rugby, gridiron or field hockey is played. (In cricket, the pitch is in the centre of the field; see cricket pitch.) (Not often used in the US or Canada, where \"field\" is the preferred word.)"
+    },
+    {
+      "pos": "noun",
+      "definition": "A short, high, lofty shot that lands with backspin."
+    },
+    {
+      "pos": "noun",
+      "definition": "The field of battle."
+    },
+    {
+      "pos": "noun",
+      "definition": "An effort to sell or promote something."
+    },
+    {
+      "pos": "noun",
+      "definition": "The distance between evenly spaced objects, e.g. the teeth of a saw or gear, the turns of a screw thread, the centres of holes, or letters in a monospace font.",
+      "translations_ru": [
+        "питч",
+        "шаг"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "The angle at which an object sits.",
+      "translations_ru": [
+        "ска́т"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "The rotation angle about the transverse axis.",
+      "translations_ru": [
+        "тангаж"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "The rotation angle about the transverse axis."
+    },
+    {
+      "pos": "noun",
+      "definition": "An area in a market (or similar) allocated to a particular trader."
+    },
+    {
+      "pos": "noun",
+      "definition": "The place where a busker performs, a prostitute solicits clients, or an illegal gambling game etc. is set up before the public."
+    },
+    {
+      "pos": "noun",
+      "definition": "An area on a campsite intended for occupation by a single tent, caravan or similar."
+    },
+    {
+      "pos": "noun",
+      "definition": "A level or degree, or (by extension), a peak or highest degree."
+    },
+    {
+      "pos": "noun",
+      "definition": "A point or peak; the extreme point of elevation or depression."
+    },
+    {
+      "pos": "noun",
+      "definition": "The most thrust-out point of a headland or cape."
+    },
+    {
+      "pos": "noun",
+      "definition": "Collectively, the outermost points of some part of the body, especially the shoulders or hips."
+    },
+    {
+      "pos": "noun",
+      "definition": "The height a bird reaches in flight, especially a bird of prey preparing to swoop down on its prey."
+    },
+    {
+      "pos": "noun",
+      "definition": "A person's or animal's height."
+    },
+    {
+      "pos": "noun",
+      "definition": "Prominence; importance."
+    },
+    {
+      "pos": "noun",
+      "definition": "A section of a climb or rock face; specifically, the climbing distance between belays or stances."
+    },
+    {
+      "pos": "noun",
+      "definition": "A vertical cave passage, only negotiable by using rope or ladders."
+    },
+    {
+      "pos": "noun",
+      "definition": "That point of the ground on which the ball pitches or lights when bowled."
+    },
+    {
+      "pos": "noun",
+      "definition": "A descent; a fall; a thrusting down."
+    },
+    {
+      "pos": "noun",
+      "definition": "The point where a declivity begins; hence, the declivity itself; a descending slope; the degree or rate of descent or slope; slant."
+    },
+    {
+      "pos": "noun",
+      "definition": "The limit of ground set to a miner who receives a share of the ore taken out."
+    },
+    {
+      "pos": "verb",
+      "definition": "To throw.",
+      "translations_ru": [
+        "броса́ть",
+        "бро́сить"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To throw (the ball) toward a batter at home plate.",
+      "translations_ru": [
+        "подава́ть",
+        "пода́ть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To play baseball in the position of pitcher."
+    },
+    {
+      "pos": "verb",
+      "definition": "To throw away; discard."
+    },
+    {
+      "pos": "verb",
+      "definition": "To promote, advertise, or attempt to sell."
+    },
+    {
+      "pos": "verb",
+      "definition": "To deliver in a certain tone or style, or with a certain audience in mind."
+    },
+    {
+      "pos": "verb",
+      "definition": "To assemble or erect (a tent). Also used figuratively.",
+      "translations_ru": [
+        "ста́вить"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To fix or place a tent or temporary habitation; to encamp.",
+      "translations_ru": [
+        "поста́вить",
+        "помести́ть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To move so that the front of an aircraft or boat goes alternately up and down."
+    },
+    {
+      "pos": "verb",
+      "definition": "To set at an angle, especially a downwards one; to cause to tilt."
+    },
+    {
+      "pos": "verb",
+      "definition": "To play a short, high, lofty shot that lands with backspin."
+    },
+    {
+      "pos": "verb",
+      "definition": "To bounce on the playing surface."
+    },
+    {
+      "pos": "verb",
+      "definition": "To settle and build up, without melting."
+    },
+    {
+      "pos": "verb",
+      "definition": "To alight; to settle; to come to rest from flight."
+    },
+    {
+      "pos": "verb",
+      "definition": "To fix one's choice."
+    },
+    {
+      "pos": "verb",
+      "definition": "To plunge or fall; especially, to fall forward; to decline or slope."
+    },
+    {
+      "pos": "verb",
+      "definition": "To set, face, or pave (an embankment or roadway) with rubble or undressed stones."
+    },
+    {
+      "pos": "verb",
+      "definition": "To set or fix (a price or value)."
+    },
+    {
+      "pos": "verb",
+      "definition": "To discard (a card) for some gain."
+    },
+    {
+      "pos": "verb",
+      "definition": "To attack, or position or assemble for attack."
+    },
+    {
+      "pos": "verb",
+      "definition": "To add yeast as a step while making beer"
+    },
+    {
+      "pos": "noun",
+      "definition": "The perceived frequency of a sound, note or electromagnetic wave.",
+      "translations_ru": [
+        "тон",
+        "высота́"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "The standard to which a group of musical instruments are tuned or in which a piece is performed, usually by reference to the frequency to which the musical note A above middle C is tuned."
+    },
+    {
+      "pos": "noun",
+      "definition": "In an a cappella group, the singer responsible for singing a note for the other members to tune themselves by."
+    },
+    {
+      "pos": "verb",
+      "definition": "To produce a note of a given pitch."
+    },
+    {
+      "pos": "verb",
+      "definition": "To fix or set the tone of."
+    }
+  ],
+  "relations": {
+    "synonyms": [
+      "shift",
+      "toss",
+      "sky",
+      "rake"
+    ],
+    "hypernyms": [
+      "field",
+      "throw",
+      "approach",
+      "move",
+      "place",
+      "position",
+      "hit",
+      "fall",
+      "set",
+      "deal",
+      "sell",
+      "trade",
+      "play",
+      "movement"
+    ]
+  }
+}
+
+=== WORD 25: rob ===
+{
+  "word": "rob",
+  "ipa": "/ɹɑb/",
+  "wiktionary_senses": [
+    {
+      "pos": "verb",
+      "definition": "To steal from, especially using force or violence.",
+      "translations_ru": [
+        "гра́бить",
+        "огра́бить"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To deprive of, or withhold from, unjustly or injuriously; to defraud."
+    },
+    {
+      "pos": "verb",
+      "definition": "To deprive (of).",
+      "translations_ru": [
+        "лиша́ть",
+        "лиши́ть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To burgle."
+    },
+    {
+      "pos": "verb",
+      "definition": "To steal."
+    },
+    {
+      "pos": "verb",
+      "definition": "To commit robbery.",
+      "translations_ru": [
+        "гра́бить",
+        "огра́бить"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To take possession of the ball, puck etc. from."
+    },
+    {
+      "pos": "noun",
+      "definition": "A syrup made of evaporating fruit juice over a fire, usually mixed with sugar or honey, and especially used for medicinal purposes."
+    },
+    {
+      "pos": "name",
+      "definition": "A diminutive of the male given name Robert."
+    },
+    {
+      "pos": "name",
+      "definition": "A surname transferred from the given name, derived from Robert."
+    },
+    {
+      "pos": "noun",
+      "definition": "Region of background (in digital images)."
+    }
+  ],
+  "relations": {
+    "hypernyms": [
+      "rip",
+      "steal",
+      "cheat"
+    ]
+  }
+}
+
+=== WORD 26: stomach ===
+{
+  "word": "stomach",
+  "ipa": "/stʌmʌk/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "An organ in animals that stores food in the process of digestion.",
+      "translations_ru": [
+        "желу́док",
+        "живо́т"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "The belly.",
+      "translations_ru": [
+        "живо́т",
+        "брю́хо",
+        "пу́зо",
+        "чре́во"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "Pride, haughtiness."
+    },
+    {
+      "pos": "noun",
+      "definition": "An appetite."
+    },
+    {
+      "pos": "noun",
+      "definition": "A desire, an appetite (for something abstract)."
+    },
+    {
+      "pos": "noun",
+      "definition": "The part of a garment that covers a person's stomach."
+    },
+    {
+      "pos": "verb",
+      "definition": "To tolerate (something), emotionally, physically, or mentally; to stand or handle something.",
+      "translations_ru": [
+        "перева́ривать"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To be angry."
+    },
+    {
+      "pos": "verb",
+      "definition": "To resent; to remember with anger; to dislike."
+    },
+    {
+      "pos": "verb",
+      "definition": "To turn the stomach of; to sicken or repel."
+    }
+  ],
+  "relations": {
+    "synonyms": [
+      "support",
+      "suffer"
+    ],
+    "hypernyms": [
+      "allow",
+      "let"
+    ]
+  }
+}
+
+=== WORD 27: view ===
+{
+  "word": "view",
+  "ipa": "/vju/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "Visual perception."
+    },
+    {
+      "pos": "noun",
+      "definition": "Visual perception.",
+      "translations_ru": [
+        "вид"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "Visual perception.",
+      "translations_ru": [
+        "вид"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "Visual perception.",
+      "translations_ru": [
+        "вид"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "Visual perception."
+    },
+    {
+      "pos": "noun",
+      "definition": "Visual perception."
+    },
+    {
+      "pos": "noun",
+      "definition": "A picture, drawn or painted; a sketch.",
+      "translations_ru": [
+        "вид"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "An opinion, judgement, imagination, idea or belief."
+    },
+    {
+      "pos": "noun",
+      "definition": "An opinion, judgement, imagination, idea or belief."
+    },
+    {
+      "pos": "noun",
+      "definition": "An opinion, judgement, imagination, idea or belief.",
+      "translations_ru": [
+        "взгляд"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "An opinion, judgement, imagination, idea or belief.",
+      "translations_ru": [
+        "то́чка зре́ния"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "An opinion, judgement, imagination, idea or belief.",
+      "translations_ru": [
+        "наме́рение"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A virtual or logical table composed of the result set of a query in relational databases.",
+      "translations_ru": [
+        "представле́ние"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "The part of a computer program which is visible to the user and can be interacted with",
+      "translations_ru": [
+        "представле́ние"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A wake."
+    },
+    {
+      "pos": "verb",
+      "definition": "To look at.",
+      "translations_ru": [
+        "ви́деть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To regard in a stated way."
+    }
+  ],
+  "relations": {
+    "synonyms": [
+      "watch"
+    ],
+    "hypernyms": [
+      "believe",
+      "consider",
+      "think",
+      "reach",
+      "range",
+      "content",
+      "message",
+      "design",
+      "intention",
+      "purpose",
+      "watch",
+      "appearance",
+      "look",
+      "study"
+    ]
+  }
+}
+
+=== WORD 28: assure ===
+{
+  "word": "assure",
+  "ipa": "/ʌʃʊɹ/",
+  "wiktionary_senses": [
+    {
+      "pos": "verb",
+      "definition": "To make sure and secure; ensure.",
+      "translations_ru": [
+        "обеспе́чивать",
+        "обеспе́чить"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To give (someone) confidence in the trustworthiness of (something).",
+      "translations_ru": [
+        "заверя́ть",
+        "заве́рить",
+        "уверя́ть",
+        "уве́рить",
+        "убежда́ть",
+        "убеди́ть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To guarantee, promise (to do something)."
+    },
+    {
+      "pos": "verb",
+      "definition": "To reassure.",
+      "translations_ru": [
+        "обнадёживать",
+        "обнадёжить"
+      ]
+    }
+  ],
+  "relations": {
+    "synonyms": [
+      "promise",
+      "guarantee",
+      "secure",
+      "see",
+      "check",
+      "control",
+      "tell"
+    ],
+    "hypernyms": [
+      "declare",
+      "swear"
+    ]
+  }
+}
+
+=== WORD 29: currently ===
+{
+  "word": "currently",
+  "ipa": "/kɝʌntli/",
+  "wiktionary_senses": [
+    {
+      "pos": "adv",
+      "definition": "At this moment, at present, now.",
+      "translations_ru": [
+        "в да́нный моме́нт",
+        "в настоя́щее вре́мя",
+        "сейча́с"
+      ]
+    }
+  ],
+  "relations": {}
+}
+
+=== WORD 30: disappear ===
+{
+  "word": "disappear",
+  "ipa": "/dɪsʌpɪɹ/",
+  "wiktionary_senses": [
+    {
+      "pos": "verb",
+      "definition": "To vanish.",
+      "translations_ru": [
+        "исчеза́ть",
+        "исче́знуть",
+        "пропада́ть",
+        "пропа́сть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To go missing; to become a missing person."
+    },
+    {
+      "pos": "verb",
+      "definition": "To go away; to become lost."
+    },
+    {
+      "pos": "verb",
+      "definition": "To make vanish; especially, to abduct or murder for political reasons.",
+      "translations_ru": [
+        "убира́ть",
+        "убра́ть"
+      ]
+    }
+  ],
+  "relations": {
+    "hypernyms": [
+      "change",
+      "end",
+      "finish",
+      "stop"
+    ]
+  }
+}
+
+=== WORD 31: dozen ===
+{
+  "word": "dozen",
+  "ipa": "/dʌzʌn/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "A set of twelve."
+    },
+    {
+      "pos": "noun",
+      "definition": "A large, unspecified number of, comfortably estimated in small multiples of twelve, thus generally implied to be significantly more than ten or twelve, but less than perhaps one or two hundred; many.",
+      "translations_ru": [
+        "деся́тки",
+        "мно́жество",
+        "у́йма"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "An old English measure of ore containing 12 hundredweight."
+    },
+    {
+      "pos": "noun",
+      "definition": "The number twelve."
+    },
+    {
+      "pos": "noun",
+      "definition": "A member of a K-pop group who has no talent."
+    }
+  ],
+  "relations": {}
+}
+
+=== WORD 32: equal ===
+{
+  "word": "equal",
+  "ipa": "/ikwʌl/",
+  "wiktionary_senses": [
+    {
+      "pos": "adj",
+      "definition": "The same in one or more respects."
+    },
+    {
+      "pos": "adj",
+      "definition": "The same in one or more respects."
+    },
+    {
+      "pos": "adj",
+      "definition": "The same in one or more respects.",
+      "translations_ru": [
+        "ра́вный",
+        "одина́ковый",
+        "то́т же"
+      ]
+    },
+    {
+      "pos": "adj",
+      "definition": "The same in one or more respects.",
+      "translations_ru": [
+        "ра́вный"
+      ]
+    },
+    {
+      "pos": "adj",
+      "definition": "Fair, impartial."
+    },
+    {
+      "pos": "adj",
+      "definition": "Adequate; sufficiently capable or qualified."
+    },
+    {
+      "pos": "adj",
+      "definition": "Not variable; equable; uniform; even."
+    },
+    {
+      "pos": "adj",
+      "definition": "Intended for voices of one kind only, either all male or all female; not mixed."
+    },
+    {
+      "pos": "verb",
+      "definition": "To be equal to, to have the same value as; to correspond to.",
+      "translations_ru": [
+        "равня́ться"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To make equivalent to; to cause to match."
+    },
+    {
+      "pos": "verb",
+      "definition": "To match in degree or some other quality, to match up to."
+    },
+    {
+      "pos": "verb",
+      "definition": "To have as consequence, to amount to, to mean."
+    },
+    {
+      "pos": "noun",
+      "definition": "A person or thing of equal status to others.",
+      "translations_ru": [
+        "ра́вный",
+        "ро́вня"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "State of being equal; equality."
+    }
+  ],
+  "relations": {
+    "synonyms": [
+      "match",
+      "touch",
+      "rival"
+    ],
+    "hypernyms": [
+      "change"
+    ]
+  }
+}
+
+=== WORD 33: golden ===
+{
+  "word": "golden",
+  "ipa": "/ɡoʊldʌn/",
+  "wiktionary_senses": [
+    {
+      "pos": "adj",
+      "definition": "Made of, or relating to, gold.",
+      "translations_ru": [
+        "золото́й"
+      ]
+    },
+    {
+      "pos": "adj",
+      "definition": "Having a color or other richness suggestive of gold.",
+      "translations_ru": [
+        "золото́й",
+        "золоти́стый"
+      ]
+    },
+    {
+      "pos": "adj",
+      "definition": "Of a beverage, flavoured or colored with turmeric."
+    },
+    {
+      "pos": "adj",
+      "definition": "Marked by prosperity, creativity etc.",
+      "translations_ru": [
+        "золото́й"
+      ]
+    },
+    {
+      "pos": "adj",
+      "definition": "Advantageous or very favourable."
+    },
+    {
+      "pos": "adj",
+      "definition": "Relating to a fiftieth anniversary."
+    },
+    {
+      "pos": "adj",
+      "definition": "Relating to the elderly or retired."
+    },
+    {
+      "pos": "adj",
+      "definition": "Fine, without problems."
+    },
+    {
+      "pos": "noun",
+      "definition": "Kyphosus vaigiensis, a fish found in southeast Asia."
+    },
+    {
+      "pos": "noun",
+      "definition": "Ellipsis of golden retriever."
+    },
+    {
+      "pos": "verb",
+      "definition": "To become gold or golden (in color)."
+    },
+    {
+      "pos": "verb",
+      "definition": "To make golden or like gold."
+    },
+    {
+      "pos": "name",
+      "definition": "A surname."
+    },
+    {
+      "pos": "name",
+      "definition": "A female given name."
+    },
+    {
+      "pos": "name",
+      "definition": "A male given name."
+    },
+    {
+      "pos": "name",
+      "definition": "A town in the Columbia-Shuswap Regional District, British Columbia, Canada."
+    },
+    {
+      "pos": "name",
+      "definition": "A village in County Tipperary, Ireland."
+    },
+    {
+      "pos": "name",
+      "definition": "A hamlet in Probus parish, Cornwall, England (OS grid ref SW9246)."
+    },
+    {
+      "pos": "name",
+      "definition": "A number of places in the United States:"
+    },
+    {
+      "pos": "name",
+      "definition": "A number of places in the United States:"
+    },
+    {
+      "pos": "name",
+      "definition": "A number of places in the United States:"
+    },
+    {
+      "pos": "name",
+      "definition": "A number of places in the United States:"
+    },
+    {
+      "pos": "name",
+      "definition": "A number of places in the United States:"
+    },
+    {
+      "pos": "name",
+      "definition": "A number of places in the United States:"
+    },
+    {
+      "pos": "name",
+      "definition": "A number of places in the United States:"
+    },
+    {
+      "pos": "name",
+      "definition": "A number of places in the United States:"
+    },
+    {
+      "pos": "name",
+      "definition": "A number of places in the United States:"
+    },
+    {
+      "pos": "name",
+      "definition": "A number of places in the United States:"
+    },
+    {
+      "pos": "name",
+      "definition": "A number of places in the United States:"
+    },
+    {
+      "pos": "name",
+      "definition": "A number of places in the United States:"
+    },
+    {
+      "pos": "name",
+      "definition": "A number of places in the United States:"
+    },
+    {
+      "pos": "name",
+      "definition": "A number of places in the United States:"
+    },
+    {
+      "pos": "noun",
+      "definition": "Ellipsis of Golden Retriever."
+    }
+  ],
+  "relations": {
+    "synonyms": [
+      "lucky"
+    ]
+  }
+}
+
+=== WORD 34: major ===
+{
+  "word": "major",
+  "ipa": "/meɪdʒɝ/",
+  "wiktionary_senses": [
+    {
+      "pos": "adj",
+      "definition": "Greater in dignity, rank, importance, significance, or interest."
+    },
+    {
+      "pos": "adj",
+      "definition": "Greater in number, quantity, or extent."
+    },
+    {
+      "pos": "adj",
+      "definition": "Notable or conspicuous in effect or scope."
+    },
+    {
+      "pos": "adj",
+      "definition": "Prominent or significant in size, amount, or degree."
+    },
+    {
+      "pos": "adj",
+      "definition": "Involving great risk, serious, life-threatening."
+    },
+    {
+      "pos": "adj",
+      "definition": "Of full legal age, having attained majority."
+    },
+    {
+      "pos": "adj",
+      "definition": "Of or relating to a subject of academic study chosen as a field of specialization."
+    },
+    {
+      "pos": "adj",
+      "definition": "Having intervals of a semitone between the third and fourth, and seventh and eighth degrees. (of a scale)"
+    },
+    {
+      "pos": "adj",
+      "definition": "Equivalent to that between the tonic and another note of a major scale, and greater by a semitone than the corresponding minor interval. (of an interval)"
+    },
+    {
+      "pos": "adj",
+      "definition": "Equivalent to that between the tonic and another note of a major scale, and greater by a semitone than the corresponding minor interval. (of an interval)"
+    },
+    {
+      "pos": "adj",
+      "definition": "(of a key) Based on a major scale, tending to produce a bright or joyful effect."
+    },
+    {
+      "pos": "adj",
+      "definition": "Bell changes rung on eight bells."
+    },
+    {
+      "pos": "adj",
+      "definition": "Indicating the elder of two brothers (or the eldest of three), appended to a surname in public schools."
+    },
+    {
+      "pos": "adj",
+      "definition": "Occurring as the predicate in the conclusion of a categorical syllogism. (of a term)"
+    },
+    {
+      "pos": "adj",
+      "definition": "Containing the major term in a categorical syllogism. (of a premise)"
+    },
+    {
+      "pos": "noun",
+      "definition": "A rank of officer in the army and the US air force, between captain and lieutenant colonel."
+    },
+    {
+      "pos": "noun",
+      "definition": "A rank of officer in the army and the US air force, between captain and lieutenant colonel."
+    },
+    {
+      "pos": "noun",
+      "definition": "A person of legal age.",
+      "translations_ru": [
+        "совершенноле́тний",
+        "совершенноле́тняя"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "Ellipsis of major key."
+    },
+    {
+      "pos": "noun",
+      "definition": "Ellipsis of major interval."
+    },
+    {
+      "pos": "noun",
+      "definition": "Ellipsis of major scale."
+    },
+    {
+      "pos": "noun",
+      "definition": "A system of change-ringing using eight bells."
+    },
+    {
+      "pos": "noun",
+      "definition": "A large, commercially successful company, especially a record label that is bigger than an indie."
+    },
+    {
+      "pos": "noun",
+      "definition": "The principal subject or course of a student working toward a degree at a college or university."
+    },
+    {
+      "pos": "noun",
+      "definition": "The principal subject or course of a student working toward a degree at a college or university."
+    },
+    {
+      "pos": "noun",
+      "definition": "Ellipsis of major term."
+    },
+    {
+      "pos": "noun",
+      "definition": "Ellipsis of major premise."
+    },
+    {
+      "pos": "noun",
+      "definition": "Ellipsis of major suit."
+    },
+    {
+      "pos": "noun",
+      "definition": "A touchdown, or major score."
+    },
+    {
+      "pos": "noun",
+      "definition": "A goal."
+    },
+    {
+      "pos": "noun",
+      "definition": "An elder brother (especially at a public school)."
+    },
+    {
+      "pos": "noun",
+      "definition": "A large leaf-cutter ant that acts as a soldier, defending the nest."
+    },
+    {
+      "pos": "noun",
+      "definition": "Alternative form of mayor and mair."
+    },
+    {
+      "pos": "verb",
+      "definition": "Used in a phrasal verb: major in.",
+      "translations_ru": [
+        "специализи́роваться"
+      ]
+    },
+    {
+      "pos": "name",
+      "definition": "A surname."
+    },
+    {
+      "pos": "name",
+      "definition": "An unincorporated community in Owsley County, Kentucky, United States."
+    },
+    {
+      "pos": "name",
+      "definition": "A village in the Rural Municipality of Prairiedale, No. 321, Saskatchewan, Canada."
+    },
+    {
+      "pos": "noun",
+      "definition": "Title for an army officer with the rank of major.",
+      "translations_ru": [
+        "Майор"
+      ]
+    }
+  ],
+  "relations": {
+    "antonyms": [
+      "minor"
+    ],
+    "hypernyms": [
+      "student",
+      "study",
+      "field",
+      "subject"
+    ]
+  }
+}
+
+=== WORD 35: odd ===
+{
+  "word": "odd",
+  "ipa": "/ɑd/",
+  "wiktionary_senses": [
+    {
+      "pos": "adj",
+      "definition": "Differing from what is usual, ordinary or expected."
+    },
+    {
+      "pos": "adj",
+      "definition": "Differing from what is usual, ordinary or expected.",
+      "translations_ru": [
+        "стра́нный"
+      ]
+    },
+    {
+      "pos": "adj",
+      "definition": "Without a corresponding mate in a pair or set; unmatched; (of a pair or set) mismatched."
+    },
+    {
+      "pos": "adj",
+      "definition": "Left over, remaining after the rest have been paired or grouped."
+    },
+    {
+      "pos": "adj",
+      "definition": "Left over or remaining (as a small amount) after counting, payment, etc."
+    },
+    {
+      "pos": "adj",
+      "definition": "Scattered; occasional, infrequent; not forming part of a set or pattern."
+    },
+    {
+      "pos": "adj",
+      "definition": "Not regular or planned."
+    },
+    {
+      "pos": "adj",
+      "definition": "Used or employed for odd jobs."
+    },
+    {
+      "pos": "adj",
+      "definition": "Numerically indivisible by two.",
+      "translations_ru": [
+        "нечётный"
+      ]
+    },
+    {
+      "pos": "adj",
+      "definition": "Numbered with an odd number."
+    },
+    {
+      "pos": "adj",
+      "definition": "About, approximately; somewhat more than (an approximated round number).",
+      "translations_ru": [
+        "о́коло",
+        "приблизи́тельно"
+      ]
+    },
+    {
+      "pos": "adj",
+      "definition": "Out of the way, secluded."
+    },
+    {
+      "pos": "adj",
+      "definition": "On the left."
+    },
+    {
+      "pos": "adj",
+      "definition": "Singular in excellence; matchless; peerless; outstanding."
+    },
+    {
+      "pos": "noun",
+      "definition": "Something left over, not forming part of a set."
+    },
+    {
+      "pos": "noun",
+      "definition": "An odd number."
+    },
+    {
+      "pos": "name",
+      "definition": "A male given name."
+    },
+    {
+      "pos": "name",
+      "definition": "Minced form of God."
+    },
+    {
+      "pos": "noun",
+      "definition": "Initialism of oppositional defiant disorder."
+    },
+    {
+      "pos": "noun",
+      "definition": "Initialism of optical disc drive."
+    }
+  ],
+  "relations": {}
+}
+
+=== WORD 36: official ===
+{
+  "word": "official",
+  "ipa": "/ʌfɪʃʌl/",
+  "wiktionary_senses": [
+    {
+      "pos": "adj",
+      "definition": "Of or about an office or public trust.",
+      "translations_ru": [
+        "служе́бный",
+        "должностно́й"
+      ]
+    },
+    {
+      "pos": "adj",
+      "definition": "Derived from the proper office or officer, or the appropriate authority; made or communicated by authority",
+      "translations_ru": [
+        "официа́льный"
+      ]
+    },
+    {
+      "pos": "adj",
+      "definition": "Approved by authority; authorized."
+    },
+    {
+      "pos": "adj",
+      "definition": "Approved by authority; authorized."
+    },
+    {
+      "pos": "adj",
+      "definition": "Sanctioned by the pharmacopoeia; appointed to be used in medicine; officinal."
+    },
+    {
+      "pos": "adj",
+      "definition": "Discharging an office or function."
+    },
+    {
+      "pos": "adj",
+      "definition": "Relating to an office, especially a subordinate executive officer or attendant.",
+      "translations_ru": [
+        "официа́льный",
+        "служе́бный",
+        "должностно́й"
+      ]
+    },
+    {
+      "pos": "adj",
+      "definition": "Relating to an ecclesiastical judge appointed by a bishop, chapter, archdeacon, etc., with charge of the spiritual jurisdiction."
+    },
+    {
+      "pos": "adj",
+      "definition": "True, real, beyond doubt."
+    },
+    {
+      "pos": "adj",
+      "definition": "Listed in a national pharmacopeia."
+    },
+    {
+      "pos": "noun",
+      "definition": "An office holder, a person holding an official position in government, sports, or other organization.",
+      "translations_ru": [
+        "официа́льное лицо́",
+        "чино́вник",
+        "чино́вница",
+        "слу́жащий",
+        "функционе́р",
+        "должностно́е лицо́",
+        "судья́"
+      ]
+    }
+  ],
+  "relations": {}
+}
+
+=== WORD 37: talent ===
+{
+  "word": "talent",
+  "ipa": "/tælʌnt/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "A marked natural ability or skill.",
+      "translations_ru": [
+        "тала́нт",
+        "дар",
+        "одарённость"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A unit of weight and money used in ancient times in Greece, the Roman Empire, and the Middle East, equal to about 30 to 60 kg in various times and places.",
+      "translations_ru": [
+        "тала́нт"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A desire or inclination for something."
+    },
+    {
+      "pos": "noun",
+      "definition": "People of talent, viewed collectively; a talented person.",
+      "translations_ru": [
+        "тала́нт"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "The men or (especially) women of a place or area, judged by their attractiveness."
+    },
+    {
+      "pos": "name",
+      "definition": "A city in Jackson County, Oregon, United States."
+    }
+  ],
+  "relations": {
+    "hypernyms": [
+      "expert"
+    ]
+  }
+}
+
+=== WORD 38: village ===
+{
+  "word": "village",
+  "ipa": "/vɪlʌdʒ/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "A rural habitation of size between a hamlet and a town.",
+      "translations_ru": [
+        "дере́вня",
+        "село́",
+        "селе́ние",
+        "кишла́к",
+        "ау́л",
+        "ху́тор",
+        "весь",
+        "ве́слина",
+        "весца́",
+        "вёска",
+        "стани́ца",
+        "слобода́"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A rural habitation that has a church, but no market.",
+      "translations_ru": [
+        "село́"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A planned community such as a retirement community or shopping district."
+    },
+    {
+      "pos": "noun",
+      "definition": "An exclusive gated community; a subdivision."
+    }
+  ],
+  "relations": {}
+}
+
+=== WORD 39: wound ===
+{
+  "word": "wound",
+  "ipa": "/waʊnd/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "An injury, such as a cut, stab, or tear, to a (usually external) part of the body.",
+      "translations_ru": [
+        "ра́на",
+        "ране́ние",
+        "тра́вма"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A hurt to a person's feelings, reputation, prospects, etc."
+    },
+    {
+      "pos": "noun",
+      "definition": "An injury to a person by which the skin is divided or its continuity broken.",
+      "translations_ru": [
+        "ра́на",
+        "тра́вма"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To hurt or injure (someone) by cutting, piercing, or tearing the skin.",
+      "translations_ru": [
+        "ра́нить",
+        "пора́нить"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To hurt (a person's feelings)."
+    },
+    {
+      "pos": "verb",
+      "definition": "simple past and past participle of wind"
+    }
+  ],
+  "relations": {
+    "hypernyms": [
+      "hurt",
+      "harm",
+      "fire",
+      "raise",
+      "loss",
+      "damage"
+    ]
+  }
+}
+
+=== WORD 40: activity ===
+{
+  "word": "activity",
+  "ipa": "/æktɪvʌti/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "The state or quality of being active; activeness.",
+      "translations_ru": [
+        "де́ятельность",
+        "акти́вность"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "Something done as an action or a movement.",
+      "translations_ru": [
+        "де́йствие",
+        "мероприя́тие",
+        "де́ло"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "Something done for pleasure or entertainment, especially one involving movement or an excursion.",
+      "translations_ru": [
+        "де́ло",
+        "заня́тие"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "The lexical aspect (aktionsart) of verbs or predicates that change over time and have no natural end point."
+    },
+    {
+      "pos": "noun",
+      "definition": "The number of radioactive decays per unit time. Unit for it: becquerel or curie"
+    },
+    {
+      "pos": "noun",
+      "definition": "The property of substances to react with other substances"
+    }
+  ],
+  "relations": {
+    "hypernyms": [
+      "act",
+      "state",
+      "process"
+    ]
+  }
+}
+
+=== WORD 41: argue ===
+{
+  "word": "argue",
+  "ipa": "/ɑɹɡju/",
+  "wiktionary_senses": [
+    {
+      "pos": "verb",
+      "definition": "To show grounds for concluding (that); to indicate, imply."
+    },
+    {
+      "pos": "verb",
+      "definition": "To debate, disagree, or discuss opposing or differing viewpoints; to controvert; to wrangle.",
+      "translations_ru": [
+        "спо́рить",
+        "обсужда́ть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To have an argument, a quarrel.",
+      "translations_ru": [
+        "спо́рить",
+        "ссо́риться"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To present (a viewpoint or an argument therefor).",
+      "translations_ru": [
+        "аргументи́ровать"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To prove."
+    },
+    {
+      "pos": "verb",
+      "definition": "To accuse."
+    },
+    {
+      "pos": "name",
+      "definition": "A surname."
+    }
+  ],
+  "relations": {
+    "synonyms": [
+      "debate",
+      "fence",
+      "reason"
+    ],
+    "hypernyms": [
+      "present",
+      "represent"
+    ]
+  }
+}
+
+=== WORD 42: circle ===
+{
+  "word": "circle",
+  "ipa": "/sɝkʌl/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "A two-dimensional geometric figure, a line, consisting of the set of all those points in a plane that are equally distant from a given point (center).",
+      "translations_ru": [
+        "окру́жность",
+        "круг"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A two-dimensional geometric figure, a disk, consisting of the set of all those points of a plane at a distance less than or equal to a fixed distance (radius) from a given point."
+    },
+    {
+      "pos": "noun",
+      "definition": "Any shape, curve or arrangement of objects that approximates to or resembles the geometric figures."
+    },
+    {
+      "pos": "noun",
+      "definition": "Any shape, curve or arrangement of objects that approximates to or resembles the geometric figures.",
+      "translations_ru": [
+        "диск",
+        "круг"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "Any shape, curve or arrangement of objects that approximates to or resembles the geometric figures.",
+      "translations_ru": [
+        "круг"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A specific group of persons; especially one who shares a common interest.",
+      "translations_ru": [
+        "круг",
+        "кружо́к"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "The orbit of an astronomical body."
+    },
+    {
+      "pos": "noun",
+      "definition": "A line comprising two semicircles of 30 yards radius centred on the wickets joined by straight lines parallel to the pitch used to enforce field restrictions in a one-day match."
+    },
+    {
+      "pos": "noun",
+      "definition": "A ritual circle that is cast three times deosil and closes three times widdershins either in the air with a wand or literally with stones or other items used for worship."
+    },
+    {
+      "pos": "noun",
+      "definition": "A traffic circle or roundabout."
+    },
+    {
+      "pos": "noun",
+      "definition": "Compass; circuit; enclosure."
+    },
+    {
+      "pos": "noun",
+      "definition": "An instrument of observation, whose graduated limb consists of an entire circle. When fixed to a wall in an observatory, it is called a mural circle; when mounted with a telescope on an axis and in Y's, in the plane of the meridian, a meridian or transit circle; when involving the principle of reflection, like the sextant, a reflecting circle; and when that of repeating an angle several times continuously along the graduated limb, a repeating circle."
+    },
+    {
+      "pos": "noun",
+      "definition": "A series ending where it begins, and repeating itself."
+    },
+    {
+      "pos": "noun",
+      "definition": "A form of argument in which two or more unproved statements are used to prove each other; inconclusive reasoning."
+    },
+    {
+      "pos": "noun",
+      "definition": "Indirect form of words; circumlocution."
+    },
+    {
+      "pos": "noun",
+      "definition": "A territorial division or district."
+    },
+    {
+      "pos": "noun",
+      "definition": "A bagginess of the skin below the eyes from lack of sleep.",
+      "translations_ru": [
+        "круги́ под глаза́ми"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To travel around along a curved path.",
+      "translations_ru": [
+        "кружи́ть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To surround.",
+      "translations_ru": [
+        "окружа́ть",
+        "окружи́ть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To place or mark a circle around."
+    },
+    {
+      "pos": "verb",
+      "definition": "To travel in circles.",
+      "translations_ru": [
+        "кружи́ться"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To take part in a magic circle."
+    },
+    {
+      "pos": "name",
+      "definition": "A census-designated place in Yukon-Koyukuk Census Area, Alaska, United States. Erroneously thought to be on the Arctic Circle, which is 50 miles further north."
+    },
+    {
+      "pos": "name",
+      "definition": "A town, the county seat of McCone County, Montana, United States. Named after a cattle brand in the form of a circle."
+    },
+    {
+      "pos": "name",
+      "definition": "the Circle line of the London Underground, originally the Inner Circle."
+    },
+    {
+      "pos": "name",
+      "definition": "A surname from German."
+    }
+  ],
+  "relations": {
+    "synonyms": [
+      "rope",
+      "round",
+      "set",
+      "lot"
+    ],
+    "hypernyms": [
+      "go",
+      "move",
+      "travel",
+      "form",
+      "shape"
+    ]
+  }
+}
+
+=== WORD 43: gut ===
+{
+  "word": "gut",
+  "ipa": "/ɡʌt/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "The alimentary canal, especially the intestine."
+    },
+    {
+      "pos": "noun",
+      "definition": "The abdomen of a person, especially one that is enlarged.",
+      "translations_ru": [
+        "брю́хо",
+        "пу́зо"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "The intestines of an animal used to make strings of a tennis racket or violin, etc.",
+      "translations_ru": [
+        "жилка",
+        "жила"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A person's emotional, visceral self."
+    },
+    {
+      "pos": "noun",
+      "definition": "A class that is not demanding or challenging."
+    },
+    {
+      "pos": "noun",
+      "definition": "A narrow passage of water."
+    },
+    {
+      "pos": "noun",
+      "definition": "The sac of silk taken from a silkworm when ready to spin its cocoon, for the purpose of drawing it out into a thread. When dry, it is exceedingly strong, and is used as the snood of a fishing line."
+    },
+    {
+      "pos": "verb",
+      "definition": "To eviscerate.",
+      "translations_ru": [
+        "потроши́ть",
+        "вы́потрошить"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To remove or destroy the most important parts of."
+    },
+    {
+      "pos": "verb",
+      "definition": "To dishearten; to crush (the spirits of)."
+    },
+    {
+      "pos": "adj",
+      "definition": "Made of gut."
+    },
+    {
+      "pos": "adj",
+      "definition": "Instinctive."
+    },
+    {
+      "pos": "name",
+      "definition": "A surname from German."
+    },
+    {
+      "pos": "noun",
+      "definition": "Initialism of grand unification theory or grand unified theory."
+    }
+  ],
+  "relations": {
+    "hypernyms": [
+      "empty",
+      "pull",
+      "remove",
+      "take"
+    ]
+  }
+}
+
+=== WORD 44: panic ===
+{
+  "word": "panic",
+  "ipa": "/pænɪk/",
+  "wiktionary_senses": [
+    {
+      "pos": "adj",
+      "definition": "Alternative letter-case form of Panic (“pertaining to the Greek god Pan”)."
+    },
+    {
+      "pos": "adj",
+      "definition": "Of fear, fright, etc: overwhelming or sudden."
+    },
+    {
+      "pos": "adj",
+      "definition": "Pertaining to or resulting from overwhelming fear or fright."
+    },
+    {
+      "pos": "noun",
+      "definition": "Overwhelming fear or fright, often affecting groups of people or animals; (countable) an instance of this; a fright, a scare.",
+      "translations_ru": [
+        "па́ника"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "Ellipsis of kernel panic (“on Unix-derived operating systems: an action taken by the operating system when it cannot recover from a fatal error”); (by extension) any computer system crash."
+    },
+    {
+      "pos": "noun",
+      "definition": "A rapid reduction in asset prices due to broad efforts to raise cash in anticipation of such prices continuing to decline."
+    },
+    {
+      "pos": "noun",
+      "definition": "A highly amusing or entertaining performer, performance, or show; a riot, a scream."
+    },
+    {
+      "pos": "verb",
+      "definition": "To cause (someone) to feel panic (“overwhelming fear or fright”); also, to frighten (someone) into acting hastily."
+    },
+    {
+      "pos": "verb",
+      "definition": "To cause (a computer system) to crash."
+    },
+    {
+      "pos": "verb",
+      "definition": "To highly amuse, entertain, or impress (an audience watching a performance or show)."
+    },
+    {
+      "pos": "verb",
+      "definition": "To feel panic, or overwhelming fear or fright; to freak out, to lose one's head."
+    },
+    {
+      "pos": "verb",
+      "definition": "Of a computer system: to crash."
+    },
+    {
+      "pos": "noun",
+      "definition": "Foxtail millet or Italian millet (Setaria italica), the second-most widely grown species of millet."
+    },
+    {
+      "pos": "noun",
+      "definition": "A plant of the genus Panicum, or of similar plants of other genera (especially Echinochloa and Setaria) formerly included within Panicum; panicgrass or panic grass."
+    },
+    {
+      "pos": "noun",
+      "definition": "The edible grain obtained from one of the above plants."
+    },
+    {
+      "pos": "adj",
+      "definition": "Synonym of Pandean (“pertaining to the Greek god Pan”)."
+    }
+  ],
+  "relations": {
+    "hypernyms": [
+      "terrify",
+      "fear"
+    ]
+  }
+}
+
+=== WORD 45: perform ===
+{
+  "word": "perform",
+  "ipa": "/pɝfɔɹm/",
+  "wiktionary_senses": [
+    {
+      "pos": "verb",
+      "definition": "To do (something); to execute.",
+      "translations_ru": [
+        "выполня́ть",
+        "вы́полнить",
+        "проводи́ть",
+        "провести́"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To exhibit an expected pattern of behavior; to function; to work."
+    },
+    {
+      "pos": "verb",
+      "definition": "To exhibit an expected pattern of behavior; to function; to work."
+    },
+    {
+      "pos": "verb",
+      "definition": "To act in a way set forth in a contract."
+    },
+    {
+      "pos": "verb",
+      "definition": "To act in a way set forth in a contract."
+    },
+    {
+      "pos": "verb",
+      "definition": "To do (something) in front of an audience, such as acting or music, often in order to entertain.",
+      "translations_ru": [
+        "выступа́ть",
+        "вы́ступить",
+        "исполня́ть",
+        "испо́лнить",
+        "выполня́ть",
+        "вы́полнить pf a trick",
+        "игра́ть",
+        "сыгра́ть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To behave theatrically so as to give the impression of (a quality, character trait, etc.); to feign."
+    },
+    {
+      "pos": "verb",
+      "definition": "Of a social actor, to behave in certain ways."
+    },
+    {
+      "pos": "verb",
+      "definition": "Of a social actor, to behave in certain ways."
+    }
+  ],
+  "relations": {
+    "hypernyms": [
+      "act",
+      "move",
+      "accomplish",
+      "action"
+    ]
+  }
+}
+
+=== WORD 46: recommend ===
+{
+  "word": "recommend",
+  "ipa": "/ɹɛkʌmɛnd/",
+  "wiktionary_senses": [
+    {
+      "pos": "verb",
+      "definition": "To bestow commendation on; to represent favourably; to suggest, endorse or encourage as an appropriate choice.",
+      "translations_ru": [
+        "рекомендова́ть",
+        "порекомендова́ть",
+        "сове́товать",
+        "посове́товать"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To make acceptable; to attract favor to."
+    },
+    {
+      "pos": "verb",
+      "definition": "To advise, propose, counsel favorably",
+      "translations_ru": [
+        "рекомендова́ть",
+        "порекомендова́ть",
+        "сове́товать",
+        "посове́товать"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To commit, confide to another's care, confidence or acceptance, with favoring representations"
+    },
+    {
+      "pos": "noun",
+      "definition": "A recommendation."
+    }
+  ],
+  "relations": {
+    "synonyms": [
+      "urge"
+    ],
+    "hypernyms": [
+      "change",
+      "advise",
+      "propose",
+      "suggest",
+      "praise"
+    ]
+  }
+}
+
+=== WORD 47: silver ===
+{
+  "word": "silver",
+  "ipa": "/sɪlvɝ/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "A lustrous, white, metallic element, atomic number 47, atomic weight 107.87, symbol Ag."
+    },
+    {
+      "pos": "noun",
+      "definition": "Coins made from silver or any similar white metal.",
+      "translations_ru": [
+        "сере́бреники"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "Cutlery and other eating utensils, whether silver or made from some other white metal.",
+      "translations_ru": [
+        "сере́бряные изде́лия"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "Any items made from silver or any other white metal."
+    },
+    {
+      "pos": "noun",
+      "definition": "A shiny gray color.",
+      "translations_ru": [
+        "серебри́стый"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "a silver medal"
+    },
+    {
+      "pos": "noun",
+      "definition": "Anything resembling silver; something shiny and white."
+    },
+    {
+      "pos": "adj",
+      "definition": "Made from silver.",
+      "translations_ru": [
+        "сере́бряный"
+      ]
+    },
+    {
+      "pos": "adj",
+      "definition": "Made from another white metal."
+    },
+    {
+      "pos": "adj",
+      "definition": "Having a color like silver: a shiny gray.",
+      "translations_ru": [
+        "сере́бряный",
+        "серебри́стый"
+      ]
+    },
+    {
+      "pos": "adj",
+      "definition": "Denoting the twenty-fifth anniversary, especially of a wedding."
+    },
+    {
+      "pos": "adj",
+      "definition": "Premium, but inferior to gold."
+    },
+    {
+      "pos": "adj",
+      "definition": "Pertaining or relating to elderly persons."
+    },
+    {
+      "pos": "adj",
+      "definition": "Having the clear, musical tone of silver; soft and clear in sound."
+    },
+    {
+      "pos": "verb",
+      "definition": "To acquire a silvery colour."
+    },
+    {
+      "pos": "verb",
+      "definition": "To cover with silver, or with a silvery metal."
+    },
+    {
+      "pos": "verb",
+      "definition": "To polish like silver; to impart a brightness to, like that of silver."
+    },
+    {
+      "pos": "verb",
+      "definition": "To make hoary, or white, like silver."
+    },
+    {
+      "pos": "name",
+      "definition": "An English surname originating as an occupation for a silversmith or a rich man, or for someone having silvery gray hair or living by a silvery brook."
+    },
+    {
+      "pos": "name",
+      "definition": "A surname from German."
+    },
+    {
+      "pos": "name",
+      "definition": "A unisex given name from English from the metal, or transferred from the surname."
+    }
+  ],
+  "relations": {
+    "hypernyms": [
+      "color",
+      "plate"
+    ]
+  }
+}
+
+=== WORD 48: sky ===
+{
+  "word": "sky",
+  "ipa": "/skaɪ/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "The atmosphere above a given point, especially as visible from the surface of the Earth as the place where the sun, moon, stars, and clouds are seen.",
+      "translations_ru": [
+        "не́бо"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "With a descriptive word: the part of the sky which can be seen from a specific place or at a specific time; its climate, condition, etc.",
+      "translations_ru": [
+        "не́бо"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "Usually preceded by the: the abode of God or the gods, angels, the souls of deceased people, etc.; heaven; also, powers emanating from heaven.",
+      "translations_ru": [
+        "небеса́",
+        "не́бо"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "Ellipsis of sky blue."
+    },
+    {
+      "pos": "noun",
+      "definition": "The set of all lightlike lines (or directions) passing through a given point in space-time.",
+      "translations_ru": [
+        "небе́сная сфе́ра"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "In an art gallery: the upper rows of pictures that cannot easily be seen; also, the place where such pictures are hung."
+    },
+    {
+      "pos": "noun",
+      "definition": "A cloud."
+    },
+    {
+      "pos": "verb",
+      "definition": "To drink (a beverage) from a container without one's lips touching the container."
+    },
+    {
+      "pos": "verb",
+      "definition": "To hang (a picture on exhibition) near the top of a wall, where it cannot easily be seen; (by extension) to put (something) in an undesirable place."
+    },
+    {
+      "pos": "verb",
+      "definition": "To toss (something) upwards; specifically, to flip (a coin)."
+    },
+    {
+      "pos": "verb",
+      "definition": "To clear (a high jump bar, hurdle, etc.) by a large margin."
+    },
+    {
+      "pos": "verb",
+      "definition": "To hit, kick, or throw (a ball) extremely high."
+    },
+    {
+      "pos": "verb",
+      "definition": "To miss a goal by kicking the ball over the crossbar."
+    },
+    {
+      "pos": "verb",
+      "definition": "To raise (the price of an item on auction, or the level of the bids generally) by bidding high."
+    },
+    {
+      "pos": "verb",
+      "definition": "To move quickly, as if by flying; to fly; also, to escape, to flee (especially by airplane)."
+    },
+    {
+      "pos": "verb",
+      "definition": "To hit, kick, or throw a ball extremely high."
+    },
+    {
+      "pos": "verb",
+      "definition": "To raise an oar too high above the water."
+    },
+    {
+      "pos": "noun",
+      "definition": "A disagreeable person; an enemy."
+    },
+    {
+      "pos": "name",
+      "definition": "A surname."
+    },
+    {
+      "pos": "name",
+      "definition": "A unisex given name from English."
+    },
+    {
+      "pos": "name",
+      "definition": "Obsolete form of Skye (“Scottish island”)."
+    }
+  ],
+  "relations": {
+    "synonyms": [
+      "toss"
+    ]
+  }
+}
+
+=== WORD 49: spare ===
+{
+  "word": "spare",
+  "ipa": "/spɛɹ/",
+  "wiktionary_senses": [
+    {
+      "pos": "adj",
+      "definition": "Extra.",
+      "translations_ru": [
+        "ли́шний"
+      ]
+    },
+    {
+      "pos": "adj",
+      "definition": "Extra.",
+      "translations_ru": [
+        "запасно́й"
+      ]
+    },
+    {
+      "pos": "adj",
+      "definition": "Extra."
+    },
+    {
+      "pos": "adj",
+      "definition": "Not plentiful.",
+      "translations_ru": [
+        "уме́ренный",
+        "скудный"
+      ]
+    },
+    {
+      "pos": "adj",
+      "definition": "Not plentiful."
+    },
+    {
+      "pos": "adj",
+      "definition": "Not plentiful.",
+      "translations_ru": [
+        "скупой"
+      ]
+    },
+    {
+      "pos": "adj",
+      "definition": "Not plentiful."
+    },
+    {
+      "pos": "adj",
+      "definition": "Very angry; frustrated or distraught."
+    },
+    {
+      "pos": "noun",
+      "definition": "The act of sparing; moderation; restraint."
+    },
+    {
+      "pos": "noun",
+      "definition": "Parsimony; frugal use."
+    },
+    {
+      "pos": "noun",
+      "definition": "An opening in a petticoat or gown; a placket."
+    },
+    {
+      "pos": "noun",
+      "definition": "That which has not been used or expended."
+    },
+    {
+      "pos": "noun",
+      "definition": "A spare part, especially a spare tire."
+    },
+    {
+      "pos": "noun",
+      "definition": "A superfluous or second-best person."
+    },
+    {
+      "pos": "noun",
+      "definition": "The right of bowling again at a full set of pins, after having knocked all the pins down in less than three bowls. If all the pins are knocked down in one bowl it is a double spare; in two bowls, a single spare."
+    },
+    {
+      "pos": "noun",
+      "definition": "The act of knocking down all remaining pins in second ball of a frame; this entitles the pins knocked down on the next ball to be added to the score for that frame."
+    },
+    {
+      "pos": "noun",
+      "definition": "A free period; a block of school during which one does not have a class."
+    },
+    {
+      "pos": "noun",
+      "definition": "assistant or extra hand (typically on buses and lorries)"
+    },
+    {
+      "pos": "verb",
+      "definition": "To show mercy, to have mercy on."
+    },
+    {
+      "pos": "verb",
+      "definition": "To show mercy, to have mercy on."
+    },
+    {
+      "pos": "verb",
+      "definition": "To show mercy, to have mercy on."
+    },
+    {
+      "pos": "verb",
+      "definition": "To show mercy, to have mercy on."
+    },
+    {
+      "pos": "verb",
+      "definition": "To keep."
+    },
+    {
+      "pos": "verb",
+      "definition": "To keep."
+    },
+    {
+      "pos": "verb",
+      "definition": "To keep.",
+      "translations_ru": [
+        "жале́ть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "(to give up): To deprive oneself of, as by being frugal; to do without; to dispense with; to give up; to part with."
+    },
+    {
+      "pos": "name",
+      "definition": "A surname transferred from the nickname."
+    }
+  ],
+  "relations": {
+    "hypernyms": [
+      "give",
+      "consume",
+      "eat",
+      "use",
+      "score",
+      "free"
+    ]
+  }
+}
+
+=== WORD 50: brand ===
+{
+  "word": "brand",
+  "ipa": "/bɹænd/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "A mark or scar made by burning with a hot iron, especially to mark cattle or to classify the contents of a cask.",
+      "translations_ru": [
+        "клеймо́",
+        "тавро́"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A branding iron."
+    },
+    {
+      "pos": "noun",
+      "definition": "The symbolic identity, represented by a name and/or a logo, which indicates a certain product or service to the public.",
+      "translations_ru": [
+        "ма́рка",
+        "знак",
+        "логоти́п"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A specific product, service, or provider so distinguished.",
+      "translations_ru": [
+        "ма́рка",
+        "бренд"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "Any specific type or variety of something; a distinct style or manner.",
+      "translations_ru": [
+        "вид",
+        "сорт",
+        "тип"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "The public image or reputation and recognized, typical style of an individual or group."
+    },
+    {
+      "pos": "noun",
+      "definition": "A mark of infamy; stigma."
+    },
+    {
+      "pos": "noun",
+      "definition": "Any minute fungus producing a burnt appearance in plants."
+    },
+    {
+      "pos": "noun",
+      "definition": "A torch used for signaling."
+    },
+    {
+      "pos": "noun",
+      "definition": "A flame."
+    },
+    {
+      "pos": "noun",
+      "definition": "A conflagration."
+    },
+    {
+      "pos": "noun",
+      "definition": "A piece of burning wood or peat, or a glowing cinder.",
+      "translations_ru": [
+        "головня́",
+        "голове́шка"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A sword."
+    },
+    {
+      "pos": "verb",
+      "definition": "To burn the flesh with a hot iron, either as a marker (for criminals, slaves etc.) or to cauterise a wound."
+    },
+    {
+      "pos": "verb",
+      "definition": "To burn the flesh with a hot iron, either as a marker (for criminals, slaves etc.) or to cauterise a wound.",
+      "translations_ru": [
+        "клейми́ть",
+        "заклейми́ть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To make an indelible impression on the memory or senses."
+    },
+    {
+      "pos": "verb",
+      "definition": "To stigmatize, label (someone)."
+    },
+    {
+      "pos": "verb",
+      "definition": "To associate a product or service with a trademark or other name and related images."
+    },
+    {
+      "pos": "verb",
+      "definition": "To be very hot, to burn."
+    },
+    {
+      "pos": "name",
+      "definition": "A surname."
+    },
+    {
+      "pos": "name",
+      "definition": "A municipality in Bludenz district, Vorarlberg, Austria."
+    },
+    {
+      "pos": "name",
+      "definition": "A municipality in Tirschenreuth district, Bavaria, Germany."
+    },
+    {
+      "pos": "name",
+      "definition": "A borough of Aachen, North Rhine-Westphalia, Germany."
+    },
+    {
+      "pos": "name",
+      "definition": "A hamlet in Beekdaelen municipality, Limburg province, Netherlands."
+    }
+  ],
+  "relations": {
+    "synonyms": [
+      "make",
+      "post",
+      "steel",
+      "mark",
+      "stain"
+    ],
+    "hypernyms": [
+      "mark",
+      "form",
+      "kind",
+      "sort",
+      "call",
+      "arm",
+      "weapon",
+      "name"
+    ]
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "word": "interrupt",
+  "ipa": "/ɪntɝʌpt/",
+  "wiktionary_senses": [
+    {
+      "pos": "verb",
+      "definition": "To disturb or halt (an ongoing process or action, or the person performing it) by interfering suddenly, especially by speaking.",
+      "translations_ru": [
+        "прерыва́ть",
+        "прерва́ть",
+        "обрыва́ть",
+        "оборва́ть",
+        "перебива́ть",
+        "переби́ть",
+        "вме́шиваться",
+        "вмеша́ться",
+        "меша́ть",
+        "помеша́ть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To divide; to separate; to break the monotony of."
+    },
+    {
+      "pos": "verb",
+      "definition": "To assert to (a computer) that an exceptional condition must be handled.",
+      "translations_ru": [
+        "прерыва́ть",
+        "прерва́ть"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "An event that causes a computer or other device to temporarily cease what it was doing and attend to a condition.",
+      "translations_ru": [
+        "прерывание"
+      ]
+    }
+  ],
+  "relations": {
+    "hypernyms": [
+      "act",
+      "move",
+      "end",
+      "break",
+      "quit",
+      "stop",
+      "signal"
+    ]
+  }
+}

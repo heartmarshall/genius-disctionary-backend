@@ -1,0 +1,35 @@
+{
+  "word": "apartment",
+  "ipa": "/ʌpɑɹtmʌnt/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "A complete domicile occupying only part of a building, especially one for rent; a flat.",
+      "translations_ru": [
+        "кварти́ра",
+        "апартаме́нт"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A suite of rooms within a domicile, designated for a specific person or persons and including a bedroom."
+    },
+    {
+      "pos": "noun",
+      "definition": "A room within a house."
+    },
+    {
+      "pos": "noun",
+      "definition": "A division of an enclosure that is separate from others; a compartment."
+    },
+    {
+      "pos": "noun",
+      "definition": "A conceptual space used for separation in the threading architecture. Objects in one apartment cannot directly access those in another, but must use a proxy."
+    }
+  ],
+  "relations": {
+    "synonyms": [
+      "flat"
+    ]
+  }
+}

@@ -1,0 +1,1175 @@
+You are a professional English-Russian dictionary editor.
+Below are 18 English words with their context from reference datasets (IPA, existing definitions, Russian translations, semantic relations).
+
+For EACH word produce an improved dictionary entry in JSON format.
+Separate consecutive JSON objects with a line containing only "---".
+Output NOTHING except the JSON objects and the "---" separators — no markdown, no explanations.
+
+Each JSON must match this exact schema:
+{
+  "word": "<word>",
+  "source_slug": "llm",
+  "senses": [
+    {
+      "pos": "<NOUN|VERB|ADJECTIVE|ADVERB|PRONOUN|PREPOSITION|CONJUNCTION|INTERJECTION|PHRASE|IDIOM|OTHER>",
+      "definition": "<clear English definition for B1+ learners>",
+      "cefr_level": "<A1|A2|B1|B2|C1|C2>",
+      "notes": "<learning tip in Russian: collocations, register, common mistakes>",
+      "translations": ["<Russian 1>", "<Russian 2>"],
+      "examples": [
+        {"sentence": "<English example>", "translation": "<Russian translation>"}
+      ]
+    }
+  ]
+}
+
+Rules:
+- Rewrite definitions to be clearer and more useful for learners
+- Provide 2-4 Russian translations per sense
+- Write notes in Russian
+- Generate 1-3 natural example sentences with Russian translations
+- Preserve the word order — output exactly 18 JSON objects in the same order
+
+=== WORD 1: fury ===
+{
+  "word": "fury",
+  "ipa": "/fjʊɹi/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "Extreme anger.",
+      "translations_ru": [
+        "я́рость",
+        "бе́шенство",
+        "неи́стовство"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "Strength or violence in action."
+    },
+    {
+      "pos": "noun",
+      "definition": "An angry or malignant person."
+    },
+    {
+      "pos": "noun",
+      "definition": "A thief."
+    },
+    {
+      "pos": "name",
+      "definition": "A female personification of vengeance.",
+      "translations_ru": [
+        "фу́рия"
+      ]
+    }
+  ],
+  "relations": {
+    "synonyms": [
+      "violence"
+    ]
+  }
+}
+
+=== WORD 2: known ===
+{
+  "word": "known",
+  "ipa": "/noʊn/",
+  "wiktionary_senses": [
+    {
+      "pos": "adj",
+      "definition": "Identified as a specific type; famous, renowned.",
+      "translations_ru": [
+        "изве́стный"
+      ]
+    },
+    {
+      "pos": "adj",
+      "definition": "Accepted, familiar, researched."
+    },
+    {
+      "pos": "noun",
+      "definition": "Any fact or situation which is known or familiar."
+    },
+    {
+      "pos": "noun",
+      "definition": "A constant or variable the value of which is already determined."
+    },
+    {
+      "pos": "verb",
+      "definition": "past participle of know"
+    }
+  ],
+  "relations": {
+    "antonyms": [
+      "unknown"
+    ]
+  }
+}
+
+=== WORD 3: lace ===
+{
+  "word": "lace",
+  "ipa": "/leɪs/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "A light fabric containing patterns of holes, usually built up from a single thread.",
+      "translations_ru": [
+        "кру́жево"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A cord or ribbon passed through eyelets in a shoe or garment, pulled tight and tied to fasten the shoe or garment firmly."
+    },
+    {
+      "pos": "noun",
+      "definition": "A snare or gin, especially one made of interwoven cords; a net."
+    },
+    {
+      "pos": "noun",
+      "definition": "Spirits added to coffee or another beverage."
+    },
+    {
+      "pos": "verb",
+      "definition": "To fasten (something) with laces.",
+      "translations_ru": [
+        "прониза́ть",
+        "прокры́ть",
+        "связа́ть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To interweave items."
+    },
+    {
+      "pos": "verb",
+      "definition": "To interweave the spokes of a bicycle wheel."
+    },
+    {
+      "pos": "verb",
+      "definition": "To beat; to lash; to make stripes on."
+    },
+    {
+      "pos": "verb",
+      "definition": "To adorn with narrow strips or braids of some decorative material."
+    },
+    {
+      "pos": "verb",
+      "definition": "To intersperse or diversify with something."
+    },
+    {
+      "pos": "verb",
+      "definition": "To add alcohol, poison, a drug or anything else potentially harmful to (food or drink).",
+      "translations_ru": [
+        "подмеша́ть",
+        "смеша́ть",
+        "напои́ть",
+        "запра́вить",
+        "напо́лнить",
+        "пропита́ть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To cover intricately with bands, strips, or the like, so as to resemble lace."
+    }
+  ],
+  "relations": {
+    "hypernyms": [
+      "fabric",
+      "material",
+      "change",
+      "tie"
+    ]
+  }
+}
+
+=== WORD 4: oversee ===
+{
+  "word": "oversee",
+  "ipa": "/oʊvɝsi/",
+  "wiktionary_senses": [
+    {
+      "pos": "verb",
+      "definition": "To survey, look at something in a wide angle.",
+      "translations_ru": [
+        "обозревать"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To supervise, guide, review or direct the actions of a person or group."
+    },
+    {
+      "pos": "verb",
+      "definition": "To inspect, examine."
+    },
+    {
+      "pos": "verb",
+      "definition": "To fail to see; to overlook, ignore."
+    },
+    {
+      "pos": "verb",
+      "definition": "To observe secretly or unintentionally."
+    }
+  ],
+  "relations": {}
+}
+
+=== WORD 5: pretending ===
+{
+  "word": "pretending",
+  "ipa": "/pɹitɛndɪŋ/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "The act of imagining; make-believe.",
+      "translations_ru": [
+        "притворство"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "present participle and gerund of pretend"
+    }
+  ],
+  "relations": {}
+}
+
+=== WORD 6: spine ===
+{
+  "word": "spine",
+  "ipa": "/spaɪn/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "A series of bones situated at the back from the head to the pelvis of a human, or from the head to the tail of an animal, enclosing the spinal cord and providing support for the thorax and abdomen."
+    },
+    {
+      "pos": "noun",
+      "definition": "A series of bones situated at the back from the head to the pelvis of a human, or from the head to the tail of an animal, enclosing the spinal cord and providing support for the thorax and abdomen.",
+      "translations_ru": [
+        "позвоно́чник",
+        "хребе́т",
+        "сте́ржень"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "Something resembling a backbone, such as a ridge, or a long, central structure from which other structures radiate."
+    },
+    {
+      "pos": "noun",
+      "definition": "The narrow, bound edge of a book that encloses the inner edges of the pages, facing outwards when the book is on a shelf and typically bearing the title and the author's and publisher's name.",
+      "translations_ru": [
+        "корешо́к"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A pointed, fairly rigid protuberance or needlelike structure on an animal, shell, mushroom or plant. The botanical term technically refers to such a structure derived from a leaf or part of a leaf.",
+      "translations_ru": [
+        "шип",
+        "игла́",
+        "колю́чка"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "The heartwood of trees."
+    },
+    {
+      "pos": "noun",
+      "definition": "Ellipsis of dendritic spine."
+    },
+    {
+      "pos": "noun",
+      "definition": "A linear payscale operated by some large organizations that allows flexibility for local and specific conditions."
+    },
+    {
+      "pos": "noun",
+      "definition": "A tall mass of viscous lava extruded from a volcano."
+    },
+    {
+      "pos": "noun",
+      "definition": "The stiffness of an arrow."
+    },
+    {
+      "pos": "noun",
+      "definition": "A central part which supports a whole; core."
+    }
+  ],
+  "relations": {
+    "hypernyms": [
+      "part",
+      "process"
+    ]
+  }
+}
+
+=== WORD 7: stalk ===
+{
+  "word": "stalk",
+  "ipa": "/stɔk/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "The stem or main axis of a plant.",
+      "translations_ru": [
+        "сте́бель",
+        "стебло́"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "The petiole, pedicel, or peduncle of a plant."
+    },
+    {
+      "pos": "noun",
+      "definition": "Something resembling the stalk of a plant, such as the stem of a quill."
+    },
+    {
+      "pos": "noun",
+      "definition": "An ornament in the Corinthian capital resembling the stalk of a plant, from which the volutes and helices spring."
+    },
+    {
+      "pos": "noun",
+      "definition": "One of the two upright pieces of a ladder."
+    },
+    {
+      "pos": "noun",
+      "definition": "A stem or peduncle, as in certain barnacles and crinoids."
+    },
+    {
+      "pos": "noun",
+      "definition": "The narrow basal portion of the abdomen of a hymenopterous insect."
+    },
+    {
+      "pos": "noun",
+      "definition": "The peduncle of the eyes of decapod crustaceans."
+    },
+    {
+      "pos": "noun",
+      "definition": "An iron bar with projections inserted in a core to strengthen it; a core arbor."
+    },
+    {
+      "pos": "noun",
+      "definition": "Informally, a construction which generalizes that of the notion of the ring of germs of functions near a point to the context of arbitrary sheaves. Formally, given a sheaf ℱ on a space X, and a point x in X, the direct limit of the sections of F on the open neighborhoods of x ordered by reverse inclusion. See Stalk (sheaf) on Wikipedia.Wikipedia"
+    },
+    {
+      "pos": "noun",
+      "definition": "The penis."
+    },
+    {
+      "pos": "verb",
+      "definition": "To approach slowly and quietly in order not to be discovered when getting closer.",
+      "translations_ru": [
+        "кра́сться за",
+        "подкра́дываться к"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To (try to) follow or contact someone constantly, often resulting in harassment.ᵂᵖ",
+      "translations_ru": [
+        "пресле́довать",
+        "ста́лкерить"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To walk slowly and cautiously; to walk in a stealthy, noiseless manner."
+    },
+    {
+      "pos": "verb",
+      "definition": "To walk behind something, such as a screen, for the purpose of approaching game; to proceed under cover."
+    },
+    {
+      "pos": "noun",
+      "definition": "A particular episode of trying to follow or contact someone."
+    },
+    {
+      "pos": "noun",
+      "definition": "The hunting of a wild animal by stealthy approach."
+    },
+    {
+      "pos": "verb",
+      "definition": "To walk haughtily.",
+      "translations_ru": [
+        "вышагивать"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A haughty style of walking."
+    }
+  ],
+  "relations": {
+    "synonyms": [
+      "straw"
+    ],
+    "hypernyms": [
+      "chase",
+      "following",
+      "follow",
+      "walk",
+      "hunt"
+    ]
+  }
+}
+
+=== WORD 8: judging ===
+{
+  "word": "judging",
+  "ipa": "/dʒʌdʒɪŋ/",
+  "wiktionary_senses": [
+    {
+      "pos": "adj",
+      "definition": "judgmental"
+    },
+    {
+      "pos": "verb",
+      "definition": "present participle and gerund of judge"
+    },
+    {
+      "pos": "verb",
+      "definition": "present participle and gerund of judg"
+    },
+    {
+      "pos": "noun",
+      "definition": "The act of making a judgment."
+    }
+  ],
+  "relations": {
+    "synonyms": [
+      "judgment"
+    ]
+  }
+}
+
+=== WORD 9: patron ===
+{
+  "word": "patron",
+  "ipa": "/peɪtɹʌn/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "One who protects or supports; a defender or advocate."
+    },
+    {
+      "pos": "noun",
+      "definition": "One who protects or supports; a defender or advocate."
+    },
+    {
+      "pos": "noun",
+      "definition": "An influential, wealthy person who supported an artist, craftsman, a scholar or a noble.",
+      "translations_ru": [
+        "покрови́тель",
+        "покрови́тельница"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A customer, as of a certain store or restaurant."
+    },
+    {
+      "pos": "noun",
+      "definition": "A protector of a dependent, especially a master who had freed a slave but still retained some paternal rights."
+    },
+    {
+      "pos": "noun",
+      "definition": "One who has gift and disposition of a benefice."
+    },
+    {
+      "pos": "noun",
+      "definition": "A padrone."
+    },
+    {
+      "pos": "noun",
+      "definition": "A property owner, a landlord, a master. (Compare patroon.)"
+    },
+    {
+      "pos": "verb",
+      "definition": "To be a patron of; to patronize; to favour."
+    },
+    {
+      "pos": "verb",
+      "definition": "To treat as a patron."
+    }
+  ],
+  "relations": {
+    "hypernyms": [
+      "customer",
+      "owner"
+    ]
+  }
+}
+
+=== WORD 10: repeatedly ===
+{
+  "word": "repeatedly",
+  "ipa": "/ɹɪpitɪdli/",
+  "wiktionary_senses": [
+    {
+      "pos": "adv",
+      "definition": "Done several times or in repetition.",
+      "translations_ru": [
+        "повто́рно",
+        "неоднокра́тно",
+        "многокра́тно"
+      ]
+    }
+  ],
+  "relations": {}
+}
+
+=== WORD 11: softly ===
+{
+  "word": "softly",
+  "ipa": "/sɔftli/",
+  "wiktionary_senses": [
+    {
+      "pos": "adv",
+      "definition": "In a soft manner; gently.",
+      "translations_ru": [
+        "мя́гко"
+      ]
+    },
+    {
+      "pos": "adv",
+      "definition": "Not loudly; nearly inaudibly.",
+      "translations_ru": [
+        "ти́хо"
+      ]
+    },
+    {
+      "pos": "adv",
+      "definition": "With subdued color; faded or misty with distance."
+    }
+  ],
+  "relations": {}
+}
+
+=== WORD 12: defender ===
+{
+  "word": "defender",
+  "ipa": "/dɪfɛndɝ/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "Someone who defends people or property.",
+      "translations_ru": [
+        "защи́тник",
+        "защи́тница"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "One of the players whose primary task is to prevent the opposition from scoring.",
+      "translations_ru": [
+        "защи́тник"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A fighter who seeks to repel an attack.",
+      "translations_ru": [
+        "защи́тник"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A lawyer who represents defendants, especially a public defender; a defense attorney (US) or defence counsel (UK)."
+    },
+    {
+      "pos": "noun",
+      "definition": "A defendant in a civil action."
+    }
+  ],
+  "relations": {
+    "synonyms": [
+      "protector"
+    ]
+  }
+}
+
+=== WORD 13: legs ===
+{
+  "word": "legs",
+  "ipa": "/lɛɡz/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "plural of leg"
+    },
+    {
+      "pos": "noun",
+      "definition": "Eleven."
+    },
+    {
+      "pos": "noun",
+      "definition": "Viscous streaks left on the inside of the glass when certain wines are swirled around before tasting."
+    },
+    {
+      "pos": "noun",
+      "definition": "a movie's ability to continue attracting an audience."
+    },
+    {
+      "pos": "verb",
+      "definition": "third-person singular simple present indicative of leg"
+    }
+  ],
+  "relations": {}
+}
+
+=== WORD 14: raspberry ===
+{
+  "word": "raspberry",
+  "ipa": "/ɹæzbɛɹi/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "The plant Rubus idaeus.",
+      "translations_ru": [
+        "мали́на"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "Any of many other (but not all) species in the genus Rubus."
+    },
+    {
+      "pos": "noun",
+      "definition": "The juicy aggregate fruit of these plants.",
+      "translations_ru": [
+        "мали́на"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A red colour, the colour of a ripe raspberry.",
+      "translations_ru": [
+        "мали́новый"
+      ]
+    },
+    {
+      "pos": "adj",
+      "definition": "Containing or having the flavor/flavour of raspberries.",
+      "translations_ru": [
+        "мали́новый"
+      ]
+    },
+    {
+      "pos": "adj",
+      "definition": "Of a dark pinkish red."
+    },
+    {
+      "pos": "verb",
+      "definition": "To gather or forage for raspberries."
+    },
+    {
+      "pos": "noun",
+      "definition": "A noise intended to imitate a fart, made by blowing air out of the mouth while the tongue is protruding from and pressed against the lips, or by blowing air through the lips while they are pressed firmly together or against skin (often a form of tickling) used humorously or to express derision.",
+      "translations_ru": [
+        "перде́ние"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A physically disabled person."
+    },
+    {
+      "pos": "verb",
+      "definition": "To make the noise intended to imitate the passing of flatulence."
+    },
+    {
+      "pos": "name",
+      "definition": "A surname."
+    },
+    {
+      "pos": "name",
+      "definition": "An unincorporated community in Pope County, Arkansas, United States."
+    },
+    {
+      "pos": "name",
+      "definition": "A community in West Kootenay, British Columbia, Canada."
+    }
+  ],
+  "relations": {
+    "hypernyms": [
+      "call",
+      "cry",
+      "shout"
+    ]
+  }
+}
+
+=== WORD 15: whiff ===
+{
+  "word": "whiff",
+  "ipa": "/wɪf/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "A brief, gentle breeze; a light gust of air; a waft.",
+      "translations_ru": [
+        "дунове́ние"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A short inhalation or exhalation of breath, especially when accompanied by smoke from a cigarette or pipe."
+    },
+    {
+      "pos": "noun",
+      "definition": "A short inhalation or exhalation of breath, especially when accompanied by smoke from a cigarette or pipe."
+    },
+    {
+      "pos": "noun",
+      "definition": "An odour (usually unpleasant) carried briefly through the air.",
+      "translations_ru": [
+        "запашок"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A small quantity of cloud, smoke, vapour, etc.; specifically (obsolete), chiefly in take the whiff: a puff of tobacco smoke."
+    },
+    {
+      "pos": "noun",
+      "definition": "A flag used as a signal."
+    },
+    {
+      "pos": "noun",
+      "definition": "Any of a number of flatfish such as (dated) the lemon sole (Microstomus kitt) and now, especially, the megrim (Lepidorhombus whiffiagonis) and (with a descriptive word) a species of large-tooth flounder or sand flounder (family Paralichthyidae)."
+    },
+    {
+      "pos": "noun",
+      "definition": "A slight sign of something; a burst, a glimpse, a hint."
+    },
+    {
+      "pos": "noun",
+      "definition": "A slight attack or touch."
+    },
+    {
+      "pos": "noun",
+      "definition": "A characteristic quality of something; a flavour, a savour, a taste."
+    },
+    {
+      "pos": "noun",
+      "definition": "A sound like that of air passing through a small opening; a short or soft whistle."
+    },
+    {
+      "pos": "noun",
+      "definition": "A failure to hit a ball in various sports (for example, golf); a miss."
+    },
+    {
+      "pos": "noun",
+      "definition": "A failure to hit a ball in various sports (for example, golf); a miss."
+    },
+    {
+      "pos": "noun",
+      "definition": "An expulsion of explosive or shot."
+    },
+    {
+      "pos": "noun",
+      "definition": "An outrigged boat for one person propelled by oar."
+    },
+    {
+      "pos": "noun",
+      "definition": "A sip of an alcoholic beverage."
+    },
+    {
+      "pos": "verb",
+      "definition": "To carry or convey (something) by, or as by, a whiff or puff of air; to blow, puff, or waft away.",
+      "translations_ru": [
+        "дуть",
+        "ве́ять"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To say (something) with an exhalation of breath."
+    },
+    {
+      "pos": "verb",
+      "definition": "To inhale or exhale (smoke from tobacco, etc.) from a cigarette, pipe, or other smoking implement; to smoke (a cigarette, pipe, etc.); to puff."
+    },
+    {
+      "pos": "verb",
+      "definition": "To breathe in or sniff (an odour); to smell.",
+      "translations_ru": [
+        "принюхиваться"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To shoot (someone) with a firearm; hence, to assassinate or kill (someone)."
+    },
+    {
+      "pos": "verb",
+      "definition": "Of a pitcher: to strike out (a batter); to fan."
+    },
+    {
+      "pos": "verb",
+      "definition": "To consume (an alcoholic beverage)."
+    },
+    {
+      "pos": "verb",
+      "definition": "To move in a way that causes a light gust of air, or a whistling sound."
+    },
+    {
+      "pos": "verb",
+      "definition": "To be carried, or move as if carried, by a puff of air; to waft."
+    },
+    {
+      "pos": "verb",
+      "definition": "To smoke a cigarette, pipe, or other smoking implement."
+    },
+    {
+      "pos": "verb",
+      "definition": "To smell; to sniff."
+    },
+    {
+      "pos": "verb",
+      "definition": "To give off or have an unpleasant smell; to stink."
+    },
+    {
+      "pos": "verb",
+      "definition": "Especially in baseball or golf: to completely miss hitting a ball; hence (baseball), of a batter: to strike out; to fan."
+    },
+    {
+      "pos": "verb",
+      "definition": "To fail spectacularly."
+    },
+    {
+      "pos": "verb",
+      "definition": "In fighting games, to execute a move that fails to hit the opponent."
+    },
+    {
+      "pos": "verb",
+      "definition": "To catch fish by dragging a handline near the surface of the water from a moving boat."
+    },
+    {
+      "pos": "adj",
+      "definition": "Having a strong or unpleasant odour."
+    },
+    {
+      "pos": "intj",
+      "definition": "Used to indicate a sound like that of air passing through a small opening, that is, a short or soft whistle."
+    }
+  ],
+  "relations": {
+    "hypernyms": [
+      "mouth",
+      "speak",
+      "talk",
+      "blow",
+      "smoke",
+      "smell",
+      "blast"
+    ]
+  }
+}
+
+=== WORD 16: healing ===
+{
+  "word": "healing",
+  "ipa": "/hilɪŋ/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "The process where the cells in the body regenerate and repair themselves."
+    },
+    {
+      "pos": "noun",
+      "definition": "An act of healing, as by a faith healer.",
+      "translations_ru": [
+        "исцеле́ние",
+        "излече́ние",
+        "лече́ние",
+        "заживле́ние"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "The psychological process of dealing with a problem or problems."
+    },
+    {
+      "pos": "verb",
+      "definition": "present participle and gerund of heal"
+    }
+  ],
+  "relations": {
+    "hypernyms": [
+      "activity"
+    ]
+  }
+}
+
+=== WORD 17: rake ===
+{
+  "word": "rake",
+  "ipa": "/ɹeɪk/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "A garden tool with a row of pointed teeth fixed to a long handle, used for collecting debris, grass, etc., for flattening the ground, or for loosening soil; also, a similar wheel-mounted tool drawn by a horse or a tractor.",
+      "translations_ru": [
+        "гра́бли"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A similarly shaped tool used for other purposes."
+    },
+    {
+      "pos": "noun",
+      "definition": "A similarly shaped tool used for other purposes."
+    },
+    {
+      "pos": "noun",
+      "definition": "A type of puffer train that leaves behind a stream of spaceships as it moves."
+    },
+    {
+      "pos": "verb",
+      "definition": "To act upon with a rake, or as if with a rake."
+    },
+    {
+      "pos": "verb",
+      "definition": "To act upon with a rake, or as if with a rake."
+    },
+    {
+      "pos": "verb",
+      "definition": "To act upon with a rake, or as if with a rake."
+    },
+    {
+      "pos": "verb",
+      "definition": "To act upon with a rake, or as if with a rake."
+    },
+    {
+      "pos": "verb",
+      "definition": "To act upon with a rake, or as if with a rake."
+    },
+    {
+      "pos": "verb",
+      "definition": "To act upon with a rake, or as if with a rake.",
+      "translations_ru": [
+        "прочёсывать",
+        "прочеса́ть"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To act upon with a rake, or as if with a rake."
+    },
+    {
+      "pos": "verb",
+      "definition": "To act upon with a rake, or as if with a rake."
+    },
+    {
+      "pos": "verb",
+      "definition": "To act upon with a rake, or as if with a rake."
+    },
+    {
+      "pos": "verb",
+      "definition": "To act upon with a rake, or as if with a rake."
+    },
+    {
+      "pos": "noun",
+      "definition": "The act of raking."
+    },
+    {
+      "pos": "noun",
+      "definition": "Something that is raked."
+    },
+    {
+      "pos": "noun",
+      "definition": "Something that is raked."
+    },
+    {
+      "pos": "noun",
+      "definition": "A course, a path, especially a narrow and steep path or route up a hillside."
+    },
+    {
+      "pos": "noun",
+      "definition": "A fissure or mineral vein of ore traversing the strata vertically, or nearly so."
+    },
+    {
+      "pos": "noun",
+      "definition": "A series, a succession; specifically (rail transport) a set of coupled rail vehicles, normally coaches or wagons."
+    },
+    {
+      "pos": "noun",
+      "definition": "Alternative spelling of raik (“a course, a way; pastureland over which animals graze; a journey to transport something between two places; a run; also, the quantity of items so transported”)."
+    },
+    {
+      "pos": "verb",
+      "definition": "Alternative spelling of raik (“(intransitive, Midlands, Northern England, Scotland) to walk; to roam, to wander; of animals (especially sheep): to graze; (transitive, chiefly Scotland) to roam or wander through (somewhere)”)"
+    },
+    {
+      "pos": "verb",
+      "definition": "To move swiftly; to proceed rapidly."
+    },
+    {
+      "pos": "verb",
+      "definition": "Of a bird of prey: to fly after a quarry; also, to fly away from the falconer, to go wide of the quarry being pursued."
+    },
+    {
+      "pos": "noun",
+      "definition": "Rate of progress; pace, speed."
+    },
+    {
+      "pos": "verb",
+      "definition": "To incline (something) from a perpendicular direction.",
+      "translations_ru": [
+        "наклонить",
+        "отклонить"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "Senses relating to watercraft."
+    },
+    {
+      "pos": "verb",
+      "definition": "Senses relating to watercraft."
+    },
+    {
+      "pos": "noun",
+      "definition": "A divergence from the horizontal or perpendicular; a slant, a slope.",
+      "translations_ru": [
+        "уклон",
+        "наклон"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "In full, angle of rake or rake angle: the angle between the edge or face of a tool (especially a cutting tool) and a plane (usually one perpendicular to the object that the tool is being applied to)."
+    },
+    {
+      "pos": "noun",
+      "definition": "The direction of slip during the movement of a fault, measured within the fault plane."
+    },
+    {
+      "pos": "noun",
+      "definition": "Senses relating to watercraft."
+    },
+    {
+      "pos": "noun",
+      "definition": "Senses relating to watercraft."
+    },
+    {
+      "pos": "noun",
+      "definition": "The sloped edge of a roof at or adjacent to the first or last rafter."
+    },
+    {
+      "pos": "noun",
+      "definition": "A person (usually a man) who is stylish but habituated to hedonistic and immoral conduct."
+    },
+    {
+      "pos": "verb",
+      "definition": "To behave as a rake; to lead a hedonistic and immoral life."
+    },
+    {
+      "pos": "name",
+      "definition": "A surname."
+    },
+    {
+      "pos": "name",
+      "definition": "A village in Rogate parish, Chichester district, West Sussex, England (OS grid ref SU8027)."
+    },
+    {
+      "pos": "name",
+      "definition": "A small town in Winnebago County, Iowa, United States, named after a pioneer citizen."
+    }
+  ],
+  "relations": {
+    "synonyms": [
+      "rip"
+    ],
+    "hypernyms": [
+      "see",
+      "move",
+      "brush",
+      "collect",
+      "gather",
+      "smooth",
+      "sweep"
+    ]
+  }
+}
+
+=== WORD 18: stunt ===
+{
+  "word": "stunt",
+  "ipa": "/stʌnt/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "A daring or dangerous feat, often involving the display of gymnastic skills.",
+      "translations_ru": [
+        "трюк"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "An act or activity viewed as the outcome of a plan or scheme, often malicious or nefarious."
+    },
+    {
+      "pos": "noun",
+      "definition": "Ellipsis of publicity stunt."
+    },
+    {
+      "pos": "noun",
+      "definition": "A skill."
+    },
+    {
+      "pos": "noun",
+      "definition": "A special means of rushing the quarterback done to confuse the opposing team's offensive line."
+    },
+    {
+      "pos": "verb",
+      "definition": "To perform a stunt."
+    },
+    {
+      "pos": "verb",
+      "definition": "To show off; to posture; to flaunt valuables.",
+      "translations_ru": [
+        "понтоваться"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To check or hinder the growth or development of.",
+      "translations_ru": [
+        "подавлять"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "A check in growth."
+    },
+    {
+      "pos": "noun",
+      "definition": "That which has been checked in growth; a stunted animal or thing."
+    },
+    {
+      "pos": "noun",
+      "definition": "A two-year-old whale, which, having been weaned, is lean and yields little blubber."
+    }
+  ],
+  "relations": {
+    "hypernyms": [
+      "perform",
+      "appear",
+      "look",
+      "seem",
+      "effort",
+      "animal"
+    ]
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "word": "crime",
+  "ipa": "/kɹaɪm/",
+  "wiktionary_senses": [
+    {
+      "pos": "noun",
+      "definition": "A specific act committed in violation of the law, especially criminal law.",
+      "translations_ru": [
+        "преступле́ние",
+        "злодея́ние",
+        "злоде́йство"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "Any great sin or wickedness; iniquity."
+    },
+    {
+      "pos": "noun",
+      "definition": "That which occasions crime."
+    },
+    {
+      "pos": "noun",
+      "definition": "Criminal acts collectively.",
+      "translations_ru": [
+        "кримина́л"
+      ]
+    },
+    {
+      "pos": "noun",
+      "definition": "The habit or practice of committing crimes.",
+      "translations_ru": [
+        "преступле́ние",
+        "престу́пность",
+        "кримина́л"
+      ]
+    },
+    {
+      "pos": "verb",
+      "definition": "To subject to disciplinary punishment."
+    },
+    {
+      "pos": "verb",
+      "definition": "To commit crime."
+    },
+    {
+      "pos": "name",
+      "definition": "A particular security exploit against secret Web cookies over connections using the HTTPS and SPDY protocols that also use data compression. It relies on observing the change in size of the compressed ciphertext for various inputs."
+    }
+  ],
+  "relations": {
+    "hypernyms": [
+      "offense"
+    ]
+  }
+}
