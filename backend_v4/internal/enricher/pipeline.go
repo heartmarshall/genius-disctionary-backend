@@ -82,8 +82,8 @@ func Run(ctx context.Context, cfg *Config, log *slog.Logger) (PipelineResult, er
 		llmClient = anthropic.NewClient(option.WithAPIKey(cfg.LLMAPIKey))
 	}
 
-	// 4. Build context files + batch word lists.
-	var batch []string
+	// 4. Build context files + batch prompts.
+	var batch []EnrichContext
 	batchNum := 1
 
 	for _, word := range words {
@@ -114,10 +114,10 @@ func Run(ctx context.Context, cfg *Config, log *slog.Logger) (PipelineResult, er
 			}
 		}
 
-		batch = append(batch, word)
+		batch = append(batch, enrichCtx)
 		if len(batch) >= cfg.BatchSize {
-			if err := writeBatchWordList(cfg.EnrichOutputDir, batchNum, batch); err != nil {
-				log.Warn("write batch word list", slog.Int("batch", batchNum), slog.String("error", err.Error()))
+			if err := writeBatchPrompt(cfg.EnrichOutputDir, batchNum, batch); err != nil {
+				log.Warn("write batch prompt", slog.Int("batch", batchNum), slog.String("error", err.Error()))
 			} else {
 				result.BatchFiles++
 			}
@@ -128,8 +128,8 @@ func Run(ctx context.Context, cfg *Config, log *slog.Logger) (PipelineResult, er
 
 	// Flush remaining batch.
 	if len(batch) > 0 {
-		if err := writeBatchWordList(cfg.EnrichOutputDir, batchNum, batch); err != nil {
-			log.Warn("write batch word list", slog.Int("batch", batchNum), slog.String("error", err.Error()))
+		if err := writeBatchPrompt(cfg.EnrichOutputDir, batchNum, batch); err != nil {
+			log.Warn("write batch prompt", slog.Int("batch", batchNum), slog.String("error", err.Error()))
 		} else {
 			result.BatchFiles++
 		}
@@ -174,8 +174,57 @@ func buildRelationMap(result wordnet.ParseResult) map[string]map[string][]string
 	return m
 }
 
-// writeBatchWordList writes a text file listing the words in one batch.
-func writeBatchWordList(dir string, batchNum int, words []string) error {
-	path := filepath.Join(dir, fmt.Sprintf("batch_%04d_words.txt", batchNum))
-	return os.WriteFile(path, []byte(strings.Join(words, "\n")), 0644)
+// writeBatchPrompt writes a ready-to-paste LLM prompt for all words in one batch.
+// Output file: enrich-output/batch_NNNN_prompt.txt
+func writeBatchPrompt(dir string, batchNum int, contexts []EnrichContext) error {
+	path := filepath.Join(dir, fmt.Sprintf("batch_%04d_prompt.txt", batchNum))
+
+	var b strings.Builder
+
+	fmt.Fprintf(&b, `You are a professional English-Russian dictionary editor.
+Below are %d English words with their context from reference datasets (IPA, existing definitions, Russian translations, semantic relations).
+
+For EACH word produce an improved dictionary entry in JSON format.
+Separate consecutive JSON objects with a line containing only "---".
+Output NOTHING except the JSON objects and the "---" separators — no markdown, no explanations.
+
+Each JSON must match this exact schema:
+{
+  "word": "<word>",
+  "source_slug": "llm",
+  "senses": [
+    {
+      "pos": "<NOUN|VERB|ADJECTIVE|ADVERB|PRONOUN|PREPOSITION|CONJUNCTION|INTERJECTION|PHRASE|IDIOM|OTHER>",
+      "definition": "<clear English definition for B1+ learners>",
+      "cefr_level": "<A1|A2|B1|B2|C1|C2>",
+      "notes": "<learning tip in Russian: collocations, register, common mistakes>",
+      "translations": ["<Russian 1>", "<Russian 2>"],
+      "examples": [
+        {"sentence": "<English example>", "translation": "<Russian translation>"}
+      ]
+    }
+  ]
+}
+
+Rules:
+- Rewrite definitions to be clearer and more useful for learners
+- Provide 2-4 Russian translations per sense
+- Write notes in Russian
+- Generate 1-3 natural example sentences with Russian translations
+- Preserve the word order — output exactly %d JSON objects in the same order
+
+`, len(contexts), len(contexts))
+
+	for i, ctx := range contexts {
+		ctxJSON, err := json.MarshalIndent(ctx, "", "  ")
+		if err != nil {
+			return fmt.Errorf("marshal context for %q: %w", ctx.Word, err)
+		}
+		fmt.Fprintf(&b, "=== WORD %d: %s ===\n%s\n", i+1, ctx.Word, ctxJSON)
+		if i < len(contexts)-1 {
+			b.WriteString("\n")
+		}
+	}
+
+	return os.WriteFile(path, []byte(b.String()), 0644)
 }
