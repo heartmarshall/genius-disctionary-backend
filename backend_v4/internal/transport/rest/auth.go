@@ -67,6 +67,7 @@ type userResponse struct {
 	Username  string  `json:"username"`
 	Name      string  `json:"name"`
 	AvatarURL *string `json:"avatarUrl,omitempty"`
+	Role      string  `json:"role"`
 }
 
 // Login handles POST /auth/login (OAuth).
@@ -212,6 +213,7 @@ func toAuthResponse(result *auth.AuthResult) authResponse {
 			Username:  result.User.Username,
 			Name:      result.User.Name,
 			AvatarURL: result.User.AvatarURL,
+			Role:      result.User.Role.String(),
 		},
 	}
 }

@@ -216,28 +216,29 @@ type userRow struct {
 	Username  string
 	Name      pgtype.Text
 	AvatarUrl pgtype.Text
+	Role      string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
 func fromGetByID(r sqlc.GetUserByIDRow) userRow {
-	return userRow{r.ID, r.Email, r.Username, r.Name, r.AvatarUrl, r.CreatedAt, r.UpdatedAt}
+	return userRow{r.ID, r.Email, r.Username, r.Name, r.AvatarUrl, r.Role, r.CreatedAt, r.UpdatedAt}
 }
 
 func fromGetByEmail(r sqlc.GetUserByEmailRow) userRow {
-	return userRow{r.ID, r.Email, r.Username, r.Name, r.AvatarUrl, r.CreatedAt, r.UpdatedAt}
+	return userRow{r.ID, r.Email, r.Username, r.Name, r.AvatarUrl, r.Role, r.CreatedAt, r.UpdatedAt}
 }
 
 func fromGetByUsername(r sqlc.GetUserByUsernameRow) userRow {
-	return userRow{r.ID, r.Email, r.Username, r.Name, r.AvatarUrl, r.CreatedAt, r.UpdatedAt}
+	return userRow{r.ID, r.Email, r.Username, r.Name, r.AvatarUrl, r.Role, r.CreatedAt, r.UpdatedAt}
 }
 
 func fromCreate(r sqlc.CreateUserRow) userRow {
-	return userRow{r.ID, r.Email, r.Username, r.Name, r.AvatarUrl, r.CreatedAt, r.UpdatedAt}
+	return userRow{r.ID, r.Email, r.Username, r.Name, r.AvatarUrl, r.Role, r.CreatedAt, r.UpdatedAt}
 }
 
 func fromUpdate(r sqlc.UpdateUserRow) userRow {
-	return userRow{r.ID, r.Email, r.Username, r.Name, r.AvatarUrl, r.CreatedAt, r.UpdatedAt}
+	return userRow{r.ID, r.Email, r.Username, r.Name, r.AvatarUrl, r.Role, r.CreatedAt, r.UpdatedAt}
 }
 
 // toDomainUser converts a userRow into a domain.User.
@@ -248,6 +249,7 @@ func toDomainUser(row userRow) domain.User {
 		Username:  row.Username,
 		Name:      pgTextToString(row.Name),
 		AvatarURL: pgTextToPtr(row.AvatarUrl),
+		Role:      domain.UserRole(row.Role),
 		CreatedAt: row.CreatedAt,
 		UpdatedAt: row.UpdatedAt,
 	}

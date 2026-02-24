@@ -16,7 +16,7 @@ import (
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (id, email, username, name, avatar_url, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id, email, username, name, avatar_url, created_at, updated_at
+RETURNING id, email, username, name, avatar_url, role, created_at, updated_at
 `
 
 type CreateUserParams struct {
@@ -35,6 +35,7 @@ type CreateUserRow struct {
 	Username  string
 	Name      pgtype.Text
 	AvatarUrl pgtype.Text
+	Role      string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -56,6 +57,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (CreateU
 		&i.Username,
 		&i.Name,
 		&i.AvatarUrl,
+		&i.Role,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -97,7 +99,7 @@ func (q *Queries) CreateUserSettings(ctx context.Context, arg CreateUserSettings
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, email, username, name, avatar_url, created_at, updated_at
+SELECT id, email, username, name, avatar_url, role, created_at, updated_at
 FROM users
 WHERE email = $1
 `
@@ -108,6 +110,7 @@ type GetUserByEmailRow struct {
 	Username  string
 	Name      pgtype.Text
 	AvatarUrl pgtype.Text
+	Role      string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -121,6 +124,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (GetUserByEm
 		&i.Username,
 		&i.Name,
 		&i.AvatarUrl,
+		&i.Role,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -128,7 +132,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (GetUserByEm
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, email, username, name, avatar_url, created_at, updated_at
+SELECT id, email, username, name, avatar_url, role, created_at, updated_at
 FROM users
 WHERE id = $1
 `
@@ -139,6 +143,7 @@ type GetUserByIDRow struct {
 	Username  string
 	Name      pgtype.Text
 	AvatarUrl pgtype.Text
+	Role      string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -152,6 +157,7 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (GetUserByIDRow
 		&i.Username,
 		&i.Name,
 		&i.AvatarUrl,
+		&i.Role,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -159,7 +165,7 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (GetUserByIDRow
 }
 
 const getUserByUsername = `-- name: GetUserByUsername :one
-SELECT id, email, username, name, avatar_url, created_at, updated_at
+SELECT id, email, username, name, avatar_url, role, created_at, updated_at
 FROM users
 WHERE username = $1
 `
@@ -170,6 +176,7 @@ type GetUserByUsernameRow struct {
 	Username  string
 	Name      pgtype.Text
 	AvatarUrl pgtype.Text
+	Role      string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -183,6 +190,7 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (GetUs
 		&i.Username,
 		&i.Name,
 		&i.AvatarUrl,
+		&i.Role,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -213,7 +221,7 @@ const updateUser = `-- name: UpdateUser :one
 UPDATE users
 SET name = $2, avatar_url = $3, updated_at = now()
 WHERE id = $1
-RETURNING id, email, username, name, avatar_url, created_at, updated_at
+RETURNING id, email, username, name, avatar_url, role, created_at, updated_at
 `
 
 type UpdateUserParams struct {
@@ -228,6 +236,7 @@ type UpdateUserRow struct {
 	Username  string
 	Name      pgtype.Text
 	AvatarUrl pgtype.Text
+	Role      string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -241,6 +250,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (UpdateU
 		&i.Username,
 		&i.Name,
 		&i.AvatarUrl,
+		&i.Role,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

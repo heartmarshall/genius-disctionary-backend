@@ -472,6 +472,7 @@ type User struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	Username  string
+	Role      string
 }
 
 type UserImage struct {

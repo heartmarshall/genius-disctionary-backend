@@ -1,28 +1,28 @@
 -- name: GetUserByID :one
-SELECT id, email, username, name, avatar_url, created_at, updated_at
+SELECT id, email, username, name, avatar_url, role, created_at, updated_at
 FROM users
 WHERE id = $1;
 
 -- name: GetUserByEmail :one
-SELECT id, email, username, name, avatar_url, created_at, updated_at
+SELECT id, email, username, name, avatar_url, role, created_at, updated_at
 FROM users
 WHERE email = $1;
 
 -- name: GetUserByUsername :one
-SELECT id, email, username, name, avatar_url, created_at, updated_at
+SELECT id, email, username, name, avatar_url, role, created_at, updated_at
 FROM users
 WHERE username = $1;
 
 -- name: CreateUser :one
 INSERT INTO users (id, email, username, name, avatar_url, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id, email, username, name, avatar_url, created_at, updated_at;
+RETURNING id, email, username, name, avatar_url, role, created_at, updated_at;
 
 -- name: UpdateUser :one
 UPDATE users
 SET name = $2, avatar_url = $3, updated_at = now()
 WHERE id = $1
-RETURNING id, email, username, name, avatar_url, created_at, updated_at;
+RETURNING id, email, username, name, avatar_url, role, created_at, updated_at;
 
 -- name: GetUserSettings :one
 SELECT user_id, new_cards_per_day, reviews_per_day, max_interval_days, timezone, updated_at
