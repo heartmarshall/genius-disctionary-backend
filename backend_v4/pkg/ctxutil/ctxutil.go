@@ -10,6 +10,7 @@ type ctxKey string
 
 const (
 	userIDKey    ctxKey = "user_id"
+	userRoleKey  ctxKey = "user_role"
 	requestIDKey ctxKey = "request_id"
 )
 
@@ -26,6 +27,23 @@ func UserIDFromCtx(ctx context.Context) (uuid.UUID, bool) {
 		return uuid.Nil, false
 	}
 	return id, true
+}
+
+// WithUserRole stores the user role in the context.
+func WithUserRole(ctx context.Context, role string) context.Context {
+	return context.WithValue(ctx, userRoleKey, role)
+}
+
+// UserRoleFromCtx extracts the user role from the context.
+// Returns an empty string if absent.
+func UserRoleFromCtx(ctx context.Context) string {
+	role, _ := ctx.Value(userRoleKey).(string)
+	return role
+}
+
+// IsAdminCtx returns true if the context user has the admin role.
+func IsAdminCtx(ctx context.Context) bool {
+	return UserRoleFromCtx(ctx) == "admin"
 }
 
 // WithRequestID stores the request ID in the context.

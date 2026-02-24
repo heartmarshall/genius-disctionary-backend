@@ -30,15 +30,23 @@ func NewJWTManager(secret string, issuer string, accessTTL time.Duration) *JWTMa
 	}
 }
 
-// GenerateAccessToken creates a signed HS256 JWT with the given user ID as subject.
-// The token includes: sub=userID, iss=issuer, exp=now+accessTTL, iat=now.
-func (m *JWTManager) GenerateAccessToken(userID uuid.UUID) (string, error) {
+// accessClaims extends standard JWT claims with the user's role.
+type accessClaims struct {
+	jwt.RegisteredClaims
+	Role string `json:"role,omitempty"`
+}
+
+// GenerateAccessToken creates a signed HS256 JWT with user ID as subject and role as a custom claim.
+func (m *JWTManager) GenerateAccessToken(userID uuid.UUID, role string) (string, error) {
 	now := time.Now()
-	claims := jwt.RegisteredClaims{
-		Subject:   userID.String(),
-		Issuer:    m.issuer,
-		ExpiresAt: jwt.NewNumericDate(now.Add(m.accessTTL)),
-		IssuedAt:  jwt.NewNumericDate(now),
+	claims := accessClaims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			Subject:   userID.String(),
+			Issuer:    m.issuer,
+			ExpiresAt: jwt.NewNumericDate(now.Add(m.accessTTL)),
+			IssuedAt:  jwt.NewNumericDate(now),
+		},
+		Role: role,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -51,15 +59,13 @@ func (m *JWTManager) GenerateAccessToken(userID uuid.UUID) (string, error) {
 }
 
 // ValidateAccessToken parses and validates a JWT access token.
-// Returns the user ID (from subject claim) if valid.
-// Returns error if token is malformed, expired, signature invalid, or issuer mismatched.
-func (m *JWTManager) ValidateAccessToken(tokenString string) (uuid.UUID, error) {
+// Returns the user ID and role if valid.
+func (m *JWTManager) ValidateAccessToken(tokenString string) (uuid.UUID, string, error) {
 	if tokenString == "" {
-		return uuid.Nil, fmt.Errorf("token is empty")
+		return uuid.Nil, "", fmt.Errorf("token is empty")
 	}
 
-	token, err := jwt.ParseWithClaims(tokenString, &jwt.RegisteredClaims{}, func(token *jwt.Token) (any, error) {
-		// Verify signing method
+	token, err := jwt.ParseWithClaims(tokenString, &accessClaims{}, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
@@ -67,26 +73,24 @@ func (m *JWTManager) ValidateAccessToken(tokenString string) (uuid.UUID, error) 
 	})
 
 	if err != nil {
-		return uuid.Nil, fmt.Errorf("parse token: %w", err)
+		return uuid.Nil, "", fmt.Errorf("parse token: %w", err)
 	}
 
-	claims, ok := token.Claims.(*jwt.RegisteredClaims)
+	claims, ok := token.Claims.(*accessClaims)
 	if !ok || !token.Valid {
-		return uuid.Nil, fmt.Errorf("invalid token claims")
+		return uuid.Nil, "", fmt.Errorf("invalid token claims")
 	}
 
-	// Verify issuer
 	if claims.Issuer != m.issuer {
-		return uuid.Nil, fmt.Errorf("invalid issuer: expected %s, got %s", m.issuer, claims.Issuer)
+		return uuid.Nil, "", fmt.Errorf("invalid issuer: expected %s, got %s", m.issuer, claims.Issuer)
 	}
 
-	// Parse user ID from subject
 	userID, err := uuid.Parse(claims.Subject)
 	if err != nil {
-		return uuid.Nil, fmt.Errorf("invalid subject UUID: %w", err)
+		return uuid.Nil, "", fmt.Errorf("invalid subject UUID: %w", err)
 	}
 
-	return userID, nil
+	return userID, claims.Role, nil
 }
 
 // GenerateRefreshToken creates a cryptographically random refresh token.

@@ -10,7 +10,7 @@ import (
 )
 
 type tokenValidator interface {
-	ValidateToken(ctx context.Context, token string) (uuid.UUID, error)
+	ValidateToken(ctx context.Context, token string) (uuid.UUID, string, error)
 }
 
 func Auth(validator tokenValidator) Middleware {
@@ -21,12 +21,13 @@ func Auth(validator tokenValidator) Middleware {
 				next.ServeHTTP(w, r) // Anonymous
 				return
 			}
-			userID, err := validator.ValidateToken(r.Context(), token)
+			userID, role, err := validator.ValidateToken(r.Context(), token)
 			if err != nil {
 				http.Error(w, "unauthorized", http.StatusUnauthorized)
 				return
 			}
 			ctx := ctxutil.WithUserID(r.Context(), userID)
+			ctx = ctxutil.WithUserRole(ctx, role)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}

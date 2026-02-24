@@ -26,14 +26,14 @@ func (s *Service) Logout(ctx context.Context) error {
 	return nil
 }
 
-// ValidateToken validates an access token and returns the user ID.
+// ValidateToken validates an access token and returns the user ID and role.
 // Returns ErrUnauthorized if the token is invalid or expired.
-func (s *Service) ValidateToken(ctx context.Context, token string) (uuid.UUID, error) {
-	userID, err := s.jwt.ValidateAccessToken(token)
+func (s *Service) ValidateToken(ctx context.Context, token string) (uuid.UUID, string, error) {
+	userID, role, err := s.jwt.ValidateAccessToken(token)
 	if err != nil {
-		return uuid.Nil, domain.ErrUnauthorized
+		return uuid.Nil, "", domain.ErrUnauthorized
 	}
-	return userID, nil
+	return userID, role, nil
 }
 
 // CleanupExpiredTokens removes all expired refresh tokens from the database.

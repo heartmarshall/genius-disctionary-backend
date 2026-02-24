@@ -21,7 +21,7 @@ type authService interface {
 	Register(ctx context.Context, input auth.RegisterInput) (*auth.AuthResult, error)
 	Refresh(ctx context.Context, input auth.RefreshInput) (*auth.AuthResult, error)
 	Logout(ctx context.Context) error
-	ValidateToken(ctx context.Context, token string) (uuid.UUID, error)
+	ValidateToken(ctx context.Context, token string) (uuid.UUID, string, error)
 }
 
 // AuthHandler serves auth REST endpoints.
@@ -158,7 +158,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, err := h.svc.ValidateToken(r.Context(), token)
+	userID, _, err := h.svc.ValidateToken(r.Context(), token)
 	if err != nil {
 		writeError(w, http.StatusUnauthorized, "invalid token")
 		return

@@ -110,7 +110,7 @@ func TestService_Login_NewUserRegistration(t *testing.T) {
 	}
 
 	jwtMock := &jwtManagerMock{
-		GenerateAccessTokenFunc: func(uid uuid.UUID) (string, error) {
+		GenerateAccessTokenFunc: func(uid uuid.UUID, role string) (string, error) {
 			if uid != userID {
 				t.Errorf("GenerateAccessToken called with wrong userID: got=%s, want=%s", uid, userID)
 			}
@@ -233,7 +233,7 @@ func TestService_Login_ExistingUser(t *testing.T) {
 	txMock := &txManagerMock{}
 
 	jwtMock := &jwtManagerMock{
-		GenerateAccessTokenFunc: func(uid uuid.UUID) (string, error) {
+		GenerateAccessTokenFunc: func(uid uuid.UUID, role string) (string, error) {
 			return "access_token_123", nil
 		},
 		GenerateRefreshTokenFunc: func() (string, string, error) {
@@ -348,7 +348,7 @@ func TestService_Login_ProfileChanged(t *testing.T) {
 	txMock := &txManagerMock{}
 
 	jwtMock := &jwtManagerMock{
-		GenerateAccessTokenFunc: func(uid uuid.UUID) (string, error) {
+		GenerateAccessTokenFunc: func(uid uuid.UUID, role string) (string, error) {
 			return "access_token_123", nil
 		},
 		GenerateRefreshTokenFunc: func() (string, string, error) {
@@ -436,7 +436,7 @@ func TestService_Login_ProfileNotChanged(t *testing.T) {
 	txMock := &txManagerMock{}
 
 	jwtMock := &jwtManagerMock{
-		GenerateAccessTokenFunc: func(uid uuid.UUID) (string, error) {
+		GenerateAccessTokenFunc: func(uid uuid.UUID, role string) (string, error) {
 			return "access_token_123", nil
 		},
 		GenerateRefreshTokenFunc: func() (string, string, error) {
@@ -539,7 +539,7 @@ func TestService_Login_AccountLinking(t *testing.T) {
 	}
 
 	jwtMock := &jwtManagerMock{
-		GenerateAccessTokenFunc: func(uid uuid.UUID) (string, error) {
+		GenerateAccessTokenFunc: func(uid uuid.UUID, role string) (string, error) {
 			return "access_token_123", nil
 		},
 		GenerateRefreshTokenFunc: func() (string, string, error) {
@@ -651,7 +651,7 @@ func TestService_Login_RaceCondition(t *testing.T) {
 	}
 
 	jwtMock := &jwtManagerMock{
-		GenerateAccessTokenFunc: func(uid uuid.UUID) (string, error) {
+		GenerateAccessTokenFunc: func(uid uuid.UUID, role string) (string, error) {
 			return "access_token_123", nil
 		},
 		GenerateRefreshTokenFunc: func() (string, string, error) {
@@ -908,7 +908,7 @@ func TestService_Login_TokensGeneratedCorrectly(t *testing.T) {
 	}
 
 	jwtMock := &jwtManagerMock{
-		GenerateAccessTokenFunc: func(uid uuid.UUID) (string, error) {
+		GenerateAccessTokenFunc: func(uid uuid.UUID, role string) (string, error) {
 			if uid != userID {
 				t.Errorf("GenerateAccessToken called with wrong userID: got=%s, want=%s", uid, userID)
 			}
@@ -1028,7 +1028,7 @@ func TestService_Register_Success(t *testing.T) {
 	}
 
 	jwtMock := &jwtManagerMock{
-		GenerateAccessTokenFunc: func(uid uuid.UUID) (string, error) {
+		GenerateAccessTokenFunc: func(uid uuid.UUID, role string) (string, error) {
 			return "access_token_123", nil
 		},
 		GenerateRefreshTokenFunc: func() (string, string, error) {
@@ -1248,7 +1248,7 @@ func TestService_LoginWithPassword_Success(t *testing.T) {
 	}
 
 	jwtMock := &jwtManagerMock{
-		GenerateAccessTokenFunc: func(uid uuid.UUID) (string, error) {
+		GenerateAccessTokenFunc: func(uid uuid.UUID, role string) (string, error) {
 			return "access_token_123", nil
 		},
 		GenerateRefreshTokenFunc: func() (string, string, error) {
@@ -1522,7 +1522,7 @@ func TestService_Refresh_Success(t *testing.T) {
 	}
 
 	jwtMock := &jwtManagerMock{
-		GenerateAccessTokenFunc: func(uid uuid.UUID) (string, error) {
+		GenerateAccessTokenFunc: func(uid uuid.UUID, role string) (string, error) {
 			return "new_access_token", nil
 		},
 		GenerateRefreshTokenFunc: func() (string, string, error) {
@@ -1771,7 +1771,7 @@ func TestService_Refresh_OldTokenRevoked(t *testing.T) {
 	}
 
 	jwtMock := &jwtManagerMock{
-		GenerateAccessTokenFunc: func(uid uuid.UUID) (string, error) {
+		GenerateAccessTokenFunc: func(uid uuid.UUID, role string) (string, error) {
 			return "new_access_token", nil
 		},
 		GenerateRefreshTokenFunc: func() (string, string, error) {
@@ -1842,7 +1842,7 @@ func TestService_Refresh_NewTokenDifferentFromOld(t *testing.T) {
 	}
 
 	jwtMock := &jwtManagerMock{
-		GenerateAccessTokenFunc: func(uid uuid.UUID) (string, error) {
+		GenerateAccessTokenFunc: func(uid uuid.UUID, role string) (string, error) {
 			return "new_access_token", nil
 		},
 		GenerateRefreshTokenFunc: func() (string, string, error) {
@@ -1916,7 +1916,7 @@ func TestService_Refresh_UserDataInResponse(t *testing.T) {
 	}
 
 	jwtMock := &jwtManagerMock{
-		GenerateAccessTokenFunc: func(uid uuid.UUID) (string, error) {
+		GenerateAccessTokenFunc: func(uid uuid.UUID, role string) (string, error) {
 			return "new_access_token", nil
 		},
 		GenerateRefreshTokenFunc: func() (string, string, error) {
@@ -2045,11 +2045,11 @@ func TestService_ValidateToken_ValidToken(t *testing.T) {
 	token := "valid_access_token"
 
 	jwtMock := &jwtManagerMock{
-		ValidateAccessTokenFunc: func(t string) (uuid.UUID, error) {
+		ValidateAccessTokenFunc: func(t string) (uuid.UUID, string, error) {
 			if t != token {
-				return uuid.Nil, errors.New("invalid token")
+				return uuid.Nil, "", errors.New("invalid token")
 			}
-			return userID, nil
+			return userID, "user", nil
 		},
 	}
 
@@ -2060,7 +2060,7 @@ func TestService_ValidateToken_ValidToken(t *testing.T) {
 		&txManagerMock{}, &oauthVerifierMock{}, jwtMock, cfg,
 	)
 
-	resultUserID, err := svc.ValidateToken(ctx, token)
+	resultUserID, resultRole, err := svc.ValidateToken(ctx, token)
 
 	if err != nil {
 		t.Fatalf("ValidateToken returned error: %v", err)
@@ -2068,14 +2068,17 @@ func TestService_ValidateToken_ValidToken(t *testing.T) {
 	if resultUserID != userID {
 		t.Errorf("ValidateToken userID: got=%s, want=%s", resultUserID, userID)
 	}
+	if resultRole != "user" {
+		t.Errorf("ValidateToken role: got=%s, want=%s", resultRole, "user")
+	}
 }
 
 func TestService_ValidateToken_InvalidToken(t *testing.T) {
 	t.Parallel()
 
 	jwtMock := &jwtManagerMock{
-		ValidateAccessTokenFunc: func(t string) (uuid.UUID, error) {
-			return uuid.Nil, errors.New("jwt validation failed")
+		ValidateAccessTokenFunc: func(t string) (uuid.UUID, string, error) {
+			return uuid.Nil, "", errors.New("jwt validation failed")
 		},
 	}
 
@@ -2086,7 +2089,7 @@ func TestService_ValidateToken_InvalidToken(t *testing.T) {
 		&txManagerMock{}, &oauthVerifierMock{}, jwtMock, cfg,
 	)
 
-	resultUserID, err := svc.ValidateToken(context.Background(), "invalid_token")
+	resultUserID, resultRole, err := svc.ValidateToken(context.Background(), "invalid_token")
 
 	if !errors.Is(err, domain.ErrUnauthorized) {
 		t.Fatalf("ValidateToken error: got=%v, want=ErrUnauthorized", err)
@@ -2094,14 +2097,17 @@ func TestService_ValidateToken_InvalidToken(t *testing.T) {
 	if resultUserID != uuid.Nil {
 		t.Errorf("ValidateToken should return uuid.Nil for invalid token, got=%s", resultUserID)
 	}
+	if resultRole != "" {
+		t.Errorf("ValidateToken should return empty role for invalid token, got=%s", resultRole)
+	}
 }
 
 func TestService_ValidateToken_MalformedToken(t *testing.T) {
 	t.Parallel()
 
 	jwtMock := &jwtManagerMock{
-		ValidateAccessTokenFunc: func(t string) (uuid.UUID, error) {
-			return uuid.Nil, errors.New("malformed token")
+		ValidateAccessTokenFunc: func(t string) (uuid.UUID, string, error) {
+			return uuid.Nil, "", errors.New("malformed token")
 		},
 	}
 
@@ -2112,13 +2118,16 @@ func TestService_ValidateToken_MalformedToken(t *testing.T) {
 		&txManagerMock{}, &oauthVerifierMock{}, jwtMock, cfg,
 	)
 
-	resultUserID, err := svc.ValidateToken(context.Background(), "malformed.jwt.token")
+	resultUserID, resultRole, err := svc.ValidateToken(context.Background(), "malformed.jwt.token")
 
 	if !errors.Is(err, domain.ErrUnauthorized) {
 		t.Fatalf("ValidateToken error: got=%v, want=ErrUnauthorized", err)
 	}
 	if resultUserID != uuid.Nil {
 		t.Errorf("ValidateToken should return uuid.Nil for malformed token, got=%s", resultUserID)
+	}
+	if resultRole != "" {
+		t.Errorf("ValidateToken should return empty role for malformed token, got=%s", resultRole)
 	}
 }
 

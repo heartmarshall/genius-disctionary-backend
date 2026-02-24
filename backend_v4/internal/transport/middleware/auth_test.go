@@ -16,11 +16,11 @@ import (
 func TestAuth_ValidToken(t *testing.T) {
 	userID := uuid.New()
 	validator := &tokenValidatorMock{
-		ValidateTokenFunc: func(ctx context.Context, token string) (uuid.UUID, error) {
+		ValidateTokenFunc: func(ctx context.Context, token string) (uuid.UUID, string, error) {
 			if token == "valid-token" {
-				return userID, nil
+				return userID, "user", nil
 			}
-			return uuid.Nil, errors.New("invalid token")
+			return uuid.Nil, "", errors.New("invalid token")
 		},
 	}
 
@@ -52,8 +52,8 @@ func TestAuth_ValidToken(t *testing.T) {
 
 func TestAuth_InvalidToken(t *testing.T) {
 	validator := &tokenValidatorMock{
-		ValidateTokenFunc: func(ctx context.Context, token string) (uuid.UUID, error) {
-			return uuid.Nil, errors.New("invalid token")
+		ValidateTokenFunc: func(ctx context.Context, token string) (uuid.UUID, string, error) {
+			return uuid.Nil, "", errors.New("invalid token")
 		},
 	}
 
@@ -77,9 +77,9 @@ func TestAuth_InvalidToken(t *testing.T) {
 
 func TestAuth_NoAuthHeader(t *testing.T) {
 	validator := &tokenValidatorMock{
-		ValidateTokenFunc: func(ctx context.Context, token string) (uuid.UUID, error) {
+		ValidateTokenFunc: func(ctx context.Context, token string) (uuid.UUID, string, error) {
 			t.Error("ValidateToken should not be called when no header present")
-			return uuid.Nil, errors.New("should not be called")
+			return uuid.Nil, "", errors.New("should not be called")
 		},
 	}
 
@@ -110,9 +110,9 @@ func TestAuth_NoAuthHeader(t *testing.T) {
 
 func TestAuth_NonBearerToken(t *testing.T) {
 	validator := &tokenValidatorMock{
-		ValidateTokenFunc: func(ctx context.Context, token string) (uuid.UUID, error) {
+		ValidateTokenFunc: func(ctx context.Context, token string) (uuid.UUID, string, error) {
 			t.Error("ValidateToken should not be called for non-Bearer token")
-			return uuid.Nil, errors.New("should not be called")
+			return uuid.Nil, "", errors.New("should not be called")
 		},
 	}
 
@@ -144,9 +144,9 @@ func TestAuth_NonBearerToken(t *testing.T) {
 
 func TestAuth_EmptyBearerToken(t *testing.T) {
 	validator := &tokenValidatorMock{
-		ValidateTokenFunc: func(ctx context.Context, token string) (uuid.UUID, error) {
+		ValidateTokenFunc: func(ctx context.Context, token string) (uuid.UUID, string, error) {
 			t.Error("ValidateToken should not be called for empty Bearer token")
-			return uuid.Nil, errors.New("should not be called")
+			return uuid.Nil, "", errors.New("should not be called")
 		},
 	}
 

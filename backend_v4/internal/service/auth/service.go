@@ -53,8 +53,8 @@ type oauthVerifier interface {
 
 // jwtManager defines the JWT token management interface needed by auth service.
 type jwtManager interface {
-	GenerateAccessToken(userID uuid.UUID) (string, error)
-	ValidateAccessToken(token string) (uuid.UUID, error)
+	GenerateAccessToken(userID uuid.UUID, role string) (string, error)
+	ValidateAccessToken(token string) (uuid.UUID, string, error)
 	GenerateRefreshToken() (raw string, hash string, err error)
 }
 
@@ -99,7 +99,7 @@ func NewService(
 // issueTokens generates access and refresh tokens for the given user, stores
 // the refresh token hash in DB, and returns an AuthResult.
 func (s *Service) issueTokens(ctx context.Context, user *domain.User) (*AuthResult, error) {
-	accessToken, err := s.jwt.GenerateAccessToken(user.ID)
+	accessToken, err := s.jwt.GenerateAccessToken(user.ID, user.Role.String())
 	if err != nil {
 		return nil, fmt.Errorf("generate access token: %w", err)
 	}

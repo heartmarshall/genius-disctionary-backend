@@ -17,7 +17,7 @@ func TestJWTManager_GenerateAndValidate_Success(t *testing.T) {
 	userID := uuid.New()
 
 	// Generate token
-	token, err := manager.GenerateAccessToken(userID)
+	token, err := manager.GenerateAccessToken(userID, "user")
 	if err != nil {
 		t.Fatalf("GenerateAccessToken failed: %v", err)
 	}
@@ -26,12 +26,37 @@ func TestJWTManager_GenerateAndValidate_Success(t *testing.T) {
 	}
 
 	// Validate token
-	validatedID, err := manager.ValidateAccessToken(token)
+	validatedID, role, err := manager.ValidateAccessToken(token)
 	if err != nil {
 		t.Fatalf("ValidateAccessToken failed: %v", err)
 	}
 	if validatedID != userID {
 		t.Errorf("expected userID %s, got %s", userID, validatedID)
+	}
+	if role != "user" {
+		t.Errorf("expected role 'user', got %q", role)
+	}
+}
+
+func TestJWTManager_GenerateAndValidate_AdminRole(t *testing.T) {
+	secret := "test-secret-at-least-32-chars-long-for-security"
+	issuer := "myenglish-test"
+	ttl := 15 * time.Minute
+
+	manager := NewJWTManager(secret, issuer, ttl)
+	userID := uuid.New()
+
+	token, err := manager.GenerateAccessToken(userID, "admin")
+	if err != nil {
+		t.Fatalf("GenerateAccessToken failed: %v", err)
+	}
+
+	_, role, err := manager.ValidateAccessToken(token)
+	if err != nil {
+		t.Fatalf("ValidateAccessToken failed: %v", err)
+	}
+	if role != "admin" {
+		t.Errorf("expected role 'admin', got %q", role)
 	}
 }
 
@@ -43,13 +68,13 @@ func TestJWTManager_ValidateAccessToken_Expired(t *testing.T) {
 	manager := NewJWTManager(secret, issuer, ttl)
 	userID := uuid.New()
 
-	token, err := manager.GenerateAccessToken(userID)
+	token, err := manager.GenerateAccessToken(userID, "user")
 	if err != nil {
 		t.Fatalf("GenerateAccessToken failed: %v", err)
 	}
 
 	// Should fail validation due to expiry
-	_, err = manager.ValidateAccessToken(token)
+	_, _, err = manager.ValidateAccessToken(token)
 	if err == nil {
 		t.Fatal("expected error for expired token, got nil")
 	}
@@ -69,13 +94,13 @@ func TestJWTManager_ValidateAccessToken_InvalidSignature(t *testing.T) {
 	userID := uuid.New()
 
 	// Generate with manager1
-	token, err := manager1.GenerateAccessToken(userID)
+	token, err := manager1.GenerateAccessToken(userID, "user")
 	if err != nil {
 		t.Fatalf("GenerateAccessToken failed: %v", err)
 	}
 
 	// Validate with manager2 (different secret)
-	_, err = manager2.ValidateAccessToken(token)
+	_, _, err = manager2.ValidateAccessToken(token)
 	if err == nil {
 		t.Fatal("expected error for invalid signature, got nil")
 	}
@@ -95,7 +120,7 @@ func TestJWTManager_ValidateAccessToken_Malformed(t *testing.T) {
 	}
 
 	for _, token := range malformedTokens {
-		_, err := manager.ValidateAccessToken(token)
+		_, _, err := manager.ValidateAccessToken(token)
 		if err == nil {
 			t.Errorf("expected error for malformed token %q, got nil", token)
 		}
@@ -113,13 +138,13 @@ func TestJWTManager_ValidateAccessToken_WrongIssuer(t *testing.T) {
 	userID := uuid.New()
 
 	// Generate with manager1 (issuer1)
-	token, err := manager1.GenerateAccessToken(userID)
+	token, err := manager1.GenerateAccessToken(userID, "user")
 	if err != nil {
 		t.Fatalf("GenerateAccessToken failed: %v", err)
 	}
 
 	// Validate with manager2 (issuer2)
-	_, err = manager2.ValidateAccessToken(token)
+	_, _, err = manager2.ValidateAccessToken(token)
 	if err == nil {
 		t.Fatal("expected error for wrong issuer, got nil")
 	}
@@ -135,7 +160,7 @@ func TestJWTManager_ValidateAccessToken_EmptyString(t *testing.T) {
 
 	manager := NewJWTManager(secret, issuer, ttl)
 
-	_, err := manager.ValidateAccessToken("")
+	_, _, err := manager.ValidateAccessToken("")
 	if err == nil {
 		t.Fatal("expected error for empty token, got nil")
 	}
