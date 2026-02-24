@@ -102,9 +102,11 @@ type refCatalogService interface {
 	GetRefEntryByID(ctx context.Context, id uuid.UUID) (*domain.RefEntry, error)
 }
 
-// enrichmentEnqueuer defines what resolver needs from the enrichment service.
-type enrichmentEnqueuer interface {
+// enrichmentService defines what resolver needs from the enrichment service.
+type enrichmentService interface {
 	Enqueue(ctx context.Context, refEntryID uuid.UUID) error
+	GetStats(ctx context.Context) (domain.EnrichmentQueueStats, error)
+	List(ctx context.Context, status string, limit, offset int) ([]domain.EnrichmentQueueItem, error)
 }
 
 // Resolver is the root resolver containing all service dependencies.
@@ -116,7 +118,7 @@ type Resolver struct {
 	inbox      inboxService
 	user       userService
 	refCatalog refCatalogService
-	enrichment enrichmentEnqueuer
+	enrichment enrichmentService
 	log        *slog.Logger
 }
 
@@ -130,7 +132,7 @@ func NewResolver(
 	inbox inboxService,
 	user userService,
 	refCatalog refCatalogService,
-	enrichment enrichmentEnqueuer,
+	enrichment enrichmentService,
 ) *Resolver {
 	return &Resolver{
 		dictionary: dictionary,

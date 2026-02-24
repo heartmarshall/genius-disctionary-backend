@@ -1,0 +1,29 @@
+# ============================================================
+#  Admin — Enrichment Queue Management
+# ============================================================
+
+type EnrichmentQueueItem {
+  id: UUID!
+  refEntryId: UUID!
+  status: String!
+  priority: Int!
+  errorMessage: String
+  requestedAt: DateTime!
+  processedAt: DateTime
+}
+
+type EnrichmentQueueStats {
+  pending: Int!
+  processing: Int!
+  done: Int!
+  failed: Int!
+  total: Int!
+}
+
+extend type Query {
+  """Enrichment queue statistics (admin only)."""
+  enrichmentQueueStats: EnrichmentQueueStats!
+
+  """Browse enrichment queue items (admin only)."""
+  enrichmentQueue(status: String, limit: Int, offset: Int): [EnrichmentQueueItem!]!
+}

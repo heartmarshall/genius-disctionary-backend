@@ -147,6 +147,10 @@ models:
     model:
       - "github.com/heartmarshall/myenglish-backend/internal/domain.RefImage"
 
+  EnrichmentQueueStats:
+    model:
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.EnrichmentQueueStats"
+
   # Enum bindings
   LearningStatus:
     model:

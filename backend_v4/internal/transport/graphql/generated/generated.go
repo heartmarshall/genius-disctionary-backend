@@ -44,6 +44,7 @@ type ResolverRoot interface {
 	CardStats() CardStatsResolver
 	Dashboard() DashboardResolver
 	DictionaryEntry() DictionaryEntryResolver
+	EnrichmentQueueItem() EnrichmentQueueItemResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
 	RefEntry() RefEntryResolver
@@ -229,6 +230,24 @@ type ComplexityRoot struct {
 		UserImages     func(childComplexity int) int
 	}
 
+	EnrichmentQueueItem struct {
+		ErrorMessage func(childComplexity int) int
+		ID           func(childComplexity int) int
+		Priority     func(childComplexity int) int
+		ProcessedAt  func(childComplexity int) int
+		RefEntryID   func(childComplexity int) int
+		RequestedAt  func(childComplexity int) int
+		Status       func(childComplexity int) int
+	}
+
+	EnrichmentQueueStats struct {
+		Done       func(childComplexity int) int
+		Failed     func(childComplexity int) int
+		Pending    func(childComplexity int) int
+		Processing func(childComplexity int) int
+		Total      func(childComplexity int) int
+	}
+
 	Example struct {
 		ID          func(childComplexity int) int
 		Position    func(childComplexity int) int
@@ -358,22 +377,24 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		CardHistory       func(childComplexity int, input GetCardHistoryInput) int
-		CardStats         func(childComplexity int, cardID uuid.UUID) int
-		Dashboard         func(childComplexity int) int
-		DeletedEntries    func(childComplexity int, limit *int, offset *int) int
-		Dictionary        func(childComplexity int, input DictionaryFilterInput) int
-		DictionaryEntry   func(childComplexity int, id uuid.UUID) int
-		ExportEntries     func(childComplexity int) int
-		InboxItem         func(childComplexity int, id uuid.UUID) int
-		InboxItems        func(childComplexity int, limit *int, offset *int) int
-		Me                func(childComplexity int) int
-		PreviewRefEntry   func(childComplexity int, text string) int
-		RefDataSources    func(childComplexity int) int
-		RefEntryRelations func(childComplexity int, entryID uuid.UUID) int
-		SearchCatalog     func(childComplexity int, query string, limit *int) int
-		StudyQueue        func(childComplexity int, limit *int) int
-		Topics            func(childComplexity int) int
+		CardHistory          func(childComplexity int, input GetCardHistoryInput) int
+		CardStats            func(childComplexity int, cardID uuid.UUID) int
+		Dashboard            func(childComplexity int) int
+		DeletedEntries       func(childComplexity int, limit *int, offset *int) int
+		Dictionary           func(childComplexity int, input DictionaryFilterInput) int
+		DictionaryEntry      func(childComplexity int, id uuid.UUID) int
+		EnrichmentQueue      func(childComplexity int, status *string, limit *int, offset *int) int
+		EnrichmentQueueStats func(childComplexity int) int
+		ExportEntries        func(childComplexity int) int
+		InboxItem            func(childComplexity int, id uuid.UUID) int
+		InboxItems           func(childComplexity int, limit *int, offset *int) int
+		Me                   func(childComplexity int) int
+		PreviewRefEntry      func(childComplexity int, text string) int
+		RefDataSources       func(childComplexity int) int
+		RefEntryRelations    func(childComplexity int, entryID uuid.UUID) int
+		SearchCatalog        func(childComplexity int, query string, limit *int) int
+		StudyQueue           func(childComplexity int, limit *int) int
+		Topics               func(childComplexity int) int
 	}
 
 	RefDataSource struct {
@@ -431,6 +452,7 @@ type ComplexityRoot struct {
 		Definition   func(childComplexity int) int
 		Examples     func(childComplexity int) int
 		ID           func(childComplexity int) int
+		Notes        func(childComplexity int) int
 		PartOfSpeech func(childComplexity int) int
 		Position     func(childComplexity int) int
 		SourceSlug   func(childComplexity int) int
@@ -588,6 +610,9 @@ type DictionaryEntryResolver interface {
 	Card(ctx context.Context, obj *domain.Entry) (*domain.Card, error)
 	Topics(ctx context.Context, obj *domain.Entry) ([]*domain.Topic, error)
 }
+type EnrichmentQueueItemResolver interface {
+	Status(ctx context.Context, obj *domain.EnrichmentQueueItem) (string, error)
+}
 type MutationResolver interface {
 	AddSense(ctx context.Context, input AddSenseInput) (*AddSensePayload, error)
 	UpdateSense(ctx context.Context, input UpdateSenseInput) (*UpdateSensePayload, error)
@@ -630,6 +655,8 @@ type MutationResolver interface {
 	UpdateSettings(ctx context.Context, input UpdateSettingsInput) (*UpdateSettingsPayload, error)
 }
 type QueryResolver interface {
+	EnrichmentQueueStats(ctx context.Context) (*domain.EnrichmentQueueStats, error)
+	EnrichmentQueue(ctx context.Context, status *string, limit *int, offset *int) ([]*domain.EnrichmentQueueItem, error)
 	SearchCatalog(ctx context.Context, query string, limit *int) ([]*domain.RefEntry, error)
 	PreviewRefEntry(ctx context.Context, text string) (*domain.RefEntry, error)
 	Dictionary(ctx context.Context, input DictionaryFilterInput) (*DictionaryConnection, error)
@@ -1171,6 +1198,80 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.DictionaryEntry.UserImages(childComplexity), true
+
+	case "EnrichmentQueueItem.errorMessage":
+		if e.complexity.EnrichmentQueueItem.ErrorMessage == nil {
+			break
+		}
+
+		return e.complexity.EnrichmentQueueItem.ErrorMessage(childComplexity), true
+	case "EnrichmentQueueItem.id":
+		if e.complexity.EnrichmentQueueItem.ID == nil {
+			break
+		}
+
+		return e.complexity.EnrichmentQueueItem.ID(childComplexity), true
+	case "EnrichmentQueueItem.priority":
+		if e.complexity.EnrichmentQueueItem.Priority == nil {
+			break
+		}
+
+		return e.complexity.EnrichmentQueueItem.Priority(childComplexity), true
+	case "EnrichmentQueueItem.processedAt":
+		if e.complexity.EnrichmentQueueItem.ProcessedAt == nil {
+			break
+		}
+
+		return e.complexity.EnrichmentQueueItem.ProcessedAt(childComplexity), true
+	case "EnrichmentQueueItem.refEntryId":
+		if e.complexity.EnrichmentQueueItem.RefEntryID == nil {
+			break
+		}
+
+		return e.complexity.EnrichmentQueueItem.RefEntryID(childComplexity), true
+	case "EnrichmentQueueItem.requestedAt":
+		if e.complexity.EnrichmentQueueItem.RequestedAt == nil {
+			break
+		}
+
+		return e.complexity.EnrichmentQueueItem.RequestedAt(childComplexity), true
+	case "EnrichmentQueueItem.status":
+		if e.complexity.EnrichmentQueueItem.Status == nil {
+			break
+		}
+
+		return e.complexity.EnrichmentQueueItem.Status(childComplexity), true
+
+	case "EnrichmentQueueStats.done":
+		if e.complexity.EnrichmentQueueStats.Done == nil {
+			break
+		}
+
+		return e.complexity.EnrichmentQueueStats.Done(childComplexity), true
+	case "EnrichmentQueueStats.failed":
+		if e.complexity.EnrichmentQueueStats.Failed == nil {
+			break
+		}
+
+		return e.complexity.EnrichmentQueueStats.Failed(childComplexity), true
+	case "EnrichmentQueueStats.pending":
+		if e.complexity.EnrichmentQueueStats.Pending == nil {
+			break
+		}
+
+		return e.complexity.EnrichmentQueueStats.Pending(childComplexity), true
+	case "EnrichmentQueueStats.processing":
+		if e.complexity.EnrichmentQueueStats.Processing == nil {
+			break
+		}
+
+		return e.complexity.EnrichmentQueueStats.Processing(childComplexity), true
+	case "EnrichmentQueueStats.total":
+		if e.complexity.EnrichmentQueueStats.Total == nil {
+			break
+		}
+
+		return e.complexity.EnrichmentQueueStats.Total(childComplexity), true
 
 	case "Example.id":
 		if e.complexity.Example.ID == nil {
@@ -1926,6 +2027,23 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Query.DictionaryEntry(childComplexity, args["id"].(uuid.UUID)), true
+	case "Query.enrichmentQueue":
+		if e.complexity.Query.EnrichmentQueue == nil {
+			break
+		}
+
+		args, err := ec.field_Query_enrichmentQueue_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.EnrichmentQueue(childComplexity, args["status"].(*string), args["limit"].(*int), args["offset"].(*int)), true
+	case "Query.enrichmentQueueStats":
+		if e.complexity.Query.EnrichmentQueueStats == nil {
+			break
+		}
+
+		return e.complexity.Query.EnrichmentQueueStats(childComplexity), true
 	case "Query.exportEntries":
 		if e.complexity.Query.ExportEntries == nil {
 			break
@@ -2239,6 +2357,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.RefSense.ID(childComplexity), true
+	case "RefSense.notes":
+		if e.complexity.RefSense.Notes == nil {
+			break
+		}
+
+		return e.complexity.RefSense.Notes(childComplexity), true
 	case "RefSense.partOfSpeech":
 		if e.complexity.RefSense.PartOfSpeech == nil {
 			break
@@ -2817,6 +2941,36 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
+	{Name: "../schema/admin.graphql", Input: `# ============================================================
+#  Admin — Enrichment Queue Management
+# ============================================================
+
+type EnrichmentQueueItem {
+  id: UUID!
+  refEntryId: UUID!
+  status: String!
+  priority: Int!
+  errorMessage: String
+  requestedAt: DateTime!
+  processedAt: DateTime
+}
+
+type EnrichmentQueueStats {
+  pending: Int!
+  processing: Int!
+  done: Int!
+  failed: Int!
+  total: Int!
+}
+
+extend type Query {
+  """Enrichment queue statistics (admin only)."""
+  enrichmentQueueStats: EnrichmentQueueStats!
+
+  """Browse enrichment queue items (admin only)."""
+  enrichmentQueue(status: String, limit: Int, offset: Int): [EnrichmentQueueItem!]!
+}
+`, BuiltIn: false},
 	{Name: "../schema/content.graphql", Input: `# ============================================================
 #  INPUT TYPES — Content
 # ============================================================
@@ -3075,6 +3229,7 @@ type RefSense {
   definition: String
   partOfSpeech: PartOfSpeech
   cefrLevel: String
+  notes: String
   sourceSlug: String!
   position: Int!
   translations: [RefTranslation!]!
@@ -4210,6 +4365,27 @@ func (ec *executionContext) field_Query_dictionary_args(ctx context.Context, raw
 		return nil, err
 	}
 	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_enrichmentQueue_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "status", ec.unmarshalOString2ᚖstring)
+	if err != nil {
+		return nil, err
+	}
+	args["status"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "limit", ec.unmarshalOInt2ᚖint)
+	if err != nil {
+		return nil, err
+	}
+	args["limit"] = arg1
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "offset", ec.unmarshalOInt2ᚖint)
+	if err != nil {
+		return nil, err
+	}
+	args["offset"] = arg2
 	return args, nil
 }
 
@@ -6825,6 +7001,354 @@ func (ec *executionContext) fieldContext_DictionaryEntry_topics(_ context.Contex
 				return ec.fieldContext_Topic_updatedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Topic", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _EnrichmentQueueItem_id(ctx context.Context, field graphql.CollectedField, obj *domain.EnrichmentQueueItem) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_EnrichmentQueueItem_id,
+		func(ctx context.Context) (any, error) {
+			return obj.ID, nil
+		},
+		nil,
+		ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_EnrichmentQueueItem_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "EnrichmentQueueItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UUID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _EnrichmentQueueItem_refEntryId(ctx context.Context, field graphql.CollectedField, obj *domain.EnrichmentQueueItem) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_EnrichmentQueueItem_refEntryId,
+		func(ctx context.Context) (any, error) {
+			return obj.RefEntryID, nil
+		},
+		nil,
+		ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_EnrichmentQueueItem_refEntryId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "EnrichmentQueueItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UUID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _EnrichmentQueueItem_status(ctx context.Context, field graphql.CollectedField, obj *domain.EnrichmentQueueItem) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_EnrichmentQueueItem_status,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.EnrichmentQueueItem().Status(ctx, obj)
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_EnrichmentQueueItem_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "EnrichmentQueueItem",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _EnrichmentQueueItem_priority(ctx context.Context, field graphql.CollectedField, obj *domain.EnrichmentQueueItem) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_EnrichmentQueueItem_priority,
+		func(ctx context.Context) (any, error) {
+			return obj.Priority, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_EnrichmentQueueItem_priority(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "EnrichmentQueueItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _EnrichmentQueueItem_errorMessage(ctx context.Context, field graphql.CollectedField, obj *domain.EnrichmentQueueItem) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_EnrichmentQueueItem_errorMessage,
+		func(ctx context.Context) (any, error) {
+			return obj.ErrorMessage, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_EnrichmentQueueItem_errorMessage(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "EnrichmentQueueItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _EnrichmentQueueItem_requestedAt(ctx context.Context, field graphql.CollectedField, obj *domain.EnrichmentQueueItem) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_EnrichmentQueueItem_requestedAt,
+		func(ctx context.Context) (any, error) {
+			return obj.RequestedAt, nil
+		},
+		nil,
+		ec.marshalNDateTime2timeᚐTime,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_EnrichmentQueueItem_requestedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "EnrichmentQueueItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _EnrichmentQueueItem_processedAt(ctx context.Context, field graphql.CollectedField, obj *domain.EnrichmentQueueItem) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_EnrichmentQueueItem_processedAt,
+		func(ctx context.Context) (any, error) {
+			return obj.ProcessedAt, nil
+		},
+		nil,
+		ec.marshalODateTime2ᚖtimeᚐTime,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_EnrichmentQueueItem_processedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "EnrichmentQueueItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _EnrichmentQueueStats_pending(ctx context.Context, field graphql.CollectedField, obj *domain.EnrichmentQueueStats) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_EnrichmentQueueStats_pending,
+		func(ctx context.Context) (any, error) {
+			return obj.Pending, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_EnrichmentQueueStats_pending(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "EnrichmentQueueStats",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _EnrichmentQueueStats_processing(ctx context.Context, field graphql.CollectedField, obj *domain.EnrichmentQueueStats) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_EnrichmentQueueStats_processing,
+		func(ctx context.Context) (any, error) {
+			return obj.Processing, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_EnrichmentQueueStats_processing(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "EnrichmentQueueStats",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _EnrichmentQueueStats_done(ctx context.Context, field graphql.CollectedField, obj *domain.EnrichmentQueueStats) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_EnrichmentQueueStats_done,
+		func(ctx context.Context) (any, error) {
+			return obj.Done, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_EnrichmentQueueStats_done(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "EnrichmentQueueStats",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _EnrichmentQueueStats_failed(ctx context.Context, field graphql.CollectedField, obj *domain.EnrichmentQueueStats) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_EnrichmentQueueStats_failed,
+		func(ctx context.Context) (any, error) {
+			return obj.Failed, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_EnrichmentQueueStats_failed(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "EnrichmentQueueStats",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _EnrichmentQueueStats_total(ctx context.Context, field graphql.CollectedField, obj *domain.EnrichmentQueueStats) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_EnrichmentQueueStats_total,
+		func(ctx context.Context) (any, error) {
+			return obj.Total, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_EnrichmentQueueStats_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "EnrichmentQueueStats",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -9895,6 +10419,104 @@ func (ec *executionContext) fieldContext_Pronunciation_region(_ context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_enrichmentQueueStats(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Query_enrichmentQueueStats,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.Query().EnrichmentQueueStats(ctx)
+		},
+		nil,
+		ec.marshalNEnrichmentQueueStats2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐEnrichmentQueueStats,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Query_enrichmentQueueStats(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "pending":
+				return ec.fieldContext_EnrichmentQueueStats_pending(ctx, field)
+			case "processing":
+				return ec.fieldContext_EnrichmentQueueStats_processing(ctx, field)
+			case "done":
+				return ec.fieldContext_EnrichmentQueueStats_done(ctx, field)
+			case "failed":
+				return ec.fieldContext_EnrichmentQueueStats_failed(ctx, field)
+			case "total":
+				return ec.fieldContext_EnrichmentQueueStats_total(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type EnrichmentQueueStats", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_enrichmentQueue(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Query_enrichmentQueue,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Query().EnrichmentQueue(ctx, fc.Args["status"].(*string), fc.Args["limit"].(*int), fc.Args["offset"].(*int))
+		},
+		nil,
+		ec.marshalNEnrichmentQueueItem2ᚕᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐEnrichmentQueueItemᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Query_enrichmentQueue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_EnrichmentQueueItem_id(ctx, field)
+			case "refEntryId":
+				return ec.fieldContext_EnrichmentQueueItem_refEntryId(ctx, field)
+			case "status":
+				return ec.fieldContext_EnrichmentQueueItem_status(ctx, field)
+			case "priority":
+				return ec.fieldContext_EnrichmentQueueItem_priority(ctx, field)
+			case "errorMessage":
+				return ec.fieldContext_EnrichmentQueueItem_errorMessage(ctx, field)
+			case "requestedAt":
+				return ec.fieldContext_EnrichmentQueueItem_requestedAt(ctx, field)
+			case "processedAt":
+				return ec.fieldContext_EnrichmentQueueItem_processedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type EnrichmentQueueItem", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_enrichmentQueue_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_searchCatalog(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -11213,6 +11835,8 @@ func (ec *executionContext) fieldContext_RefEntry_senses(_ context.Context, fiel
 				return ec.fieldContext_RefSense_partOfSpeech(ctx, field)
 			case "cefrLevel":
 				return ec.fieldContext_RefSense_cefrLevel(ctx, field)
+			case "notes":
+				return ec.fieldContext_RefSense_notes(ctx, field)
 			case "sourceSlug":
 				return ec.fieldContext_RefSense_sourceSlug(ctx, field)
 			case "position":
@@ -11937,6 +12561,35 @@ func (ec *executionContext) _RefSense_cefrLevel(ctx context.Context, field graph
 }
 
 func (ec *executionContext) fieldContext_RefSense_cefrLevel(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RefSense",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RefSense_notes(ctx context.Context, field graphql.CollectedField, obj *domain.RefSense) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_RefSense_notes,
+		func(ctx context.Context) (any, error) {
+			return obj.Notes, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_RefSense_notes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "RefSense",
 		Field:      field,
@@ -18630,6 +19283,159 @@ func (ec *executionContext) _DictionaryEntry(ctx context.Context, sel ast.Select
 	return out
 }
 
+var enrichmentQueueItemImplementors = []string{"EnrichmentQueueItem"}
+
+func (ec *executionContext) _EnrichmentQueueItem(ctx context.Context, sel ast.SelectionSet, obj *domain.EnrichmentQueueItem) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, enrichmentQueueItemImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("EnrichmentQueueItem")
+		case "id":
+			out.Values[i] = ec._EnrichmentQueueItem_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "refEntryId":
+			out.Values[i] = ec._EnrichmentQueueItem_refEntryId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "status":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._EnrichmentQueueItem_status(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "priority":
+			out.Values[i] = ec._EnrichmentQueueItem_priority(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "errorMessage":
+			out.Values[i] = ec._EnrichmentQueueItem_errorMessage(ctx, field, obj)
+		case "requestedAt":
+			out.Values[i] = ec._EnrichmentQueueItem_requestedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "processedAt":
+			out.Values[i] = ec._EnrichmentQueueItem_processedAt(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var enrichmentQueueStatsImplementors = []string{"EnrichmentQueueStats"}
+
+func (ec *executionContext) _EnrichmentQueueStats(ctx context.Context, sel ast.SelectionSet, obj *domain.EnrichmentQueueStats) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, enrichmentQueueStatsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("EnrichmentQueueStats")
+		case "pending":
+			out.Values[i] = ec._EnrichmentQueueStats_pending(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "processing":
+			out.Values[i] = ec._EnrichmentQueueStats_processing(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "done":
+			out.Values[i] = ec._EnrichmentQueueStats_done(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "failed":
+			out.Values[i] = ec._EnrichmentQueueStats_failed(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "total":
+			out.Values[i] = ec._EnrichmentQueueStats_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var exampleImplementors = []string{"Example"}
 
 func (ec *executionContext) _Example(ctx context.Context, sel ast.SelectionSet, obj *domain.Example) graphql.Marshaler {
@@ -19624,6 +20430,50 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
+		case "enrichmentQueueStats":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_enrichmentQueueStats(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "enrichmentQueue":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_enrichmentQueue(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "searchCatalog":
 			field := field
 
@@ -20447,6 +21297,8 @@ func (ec *executionContext) _RefSense(ctx context.Context, sel ast.SelectionSet,
 			out.Values[i] = ec._RefSense_partOfSpeech(ctx, field, obj)
 		case "cefrLevel":
 			out.Values[i] = ec._RefSense_cefrLevel(ctx, field, obj)
+		case "notes":
+			out.Values[i] = ec._RefSense_notes(ctx, field, obj)
 		case "sourceSlug":
 			out.Values[i] = ec._RefSense_sourceSlug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -22853,6 +23705,74 @@ func (ec *executionContext) marshalNDictionaryEntry2ᚖgithubᚗcomᚋheartmarsh
 func (ec *executionContext) unmarshalNDictionaryFilterInput2githubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋtransportᚋgraphqlᚋgeneratedᚐDictionaryFilterInput(ctx context.Context, v any) (DictionaryFilterInput, error) {
 	res, err := ec.unmarshalInputDictionaryFilterInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNEnrichmentQueueItem2ᚕᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐEnrichmentQueueItemᚄ(ctx context.Context, sel ast.SelectionSet, v []*domain.EnrichmentQueueItem) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNEnrichmentQueueItem2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐEnrichmentQueueItem(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNEnrichmentQueueItem2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐEnrichmentQueueItem(ctx context.Context, sel ast.SelectionSet, v *domain.EnrichmentQueueItem) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._EnrichmentQueueItem(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNEnrichmentQueueStats2githubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐEnrichmentQueueStats(ctx context.Context, sel ast.SelectionSet, v domain.EnrichmentQueueStats) graphql.Marshaler {
+	return ec._EnrichmentQueueStats(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNEnrichmentQueueStats2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐEnrichmentQueueStats(ctx context.Context, sel ast.SelectionSet, v *domain.EnrichmentQueueStats) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._EnrichmentQueueStats(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNExample2ᚕᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐExampleᚄ(ctx context.Context, sel ast.SelectionSet, v []*domain.Example) graphql.Marshaler {
