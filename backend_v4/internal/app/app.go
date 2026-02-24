@@ -229,6 +229,7 @@ func Run(ctx context.Context) error {
 	// -----------------------------------------------------------------------
 	healthHandler := rest.NewHealthHandler(pool, BuildVersion())
 	authHandler := rest.NewAuthHandler(authService, logger)
+	adminHandler := rest.NewAdminHandler(enrichmentService, logger)
 
 	// -----------------------------------------------------------------------
 	// 12. Assemble middleware chain
@@ -262,6 +263,17 @@ func Run(ctx context.Context) error {
 	mux.Handle("OPTIONS /auth/{path...}", authCORS(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
 	})))
+
+	// Admin endpoints - auth required, admin check inside handler
+	adminChain := middleware.Chain(
+		middleware.Recovery(logger),
+		middleware.RequestID(),
+		middleware.Logger(logger),
+		middleware.CORS(cfg.CORS),
+		middleware.Auth(authService),
+	)
+	mux.Handle("GET /admin/enrichment/stats", adminChain(http.HandlerFunc(adminHandler.QueueStats)))
+	mux.Handle("GET /admin/enrichment/queue", adminChain(http.HandlerFunc(adminHandler.QueueList)))
 
 	// GraphQL - full middleware chain
 	mux.Handle("POST /query", graphqlHandler)
