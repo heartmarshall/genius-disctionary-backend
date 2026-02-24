@@ -1,0 +1,270 @@
+# Lyrics pipeline configuration
+# Run: python pipeline.py
+# Requires: GENIUS_TOKEN env variable (https://genius.com/api-clients)
+
+# Where to save artist directories (relative to this file)
+output_dir: "../output"
+sources_dir: "../sources"
+
+artists:
+  # - name: "Adele"
+  #   max_songs: 50
+  #   min_word_count: 1
+
+  # - name: "David Bowie"
+  #   max_songs: 50
+  #   min_word_count: 1
+
+  # - name: "Eminem"
+  #   max_songs: 100
+  #   min_word_count: 1
+
+  # - name: "Linkin Park"
+  #   max_songs: 100
+  #   min_word_count: 1
+
+  # - name: "Queen"
+  #   max_songs: 30
+  #   min_word_count: 1
+
+  # - name: "The Beatles"
+  #   max_songs: 50
+  #   min_word_count: 1
+  
+  # - name: "Radiohead"
+  #   max_songs: 50
+  #   min_word_count: 1
+
+  # - name: "Katy Perry"
+  #   max_songs: 50
+  #   min_word_count: 1
+  
+  # - name: "Taylor Swift"
+  #   max_songs: 50
+  #   min_word_count: 1
+
+  # - name: "Sia"
+  #   max_songs: 50
+  #   min_word_count: 1
+  
+  # - name: "Elton John"
+  #   max_songs: 50
+  #   min_word_count: 1
+  
+  # - name: "Metallica"
+  #   max_songs: 50
+  #   min_word_count: 1
+
+  # - name: "Alphaville"
+  #   max_songs: 50
+  #   min_word_count: 1
+  
+  # - name: "Lana Del Rey"
+  #   max_songs: 50
+  #   min_word_count: 1
+
+  # - name: "ABBA"
+  #   max_songs: 50
+  #   min_word_count: 1
+  
+  # - name: "Michael Jackson"
+  #   max_songs: 50
+  #   min_word_count: 1
+  
+  # - name: "Perry Como"
+  #   max_songs: 50
+  #   min_word_count: 1
+
+  # - name: "Pink Floyd"
+  #   max_songs: 50
+  #   min_word_count: 1
+  
+  # - name: "Bob Dylan"
+  #   max_songs: 50
+  #   min_word_count: 1
+
+  # - name: "Johnny Cash"
+  #   max_songs: 50
+  #   min_word_count: 1
+  
+  # - name: "Carpenters"
+  #   max_songs: 50
+  #   min_word_count: 1
+
+  # - name: "Elvis Presley"
+  #   max_songs: 50
+  #   min_word_count: 1
+  
+  # - name: "Bob Marley"
+  #   max_songs: 50
+  #   min_word_count: 1
+
+  # - name: "Lady Gaga"
+  #   max_songs: 50
+  #   min_word_count: 1
+
+  # - name: "The Weeknd "
+  #   max_songs: 50
+  #   min_word_count: 1
+
+  # - name: "Lil Nas X"
+  #   max_songs: 50
+  #   min_word_count: 1
+
+  # - name: "Drake"
+  #   max_songs: 50
+  #   min_word_count: 1
+
+  # - name: "Ed Sheeran"
+  #   max_songs: 50
+  #   min_word_count: 1
+
+  # - name: "Justin Bieber"
+  #   max_songs: 50
+  #   min_word_count: 1
+
+  # - name: "Bruno Mars"
+  #   max_songs: 50
+  #   min_word_count: 1
+
+  # - name: "Pharrell Williams"
+  #   max_songs: 50
+  #   min_word_count: 1
+
+  # - name: "Imagine Dragons"
+  #   max_songs: 50
+  #   min_word_count: 1
+
+  # - name: "Rihanna"
+  #   max_songs: 50
+  #   min_word_count: 1
+
+
+
+  # --- Batch 3: 30 new artists ---
+
+  # Classic Rock
+  - name: "Led Zeppelin"
+    max_songs: 50
+    min_word_count: 1
+
+  - name: "The Rolling Stones"
+    max_songs: 50
+    min_word_count: 1
+
+  - name: "U2"
+    max_songs: 50
+    min_word_count: 1
+
+  - name: "AC/DC"
+    max_songs: 50
+    min_word_count: 1
+
+  - name: "Fleetwood Mac"
+    max_songs: 50
+    min_word_count: 1
+
+  # Alternative / Indie
+  - name: "Nirvana"
+    max_songs: 50
+    min_word_count: 1
+
+  - name: "Coldplay"
+    max_songs: 50
+    min_word_count: 1
+
+  - name: "Red Hot Chili Peppers"
+    max_songs: 50
+    min_word_count: 1
+
+  - name: "Arctic Monkeys"
+    max_songs: 50
+    min_word_count: 1
+
+  - name: "Muse"
+    max_songs: 50
+    min_word_count: 1
+
+  - name: "Foo Fighters"
+    max_songs: 50
+    min_word_count: 1
+
+  - name: "Depeche Mode"
+    max_songs: 50
+    min_word_count: 1
+
+  - name: "Oasis"
+    max_songs: 50
+    min_word_count: 1
+
+  - name: "Twenty One Pilots"
+    max_songs: 50
+    min_word_count: 1
+
+  - name: "The Cranberries"
+    max_songs: 50
+    min_word_count: 1
+
+  # Modern Pop
+  - name: "Billie Eilish"
+    max_songs: 50
+    min_word_count: 1
+
+  - name: "Ariana Grande"
+    max_songs: 50
+    min_word_count: 1
+
+  - name: "Dua Lipa"
+    max_songs: 50
+    min_word_count: 1
+
+  - name: "Sam Smith"
+    max_songs: 50
+    min_word_count: 1
+
+  - name: "Madonna"
+    max_songs: 50
+    min_word_count: 1
+
+  # R&B / Soul
+  - name: "Beyoncé"
+    max_songs: 50
+    min_word_count: 1
+
+  - name: "Whitney Houston"
+    max_songs: 50
+    min_word_count: 1
+
+  - name: "Stevie Wonder"
+    max_songs: 50
+    min_word_count: 1
+
+  - name: "Frank Ocean"
+    max_songs: 50
+    min_word_count: 1
+
+  # Hip-Hop
+  - name: "Kendrick Lamar"
+    max_songs: 50
+    min_word_count: 1
+
+  - name: "Jay-Z"
+    max_songs: 50
+    min_word_count: 1
+
+  - name: "Kanye West"
+    max_songs: 50
+    min_word_count: 1
+
+  # Singer-Songwriter / Folk
+  - name: "Leonard Cohen"
+    max_songs: 50
+    min_word_count: 1
+
+  - name: "Sting"
+    max_songs: 50
+    min_word_count: 1
+
+  - name: "Simon & Garfunkel"
+    max_songs: 50
+    min_word_count: 1

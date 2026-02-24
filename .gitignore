@@ -1,4 +1,9 @@
 # Git worktrees
 .worktrees/
-datasets
+datasets/*/sources/
+datasets/**/.venv/
+datasets/**/__pycache__/
+datasets/kaikki.org-dictionary-English.jsonl
+datasets/cmudict.dict
+datasets/english-wordnet-2025/
 backend_v4/enrich-output

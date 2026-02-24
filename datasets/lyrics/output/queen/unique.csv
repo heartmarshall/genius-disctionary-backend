@@ -1,0 +1,1314 @@
+word,lemma,pos,total_count,song_count,songs,avg_per_song,is_stopword,frequency_rank
+i,i,PRON,354,23,A Kind of Magic; Another One Bites the Dust; Bicycle Race; Bohemian Rhapsody; Crazy Little Thing Called Love; Don’t Stop Me Now; Fat Bottomed Girls; Good Old-Fashioned Lover Boy; I Want It All; I Want to Break Free; I’m Going Slightly Mad; I’m in Love with My Car; Keep Yourself Alive; Love of My Life; Radio Ga Ga; Save Me; Seven Seas of Rhye; Somebody to Love; The March of the Black Queen; The Show Must Go On; We Are the Champions; You’re My Best Friend; ’39,15.39,True,1
+you,you,PRON,279,25,Another One Bites the Dust; Bicycle Race; Bohemian Rhapsody; Death on Two Legs (Dedicated to...); Don’t Stop Me Now; Fat Bottomed Girls; Good Old-Fashioned Lover Boy; Hammer to Fall; I Want It All; I Want to Break Free; Innuendo; I’m Going Slightly Mad; Keep Yourself Alive; Killer Queen; Love of My Life; Radio Ga Ga; Save Me; Seven Seas of Rhye; Somebody to Love; The March of the Black Queen; Under Pressure; We Are the Champions; We Will Rock You; You’re My Best Friend; ’39,11.16,True,2
+the,the,DET,268,28,A Kind of Magic; Another One Bites the Dust; Bicycle Race; Bohemian Rhapsody; Death on Two Legs (Dedicated to...); Don’t Stop Me Now; Fat Bottomed Girls; Good Old-Fashioned Lover Boy; Hammer to Fall; I Want It All; I Want to Break Free; Innuendo; I’m Going Slightly Mad; I’m in Love with My Car; Keep Yourself Alive; Killer Queen; Love of My Life; Radio Ga Ga; Save Me; Seven Seas of Rhye; Somebody to Love; The March of the Black Queen; The Show Must Go On; Under Pressure; We Are the Champions; We Will Rock You; You’re My Best Friend; ’39,9.57,True,3
+a,a,DET,170,27,A Kind of Magic; Another One Bites the Dust; Bicycle Race; Bohemian Rhapsody; Crazy Little Thing Called Love; Death on Two Legs (Dedicated to...); Don’t Stop Me Now; Fat Bottomed Girls; Good Old-Fashioned Lover Boy; Hammer to Fall; I Want It All; Innuendo; I’m Going Slightly Mad; I’m in Love with My Car; Keep Yourself Alive; Killer Queen; Radio Ga Ga; Save Me; Seven Seas of Rhye; Somebody to Love; The March of the Black Queen; The Show Must Go On; Under Pressure; We Are the Champions; We Will Rock You; You’re My Best Friend; ’39,6.3,True,4
+to,to,ADP,169,27,Another One Bites the Dust; Bicycle Race; Bohemian Rhapsody; Crazy Little Thing Called Love; Death on Two Legs (Dedicated to...); Don’t Stop Me Now; Fat Bottomed Girls; Good Old-Fashioned Lover Boy; Hammer to Fall; I Want It All; I Want to Break Free; Innuendo; I’m Going Slightly Mad; I’m in Love with My Car; Keep Yourself Alive; Killer Queen; Love of My Life; Radio Ga Ga; Save Me; Seven Seas of Rhye; Somebody to Love; The March of the Black Queen; The Show Must Go On; Under Pressure; Who Wants to Live Forever; You’re My Best Friend; ’39,6.26,True,5
+me,i,PRON,158,23,A Kind of Magic; Another One Bites the Dust; Bicycle Race; Bohemian Rhapsody; Crazy Little Thing Called Love; Death on Two Legs (Dedicated to...); Don’t Stop Me Now; Fat Bottomed Girls; Good Old-Fashioned Lover Boy; Hammer to Fall; I Want It All; I Want to Break Free; I’m in Love with My Car; Keep Yourself Alive; Love of My Life; Save Me; Seven Seas of Rhye; Somebody to Love; The March of the Black Queen; Under Pressure; We Are the Champions; You’re My Best Friend; ’39,6.87,True,6
+and,and,CCONJ,146,28,Another One Bites the Dust; Bicycle Race; Bohemian Rhapsody; Crazy Little Thing Called Love; Death on Two Legs (Dedicated to...); Don’t Stop Me Now; Fat Bottomed Girls; Good Old-Fashioned Lover Boy; Hammer to Fall; I Want It All; I Want to Break Free; Innuendo; I’m Going Slightly Mad; I’m in Love with My Car; Keep Yourself Alive; Killer Queen; Love of My Life; Radio Ga Ga; Save Me; Seven Seas of Rhye; Somebody to Love; The March of the Black Queen; The Show Must Go On; Under Pressure; We Are the Champions; Who Wants to Live Forever; You’re My Best Friend; ’39,5.21,True,7
+my,my,PRON,131,26,Another One Bites the Dust; Bicycle Race; Bohemian Rhapsody; Crazy Little Thing Called Love; Death on Two Legs (Dedicated to...); Don’t Stop Me Now; Fat Bottomed Girls; Good Old-Fashioned Lover Boy; I Want It All; I Want to Break Free; Innuendo; I’m Going Slightly Mad; I’m in Love with My Car; Keep Yourself Alive; Love of My Life; Radio Ga Ga; Save Me; Seven Seas of Rhye; Somebody to Love; The March of the Black Queen; The Show Must Go On; Under Pressure; We Are the Champions; Who Wants to Live Forever; You’re My Best Friend; ’39,5.04,True,8
+it,it,PRON,119,24,A Kind of Magic; Another One Bites the Dust; Bicycle Race; Bohemian Rhapsody; Crazy Little Thing Called Love; Death on Two Legs (Dedicated to...); Don’t Stop Me Now; Fat Bottomed Girls; Good Old-Fashioned Lover Boy; Hammer to Fall; I Want It All; I Want to Break Free; I’m Going Slightly Mad; I’m in Love with My Car; Love of My Life; Radio Ga Ga; Save Me; The March of the Black Queen; The Show Must Go On; Under Pressure; We Are the Champions; We Will Rock You; Who Wants to Live Forever; You’re My Best Friend,4.96,True,9
+of,of,ADP,104,25,A Kind of Magic; Another One Bites the Dust; Bicycle Race; Bohemian Rhapsody; Death on Two Legs (Dedicated to...); Don’t Stop Me Now; Fat Bottomed Girls; Good Old-Fashioned Lover Boy; Hammer to Fall; I Want It All; Innuendo; I’m Going Slightly Mad; I’m in Love with My Car; Keep Yourself Alive; Killer Queen; Love of My Life; Radio Ga Ga; Save Me; Seven Seas of Rhye; Somebody to Love; The March of the Black Queen; The Show Must Go On; Under Pressure; We Are the Champions; ’39,4.16,True,10
+love,love,VERB,94,13,Bohemian Rhapsody; Crazy Little Thing Called Love; Good Old-Fashioned Lover Boy; I Want to Break Free; I’m in Love with My Car; Love of My Life; Save Me; Somebody to Love; The March of the Black Queen; Under Pressure; Who Wants to Live Forever; You’re My Best Friend; ’39,7.23,False,11
+m,be,AUX,91,17,A Kind of Magic; Another One Bites the Dust; Bohemian Rhapsody; Crazy Little Thing Called Love; Don’t Stop Me Now; Good Old-Fashioned Lover Boy; I Want It All; I’m Going Slightly Mad; I’m in Love with My Car; Keep Yourself Alive; Save Me; Seven Seas of Rhye; Somebody to Love; The March of the Black Queen; The Show Must Go On; You’re My Best Friend; ’39,5.35,True,12
+on,on,ADP,90,20,Another One Bites the Dust; Bicycle Race; Bohemian Rhapsody; Crazy Little Thing Called Love; Death on Two Legs (Dedicated to...); Don’t Stop Me Now; Fat Bottomed Girls; Good Old-Fashioned Lover Boy; I Want It All; I Want to Break Free; Innuendo; I’m in Love with My Car; Keep Yourself Alive; Radio Ga Ga; Somebody to Love; The March of the Black Queen; The Show Must Go On; Under Pressure; We Are the Champions; We Will Rock You,4.5,True,13
+all,all,PRON,84,24,Bicycle Race; Bohemian Rhapsody; Crazy Little Thing Called Love; Death on Two Legs (Dedicated to...); Don’t Stop Me Now; Fat Bottomed Girls; Good Old-Fashioned Lover Boy; Hammer to Fall; I Want It All; Innuendo; I’m in Love with My Car; Keep Yourself Alive; Love of My Life; Radio Ga Ga; Save Me; Somebody to Love; The March of the Black Queen; The Show Must Go On; Under Pressure; We Are the Champions; We Will Rock You; Who Wants to Live Forever; You’re My Best Friend; ’39,3.5,True,14
+your,your,PRON,84,21,A Kind of Magic; Another One Bites the Dust; Bicycle Race; Bohemian Rhapsody; Death on Two Legs (Dedicated to...); Fat Bottomed Girls; Good Old-Fashioned Lover Boy; Hammer to Fall; I Want to Break Free; Innuendo; I’m in Love with My Car; Keep Yourself Alive; Killer Queen; Love of My Life; Radio Ga Ga; Save Me; Seven Seas of Rhye; The March of the Black Queen; We Will Rock You; Who Wants to Live Forever; ’39,4.0,True,15
+we,we,PRON,77,13,Bohemian Rhapsody; Good Old-Fashioned Lover Boy; Hammer to Fall; Innuendo; Radio Ga Ga; Save Me; The March of the Black Queen; The Show Must Go On; Under Pressure; We Are the Champions; We Will Rock You; Who Wants to Live Forever; ’39,5.92,True,16
+n't,not,PART,75,21,Another One Bites the Dust; Bicycle Race; Bohemian Rhapsody; Crazy Little Thing Called Love; Don’t Stop Me Now; Fat Bottomed Girls; Hammer to Fall; I Want It All; I Want to Break Free; Innuendo; I’m Going Slightly Mad; I’m in Love with My Car; Killer Queen; Love of My Life; Radio Ga Ga; Save Me; Somebody to Love; The March of the Black Queen; Under Pressure; We Are the Champions; ’39,3.57,True,17
+do,do,AUX,73,20,Another One Bites the Dust; Bicycle Race; Bohemian Rhapsody; Death on Two Legs (Dedicated to...); Don’t Stop Me Now; Good Old-Fashioned Lover Boy; Hammer to Fall; I Want It All; I Want to Break Free; Innuendo; I’m in Love with My Car; Keep Yourself Alive; Love of My Life; Radio Ga Ga; Save Me; Seven Seas of Rhye; The March of the Black Queen; Under Pressure; You’re My Best Friend; ’39,3.65,True,18
+yeah,yeah,INTJ,71,12,A Kind of Magic; Another One Bites the Dust; Bicycle Race; Crazy Little Thing Called Love; Don’t Stop Me Now; Fat Bottomed Girls; Hammer to Fall; I Want to Break Free; Innuendo; Keep Yourself Alive; Somebody to Love; The Show Must Go On,5.92,False,19
+in,in,ADP,68,24,Bicycle Race; Bohemian Rhapsody; Crazy Little Thing Called Love; Death on Two Legs (Dedicated to...); Don’t Stop Me Now; Fat Bottomed Girls; Good Old-Fashioned Lover Boy; Hammer to Fall; I Want It All; I Want to Break Free; Innuendo; I’m Going Slightly Mad; I’m in Love with My Car; Keep Yourself Alive; Killer Queen; Save Me; Somebody to Love; The March of the Black Queen; The Show Must Go On; Under Pressure; We Are the Champions; We Will Rock You; You’re My Best Friend; ’39,2.83,True,20
+be,be,AUX,66,20,A Kind of Magic; Bicycle Race; Crazy Little Thing Called Love; Death on Two Legs (Dedicated to...); Good Old-Fashioned Lover Boy; Hammer to Fall; I Want to Break Free; Innuendo; I’m Going Slightly Mad; Keep Yourself Alive; Love of My Life; Save Me; Seven Seas of Rhye; Somebody to Love; The March of the Black Queen; The Show Must Go On; Under Pressure; We Will Rock You; You’re My Best Friend; ’39,3.3,True,21
+want,want,VERB,65,7,Bicycle Race; Death on Two Legs (Dedicated to...); I Want It All; I Want to Break Free; Innuendo; The Show Must Go On; You’re My Best Friend,9.29,False,22
+s,be,AUX,62,21,A Kind of Magic; Another One Bites the Dust; Bohemian Rhapsody; Don’t Stop Me Now; Good Old-Fashioned Lover Boy; Hammer to Fall; I Want It All; I Want to Break Free; Innuendo; I’m Going Slightly Mad; I’m in Love with My Car; Killer Queen; Love of My Life; Radio Ga Ga; Somebody to Love; The March of the Black Queen; Under Pressure; We Are the Champions; Who Wants to Live Forever; You’re My Best Friend; ’39,2.95,True,23
+oh,oh,INTJ,60,18,Another One Bites the Dust; Bicycle Race; Bohemian Rhapsody; Don’t Stop Me Now; Fat Bottomed Girls; Hammer to Fall; I Want to Break Free; Innuendo; I’m Going Slightly Mad; I’m in Love with My Car; Keep Yourself Alive; Save Me; Seven Seas of Rhye; Somebody to Love; The Show Must Go On; We Are the Champions; Who Wants to Live Forever; You’re My Best Friend,3.33,False,24
+ooh,ooh,INTJ,60,16,Another One Bites the Dust; Bohemian Rhapsody; Don’t Stop Me Now; Fat Bottomed Girls; Good Old-Fashioned Lover Boy; Hammer to Fall; Innuendo; I’m in Love with My Car; Killer Queen; Love of My Life; Save Me; Somebody to Love; The March of the Black Queen; The Show Must Go On; Who Wants to Live Forever; You’re My Best Friend,3.75,False,25
+for,for,ADP,51,18,Another One Bites the Dust; Bicycle Race; Bohemian Rhapsody; Good Old-Fashioned Lover Boy; Hammer to Fall; I Want It All; I Want to Break Free; I’m in Love with My Car; Keep Yourself Alive; Killer Queen; Radio Ga Ga; Save Me; Seven Seas of Rhye; The Show Must Go On; Under Pressure; We Are the Champions; Who Wants to Live Forever; ’39,2.83,True,26
+time,time,NOUN,49,14,A Kind of Magic; Bohemian Rhapsody; Don’t Stop Me Now; Fat Bottomed Girls; Hammer to Fall; I Want It All; I Want to Break Free; Innuendo; Keep Yourself Alive; Radio Ga Ga; The March of the Black Queen; We Are the Champions; Who Wants to Live Forever; You’re My Best Friend,3.5,False,27
+is,be,AUX,43,18,A Kind of Magic; Bicycle Race; Bohemian Rhapsody; Death on Two Legs (Dedicated to...); Good Old-Fashioned Lover Boy; Hammer to Fall; I Want It All; I’m Going Slightly Mad; I’m in Love with My Car; Love of My Life; Radio Ga Ga; Seven Seas of Rhye; The March of the Black Queen; The Show Must Go On; Under Pressure; Who Wants to Live Forever; You’re My Best Friend; ’39,2.39,True,28
+ll,will,AUX,42,13,Bicycle Race; Don’t Stop Me Now; Good Old-Fashioned Lover Boy; Innuendo; I’m in Love with My Car; Keep Yourself Alive; Save Me; Seven Seas of Rhye; The March of the Black Queen; The Show Must Go On; We Are the Champions; You’re My Best Friend; ’39,3.23,True,29
+will,will,AUX,42,11,A Kind of Magic; Bohemian Rhapsody; Good Old-Fashioned Lover Boy; Innuendo; Keep Yourself Alive; Love of My Life; Save Me; Seven Seas of Rhye; The March of the Black Queen; The Show Must Go On; We Will Rock You,3.82,True,30
+just,just,ADJ,42,15,Bohemian Rhapsody; Crazy Little Thing Called Love; Death on Two Legs (Dedicated to...); Don’t Stop Me Now; Fat Bottomed Girls; Good Old-Fashioned Lover Boy; Hammer to Fall; I Want It All; Innuendo; I’m Going Slightly Mad; I’m in Love with My Car; Keep Yourself Alive; Killer Queen; Radio Ga Ga; Somebody to Love,2.8,True,31
+no,no,DET,41,15,A Kind of Magic; Another One Bites the Dust; Bohemian Rhapsody; Death on Two Legs (Dedicated to...); Don’t Stop Me Now; Fat Bottomed Girls; I Want It All; I’m in Love with My Car; Keep Yourself Alive; Save Me; Somebody to Love; The March of the Black Queen; Under Pressure; We Are the Champions; Who Wants to Live Forever,2.73,True,32
+that,that,PRON,41,18,A Kind of Magic; Another One Bites the Dust; Don’t Stop Me Now; Fat Bottomed Girls; Good Old-Fashioned Lover Boy; I Want to Break Free; Innuendo; I’m Going Slightly Mad; Keep Yourself Alive; Killer Queen; Save Me; Seven Seas of Rhye; The March of the Black Queen; Under Pressure; We Are the Champions; Who Wants to Live Forever; You’re My Best Friend; ’39,2.28,True,33
+this,this,PRON,40,17,A Kind of Magic; Another One Bites the Dust; Bohemian Rhapsody; Crazy Little Thing Called Love; Fat Bottomed Girls; I Want to Break Free; I’m Going Slightly Mad; I’m in Love with My Car; Love of My Life; Radio Ga Ga; Save Me; Somebody to Love; The March of the Black Queen; Under Pressure; Who Wants to Live Forever; You’re My Best Friend; ’39,2.35,True,34
+with,with,ADP,40,18,Another One Bites the Dust; Death on Two Legs (Dedicated to...); Fat Bottomed Girls; Good Old-Fashioned Lover Boy; I Want It All; Innuendo; I’m Going Slightly Mad; I’m in Love with My Car; Killer Queen; Save Me; Seven Seas of Rhye; The March of the Black Queen; The Show Must Go On; Under Pressure; We Are the Champions; We Will Rock You; Who Wants to Live Forever; You’re My Best Friend,2.22,True,35
+re,be,AUX,39,15,Another One Bites the Dust; Death on Two Legs (Dedicated to...); Good Old-Fashioned Lover Boy; Hammer to Fall; I Want to Break Free; I’m Going Slightly Mad; I’m in Love with My Car; Keep Yourself Alive; Killer Queen; Radio Ga Ga; Somebody to Love; Under Pressure; We Will Rock You; You’re My Best Friend; ’39,2.6,True,36
+but,but,CCONJ,38,17,Another One Bites the Dust; Bohemian Rhapsody; Death on Two Legs (Dedicated to...); Fat Bottomed Girls; Hammer to Fall; I Want to Break Free; I’m Going Slightly Mad; Keep Yourself Alive; Save Me; Somebody to Love; The March of the Black Queen; The Show Must Go On; Under Pressure; We Are the Champions; Who Wants to Live Forever; You’re My Best Friend; ’39,2.24,True,37
+bicycle,bicycle,PROPN,37,1,Bicycle Race,37.0,False,38
+now,now,ADV,36,12,Bohemian Rhapsody; Death on Two Legs (Dedicated to...); Don’t Stop Me Now; Fat Bottomed Girls; Hammer to Fall; I Want It All; I’m in Love with My Car; Keep Yourself Alive; Love of My Life; The March of the Black Queen; The Show Must Go On; You’re My Best Friend,3.0,True,39
+are,be,AUX,36,13,Another One Bites the Dust; Bicycle Race; Death on Two Legs (Dedicated to...); Fat Bottomed Girls; I’m Going Slightly Mad; Keep Yourself Alive; Seven Seas of Rhye; The March of the Black Queen; The Show Must Go On; Under Pressure; We Are the Champions; You’re My Best Friend; ’39,2.77,True,40
+keep,keep,VERB,36,6,Innuendo; Keep Yourself Alive; Somebody to Love; The March of the Black Queen; Under Pressure; We Are the Champions,6.0,True,41
+can,can,AUX,35,15,A Kind of Magic; Another One Bites the Dust; Bohemian Rhapsody; Death on Two Legs (Dedicated to...); Good Old-Fashioned Lover Boy; Innuendo; Keep Yourself Alive; Seven Seas of Rhye; Somebody to Love; The March of the Black Queen; The Show Must Go On; We Will Rock You; Who Wants to Live Forever; You’re My Best Friend; ’39,2.33,True,42
+somebody,somebody,PRON,34,3,Save Me; Somebody to Love; We Will Rock You,11.33,False,43
+find,find,VERB,32,3,I Want It All; Somebody to Love; The Show Must Go On,10.67,False,44
+got,get,VERB,32,11,Bohemian Rhapsody; Crazy Little Thing Called Love; Fat Bottomed Girls; I Want It All; I Want to Break Free; I’m Going Slightly Mad; I’m in Love with My Car; Somebody to Love; The March of the Black Queen; We Will Rock You; You’re My Best Friend,2.91,False,45
+ve,have,AUX,31,10,Bohemian Rhapsody; Death on Two Legs (Dedicated to...); Fat Bottomed Girls; I Want to Break Free; Keep Yourself Alive; Love of My Life; Radio Ga Ga; The March of the Black Queen; We Are the Champions; You’re My Best Friend,3.1,True,46
+take,take,VERB,30,13,Another One Bites the Dust; Crazy Little Thing Called Love; Fat Bottomed Girls; Good Old-Fashioned Lover Boy; Innuendo; Keep Yourself Alive; Love of My Life; Seven Seas of Rhye; Somebody to Love; The March of the Black Queen; The Show Must Go On; We Will Rock You; ’39,2.31,True,47
+like,like,ADP,30,14,Bicycle Race; Crazy Little Thing Called Love; Death on Two Legs (Dedicated to...); Don’t Stop Me Now; Good Old-Fashioned Lover Boy; I Want to Break Free; I’m in Love with My Car; Killer Queen; Radio Ga Ga; Seven Seas of Rhye; The March of the Black Queen; The Show Must Go On; Under Pressure; ’39,2.14,False,48
+out,out,ADP,29,15,Another One Bites the Dust; Bicycle Race; Bohemian Rhapsody; Don’t Stop Me Now; Fat Bottomed Girls; I Want It All; I Want to Break Free; I’m Going Slightly Mad; Killer Queen; Seven Seas of Rhye; Somebody to Love; The March of the Black Queen; Under Pressure; You’re My Best Friend; ’39,1.93,True,49
+go,go,NOUN,29,8,Another One Bites the Dust; Bicycle Race; Bohemian Rhapsody; Don’t Stop Me Now; Fat Bottomed Girls; Good Old-Fashioned Lover Boy; The March of the Black Queen; The Show Must Go On,3.62,True,50
+hey,hey,INTJ,29,8,Another One Bites the Dust; Bicycle Race; Don’t Stop Me Now; Fat Bottomed Girls; Good Old-Fashioned Lover Boy; Hammer to Fall; I Want to Break Free; Innuendo,3.62,False,51
+get,get,VERB,28,13,Another One Bites the Dust; Bicycle Race; Bohemian Rhapsody; Crazy Little Thing Called Love; Fat Bottomed Girls; Good Old-Fashioned Lover Boy; I Want It All; I Want to Break Free; I’m in Love with My Car; Keep Yourself Alive; Killer Queen; Seven Seas of Rhye; Somebody to Love,2.15,True,52
+make,make,VERB,28,9,Bohemian Rhapsody; Death on Two Legs (Dedicated to...); Don’t Stop Me Now; Fat Bottomed Girls; Hammer to Fall; I Want to Break Free; The March of the Black Queen; We Will Rock You; You’re My Best Friend,3.11,True,53
+say,say,VERB,26,6,Bicycle Race; Good Old-Fashioned Lover Boy; I Want It All; Keep Yourself Alive; Somebody to Love; ’39,4.33,True,54
+da,da,PROPN,26,3,Don’t Stop Me Now; Killer Queen; Under Pressure,8.67,False,55
+another,another,DET,26,2,Another One Bites the Dust; The Show Must Go On,13.0,True,56
+ah,ah,PROPN,25,4,Don’t Stop Me Now; I’m Going Slightly Mad; I’m in Love with My Car; The March of the Black Queen,6.25,False,57
+little,little,ADJ,25,7,Bohemian Rhapsody; Crazy Little Thing Called Love; Hammer to Fall; Keep Yourself Alive; Somebody to Love; The March of the Black Queen; ’39,3.57,False,58
+good,good,ADJ,25,8,Death on Two Legs (Dedicated to...); Don’t Stop Me Now; Fat Bottomed Girls; Good Old-Fashioned Lover Boy; Radio Ga Ga; Seven Seas of Rhye; Under Pressure; ’39,3.12,False,59
+yourself,yourself,PRON,23,4,Death on Two Legs (Dedicated to...); Innuendo; Keep Yourself Alive; Somebody to Love,5.75,True,60
+radio,radio,NOUN,23,1,Radio Ga Ga,23.0,False,61
+ga,ga,PROPN,22,1,Radio Ga Ga,22.0,False,62
+at,at,ADV,22,11,Bohemian Rhapsody; Death on Two Legs (Dedicated to...); Don’t Stop Me Now; Good Old-Fashioned Lover Boy; Hammer to Fall; Innuendo; I’m Going Slightly Mad; Killer Queen; Love of My Life; Somebody to Love; You’re My Best Friend,2.0,True,63
+give,give,VERB,22,10,Bicycle Race; Don’t Stop Me Now; Fat Bottomed Girls; Hammer to Fall; I Want It All; Keep Yourself Alive; Seven Seas of Rhye; The March of the Black Queen; Under Pressure; You’re My Best Friend,2.2,True,64
+man,man,NOUN,21,12,A Kind of Magic; Another One Bites the Dust; Bicycle Race; Bohemian Rhapsody; Don’t Stop Me Now; Fat Bottomed Girls; I Want It All; Killer Queen; Seven Seas of Rhye; The March of the Black Queen; Under Pressure; We Will Rock You,1.75,False,65
+alive,alive,ADJ,21,4,Don’t Stop Me Now; Keep Yourself Alive; Seven Seas of Rhye; The March of the Black Queen,5.25,False,66
+she,she,PRON,21,5,Crazy Little Thing Called Love; Fat Bottomed Girls; I’m in Love with My Car; Killer Queen; The March of the Black Queen,4.2,True,67
+from,from,ADP,20,13,Bohemian Rhapsody; Fat Bottomed Girls; Good Old-Fashioned Lover Boy; I Want to Break Free; Killer Queen; Love of My Life; Save Me; Seven Seas of Rhye; Somebody to Love; The March of the Black Queen; Under Pressure; Who Wants to Live Forever; ’39,1.54,True,68
+when,when,SCONJ,20,12,Another One Bites the Dust; Good Old-Fashioned Lover Boy; I Want to Break Free; I’m Going Slightly Mad; I’m in Love with My Car; Keep Yourself Alive; Love of My Life; Radio Ga Ga; Seven Seas of Rhye; Who Wants to Live Forever; You’re My Best Friend; ’39,1.67,True,69
+ride,ride,VERB,20,3,Bicycle Race; Crazy Little Thing Called Love; Fat Bottomed Girls,6.67,False,70
+what,what,PRON,20,11,A Kind of Magic; Good Old-Fashioned Lover Boy; I Want It All; Love of My Life; Radio Ga Ga; Seven Seas of Rhye; Somebody to Love; The March of the Black Queen; The Show Must Go On; Under Pressure; Who Wants to Live Forever,1.82,True,71
+free,free,ADJ,19,4,I Want to Break Free; Innuendo; Somebody to Love; The Show Must Go On,4.75,False,72
+life,life,NOUN,19,8,Bohemian Rhapsody; Fat Bottomed Girls; I Want to Break Free; Love of My Life; Save Me; Somebody to Love; The March of the Black Queen; ’39,2.38,False,73
+day,day,NOUN,19,6,A Kind of Magic; Hammer to Fall; Keep Yourself Alive; Somebody to Love; Under Pressure; ’39,3.17,False,74
+live,live,VERB,19,5,I Want to Break Free; Innuendo; Seven Seas of Rhye; Who Wants to Live Forever; You’re My Best Friend,3.8,False,75
+back,back,ADV,19,10,Bohemian Rhapsody; Crazy Little Thing Called Love; Death on Two Legs (Dedicated to...); Good Old-Fashioned Lover Boy; I’m in Love with My Car; Love of My Life; The March of the Black Queen; We Will Rock You; You’re My Best Friend; ’39,1.9,True,76
+thing,thing,NOUN,19,2,Crazy Little Thing Called Love; Who Wants to Live Forever,9.5,False,77
+let,let,VERB,19,12,Another One Bites the Dust; Bohemian Rhapsody; Death on Two Legs (Dedicated to...); Don’t Stop Me Now; Fat Bottomed Girls; Good Old-Fashioned Lover Boy; Hammer to Fall; Killer Queen; Radio Ga Ga; Save Me; The March of the Black Queen; Under Pressure,1.58,False,78
+so,so,ADV,19,12,Bicycle Race; Bohemian Rhapsody; Death on Two Legs (Dedicated to...); Don’t Stop Me Now; I Want It All; I Want to Break Free; I’m Going Slightly Mad; I’m in Love with My Car; Radio Ga Ga; Save Me; Under Pressure; ’39,1.58,True,79
+save,save,VERB,18,1,Save Me,18.0,False,80
+dust,dust,NOUN,18,1,Another One Bites the Dust,18.0,False,81
+called,call,VERB,18,1,Crazy Little Thing Called Love,18.0,False,82
+have,have,VERB,18,10,Death on Two Legs (Dedicated to...); Don’t Stop Me Now; I Want to Break Free; I’m Going Slightly Mad; I’m in Love with My Car; Radio Ga Ga; Save Me; Somebody to Love; The Show Must Go On; Who Wants to Live Forever,1.8,True,83
+ca,can,AUX,17,10,Bohemian Rhapsody; Crazy Little Thing Called Love; Hammer to Fall; I Want It All; I Want to Break Free; Killer Queen; Love of My Life; Save Me; Somebody to Love; Under Pressure,1.7,True,84
+hear,hear,VERB,17,6,Hammer to Fall; I Want It All; I’m in Love with My Car; Radio Ga Ga; Seven Seas of Rhye; ’39,2.83,False,85
+gon,go,VERB,17,6,Another One Bites the Dust; Don’t Stop Me Now; Fat Bottomed Girls; Somebody to Love; We Are the Champions; We Will Rock You,2.83,False,86
+never,never,ADV,17,12,Bicycle Race; Bohemian Rhapsody; Death on Two Legs (Dedicated to...); Fat Bottomed Girls; Keep Yourself Alive; Killer Queen; Radio Ga Ga; The March of the Black Queen; The Show Must Go On; Under Pressure; You’re My Best Friend; ’39,1.42,True,87
+down,down,ADP,17,9,Another One Bites the Dust; Bohemian Rhapsody; Fat Bottomed Girls; I’m Going Slightly Mad; Killer Queen; Seven Seas of Rhye; Somebody to Love; The March of the Black Queen; Under Pressure,1.89,True,88
+na,to,PART,17,6,Another One Bites the Dust; Don’t Stop Me Now; Fat Bottomed Girls; Somebody to Love; We Are the Champions; We Will Rock You,2.83,False,89
+bites,bite,NOUN,16,1,Another One Bites the Dust,16.0,False,90
+way,way,NOUN,16,13,A Kind of Magic; Another One Bites the Dust; Bicycle Race; Bohemian Rhapsody; Don’t Stop Me Now; Fat Bottomed Girls; Hammer to Fall; I Want It All; I Want to Break Free; Keep Yourself Alive; Killer Queen; Love of My Life; Under Pressure,1.23,False,91
+boy,boy,NOUN,16,7,Bohemian Rhapsody; Death on Two Legs (Dedicated to...); Fat Bottomed Girls; Good Old-Fashioned Lover Boy; I’m in Love with My Car; The March of the Black Queen; We Will Rock You,2.29,False,92
+there,there,PRON,16,9,A Kind of Magic; Another One Bites the Dust; Crazy Little Thing Called Love; Don’t Stop Me Now; Innuendo; I’m Going Slightly Mad; Love of My Life; Radio Ga Ga; Who Wants to Live Forever,1.78,True,93
+world,world,NOUN,16,8,Don’t Stop Me Now; Fat Bottomed Girls; Under Pressure; We Are the Champions; We Will Rock You; Who Wants to Live Forever; You’re My Best Friend; ’39,2.0,False,94
+crazy,crazy,ADJ,15,2,Crazy Little Thing Called Love; Somebody to Love,7.5,False,95
+wanna,wanna,VERB,15,5,Bicycle Race; Bohemian Rhapsody; Don’t Stop Me Now; Hammer to Fall; Killer Queen,3.0,False,96
+not,not,PART,15,6,Bohemian Rhapsody; Good Old-Fashioned Lover Boy; I Want It All; I’m Going Slightly Mad; Radio Ga Ga; ’39,2.5,True,97
+know,know,VERB,15,8,Death on Two Legs (Dedicated to...); Hammer to Fall; I Want It All; I Want to Break Free; Love of My Life; Radio Ga Ga; The Show Must Go On; You’re My Best Friend,1.88,False,98
+our,our,PRON,14,6,Hammer to Fall; Innuendo; Radio Ga Ga; Under Pressure; Who Wants to Live Forever; ’39,2.33,True,99
+home,home,NOUN,14,7,Fat Bottomed Girls; Hammer to Fall; Love of My Life; Save Me; Somebody to Love; You’re My Best Friend; ’39,2.0,False,100
+come,come,ADJ,14,8,Bohemian Rhapsody; Fat Bottomed Girls; Good Old-Fashioned Lover Boy; I Want It All; Keep Yourself Alive; Seven Seas of Rhye; We Are the Champions; You’re My Best Friend,1.75,False,101
+had,have,AUX,14,7,Another One Bites the Dust; Bohemian Rhapsody; Death on Two Legs (Dedicated to...); Keep Yourself Alive; Radio Ga Ga; We Are the Champions; You’re My Best Friend,2.0,True,102
+forever,forever,ADV,14,3,Seven Seas of Rhye; The March of the Black Queen; Who Wants to Live Forever,4.67,False,103
+feel,feel,VERB,14,7,Death on Two Legs (Dedicated to...); Don’t Stop Me Now; Good Old-Fashioned Lover Boy; Innuendo; I’m in Love with My Car; Radio Ga Ga; Somebody to Love,2.0,False,104
+magic,magic,NOUN,13,1,A Kind of Magic,13.0,False,105
+still,still,ADV,13,9,Fat Bottomed Girls; I Want to Break Free; Keep Yourself Alive; Love of My Life; Radio Ga Ga; Save Me; The Show Must Go On; You’re My Best Friend; ’39,1.44,True,106
+till,till,SCONJ,13,5,Death on Two Legs (Dedicated to...); Innuendo; Somebody to Love; The March of the Black Queen; We Are the Champions,2.6,False,107
+how,how,SCONJ,13,9,Another One Bites the Dust; Crazy Little Thing Called Love; Good Old-Fashioned Lover Boy; I Want to Break Free; I’m Going Slightly Mad; Keep Yourself Alive; Love of My Life; Radio Ga Ga; Save Me,1.44,True,108
+people,people,NOUN,13,3,I Want It All; Keep Yourself Alive; Under Pressure,4.33,False,109
+ba,ba,X,13,1,Under Pressure,13.0,False,110
+through,through,ADP,13,6,Don’t Stop Me Now; Hammer to Fall; Innuendo; Radio Ga Ga; Seven Seas of Rhye; We Are the Champions,2.17,True,111
+if,if,SCONJ,13,6,Bohemian Rhapsody; Don’t Stop Me Now; I Want It All; Innuendo; Keep Yourself Alive; Killer Queen,2.17,True,112
+face,face,VERB,13,9,Bohemian Rhapsody; Death on Two Legs (Dedicated to...); Hammer to Fall; Keep Yourself Alive; Save Me; Somebody to Love; The Show Must Go On; We Are the Champions; We Will Rock You,1.44,False,113
+pa,pa,PROPN,12,1,Killer Queen,12.0,False,114
+why,why,SCONJ,12,4,Don’t Stop Me Now; I Want It All; The March of the Black Queen; Under Pressure,3.0,True,115
+stop,stop,VERB,12,1,Don’t Stop Me Now,12.0,False,116
+big,big,ADJ,12,3,Death on Two Legs (Dedicated to...); Fat Bottomed Girls; We Will Rock You,4.0,False,117
+end,end,NOUN,12,5,Innuendo; I’m in Love with My Car; Somebody to Love; The March of the Black Queen; We Are the Champions,2.4,False,118
+an,an,DET,12,8,Death on Two Legs (Dedicated to...); Don’t Stop Me Now; I Want It All; Innuendo; Killer Queen; The March of the Black Queen; Under Pressure; We Will Rock You,1.5,True,119
+champions,champion,NOUN,12,1,We Are the Champions,12.0,False,120
+who,who,PRON,12,5,Death on Two Legs (Dedicated to...); Hammer to Fall; Radio Ga Ga; Seven Seas of Rhye; Who Wants to Live Forever,2.4,True,121
+break,break,VERB,11,2,Death on Two Legs (Dedicated to...); I Want to Break Free,5.5,False,122
+beside,beside,ADP,11,2,Fat Bottomed Girls; Seven Seas of Rhye,5.5,True,123
+baby,baby,NOUN,11,5,Bohemian Rhapsody; Crazy Little Thing Called Love; Hammer to Fall; I Want to Break Free; The March of the Black Queen,2.2,False,124
+where,where,SCONJ,11,7,Bicycle Race; Death on Two Legs (Dedicated to...); Good Old-Fashioned Lover Boy; I Want It All; Keep Yourself Alive; Seven Seas of Rhye; The March of the Black Queen,1.57,True,125
+or,or,CCONJ,11,6,Bicycle Race; Hammer to Fall; Innuendo; Radio Ga Ga; Save Me; You’re My Best Friend,1.83,True,126
+gone,go,VERB,11,5,Another One Bites the Dust; Bohemian Rhapsody; Seven Seas of Rhye; The March of the Black Queen; ’39,2.2,False,127
+happened,happen,VERB,11,1,I’m Going Slightly Mad,11.0,False,128
+anybody,anybody,PRON,11,2,Somebody to Love; The Show Must Go On,5.5,False,129
+years,year,NOUN,11,5,A Kind of Magic; Radio Ga Ga; Save Me; Somebody to Love; ’39,2.2,False,130
+yes,yes,INTJ,11,7,Another One Bites the Dust; Don’t Stop Me Now; Fat Bottomed Girls; Hammer to Fall; Innuendo; I’m Going Slightly Mad; The March of the Black Queen,1.57,False,131
+they,they,PRON,11,8,Bicycle Race; Don’t Stop Me Now; I’m Going Slightly Mad; I’m in Love with My Car; Keep Yourself Alive; Save Me; Somebody to Love; ’39,1.38,True,132
+mad,mad,ADJ,10,1,I’m Going Slightly Mad,10.0,False,133
+inside,inside,ADV,10,6,A Kind of Magic; Death on Two Legs (Dedicated to...); Don’t Stop Me Now; Save Me; The Show Must Go On; ’39,1.67,False,134
+havin,havin',VERB,10,1,Don’t Stop Me Now,10.0,False,135
+ready,ready,ADJ,10,3,Another One Bites the Dust; Crazy Little Thing Called Love; Don’t Stop Me Now,3.33,False,136
+bring,bring,VERB,10,5,Another One Bites the Dust; Love of My Life; Seven Seas of Rhye; The March of the Black Queen; ’39,2.0,False,137
+by,by,ADP,10,7,Don’t Stop Me Now; I Want to Break Free; Innuendo; Love of My Life; Radio Ga Ga; Seven Seas of Rhye; You’re My Best Friend,1.43,True,138
+queen,queen,NOUN,10,2,Killer Queen; The March of the Black Queen,5.0,False,139
+must,must,AUX,10,3,Crazy Little Thing Called Love; The Show Must Go On; Who Wants to Live Forever,3.33,True,140
+every,every,DET,10,5,Fat Bottomed Girls; Hammer to Fall; Keep Yourself Alive; Somebody to Love; The March of the Black Queen,2.0,True,141
+old,old,ADJ,10,6,Death on Two Legs (Dedicated to...); Good Old-Fashioned Lover Boy; Radio Ga Ga; Under Pressure; We Will Rock You; ’39,1.67,False,142
+slightly,slightly,ADV,10,1,I’m Going Slightly Mad,10.0,False,143
+he,he,PRON,10,5,Another One Bites the Dust; Bohemian Rhapsody; Hammer to Fall; Somebody to Love; The March of the Black Queen,2.0,True,144
+away,away,ADV,10,6,Bohemian Rhapsody; Hammer to Fall; Love of My Life; Under Pressure; Who Wants to Live Forever; ’39,1.67,False,145
+ai,be,AUX,9,6,Another One Bites the Dust; Crazy Little Thing Called Love; Fat Bottomed Girls; I Want It All; Somebody to Love; We Are the Champions,1.5,False,146
+rock,rock,VERB,9,2,Crazy Little Thing Called Love; We Will Rock You,4.5,False,147
+cause,'cause,SCONJ,9,5,Bicycle Race; Don’t Stop Me Now; Radio Ga Ga; Under Pressure; We Are the Champions,1.8,False,148
+bad,bad,ADJ,9,7,Another One Bites the Dust; Death on Two Legs (Dedicated to...); Fat Bottomed Girls; Seven Seas of Rhye; The March of the Black Queen; We Are the Champions; You’re My Best Friend,1.29,False,149
+here,here,ADV,9,6,Bohemian Rhapsody; Fat Bottomed Girls; Hammer to Fall; I Want It All; The March of the Black Queen; ’39,1.5,True,150
+think,think,VERB,9,6,Another One Bites the Dust; Bohemian Rhapsody; Good Old-Fashioned Lover Boy; Innuendo; I’m Going Slightly Mad; Keep Yourself Alive,1.5,False,151
+show,show,NOUN,9,2,Innuendo; The Show Must Go On,4.5,True,152
+die,die,VERB,9,7,Bohemian Rhapsody; Innuendo; Save Me; Seven Seas of Rhye; Somebody to Love; The Show Must Go On; Who Wants to Live Forever,1.29,False,153
+light,light,NOUN,9,6,A Kind of Magic; Don’t Stop Me Now; Hammer to Fall; I Want It All; Radio Ga Ga; The March of the Black Queen,1.5,False,154
+friend,friend,NOUN,9,2,Radio Ga Ga; You’re My Best Friend,4.5,False,155
+finally,finally,ADV,9,1,I’m Going Slightly Mad,9.0,False,156
+then,then,ADV,9,5,Crazy Little Thing Called Love; Keep Yourself Alive; Killer Queen; Seven Seas of Rhye; The March of the Black Queen,1.8,True,157
+going,go,VERB,9,4,Hammer to Fall; I’m Going Slightly Mad; Somebody to Love; The March of the Black Queen,2.25,False,158
+call,call,VERB,9,3,Don’t Stop Me Now; Hammer to Fall; ’39,3.0,True,159
+kind,kind,NOUN,9,2,A Kind of Magic; Innuendo,4.5,False,160
+ta,to,PART,8,4,Bohemian Rhapsody; Crazy Little Thing Called Love; I Want It All; Somebody to Love,2.0,False,161
+leave,leave,VERB,8,6,Another One Bites the Dust; Bohemian Rhapsody; Love of My Life; Radio Ga Ga; Seven Seas of Rhye; The Show Must Go On,1.33,False,162
+tonight,tonight,NOUN,8,4,Don’t Stop Me Now; Fat Bottomed Girls; Good Old-Fashioned Lover Boy; Hammer to Fall,2.0,False,163
+fat,fat,ADJ,8,2,Bicycle Race; Fat Bottomed Girls,4.0,False,164
+only,only,ADJ,8,6,A Kind of Magic; I’m Going Slightly Mad; Radio Ga Ga; The March of the Black Queen; Who Wants to Live Forever; You’re My Best Friend,1.33,True,165
+around,around,ADV,8,4,Don’t Stop Me Now; Fat Bottomed Girls; Radio Ga Ga; Under Pressure,2.0,True,166
+girls,girl,NOUN,8,3,Bicycle Race; Fat Bottomed Girls; Radio Ga Ga,2.67,False,167
+really,really,ADV,8,3,Bohemian Rhapsody; I’m Going Slightly Mad; You’re My Best Friend,2.67,True,168
+fall,fall,VERB,8,1,Hammer to Fall,8.0,False,169
+hammer,hammer,NOUN,8,1,Hammer to Fall,8.0,False,170
+money,money,NOUN,8,2,Death on Two Legs (Dedicated to...); Keep Yourself Alive,4.0,False,171
+soon,soon,ADV,8,4,A Kind of Magic; Save Me; The March of the Black Queen; The Show Must Go On,2.0,False,172
+while,while,NOUN,8,3,Fat Bottomed Girls; Hammer to Fall; Innuendo,2.67,True,173
+ha,ha,INTJ,8,2,A Kind of Magic; Hammer to Fall,4.0,False,174
+black,black,ADJ,8,2,Bicycle Race; The March of the Black Queen,4.0,False,175
+made,make,VERB,8,6,Death on Two Legs (Dedicated to...); Fat Bottomed Girls; I’m in Love with My Car; Radio Ga Ga; Save Me; We Are the Champions,1.33,True,176
+de,de,PROPN,8,1,Under Pressure,8.0,False,177
+night,night,NOUN,8,7,Crazy Little Thing Called Love; Death on Two Legs (Dedicated to...); Hammer to Fall; Save Me; The March of the Black Queen; Under Pressure; ’39,1.14,False,178
+pressure,pressure,NOUN,8,1,Under Pressure,8.0,False,179
+see,see,VERB,8,5,Bohemian Rhapsody; I Want It All; I Want to Break Free; Love of My Life; You’re My Best Friend,1.6,True,180
+put,put,VERB,7,5,Bohemian Rhapsody; Death on Two Legs (Dedicated to...); Somebody to Love; The March of the Black Queen; We Will Rock You,1.4,True,181
+hand,hand,NOUN,7,3,I’m in Love with My Car; The March of the Black Queen; ’39,2.33,False,182
+trying,try,VERB,7,2,Innuendo; I’m Going Slightly Mad,3.5,False,183
+best,good,ADJ,7,1,You’re My Best Friend,7.0,False,184
+cry,cry,VERB,7,6,Bohemian Rhapsody; I Want It All; Radio Ga Ga; Save Me; Somebody to Love; ’39,1.17,False,185
+him,he,PRON,7,3,Another One Bites the Dust; Bohemian Rhapsody; I Want It All,2.33,True,186
+god,god,PROPN,7,3,Bicycle Race; I Want to Break Free; Innuendo,2.33,False,187
+his,his,PRON,7,6,Another One Bites the Dust; Bohemian Rhapsody; I Want It All; Seven Seas of Rhye; Somebody to Love; The March of the Black Queen,1.17,True,188
+was,be,AUX,7,5,Bicycle Race; Death on Two Legs (Dedicated to...); Fat Bottomed Girls; Keep Yourself Alive; Save Me,1.4,True,189
+bottomed,bottomed,ADJ,7,2,Bicycle Race; Fat Bottomed Girls,3.5,False,190
+satisfied,satisfied,ADJ,7,4,Another One Bites the Dust; Death on Two Legs (Dedicated to...); I Want to Break Free; Keep Yourself Alive,1.75,False,191
+such,such,DET,7,5,Don’t Stop Me Now; Fat Bottomed Girls; I’m in Love with My Car; Under Pressure; You’re My Best Friend,1.4,True,192
+alright,alright,ADV,7,5,Another One Bites the Dust; Don’t Stop Me Now; Fat Bottomed Girls; Somebody to Love; We Will Rock You,1.4,False,193
+us,we,PRON,7,2,Radio Ga Ga; Who Wants to Live Forever,3.5,True,194
+heart,heart,NOUN,7,5,Death on Two Legs (Dedicated to...); Good Old-Fashioned Lover Boy; Love of My Life; Save Me; The Show Must Go On,1.4,False,195
+honey,honey,NOUN,7,4,Don’t Stop Me Now; Keep Yourself Alive; The March of the Black Queen; You’re My Best Friend,1.75,False,196
+friends,friend,NOUN,7,4,I’m in Love with My Car; The Show Must Go On; Under Pressure; We Are the Champions,1.75,False,197
+mind,mind,NOUN,7,4,A Kind of Magic; I Want It All; Keep Yourself Alive; Killer Queen,1.75,False,198
+own,own,ADJ,7,4,Another One Bites the Dust; Death on Two Legs (Dedicated to...); I Want to Break Free; Somebody to Love,1.75,True,199
+wants,want,VERB,7,2,Somebody to Love; Who Wants to Live Forever,3.5,False,200
+everything,everything,PRON,6,6,Another One Bites the Dust; Good Old-Fashioned Lover Boy; Love of My Life; Radio Ga Ga; The March of the Black Queen; We Are the Champions,1.0,True,201
+try,try,VERB,6,2,Killer Queen; Somebody to Love,3.0,False,202
+killer,killer,NOUN,6,1,Killer Queen,6.0,False,203
+over,over,ADP,6,5,Crazy Little Thing Called Love; I Want to Break Free; I’m Going Slightly Mad; Love of My Life; We Will Rock You,1.2,True,204
+sky,sky,NOUN,6,2,Don’t Stop Me Now; Innuendo,3.0,False,205
+dear,dear,NOUN,6,1,I’m Going Slightly Mad,6.0,False,206
+eyes,eye,NOUN,6,5,Bohemian Rhapsody; Seven Seas of Rhye; Somebody to Love; We Will Rock You; ’39,1.2,False,207
+up,up,ADP,6,6,Another One Bites the Dust; Bohemian Rhapsody; Hammer to Fall; Somebody to Love; The March of the Black Queen; Under Pressure,1.0,True,208
+lord,lord,PROPN,6,3,Bicycle Race; Somebody to Love; The March of the Black Queen,2.0,False,209
+as,as,SCONJ,6,4,Bohemian Rhapsody; Hammer to Fall; Keep Yourself Alive; Killer Queen,1.5,True,210
+woo,woo,PROPN,6,4,A Kind of Magic; Crazy Little Thing Called Love; Fat Bottomed Girls; Hammer to Fall,1.5,False,211
+any,any,DET,6,4,Bohemian Rhapsody; Innuendo; Keep Yourself Alive; Seven Seas of Rhye,1.5,True,212
+sea,sea,NOUN,6,3,Innuendo; I’m Going Slightly Mad; Seven Seas of Rhye,2.0,False,213
+nothing,nothing,PRON,6,3,Bohemian Rhapsody; Save Me; The March of the Black Queen,2.0,True,214
+lover,lover,PROPN,6,1,Good Old-Fashioned Lover Boy,6.0,False,215
+right,right,ADJ,6,5,Bohemian Rhapsody; Death on Two Legs (Dedicated to...); Good Old-Fashioned Lover Boy; Keep Yourself Alive; The March of the Black Queen,1.2,False,216
+knows,know,VERB,6,2,Crazy Little Thing Called Love; I Want to Break Free,3.0,False,217
+living,live,VERB,6,3,I Want It All; I Want to Break Free; The Show Must Go On,2.0,False,218
+goo,goo,NOUN,6,1,Radio Ga Ga,6.0,False,219
+race,race,NOUN,6,3,Bicycle Race; Innuendo; We Are the Champions,2.0,False,220
+alone,alone,ADV,6,4,Fat Bottomed Girls; I Want to Break Free; Radio Ga Ga; Save Me,1.5,True,221
+them,they,PRON,6,4,Fat Bottomed Girls; Killer Queen; Radio Ga Ga; The March of the Black Queen,1.5,True,222
+beat,beat,NOUN,6,3,Another One Bites the Dust; Somebody to Love; The March of the Black Queen,2.0,False,223
+about,about,ADV,6,4,Don’t Stop Me Now; I’m Going Slightly Mad; The March of the Black Queen; Under Pressure,1.5,True,224
+round,round,NOUN,6,5,Crazy Little Thing Called Love; I Want It All; The Show Must Go On; Under Pressure; You’re My Best Friend,1.2,False,225
+because,because,SCONJ,6,3,Bohemian Rhapsody; Good Old-Fashioned Lover Boy; Love of My Life,2.0,True,226
+poor,poor,ADJ,6,3,Bohemian Rhapsody; Hammer to Fall; We Will Rock You,2.0,False,227
+new,new,ADJ,5,4,Death on Two Legs (Dedicated to...); I’m in Love with My Car; Radio Ga Ga; Save Me,1.25,False,228
+things,thing,NOUN,5,3,Good Old-Fashioned Lover Boy; Radio Ga Ga; You’re My Best Friend,1.67,False,229
+smile,smile,NOUN,5,4,Bicycle Race; Keep Yourself Alive; Seven Seas of Rhye; The Show Must Go On,1.25,False,230
+sand,sand,NOUN,5,3,Innuendo; We Are the Champions; ’39,1.67,False,231
+rocking,rock,VERB,5,1,Fat Bottomed Girls,5.0,False,232
+d,would,AUX,5,4,Bohemian Rhapsody; Good Old-Fashioned Lover Boy; Keep Yourself Alive; Radio Ga Ga,1.25,True,233
+though,though,SCONJ,5,1,’39,5.0,True,234
+does,do,AUX,5,3,Bohemian Rhapsody; Death on Two Legs (Dedicated to...); The Show Must Go On,1.67,True,235
+mean,mean,VERB,5,2,Bohemian Rhapsody; The March of the Black Queen,2.5,False,236
+much,much,ADV,5,2,Good Old-Fashioned Lover Boy; I Want It All,2.5,True,237
+cool,cool,VERB,5,2,Bicycle Race; Crazy Little Thing Called Love,2.5,False,238
+tell,tell,VERB,5,5,Fat Bottomed Girls; Good Old-Fashioned Lover Boy; I’m Going Slightly Mad; Keep Yourself Alive; The March of the Black Queen,1.0,False,239
+waiting,wait,VERB,5,2,A Kind of Magic; Hammer to Fall,2.5,False,240
+many,many,ADJ,5,1,’39,5.0,True,241
+sound,sound,NOUN,5,1,Another One Bites the Dust,5.0,False,242
+very,very,ADV,5,4,Bohemian Rhapsody; I’m Going Slightly Mad; Seven Seas of Rhye; The March of the Black Queen,1.25,True,243
+been,be,AUX,5,4,Bohemian Rhapsody; Fat Bottomed Girls; We Are the Champions; You’re My Best Friend,1.25,True,244
+soul,soul,NOUN,5,5,A Kind of Magic; Keep Yourself Alive; Save Me; The March of the Black Queen; The Show Must Go On,1.0,False,245
+better,well,ADV,5,3,Good Old-Fashioned Lover Boy; Keep Yourself Alive; We Will Rock You,1.67,False,246
+grow,grow,VERB,5,4,Keep Yourself Alive; Love of My Life; Radio Ga Ga; The Show Must Go On,1.25,False,247
+care,care,VERB,5,5,Hammer to Fall; Killer Queen; Radio Ga Ga; Save Me; Under Pressure,1.0,False,248
+woah,woah,PROPN,5,3,Don’t Stop Me Now; I’m Going Slightly Mad; The Show Must Go On,1.67,False,249
+goes,go,VERB,5,4,Crazy Little Thing Called Love; I Want to Break Free; Somebody to Love; We Are the Champions,1.25,False,250
+under,under,ADP,5,2,Innuendo; Under Pressure,2.5,True,251
+hard,hard,ADV,5,2,Somebody to Love; We Will Rock You,2.5,False,252
+ee,ee,PROPN,5,1,Under Pressure,5.0,False,253
+streets,street,NOUN,5,1,Under Pressure,5.0,False,254
+look,look,VERB,5,4,Another One Bites the Dust; Bicycle Race; Bohemian Rhapsody; Somebody to Love,1.25,False,255
+turn,turn,VERB,4,4,Don’t Stop Me Now; Good Old-Fashioned Lover Boy; Innuendo; You’re My Best Friend,1.0,False,256
+true,true,ADJ,4,4,I Want to Break Free; I’m Going Slightly Mad; The March of the Black Queen; You’re My Best Friend,1.0,False,257
+left,leave,VERB,4,3,Fat Bottomed Girls; Somebody to Love; The March of the Black Queen,1.33,False,258
+truth,truth,NOUN,4,3,Bohemian Rhapsody; Hammer to Fall; I Want It All,1.33,False,259
+legs,leg,NOUN,4,1,Death on Two Legs (Dedicated to...),4.0,False,260
+fallen,fall,VERB,4,1,I Want to Break Free,4.0,False,261
+some,some,DET,4,3,Radio Ga Ga; Under Pressure; We Will Rock You,1.33,True,262
+wo,will,AUX,4,2,Fat Bottomed Girls; Hammer to Fall,2.0,False,263
+land,land,NOUN,4,3,Fat Bottomed Girls; Innuendo; ’39,1.33,False,264
+blue,blue,ADJ,4,3,Fat Bottomed Girls; The March of the Black Queen; ’39,1.33,False,265
+knew,know,VERB,4,2,Fat Bottomed Girls; ’39,2.0,False,266
+street,street,NOUN,4,3,Another One Bites the Dust; I Want It All; We Will Rock You,1.33,False,267
+coming,come,VERB,4,4,Bicycle Race; I’m Going Slightly Mad; The March of the Black Queen; Under Pressure,1.0,False,268
+place,place,NOUN,4,2,We Will Rock You; Who Wants to Live Forever,2.0,False,269
+doing,do,VERB,4,2,Good Old-Fashioned Lover Boy; Somebody to Love,2.0,True,270
+mine,mine,PRON,4,2,I Want It All; Seven Seas of Rhye,2.0,True,271
+car,car,NOUN,4,2,Don’t Stop Me Now; I’m in Love with My Car,2.0,False,272
+fashioned,fashioned,ADJ,4,2,Good Old-Fashioned Lover Boy; Under Pressure,2.0,False,273
+power,power,NOUN,4,2,Radio Ga Ga; The March of the Black Queen,2.0,False,274
+blah,blah,PROPN,4,1,Radio Ga Ga,4.0,False,275
+long,long,ADV,4,3,Another One Bites the Dust; Crazy Little Thing Called Love; You’re My Best Friend,1.33,False,276
+dance,dance,NOUN,4,3,I’m Going Slightly Mad; The March of the Black Queen; Under Pressure,1.33,False,277
+seat,seat,NOUN,4,3,Another One Bites the Dust; Crazy Little Thing Called Love; Good Old-Fashioned Lover Boy,1.33,False,278
+yet,yet,ADV,4,2,Radio Ga Ga; Who Wants to Live Forever,2.0,True,279
+death,death,NOUN,4,1,Death on Two Legs (Dedicated to...),4.0,False,280
+without,without,ADP,4,2,Another One Bites the Dust; I Want to Break Free,2.0,True,281
+breaking,break,VERB,4,2,The Show Must Go On; Under Pressure,2.0,False,282
+done,do,VERB,4,2,A Kind of Magic; We Are the Champions,2.0,True,283
+more,more,ADJ,4,3,Death on Two Legs (Dedicated to...); Hammer to Fall; Under Pressure,1.33,True,284
+chance,chance,NOUN,4,3,The Show Must Go On; Under Pressure; Who Wants to Live Forever,1.33,False,285
+mama,mama,PROPN,4,1,Bohemian Rhapsody,4.0,False,286
+line,line,NOUN,4,2,Innuendo; The Show Must Go On,2.0,False,287
+before,before,ADP,4,3,Fat Bottomed Girls; Seven Seas of Rhye; We Are the Champions,1.33,True,288
+into,into,ADP,4,3,Innuendo; We Will Rock You; ’39,1.33,True,289
+dares,dare,VERB,4,3,Seven Seas of Rhye; Under Pressure; Who Wants to Live Forever,1.33,False,290
+her,her,PRON,4,3,I’m in Love with My Car; Killer Queen; The March of the Black Queen,1.33,True,291
+survive,survive,VERB,4,2,Keep Yourself Alive; Seven Seas of Rhye,2.0,False,292
+someday,someday,ADV,4,2,Somebody to Love; We Will Rock You,2.0,False,293
+fine,fine,ADJ,4,2,Good Old-Fashioned Lover Boy; Innuendo,2.0,False,294
+started,start,VERB,4,2,Keep Yourself Alive; Save Me,2.0,False,295
+well,well,ADV,4,3,Keep Yourself Alive; Killer Queen; Save Me,1.33,True,296
+seas,sea,NOUN,4,2,Seven Seas of Rhye; ’39,2.0,False,297
+feet,foot,NOUN,4,3,Another One Bites the Dust; I Want It All; Somebody to Love,1.33,False,298
+stand,stand,VERB,4,4,Another One Bites the Dust; Hammer to Fall; Seven Seas of Rhye; Somebody to Love,1.0,False,299
+easy,easy,ADJ,4,1,Bohemian Rhapsody,4.0,False,300
+has,have,AUX,4,3,Bohemian Rhapsody; Innuendo; Who Wants to Live Forever,1.33,True,301
+too,too,ADV,4,2,Another One Bites the Dust; Bohemian Rhapsody,2.0,True,302
+matters,matter,VERB,4,1,Bohemian Rhapsody,4.0,False,303
+naked,naked,ADJ,4,2,Save Me; Seven Seas of Rhye,2.0,False,304
+machine,machine,NOUN,4,3,Another One Bites the Dust; Don’t Stop Me Now; I’m in Love with My Car,1.33,False,305
+real,real,ADJ,4,4,Bohemian Rhapsody; Don’t Stop Me Now; I Want to Break Free; Save Me,1.0,False,306
+need,need,VERB,4,4,Bohemian Rhapsody; I Want to Break Free; Keep Yourself Alive; Radio Ga Ga,1.0,False,307
+mister,mister,PROPN,4,2,Don’t Stop Me Now; Seven Seas of Rhye,2.0,False,308
+speed,speed,NOUN,4,2,Don’t Stop Me Now; The March of the Black Queen,2.0,False,309
+hot,hot,ADJ,4,4,Bicycle Race; Crazy Little Thing Called Love; Death on Two Legs (Dedicated to...); Good Old-Fashioned Lover Boy,1.0,False,310
+gunpowder,gunpowder,PROPN,3,1,Killer Queen,3.0,False,311
+em,them,PRON,3,2,Fat Bottomed Girls; Radio Ga Ga,1.5,False,312
+same,same,ADJ,3,3,Hammer to Fall; Keep Yourself Alive; Killer Queen,1.0,True,313
+noise,noise,NOUN,3,3,Radio Ga Ga; The March of the Black Queen; We Will Rock You,1.0,False,314
+watch,watch,VERB,3,1,Radio Ga Ga,3.0,False,315
+buddy,buddy,PROPN,3,1,We Will Rock You,3.0,False,316
+came,come,VERB,3,2,Killer Queen; ’39,1.5,False,317
+finest,fine,ADJ,3,1,Radio Ga Ga,3.0,False,318
+could,could,AUX,3,3,Innuendo; Killer Queen; Radio Ga Ga,1.0,True,319
+hour,hour,NOUN,3,1,Radio Ga Ga,3.0,False,320
+degrees,degree,NOUN,3,1,Don’t Stop Me Now,3.0,False,321
+fly,fly,VERB,3,3,Radio Ga Ga; Seven Seas of Rhye; The Show Must Go On,1.0,False,322
+stars,star,NOUN,3,2,Innuendo; Radio Ga Ga,1.5,False,323
+means,mean,VERB,3,1,Love of My Life,3.0,False,324
+fahrenheit,fahrenheit,PROPN,3,1,Don’t Stop Me Now,3.0,False,325
+lady,lady,PROPN,3,3,Don’t Stop Me Now; Hammer to Fall; Seven Seas of Rhye,1.0,False,326
+blow,blow,VERB,3,1,Killer Queen,3.0,False,327
+hurt,hurt,VERB,3,3,Another One Bites the Dust; Hammer to Fall; Love of My Life,1.0,False,328
+taken,take,VERB,3,3,Death on Two Legs (Dedicated to...); Love of My Life; We Are the Champions,1.0,False,329
+myself,myself,PRON,3,3,Don’t Stop Me Now; Save Me; Seven Seas of Rhye,1.0,True,330
+burnin,burnin,ADJ,3,1,Don’t Stop Me Now,3.0,False,331
+disgrace,disgrace,NOUN,3,1,We Will Rock You,3.0,False,332
+beam,beam,NOUN,3,1,Killer Queen,3.0,False,333
+heard,hear,VERB,3,3,Hammer to Fall; I Want It All; Radio Ga Ga,1.0,False,334
+laser,laser,NOUN,3,1,Killer Queen,3.0,False,335
+supersonic,supersonic,ADJ,3,1,Don’t Stop Me Now,3.0,False,336
+ship,ship,NOUN,3,2,Don’t Stop Me Now; ’39,1.5,False,337
+dynamite,dynamite,PROPN,3,1,Killer Queen,3.0,False,338
+gelatine,gelatine,NOUN,3,1,Killer Queen,3.0,False,339
+guaranteed,guarantee,VERB,3,1,Killer Queen,3.0,False,340
+red,red,ADJ,3,1,Fat Bottomed Girls,3.0,False,341
+bike,bike,NOUN,3,1,Bicycle Race,3.0,False,342
+ever,ever,ADV,3,3,Innuendo; You’re My Best Friend; ’39,1.0,True,343
+listen,listen,VERB,3,3,Fat Bottomed Girls; I Want It All; I’m in Love with My Car,1.0,False,344
+should,should,AUX,3,2,A Kind of Magic; Death on Two Legs (Dedicated to...),1.5,True,345
+forget,forget,VERB,3,3,Bicycle Race; I’m in Love with My Car; The March of the Black Queen,1.0,False,346
+lasts,last,VERB,3,1,A Kind of Magic,3.0,False,347
+today,today,NOUN,3,2,Bicycle Race; Who Wants to Live Forever,1.5,False,348
+rage,rage,NOUN,3,1,A Kind of Magic,3.0,False,349
+set,set,NOUN,3,3,Bicycle Race; Good Old-Fashioned Lover Boy; Who Wants to Live Forever,1.0,False,350
+far,far,ADV,3,1,Save Me,3.0,False,351
+lie,lie,NOUN,3,2,Save Me; Seven Seas of Rhye,1.5,False,352
+losing,lose,VERB,3,1,Somebody to Love,3.0,False,353
+again,again,ADV,3,3,Bohemian Rhapsody; Killer Queen; Save Me,1.0,True,354
+tomorrow,tomorrow,NOUN,3,2,Bohemian Rhapsody; Under Pressure,1.5,False,355
+carry,carry,VERB,3,2,Bohemian Rhapsody; The Show Must Go On,1.5,False,356
+tracks,track,NOUN,3,2,Crazy Little Thing Called Love; I’m in Love with My Car,1.5,False,357
+write,write,VERB,3,2,Good Old-Fashioned Lover Boy; ’39,1.5,False,358
+future,future,NOUN,3,1,I Want It All,3.0,False,359
+full,full,ADJ,3,3,Good Old-Fashioned Lover Boy; I’m Going Slightly Mad; The March of the Black Queen,1.0,True,360
+letters,letter,NOUN,3,1,’39,3.0,False,361
+calling,call,VERB,3,1,’39,3.0,False,362
+bell,bell,NOUN,3,2,A Kind of Magic; Hammer to Fall,1.5,False,363
+louder,louder,ADV,3,1,Hammer to Fall,3.0,False,364
+surrender,surrender,VERB,3,3,Hammer to Fall; Innuendo; The March of the Black Queen,1.0,False,365
+year,year,NOUN,3,1,’39,3.0,False,366
+body,body,NOUN,3,3,Bohemian Rhapsody; Hammer to Fall; Keep Yourself Alive,1.0,False,367
+boys,boy,NOUN,3,3,Good Old-Fashioned Lover Boy; Radio Ga Ga; The March of the Black Queen,1.0,False,368
+bismillah,bismillah,PROPN,3,1,Bohemian Rhapsody,3.0,False,369
+happy,happy,ADJ,3,2,Another One Bites the Dust; You’re My Best Friend,1.5,False,370
+bite,bite,VERB,3,2,Another One Bites the Dust; Bicycle Race,1.5,False,371
+eh,eh,INTJ,3,2,Another One Bites the Dust; The Show Must Go On,1.5,False,372
+doorway,doorway,NOUN,3,1,Another One Bites the Dust,3.0,False,373
+bullets,bullet,NOUN,3,1,Another One Bites the Dust,3.0,False,374
+rip,rip,VERB,3,1,Another One Bites the Dust,3.0,False,375
+fighting,fighting,NOUN,3,1,We Are the Champions,3.0,False,376
+losers,loser,NOUN,3,1,We Are the Champions,3.0,False,377
+after,after,ADP,3,3,Fat Bottomed Girls; Good Old-Fashioned Lover Boy; We Are the Champions,1.0,True,378
+whatever,whatever,PRON,3,3,Innuendo; The Show Must Go On; You’re My Best Friend,1.0,True,379
+tread,tread,PROPN,3,1,Innuendo,3.0,False,380
+told,tell,VERB,3,2,I’m in Love with My Car; Keep Yourself Alive,1.5,False,381
+begun,begin,VERB,3,2,Bohemian Rhapsody; The March of the Black Queen,1.5,False,382
+galileo,galileo,PROPN,3,1,Bohemian Rhapsody,3.0,False,383
+everybody,everybody,PRON,3,3,Bohemian Rhapsody; Somebody to Love; We Will Rock You,1.0,False,384
+behind,behind,ADV,3,3,Bohemian Rhapsody; The March of the Black Queen; The Show Must Go On,1.0,True,385
+lies,lie,NOUN,3,3,I Want It All; I Want to Break Free; The March of the Black Queen,1.0,False,386
+their,their,PRON,3,2,Fat Bottomed Girls; ’39,1.5,True,387
+style,style,NOUN,3,3,Fat Bottomed Girls; Good Old-Fashioned Lover Boy; The March of the Black Queen,1.0,False,388
+band,band,NOUN,3,3,Fat Bottomed Girls; Seven Seas of Rhye; The March of the Black Queen,1.0,False,389
+seen,see,VERB,3,3,Fat Bottomed Girls; The March of the Black Queen; ’39,1.0,False,390
+firelight,firelight,NOUN,3,1,Fat Bottomed Girls,3.0,False,391
+hang,hang,VERB,3,2,Fat Bottomed Girls; Save Me,1.5,False,392
+talk,talk,VERB,3,2,Death on Two Legs (Dedicated to...); I’m in Love with My Car,1.5,False,393
+loves,love,VERB,3,2,Bohemian Rhapsody; Radio Ga Ga,1.5,False,394
+wind,wind,NOUN,3,2,Bohemian Rhapsody; Innuendo,1.5,False,395
+someone,someone,PRON,3,2,Radio Ga Ga; Somebody to Love,1.5,True,396
+believe,believe,VERB,3,3,Bicycle Race; Save Me; Somebody to Love,1.0,False,397
+woman,woman,NOUN,3,2,Don’t Stop Me Now; Fat Bottomed Girls,1.5,False,398
+fo,fo,VERB,3,1,The March of the Black Queen,3.0,False,399
+rhye,rhye,NOUN,3,1,Seven Seas of Rhye,3.0,False,400
+outta,outta,NOUN,3,2,Bohemian Rhapsody; Don’t Stop Me Now,1.5,False,401
+prom,prom,PROPN,3,1,Seven Seas of Rhye,3.0,False,402
+oo,oo,NOUN,3,1,I’m Going Slightly Mad,3.0,False,403
+days,day,NOUN,3,3,I’m Going Slightly Mad; Under Pressure; ’39,1.0,False,404
+water,water,NOUN,3,3,Fat Bottomed Girls; Somebody to Love; The March of the Black Queen,1.0,False,405
+screaming,scream,VERB,3,2,I Want It All; Under Pressure,1.5,False,406
+each,each,DET,3,3,Save Me; Somebody to Love; The March of the Black Queen,1.0,True,407
+ourselves,ourselves,PRON,3,1,Under Pressure,3.0,True,408
+okay,okay,ADJ,3,2,Somebody to Love; Under Pressure,1.5,False,409
+seaside,seaside,NOUN,3,1,Seven Seas of Rhye,3.0,False,410
+pray,pray,INTJ,3,2,Somebody to Love; Under Pressure,1.5,False,411
+higher,high,ADJ,3,1,Under Pressure,3.0,False,412
+fie,fie,NOUN,3,1,The March of the Black Queen,3.0,False,413
+work,work,VERB,3,2,Somebody to Love; Under Pressure,1.5,False,414
+um,um,INTJ,3,1,Under Pressure,3.0,False,415
+hold,hold,VERB,2,2,Good Old-Fashioned Lover Boy; The Show Must Go On,1.0,False,416
+terror,terror,NOUN,2,1,Under Pressure,2.0,False,417
+knowing,know,VERB,2,1,Under Pressure,2.0,False,418
+score,score,NOUN,2,2,The Show Must Go On; ’39,1.0,False,419
+flaking,flake,VERB,2,1,The Show Must Go On,2.0,False,420
+may,may,AUX,2,1,The Show Must Go On,2.0,True,421
+makeup,makeup,NOUN,2,1,The Show Must Go On,2.0,False,422
+rule,rule,VERB,2,2,Innuendo; The March of the Black Queen,1.0,False,423
+outside,outside,ADV,2,2,I’m Going Slightly Mad; The Show Must Go On,1.0,False,424
+guess,guess,VERB,2,1,The Show Must Go On,2.0,False,425
+blows,blow,VERB,2,1,Bohemian Rhapsody,2.0,False,426
+empty,empty,ADJ,2,2,I Want It All; The Show Must Go On,1.0,True,427
+low,low,ADJ,2,2,Another One Bites the Dust; Bohemian Rhapsody,1.0,False,428
+high,high,ADJ,2,2,Bohemian Rhapsody; Under Pressure,1.0,False,429
+born,bear,VERB,2,2,Bohemian Rhapsody; ’39,1.0,False,430
+scaramouche,scaramouche,PROPN,2,1,Bohemian Rhapsody,2.0,False,431
+dead,dead,ADJ,2,2,Bohemian Rhapsody; The March of the Black Queen,1.0,False,432
+pulled,pull,VERB,2,2,Another One Bites the Dust; Bohemian Rhapsody,1.0,False,433
+head,head,NOUN,2,2,Bohemian Rhapsody; Save Me,1.0,False,434
+goodbye,goodbye,PROPN,2,2,Bohemian Rhapsody; Death on Two Legs (Dedicated to...),1.0,False,435
+wish,wish,VERB,2,2,Bohemian Rhapsody; Good Old-Fashioned Lover Boy,1.0,False,436
+dawn,dawn,NOUN,2,2,A Kind of Magic; The Show Must Go On,1.0,False,437
+miss,miss,VERB,2,2,Good Old-Fashioned Lover Boy; Radio Ga Ga,1.0,False,438
+apart,apart,ADV,2,1,Death on Two Legs (Dedicated to...),2.0,False,439
+tearing,tear,VERB,2,1,Death on Two Legs (Dedicated to...),2.0,False,440
+use,use,VERB,2,2,Good Old-Fashioned Lover Boy; Radio Ga Ga,1.0,False,441
+last,last,ADJ,2,1,Under Pressure,2.0,True,442
+shows,show,NOUN,2,2,A Kind of Magic; Radio Ga Ga,1.0,False,443
+hours,hour,NOUN,2,1,Radio Ga Ga,2.0,False,444
+edge,edge,NOUN,2,2,Another One Bites the Dust; Under Pressure,1.0,False,445
+word,word,NOUN,2,2,Good Old-Fashioned Lover Boy; Under Pressure,1.0,False,446
+devil,devil,NOUN,2,2,Bohemian Rhapsody; The March of the Black Queen,1.0,False,447
+aside,aside,ADV,2,2,Bohemian Rhapsody; Who Wants to Live Forever,1.0,False,448
+were,be,AUX,2,2,Save Me; ’39,1.0,True,449
+family,family,NOUN,2,2,Bohemian Rhapsody; Under Pressure,1.0,False,450
+mamma,mamma,PROPN,2,1,Bohemian Rhapsody,2.0,False,451
+mia,mia,PROPN,2,1,Bohemian Rhapsody,2.0,False,452
+crime,crime,NOUN,2,2,The Show Must Go On; We Are the Champions,1.0,False,453
+ground,ground,NOUN,2,2,Another One Bites the Dust; I Want It All,1.0,False,454
+few,few,ADJ,2,2,We Are the Champions; ’39,1.0,True,455
+screw,screw,PROPN,2,2,Death on Two Legs (Dedicated to...); I’m Going Slightly Mad,1.0,False,456
+gun,gun,NOUN,2,2,Bohemian Rhapsody; I’m in Love with My Car,1.0,False,457
+dum,dum,PROPN,2,1,Under Pressure,2.0,False,458
+brought,bring,VERB,2,2,Keep Yourself Alive; We Are the Champions,1.0,False,459
+curtain,curtain,NOUN,2,2,The Show Must Go On; We Are the Champions,1.0,False,460
+kicked,kick,VERB,2,2,Another One Bites the Dust; We Are the Champions,1.0,False,461
+destroy,destroy,VERB,2,2,Innuendo; Seven Seas of Rhye,1.0,False,462
+challenge,challenge,NOUN,2,2,Seven Seas of Rhye; We Are the Champions,1.0,False,463
+pleasure,pleasure,NOUN,2,2,Fat Bottomed Girls; We Are the Champions,1.0,False,464
+bed,bed,NOUN,2,2,Hammer to Fall; We Are the Champions,1.0,False,465
+beh,beh,PROPN,2,1,Under Pressure,2.0,False,466
+anything,anything,PRON,2,1,Innuendo,2.0,True,467
+heat,heat,NOUN,2,2,Another One Bites the Dust; Good Old-Fashioned Lover Boy,1.0,False,468
+travellin,travellin,ADJ,2,1,Don’t Stop Me Now,2.0,False,469
+pom,pom,NOUN,2,1,Seven Seas of Rhye,2.0,False,470
+meet,meet,VERB,2,2,Good Old-Fashioned Lover Boy; Innuendo,1.0,False,471
+roll,roll,NOUN,2,2,Crazy Little Thing Called Love; I’m in Love with My Car,1.0,False,472
+cries,cry,VERB,2,2,Crazy Little Thing Called Love; Seven Seas of Rhye,1.0,False,473
+hip,hip,NOUN,2,1,Crazy Little Thing Called Love,2.0,False,474
+relax,relax,VERB,2,1,Crazy Little Thing Called Love,2.0,False,475
+clean,clean,ADJ,2,2,I’m in Love with My Car; Save Me,1.0,False,476
+fever,fever,NOUN,2,2,Crazy Little Thing Called Love; I’m Going Slightly Mad,1.0,False,477
+gets,get,VERB,2,1,Under Pressure,2.0,False,478
+gives,give,VERB,2,2,Crazy Little Thing Called Love; Death on Two Legs (Dedicated to...),1.0,False,479
+upon,upon,SCONJ,2,1,Seven Seas of Rhye,2.0,True,480
+did,do,AUX,2,2,Bohemian Rhapsody; Good Old-Fashioned Lover Boy,1.0,True,481
+motorbike,motorbike,NOUN,2,1,Crazy Little Thing Called Love,2.0,False,482
+hike,hike,NOUN,2,1,Crazy Little Thing Called Love,2.0,False,483
+hitch,hitch,NOUN,2,1,Crazy Little Thing Called Love,2.0,False,484
+seems,seem,VERB,2,2,A Kind of Magic; Save Me,1.0,True,485
+short,short,ADJ,2,1,I’m Going Slightly Mad,2.0,False,486
+cold,cold,ADJ,2,2,Crazy Little Thing Called Love; Save Me,1.0,False,487
+volunteers,volunteers,PROPN,2,1,’39,2.0,False,488
+skies,sky,NOUN,2,2,Bohemian Rhapsody; Seven Seas of Rhye,1.0,False,489
+sailed,sail,VERB,2,1,’39,2.0,False,490
+quite,quite,ADV,2,2,Good Old-Fashioned Lover Boy; I’m Going Slightly Mad,1.0,True,491
+driving,drive,VERB,2,2,Good Old-Fashioned Lover Boy; I’m Going Slightly Mad,1.0,False,492
+touch,touch,VERB,2,1,Who Wants to Live Forever,2.0,False,493
+dreams,dream,NOUN,2,2,I Want It All; Who Wants to Live Forever,1.0,False,494
+answer,answer,VERB,2,2,Hammer to Fall; Innuendo,1.0,False,495
+command,command,NOUN,2,2,Good Old-Fashioned Lover Boy; Seven Seas of Rhye,1.0,False,496
+earth,earth,PROPN,2,2,Seven Seas of Rhye; ’39,1.0,False,497
+grandchildren,grandchild,NOUN,2,1,’39,2.0,False,498
+until,until,SCONJ,2,1,Crazy Little Thing Called Love,2.0,True,499
+aching,ache,VERB,2,2,Bohemian Rhapsody; The Show Must Go On,1.0,False,500
+souls,soul,NOUN,2,2,Seven Seas of Rhye; ’39,1.0,False,501
+always,always,ADV,2,1,Good Old-Fashioned Lover Boy,2.0,True,502
+cried,cry,VERB,2,2,Save Me; ’39,1.0,False,503
+asking,ask,VERB,2,1,I Want It All,2.0,False,504
+loved,love,VERB,2,2,Keep Yourself Alive; Save Me,1.0,False,505
+disease,disease,NOUN,2,2,Death on Two Legs (Dedicated to...); I’m in Love with My Car,1.0,False,506
+these,these,PRON,2,2,I’m Going Slightly Mad; Under Pressure,1.0,True,507
+cross,cross,VERB,2,1,Fat Bottomed Girls,2.0,False,508
+singing,sing,VERB,2,2,Fat Bottomed Girls; The March of the Black Queen,1.0,False,509
+naughty,naughty,ADJ,2,2,Fat Bottomed Girls; The March of the Black Queen,1.0,False,510
+automobile,automobile,NOUN,2,1,I’m in Love with My Car,2.0,False,511
+kinda,kinda,ADV,2,2,Crazy Little Thing Called Love; Fat Bottomed Girls,1.0,False,512
+til,til,ADV,2,1,Save Me,2.0,False,513
+beauty,beauty,NOUN,2,1,Fat Bottomed Girls,2.0,False,514
+wings,wing,NOUN,2,2,The March of the Black Queen; The Show Must Go On,1.0,False,515
+holding,hold,VERB,2,1,I’m in Love with My Car,2.0,False,516
+wheel,wheel,NOUN,2,1,I’m in Love with My Car,2.0,False,517
+gear,gear,NOUN,2,1,I’m in Love with My Car,2.0,False,518
+sit,sit,VERB,2,2,Good Old-Fashioned Lover Boy; Radio Ga Ga,1.0,False,519
+bill,bill,NOUN,2,2,Good Old-Fashioned Lover Boy; The Show Must Go On,1.0,False,520
+top,top,VERB,2,2,I’m Going Slightly Mad; The Show Must Go On,1.0,True,521
+watching,watch,VERB,2,1,Under Pressure,2.0,False,522
+march,march,NOUN,2,1,The March of the Black Queen,2.0,False,523
+dog,dog,NOUN,2,2,Bicycle Race; Death on Two Legs (Dedicated to...),1.0,False,524
+handle,handle,VERB,2,1,Crazy Little Thing Called Love,2.0,False,525
+rings,ring,VERB,2,1,A Kind of Magic,2.0,False,526
+challenging,challenge,VERB,2,1,A Kind of Magic,2.0,False,527
+doors,door,NOUN,2,1,A Kind of Magic,2.0,False,528
+dream,dream,NOUN,2,2,A Kind of Magic; I’m in Love with My Car,1.0,False,529
+goal,goal,NOUN,2,2,A Kind of Magic; Keep Yourself Alive,1.0,False,530
+huh,huh,PROPN,2,2,Fat Bottomed Girls; I’m Going Slightly Mad,1.0,False,531
+youth,youth,NOUN,2,1,I Want It All,2.0,False,532
+girl,girl,NOUN,2,2,I’m in Love with My Car; You’re My Best Friend,1.0,False,533
+rain,rain,NOUN,2,2,Hammer to Fall; You’re My Best Friend,1.0,False,534
+shark,shark,NOUN,2,2,Bicycle Race; Death on Two Legs (Dedicated to...),1.0,False,535
+blind,blind,ADJ,2,2,Innuendo; Under Pressure,1.0,False,536
+lonely,lonely,ADJ,2,2,You’re My Best Friend; ’39,1.0,False,537
+door,door,NOUN,2,2,Hammer to Fall; I Want to Break Free,1.0,False,538
+nobody,nobody,PRON,2,2,Bohemian Rhapsody; Somebody to Love,1.0,True,539
+bo,bo,VERB,2,1,Under Pressure,2.0,False,540
+young,young,ADJ,2,2,I Want It All; We Will Rock You,1.0,False,541
+drive,drive,VERB,2,1,Killer Queen,2.0,False,542
+wild,wild,ADJ,2,1,Killer Queen,2.0,False,543
+pay,pay,NOUN,2,2,Good Old-Fashioned Lover Boy; Somebody to Love,1.0,False,544
+went,go,VERB,2,2,Fat Bottomed Girls; Killer Queen,1.0,False,545
+laws,law,NOUN,2,2,Don’t Stop Me Now; Seven Seas of Rhye,1.0,False,546
+mirror,mirror,NOUN,2,1,Somebody to Love,2.0,False,547
+bones,bone,NOUN,2,2,Fat Bottomed Girls; Somebody to Love,1.0,False,548
+mars,mars,PROPN,2,2,Don’t Stop Me Now; Radio Ga Ga,1.0,False,549
+works,work,VERB,2,1,Somebody to Love,2.0,False,550
+recommended,recommend,VERB,2,1,Killer Queen,2.0,False,551
+price,price,NOUN,2,1,Killer Queen,2.0,False,552
+star,star,NOUN,2,2,Bicycle Race; Don’t Stop Me Now,1.0,False,553
+insatiable,insatiable,VERB,2,1,Killer Queen,2.0,False,554
+ball,ball,NOUN,2,1,Don’t Stop Me Now,2.0,False,555
+appetite,appetite,NOUN,2,1,Killer Queen,2.0,False,556
+brain,brain,NOUN,2,2,Death on Two Legs (Dedicated to...); Somebody to Love,1.0,False,557
+desert,desert,VERB,2,2,Innuendo; Love of My Life,1.0,False,558
+cars,car,NOUN,2,2,I’m in Love with My Car; Killer Queen,1.0,False,559
+start,start,VERB,2,2,Save Me; Somebody to Love,1.0,False,560
+mud,mud,NOUN,2,1,We Will Rock You,2.0,False,561
+tears,tear,NOUN,2,2,Somebody to Love; Who Wants to Live Forever,1.0,False,562
+crossed,cross,VERB,2,1,Keep Yourself Alive,2.0,False,563
+run,run,VERB,2,2,I’m in Love with My Car; Somebody to Love,1.0,False,564
+ove,ove,VERB,2,1,Somebody to Love,2.0,False,565
+older,old,ADJ,2,2,Love of My Life; ’39,1.0,False,566
+side,side,NOUN,2,2,I Want to Break Free; Love of My Life,1.0,True,567
+times,time,NOUN,2,1,Keep Yourself Alive,2.0,False,568
+please,please,INTJ,2,2,Bicycle Race; Love of My Life,1.0,True,569
+rivers,river,NOUN,2,1,Keep Yourself Alive,2.0,False,570
+rode,ride,VERB,2,1,Keep Yourself Alive,2.0,False,571
+miles,mile,NOUN,2,1,Keep Yourself Alive,2.0,False,572
+blood,blood,NOUN,2,2,Death on Two Legs (Dedicated to...); We Will Rock You,1.0,False,573
+everyday,everyday,NOUN,2,1,Somebody to Love,2.0,False,574
+sugar,sugar,NOUN,2,1,The March of the Black Queen,2.0,False,575
+stays,stay,VERB,2,1,The Show Must Go On,2.0,False,576
+burns,burn,VERB,2,2,A Kind of Magic; Under Pressure,1.0,False,577
+wars,war,NOUN,2,2,Bicycle Race; Radio Ga Ga,1.0,False,578
+those,those,DET,2,2,Bicycle Race; Radio Ga Ga,1.0,True,579
+ask,ask,VERB,2,2,Innuendo; Under Pressure,1.0,False,580
+sing,sing,VERB,2,2,Good Old-Fashioned Lover Boy; We Will Rock You,1.0,False,581
+remember,remember,VERB,2,2,Love of My Life; The March of the Black Queen,1.0,False,582
+comes,come,VERB,1,1,The March of the Black Queen,1.0,False,583
+shipwreck,shipwreck,NOUN,1,1,I’m Going Slightly Mad,1.0,False,584
+askin,askin,NOUN,1,1,I Want It All,1.0,False,585
+wasted,waste,VERB,1,1,Save Me,1.0,False,586
+advertise,advertise,VERB,1,1,Save Me,1.0,False,587
+usual,usual,ADJ,1,1,I’m Going Slightly Mad,1.0,False,588
+sale,sale,NOUN,1,1,Save Me,1.0,False,589
+wave,wave,NOUN,1,1,I’m Going Slightly Mad,1.0,False,590
+sign,sign,NOUN,1,1,I Want It All,1.0,False,591
+billing,billing,NOUN,1,1,I’m Going Slightly Mad,1.0,False,592
+rent,rent,NOUN,1,1,Save Me,1.0,False,593
+shilling,shilling,NOUN,1,1,I’m Going Slightly Mad,1.0,False,594
+deck,deck,NOUN,1,1,I’m Going Slightly Mad,1.0,False,595
+shake,shake,VERB,1,1,I Want It All,1.0,False,596
+front,front,NOUN,1,1,I’m Going Slightly Mad,1.0,True,597
+lifetime,lifetime,NOUN,1,1,I Want It All,1.0,False,598
+compromise,compromise,NOUN,1,1,I Want It All,1.0,False,599
+wheeled,wheel,VERB,1,1,I’m in Love with My Car,1.0,False,600
+cruising,cruise,VERB,1,1,I’m in Love with My Car,1.0,False,601
+overdrive,overdrive,ADJ,1,1,I’m in Love with My Car,1.0,False,602
+string,string,NOUN,1,1,I’m in Love with My Car,1.0,False,603
+heaven,heaven,PROPN,1,1,The March of the Black Queen,1.0,False,604
+niggah,niggah,NOUN,1,1,The March of the Black Queen,1.0,False,605
+choose,choose,VERB,1,1,The March of the Black Queen,1.0,False,606
+cellar,cellar,NOUN,1,1,The March of the Black Queen,1.0,False,607
+mill,mill,NOUN,1,1,I’m in Love with My Car,1.0,False,608
+ate,eat,VERB,1,1,Keep Yourself Alive,1.0,False,609
+memories,memory,NOUN,1,1,Save Me,1.0,False,610
+dinners,dinner,NOUN,1,1,Keep Yourself Alive,1.0,False,611
+jive,jive,PROPN,1,1,I’m in Love with My Car,1.0,False,612
+track,track,NOUN,1,1,I Want It All,1.0,False,613
+secret,secret,ADJ,1,1,A Kind of Magic,1.0,False,614
+harmonies,harmony,NOUN,1,1,A Kind of Magic,1.0,False,615
+tryin,tryin,NOUN,1,1,Keep Yourself Alive,1.0,False,616
+prize,prize,NOUN,1,1,A Kind of Magic,1.0,False,617
+banana,banana,NOUN,1,1,I’m Going Slightly Mad,1.0,False,618
+glance,glance,NOUN,1,1,A Kind of Magic,1.0,False,619
+boiling,boil,VERB,1,1,I’m Going Slightly Mad,1.0,False,620
+follow,follow,VERB,1,1,The March of the Black Queen,1.0,False,621
+whoa,whoa,INTJ,1,1,Keep Yourself Alive,1.0,False,622
+mortal,mortal,ADJ,1,1,A Kind of Magic,1.0,False,623
+win,win,VERB,1,1,A Kind of Magic,1.0,False,624
+hah,hah,INTJ,1,1,I Want It All,1.0,False,625
+oooh,oooh,PROPN,1,1,I Want It All,1.0,False,626
+givin,givin,ADJ,1,1,I Want It All,1.0,False,627
+livin,livin,NOUN,1,1,I Want It All,1.0,False,628
+steps,step,NOUN,1,1,Keep Yourself Alive,1.0,False,629
+shaft,shaft,NOUN,1,1,A Kind of Magic,1.0,False,630
+sham,sham,NOUN,1,1,Save Me,1.0,False,631
+belie,belie,NOUN,1,1,Save Me,1.0,False,632
+lived,live,VERB,1,1,Save Me,1.0,False,633
+grave,grave,NOUN,1,1,Keep Yourself Alive,1.0,False,634
+golden,golden,ADJ,1,1,A Kind of Magic,1.0,False,635
+card,card,NOUN,1,1,I’m Going Slightly Mad,1.0,False,636
+hahaha,hahaha,PROPN,1,1,I’m Going Slightly Mad,1.0,False,637
+eternity,eternity,NOUN,1,1,A Kind of Magic,1.0,False,638
+hearing,hear,VERB,1,1,A Kind of Magic,1.0,False,639
+angel,angel,NOUN,1,1,The March of the Black Queen,1.0,False,640
+kettle,kettle,NOUN,1,1,I’m Going Slightly Mad,1.0,False,641
+sanity,sanity,NOUN,1,1,A Kind of Magic,1.0,False,642
+nearer,near,ADJ,1,1,Keep Yourself Alive,1.0,False,643
+fantasy,fantasy,NOUN,1,1,Bohemian Rhapsody,1.0,False,644
+uh,uh,INTJ,1,1,I’m Going Slightly Mad,1.0,False,645
+flame,flame,NOUN,1,1,A Kind of Magic,1.0,False,646
+tree,tree,NOUN,1,1,I’m Going Slightly Mad,1.0,False,647
+clue,clue,NOUN,1,1,I’m Going Slightly Mad,1.0,False,648
+grew,grow,VERB,1,1,Hammer to Fall,1.0,False,649
+off,off,ADP,1,1,Save Me,1.0,True,650
+said,say,VERB,1,1,Save Me,1.0,False,651
+perfect,perfect,ADJ,1,1,Save Me,1.0,False,652
+deceive,deceive,VERB,1,1,The March of the Black Queen,1.0,False,653
+pair,pair,NOUN,1,1,Save Me,1.0,False,654
+clothed,clothe,VERB,1,1,Save Me,1.0,False,655
+wherefore,wherefore,NOUN,1,1,The March of the Black Queen,1.0,False,656
+landslide,landslide,NOUN,1,1,Bohemian Rhapsody,1.0,False,657
+glory,glory,NOUN,1,1,Save Me,1.0,False,658
+feed,feed,VERB,1,1,Keep Yourself Alive,1.0,False,659
+loyalty,loyalty,NOUN,1,1,Save Me,1.0,False,660
+belly,belly,NOUN,1,1,The March of the Black Queen,1.0,False,661
+grey,grey,ADJ,1,1,’39,1.0,False,662
+darling,darling,NOUN,1,1,’39,1.0,False,663
+mother,mother,NOUN,1,1,’39,1.0,False,664
+heal,heal,VERB,1,1,’39,1.0,False,665
+ahead,ahead,ADV,1,1,’39,1.0,False,666
+pity,pity,VERB,1,1,’39,1.0,False,667
+caught,catch,VERB,1,1,Bohemian Rhapsody,1.0,False,668
+honest,honest,ADJ,1,1,I’m Going Slightly Mad,1.0,False,669
+pink,pink,NOUN,1,1,I’m Going Slightly Mad,1.0,False,670
+bears,bear,VERB,1,1,The March of the Black Queen,1.0,False,671
+making,make,VERB,1,1,The March of the Black Queen,1.0,False,672
+tall,tall,ADJ,1,1,Hammer to Fall,1.0,False,673
+toe,toe,NOUN,1,1,The March of the Black Queen,1.0,False,674
+proud,proud,ADJ,1,1,Hammer to Fall,1.0,False,675
+open,open,VERB,1,1,Bohemian Rhapsody,1.0,False,676
+reality,reality,NOUN,1,1,Bohemian Rhapsody,1.0,False,677
+shadow,shadow,NOUN,1,1,Hammer to Fall,1.0,False,678
+mushroom,mushroom,NOUN,1,1,Hammer to Fall,1.0,False,679
+cloud,cloud,NOUN,1,1,Hammer to Fall,1.0,False,680
+convinced,convince,VERB,1,1,Hammer to Fall,1.0,False,681
+voices,voice,NOUN,1,1,Hammer to Fall,1.0,False,682
+discover,discover,VERB,1,1,The March of the Black Queen,1.0,False,683
+rich,rich,ADJ,1,1,Hammer to Fall,1.0,False,684
+darkness,darkness,NOUN,1,1,The March of the Black Queen,1.0,False,685
+famous,famous,ADJ,1,1,Hammer to Fall,1.0,False,686
+escape,escape,NOUN,1,1,Bohemian Rhapsody,1.0,False,687
+lock,lock,VERB,1,1,Hammer to Fall,1.0,False,688
+pouring,pour,VERB,1,1,Hammer to Fall,1.0,False,689
+reign,reign,VERB,1,1,The March of the Black Queen,1.0,False,690
+windowpane,windowpane,NOUN,1,1,Hammer to Fall,1.0,False,691
+even,even,ADV,1,1,The March of the Black Queen,1.0,True,692
+struggle,struggle,NOUN,1,1,Hammer to Fall,1.0,False,693
+vain,vain,ADJ,1,1,Hammer to Fall,1.0,False,694
+scream,scream,VERB,1,1,Hammer to Fall,1.0,False,695
+gather,gather,VERB,1,1,I Want It All,1.0,False,696
+game,game,NOUN,1,1,I Want It All,1.0,False,697
+plan,plan,NOUN,1,1,I Want It All,1.0,False,698
+intent,intent,NOUN,1,1,Save Me,1.0,False,699
+adventure,adventure,NOUN,1,1,I Want It All,1.0,False,700
+seeker,seeker,NOUN,1,1,I Want It All,1.0,False,701
+alley,alley,NOUN,1,1,I Want It All,1.0,False,702
+telling,tell,VERB,1,1,Keep Yourself Alive,1.0,False,703
+creeper,creeper,NOUN,1,1,I Want It All,1.0,False,704
+fighter,fighter,NOUN,1,1,I Want It All,1.0,False,705
+doubt,doubt,NOUN,1,1,I Want It All,1.0,False,706
+deliver,deliver,VERB,1,1,The March of the Black Queen,1.0,False,707
+slate,slate,NOUN,1,1,Save Me,1.0,False,708
+folks,folk,NOUN,1,1,Keep Yourself Alive,1.0,False,709
+something,something,PRON,1,1,I’m Going Slightly Mad,1.0,True,710
+maybe,maybe,ADV,1,1,Keep Yourself Alive,1.0,False,711
+bigger,big,ADJ,1,1,Keep Yourself Alive,1.0,False,712
+gloves,glove,NOUN,1,1,I’m in Love with My Car,1.0,False,713
+erase,erase,VERB,1,1,Save Me,1.0,False,714
+everythin,everythin,NOUN,1,1,Keep Yourself Alive,1.0,False,715
+spread,spread,VERB,1,1,The March of the Black Queen,1.0,False,716
+trays,tray,NOUN,1,1,Keep Yourself Alive,1.0,False,717
+silver,silver,NOUN,1,1,Keep Yourself Alive,1.0,False,718
+pain,pain,NOUN,1,1,I Want It All,1.0,False,719
+news,news,NOUN,1,1,’39,1.0,False,720
+haze,haze,NOUN,1,1,Keep Yourself Alive,1.0,False,721
+newly,newly,ADV,1,1,’39,1.0,False,722
+hearts,heart,NOUN,1,1,’39,1.0,False,723
+heavily,heavily,ADV,1,1,’39,1.0,False,724
+belladonic,belladonic,ADJ,1,1,Keep Yourself Alive,1.0,False,725
+women,woman,NOUN,1,1,Keep Yourself Alive,1.0,False,726
+weight,weight,NOUN,1,1,’39,1.0,False,727
+chile,chile,PROPN,1,1,The March of the Black Queen,1.0,False,728
+across,across,ADP,1,1,’39,1.0,True,729
+milky,milky,ADJ,1,1,’39,1.0,False,730
+alli,alli,AUX,1,1,I Want It All,1.0,False,731
+ne'er,ne'er,PROPN,1,1,’39,1.0,False,732
+looked,look,VERB,1,1,’39,1.0,False,733
+feared,fear,VERB,1,1,’39,1.0,False,734
+voice,voice,NOUN,1,1,The March of the Black Queen,1.0,False,735
+stay,stay,VERB,1,1,Keep Yourself Alive,1.0,False,736
+anger,anger,NOUN,1,1,I Want It All,1.0,False,737
+superstar,superstar,NOUN,1,1,Keep Yourself Alive,1.0,False,738
+final,final,ADJ,1,1,I’m Going Slightly Mad,1.0,False,739
+missing,miss,VERB,1,1,I’m Going Slightly Mad,1.0,False,740
+reminds,remind,VERB,1,1,The March of the Black Queen,1.0,False,741
+move,move,VERB,1,1,I Want It All,1.0,True,742
+simply,simply,ADV,1,1,I’m Going Slightly Mad,1.0,False,743
+om,om,PROPN,1,1,Seven Seas of Rhye,1.0,False,744
+innuendo,innuendo,NOUN,1,1,Innuendo,1.0,False,745
+single,single,ADJ,1,1,The March of the Black Queen,1.0,False,746
+tiddely,tiddely,ADJ,1,1,Seven Seas of Rhye,1.0,False,747
+mirrors,mirror,NOUN,1,1,Keep Yourself Alive,1.0,False,748
+plays,play,VERB,1,1,Seven Seas of Rhye,1.0,False,749
+tempo,tempo,NOUN,1,1,Innuendo,1.0,False,750
+brass,brass,NOUN,1,1,Seven Seas of Rhye,1.0,False,751
+ego,ego,NOUN,1,1,Innuendo,1.0,False,752
+thunder,thunder,NOUN,1,1,Seven Seas of Rhye,1.0,False,753
+butter,butter,NOUN,1,1,Keep Yourself Alive,1.0,False,754
+stroll,stroll,VERB,1,1,Seven Seas of Rhye,1.0,False,755
+file,file,NOUN,1,1,The March of the Black Queen,1.0,False,756
+bread,bread,NOUN,1,1,Keep Yourself Alive,1.0,False,757
+size,size,NOUN,1,1,The March of the Black Queen,1.0,False,758
+temperature,temperature,NOUN,1,1,I’m Going Slightly Mad,1.0,False,759
+justice,justice,NOUN,1,1,Innuendo,1.0,False,760
+point,point,NOUN,1,1,Innuendo,1.0,False,761
+division,division,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,False,762
+reason,reason,NOUN,1,1,Innuendo,1.0,False,763
+sold,sell,VERB,1,1,Keep Yourself Alive,1.0,False,764
+breach,breach,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,False,765
+troubles,trouble,NOUN,1,1,Keep Yourself Alive,1.0,False,766
+hurts,hurt,VERB,1,1,Death on Two Legs (Dedicated to...),1.0,False,767
+misguided,misguided,ADJ,1,1,Death on Two Legs (Dedicated to...),1.0,False,768
+shod,shod,VERB,1,1,Seven Seas of Rhye,1.0,False,769
+void,void,ADJ,1,1,Death on Two Legs (Dedicated to...),1.0,False,770
+mule,mule,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,False,771
+pigheaded,pigheade,VERB,1,1,Death on Two Legs (Dedicated to...),1.0,False,772
+window,window,NOUN,1,1,Keep Yourself Alive,1.0,False,773
+offense,offense,NOUN,1,1,Innuendo,1.0,False,774
+saw,see,VERB,1,1,Keep Yourself Alive,1.0,False,775
+bound,bound,ADJ,1,1,Innuendo,1.0,False,776
+glee,glee,NOUN,1,1,Seven Seas of Rhye,1.0,False,777
+alleyway,alleyway,NOUN,1,1,Keep Yourself Alive,1.0,False,778
+fears,fear,NOUN,1,1,Innuendo,1.0,False,779
+release,release,VERB,1,1,Innuendo,1.0,False,780
+mask,mask,NOUN,1,1,Innuendo,1.0,False,781
+shopping,shopping,NOUN,1,1,Keep Yourself Alive,1.0,False,782
+smiling,smile,VERB,1,1,Innuendo,1.0,False,783
+suck,suck,VERB,1,1,Death on Two Legs (Dedicated to...),1.0,False,784
+questions,question,NOUN,1,1,Innuendo,1.0,False,785
+overgrown,overgrown,ADJ,1,1,Death on Two Legs (Dedicated to...),1.0,False,786
+schoolboy,schoolboy,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,False,787
+tan,tan,VERB,1,1,Death on Two Legs (Dedicated to...),1.0,False,788
+found,find,VERB,1,1,Death on Two Legs (Dedicated to...),1.0,False,789
+toy,toy,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,False,790
+replace,replace,VERB,1,1,Death on Two Legs (Dedicated to...),1.0,False,791
+kiss,kiss,VERB,1,1,Death on Two Legs (Dedicated to...),1.0,False,792
+barrow,barrow,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,False,793
+ass,ass,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,False,794
+dictated,dictate,VERB,1,1,Innuendo,1.0,False,795
+conscience,conscience,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,False,796
+plague,plague,VERB,1,1,Death on Two Legs (Dedicated to...),1.0,False,797
+rises,rise,NOUN,1,1,I’m Going Slightly Mad,1.0,False,798
+fry,fry,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,False,799
+killjoy,killjoy,PROPN,1,1,Death on Two Legs (Dedicated to...),1.0,False,800
+meaning,meaning,NOUN,1,1,I’m Going Slightly Mad,1.0,False,801
+guy,guy,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,False,802
+talking,talk,VERB,1,1,Death on Two Legs (Dedicated to...),1.0,False,803
+clear,clear,ADJ,1,1,I’m Going Slightly Mad,1.0,False,804
+small,small,ADJ,1,1,Death on Two Legs (Dedicated to...),1.0,False,805
+suicide,suicide,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,False,806
+tradition,tradition,NOUN,1,1,Innuendo,1.0,False,807
+fools,fool,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,False,808
+superstition,superstition,PROPN,1,1,Innuendo,1.0,False,809
+false,false,ADJ,1,1,Innuendo,1.0,False,810
+religion,religion,NOUN,1,1,Innuendo,1.0,False,811
+cronies,crony,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,False,812
+eons,eon,NOUN,1,1,Innuendo,1.0,False,813
+wheels,wheel,NOUN,1,1,I’m Going Slightly Mad,1.0,False,814
+sorrow,sorrow,NOUN,1,1,Innuendo,1.0,False,815
+yellow,yellow,ADJ,1,1,I’m Going Slightly Mad,1.0,False,816
+splendour,splendour,NOUN,1,1,Innuendo,1.0,False,817
+business,business,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,False,818
+tycoon,tycoon,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,False,819
+narrow,narrow,ADJ,1,1,Death on Two Legs (Dedicated to...),1.0,False,820
+air,air,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,False,821
+balloon,balloon,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,False,822
+damn,damn,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,False,823
+begin,begin,VERB,1,1,I’m Going Slightly Mad,1.0,False,824
+daffodils,daffodil,NOUN,1,1,I’m Going Slightly Mad,1.0,False,825
+rules,rule,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,False,826
+minded,minded,ADJ,1,1,Death on Two Legs (Dedicated to...),1.0,False,827
+master,master,NOUN,1,1,Seven Seas of Rhye,1.0,False,828
+lily,lily,ADJ,1,1,The March of the Black Queen,1.0,False,829
+storm,storm,NOUN,1,1,Seven Seas of Rhye,1.0,False,830
+son,son,NOUN,1,1,I’m in Love with My Car,1.0,False,831
+babies,baby,NOUN,1,1,The March of the Black Queen,1.0,False,832
+finger,finger,NOUN,1,1,The March of the Black Queen,1.0,False,833
+grip,grip,NOUN,1,1,I’m in Love with My Car,1.0,False,834
+deal,deal,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,False,835
+nail,nail,NOUN,1,1,The March of the Black Queen,1.0,False,836
+law,law,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,False,837
+bar,bar,PROPN,1,1,I’m in Love with My Car,1.0,False,838
+thrill,thrill,NOUN,1,1,I’m in Love with My Car,1.0,False,839
+hoo,hoo,PROPN,1,1,A Kind of Magic,1.0,False,840
+pistons,piston,NOUN,1,1,I’m in Love with My Car,1.0,False,841
+pumping,pumping,NOUN,1,1,I’m in Love with My Car,1.0,False,842
+hubcaps,hubcap,NOUN,1,1,I’m in Love with My Car,1.0,False,843
+part,part,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,True,844
+gleam,gleam,ADJ,1,1,I’m in Love with My Car,1.0,False,845
+fin,fin,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,False,846
+mr,mr.,PROPN,1,1,Death on Two Legs (Dedicated to...),1.0,False,847
+racer,racer,NOUN,1,1,I’m in Love with My Car,1.0,False,848
+automolove,automolove,NOUN,1,1,I’m in Love with My Car,1.0,False,849
+radials,radial,NOUN,1,1,I’m in Love with My Car,1.0,False,850
+squeal,squeal,VERB,1,1,I’m in Love with My Car,1.0,False,851
+rub,rub,NOUN,1,1,The March of the Black Queen,1.0,False,852
+dub,dub,VERB,1,1,The March of the Black Queen,1.0,False,853
+pies,pie,NOUN,1,1,The March of the Black Queen,1.0,False,854
+defy,defy,VERB,1,1,Seven Seas of Rhye,1.0,False,855
+oil,oil,NOUN,1,1,The March of the Black Queen,1.0,False,856
+rather,rather,ADV,1,1,I’m in Love with My Car,1.0,True,857
+pool,pool,NOUN,1,1,The March of the Black Queen,1.0,False,858
+buy,buy,VERB,1,1,I’m in Love with My Car,1.0,False,859
+carburetor,carburetor,NOUN,1,1,I’m in Love with My Car,1.0,False,860
+saying,say,VERB,1,1,I’m in Love with My Car,1.0,False,861
+monkeys,monkey,NOUN,1,1,The March of the Black Queen,1.0,False,862
+fire,fire,NOUN,1,1,Seven Seas of Rhye,1.0,False,863
+grease,grease,NOUN,1,1,I’m in Love with My Car,1.0,False,864
+powder,powder,NOUN,1,1,The March of the Black Queen,1.0,False,865
+flash,flash,NOUN,1,1,Seven Seas of Rhye,1.0,False,866
+marathon,marathon,NOUN,1,1,Seven Seas of Rhye,1.0,False,867
+delight,delight,NOUN,1,1,The March of the Black Queen,1.0,False,868
+praying,pray,VERB,1,1,The March of the Black Queen,1.0,False,869
+senators,senator,NOUN,1,1,Seven Seas of Rhye,1.0,False,870
+matter,matter,VERB,1,1,Bohemian Rhapsody,1.0,False,871
+passing,pass,VERB,1,1,Innuendo,1.0,False,872
+according,accord,VERB,1,1,Innuendo,1.0,False,873
+color,color,NOUN,1,1,Innuendo,1.0,False,874
+creed,creed,NOUN,1,1,Innuendo,1.0,False,875
+shady,shady,ADJ,1,1,Seven Seas of Rhye,1.0,False,876
+wiser,wise,ADJ,1,1,Keep Yourself Alive,1.0,False,877
+marching,march,VERB,1,1,The March of the Black Queen,1.0,False,878
+mouth,mouth,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,False,879
+pure,pure,ADJ,1,1,Innuendo,1.0,False,880
+sun,sun,NOUN,1,1,Innuendo,1.0,False,881
+hangs,hang,VERB,1,1,Innuendo,1.0,False,882
+waves,wave,NOUN,1,1,Innuendo,1.0,False,883
+crash,crash,VERB,1,1,Innuendo,1.0,False,884
+rainbow,rainbow,NOUN,1,1,Innuendo,1.0,False,885
+mountains,mountain,NOUN,1,1,Innuendo,1.0,False,886
+crumble,crumble,VERB,1,1,Innuendo,1.0,False,887
+plain,plain,ADJ,1,1,Innuendo,1.0,False,888
+leech,leech,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,False,889
+madness,madness,NOUN,1,1,Innuendo,1.0,False,890
+killed,kill,VERB,1,1,Bohemian Rhapsody,1.0,False,891
+sleaze,sleaze,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,False,892
+king,king,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,False,893
+poking,poke,VERB,1,1,The March of the Black Queen,1.0,False,894
+pile,pile,NOUN,1,1,The March of the Black Queen,1.0,False,895
+against,against,ADP,1,1,Bohemian Rhapsody,1.0,True,896
+hide,hide,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,False,897
+troubadours,troubadour,NOUN,1,1,Seven Seas of Rhye,1.0,False,898
+null,null,ADJ,1,1,Death on Two Legs (Dedicated to...),1.0,False,899
+unemployed,unemployed,ADJ,1,1,Death on Two Legs (Dedicated to...),1.0,False,900
+insane,insane,PROPN,1,1,Death on Two Legs (Dedicated to...),1.0,False,901
+mighty,mighty,ADJ,1,1,Seven Seas of Rhye,1.0,False,902
+pride,pride,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,False,903
+trigger,trigger,NOUN,1,1,Bohemian Rhapsody,1.0,False,904
+cesspool,cesspool,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,False,905
+evil,evil,ADJ,1,1,Seven Seas of Rhye,1.0,False,906
+decaying,decay,VERB,1,1,Death on Two Legs (Dedicated to...),1.0,False,907
+greed,greed,NOUN,1,1,Innuendo,1.0,False,908
+rat,rat,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,False,909
+lives,life,NOUN,1,1,Innuendo,1.0,False,910
+sewer,sewer,NOUN,1,1,Death on Two Legs (Dedicated to...),1.0,False,911
+titan,titan,NOUN,1,1,Seven Seas of Rhye,1.0,False,912
+sex,sex,NOUN,1,1,Don’t Stop Me Now,1.0,False,913
+reload,reload,VERB,1,1,Don’t Stop Me Now,1.0,False,914
+travelling,travel,VERB,1,1,Don’t Stop Me Now,1.0,False,915
+rocket,rocket,NOUN,1,1,Don’t Stop Me Now,1.0,False,916
+pussycat,pussycat,NOUN,1,1,Killer Queen,1.0,False,917
+momentarily,momentarily,ADV,1,1,Killer Queen,1.0,False,918
+action,action,NOUN,1,1,Killer Queen,1.0,False,919
+temporarily,temporarily,ADV,1,1,Killer Queen,1.0,False,920
+stoppin,stoppin,NOUN,1,1,Don’t Stop Me Now,1.0,False,921
+less,less,ADJ,1,1,Killer Queen,1.0,True,922
+fastidious,fastidious,ADJ,1,1,Killer Queen,1.0,False,923
+america,america,PROPN,1,1,Bicycle Race,1.0,False,924
+drop,drop,NOUN,1,1,Killer Queen,1.0,False,925
+hat,hat,NOUN,1,1,Killer Queen,1.0,False,926
+willing,willing,ADJ,1,1,Killer Queen,1.0,False,927
+playful,playful,ADJ,1,1,Killer Queen,1.0,False,928
+singin,singin,VERB,1,1,We Will Rock You,1.0,False,929
+shouting,shout,VERB,1,1,We Will Rock You,1.0,False,930
+waving,wave,VERB,1,1,We Will Rock You,1.0,False,931
+banner,banner,NOUN,1,1,We Will Rock You,1.0,False,932
+pleading,plead,VERB,1,1,We Will Rock You,1.0,False,933
+playing,playing,NOUN,1,1,We Will Rock You,1.0,False,934
+kickin,kickin,PROPN,1,1,We Will Rock You,1.0,False,935
+blown,blow,VERB,1,1,Love of My Life,1.0,False,936
+precise,precise,ADJ,1,1,Killer Queen,1.0,False,937
+cell,cell,NOUN,1,1,Somebody to Love,1.0,False,938
+anywhere,anywhere,ADV,1,1,Somebody to Love,1.0,True,939
+keeps,keep,VERB,1,1,Killer Queen,1.0,False,940
+minah,minah,PROPN,1,1,Killer Queen,1.0,False,941
+incidentally,incidentally,ADV,1,1,Killer Queen,1.0,False,942
+inclined,incline,VERB,1,1,Killer Queen,1.0,False,943
+perfume,perfume,PROPN,1,1,Killer Queen,1.0,False,944
+naturally,naturally,ADV,1,1,Killer Queen,1.0,False,945
+paris,paris,PROPN,1,1,Killer Queen,1.0,False,946
+address,address,NOUN,1,1,Killer Queen,1.0,False,947
+conversation,conversation,NOUN,1,1,Killer Queen,1.0,False,948
+control,control,NOUN,1,1,Don’t Stop Me Now,1.0,False,949
+baroness,baroness,NOUN,1,1,Killer Queen,1.0,False,950
+met,met,PROPN,1,1,Killer Queen,1.0,False,951
+china,china,PROPN,1,1,Killer Queen,1.0,False,952
+geisha,geisha,PROPN,1,1,Killer Queen,1.0,False,953
+avoid,avoid,VERB,1,1,Killer Queen,1.0,False,954
+complications,complication,NOUN,1,1,Killer Queen,1.0,False,955
+kept,keep,VERB,1,1,Killer Queen,1.0,False,956
+nice,nice,ADJ,1,1,Killer Queen,1.0,False,957
+collision,collision,NOUN,1,1,Don’t Stop Me Now,1.0,False,958
+course,course,NOUN,1,1,Don’t Stop Me Now,1.0,False,959
+am,be,AUX,1,1,Don’t Stop Me Now,1.0,True,960
+satellite,satellite,NOUN,1,1,Don’t Stop Me Now,1.0,False,961
+spoke,speak,VERB,1,1,Killer Queen,1.0,False,962
+walks,walk,VERB,1,1,Another One Bites the Dust,1.0,False,963
+warily,warily,ADV,1,1,Another One Bites the Dust,1.0,False,964
+brim,brim,NOUN,1,1,Another One Bites the Dust,1.0,False,965
+guns,gun,NOUN,1,1,Another One Bites the Dust,1.0,False,966
+ears,ear,NOUN,1,1,Radio Ga Ga,1.0,False,967
+music,music,NOUN,1,1,Radio Ga Ga,1.0,False,968
+changes,change,VERB,1,1,Radio Ga Ga,1.0,False,969
+hope,hope,VERB,1,1,Radio Ga Ga,1.0,False,970
+depend,depend,VERB,1,1,Radio Ga Ga,1.0,False,971
+stick,stick,VERB,1,1,Radio Ga Ga,1.0,False,972
+might,might,AUX,1,1,Radio Ga Ga,1.0,True,973
+remind,remind,VERB,1,1,Love of My Life,1.0,False,974
+hardly,hardly,ADV,1,1,Radio Ga Ga,1.0,False,975
+laugh,laugh,VERB,1,1,Radio Ga Ga,1.0,False,976
+become,become,VERB,1,1,Radio Ga Ga,1.0,True,977
+background,background,NOUN,1,1,Radio Ga Ga,1.0,False,978
+backdrop,backdrop,NOUN,1,1,Radio Ga Ga,1.0,False,979
+complain,complain,VERB,1,1,Radio Ga Ga,1.0,False,980
+beelzebub,beelzebub,PROPN,1,1,Bohemian Rhapsody,1.0,False,981
+stone,stone,VERB,1,1,Bohemian Rhapsody,1.0,False,982
+spit,spit,VERB,1,1,Bohemian Rhapsody,1.0,False,983
+eye,eye,NOUN,1,1,Bohemian Rhapsody,1.0,False,984
+anyone,anyone,PRON,1,1,Bohemian Rhapsody,1.0,True,985
+plenty,plenty,ADJ,1,1,Another One Bites the Dust,1.0,False,986
+videos,video,NOUN,1,1,Radio Ga Ga,1.0,False,987
+hurry,hurry,VERB,1,1,Love of My Life,1.0,False,988
+atom,atom,NOUN,1,1,Don’t Stop Me Now,1.0,False,989
+gas,gas,NOUN,1,1,Killer Queen,1.0,False,990
+absolutely,absolutely,ADV,1,1,Killer Queen,1.0,False,991
+broken,break,VERB,1,1,Love of My Life,1.0,False,992
+defyin,defyin,PROPN,1,1,Don’t Stop Me Now,1.0,False,993
+gravity,gravity,NOUN,1,1,Don’t Stop Me Now,1.0,False,994
+racin,racin,NOUN,1,1,Don’t Stop Me Now,1.0,False,995
+passin,passin,PROPN,1,1,Don’t Stop Me Now,1.0,False,996
+godiva,godiva,PROPN,1,1,Don’t Stop Me Now,1.0,False,997
+floatin,floatin,ADJ,1,1,Don’t Stop Me Now,1.0,False,998
+steve,steve,PROPN,1,1,Another One Bites the Dust,1.0,False,999
+shootin,shootin,NOUN,1,1,Don’t Stop Me Now,1.0,False,1000
+leapin,leapin,NOUN,1,1,Don’t Stop Me Now,1.0,False,1001
+tiger,tiger,NOUN,1,1,Don’t Stop Me Now,1.0,False,1002
+gave,give,VERB,1,1,Radio Ga Ga,1.0,False,1003
+worlds,world,NOUN,1,1,Radio Ga Ga,1.0,False,1004
+invaded,invade,VERB,1,1,Radio Ga Ga,1.0,False,1005
+peace,peace,NOUN,1,1,We Will Rock You,1.0,False,1006
+hmm,hmm,PROPN,1,1,We Will Rock You,1.0,False,1007
+teenage,teenage,ADJ,1,1,Radio Ga Ga,1.0,False,1008
+nights,night,NOUN,1,1,Radio Ga Ga,1.0,False,1009
+tired,tired,ADJ,1,1,Radio Ga Ga,1.0,False,1010
+visual,visual,NOUN,1,1,Radio Ga Ga,1.0,False,1011
+ecstasy,ecstasy,NOUN,1,1,Don’t Stop Me Now,1.0,False,1012
+vulgar,vulgar,ADJ,1,1,The March of the Black Queen,1.0,False,1013
+buse,buse,NOUN,1,1,The March of the Black Queen,1.0,False,1014
+vile,vile,ADJ,1,1,The March of the Black Queen,1.0,False,1015
+tattoos,tattoo,VERB,1,1,The March of the Black Queen,1.0,False,1016
+lap,lap,NOUN,1,1,Under Pressure,1.0,False,1017
+turned,turn,VERB,1,1,Under Pressure,1.0,False,1018
+sat,sat,PROPN,1,1,Under Pressure,1.0,False,1019
+fence,fence,NOUN,1,1,Under Pressure,1.0,False,1020
+chipping,chip,VERB,1,1,Under Pressure,1.0,False,1021
+kick,kick,VERB,1,1,Under Pressure,1.0,False,1022
+brains,brain,NOUN,1,1,Under Pressure,1.0,False,1023
+prison,prison,NOUN,1,1,Somebody to Love,1.0,False,1024
+rains,rain,VERB,1,1,Under Pressure,1.0,False,1025
+pours,pour,VERB,1,1,Under Pressure,1.0,False,1026
+mm,mm,INTJ,1,1,Under Pressure,1.0,False,1027
+hm,hm,INTJ,1,1,Under Pressure,1.0,False,1028
+knitting,knit,VERB,1,1,I’m Going Slightly Mad,1.0,False,1029
+needle,needle,NOUN,1,1,I’m Going Slightly Mad,1.0,False,1030
+unravelling,unravelling,ADJ,1,1,I’m Going Slightly Mad,1.0,False,1031
+fast,fast,ADV,1,1,I’m Going Slightly Mad,1.0,False,1032
+mmm,mmm,INTJ,1,1,Under Pressure,1.0,False,1033
+num,num,NOUN,1,1,Under Pressure,1.0,False,1034
+bum,bum,PROPN,1,1,Under Pressure,1.0,False,1035
+doo,doo,PROPN,1,1,Under Pressure,1.0,False,1036
+floor,floor,NOUN,1,1,Under Pressure,1.0,False,1037
+belong,belong,VERB,1,1,Seven Seas of Rhye,1.0,False,1038
+sympathy,sympathy,NOUN,1,1,Bohemian Rhapsody,1.0,False,1039
+privy,privy,NOUN,1,1,Seven Seas of Rhye,1.0,False,1040
+counsellors,counsellor,NOUN,1,1,Seven Seas of Rhye,1.0,False,1041
+abuse,abuse,NOUN,1,1,Seven Seas of Rhye,1.0,False,1042
+trust,trust,NOUN,1,1,Seven Seas of Rhye,1.0,False,1043
+swear,swear,VERB,1,1,Seven Seas of Rhye,1.0,False,1044
+sister,sister,PROPN,1,1,Seven Seas of Rhye,1.0,False,1045
+possess,possess,VERB,1,1,Seven Seas of Rhye,1.0,False,1046
+fear,fear,VERB,1,1,Seven Seas of Rhye,1.0,False,1047
+lords,lords,PROPN,1,1,Seven Seas of Rhye,1.0,False,1048
+walking,walk,VERB,1,1,The March of the Black Queen,1.0,False,1049
+descend,descend,VERB,1,1,Seven Seas of Rhye,1.0,False,1050
+unbelievers,unbeliever,NOUN,1,1,Seven Seas of Rhye,1.0,False,1051
+peers,peer,NOUN,1,1,Seven Seas of Rhye,1.0,False,1052
+boils,boil,VERB,1,1,The March of the Black Queen,1.0,False,1053
+bakes,bake,VERB,1,1,The March of the Black Queen,1.0,False,1054
+dots,dot,VERB,1,1,The March of the Black Queen,1.0,False,1055
+singalongs,singalong,NOUN,1,1,The March of the Black Queen,1.0,False,1056
+lullabies,lullaby,NOUN,1,1,The March of the Black Queen,1.0,False,1057
+city,city,NOUN,1,1,The March of the Black Queen,1.0,False,1058
+fireflies,firefly,NOUN,1,1,The March of the Black Queen,1.0,False,1059
+hell,hell,NOUN,1,1,The March of the Black Queen,1.0,False,1060
+hands,hand,NOUN,1,1,The March of the Black Queen,1.0,False,1061
+preachers,preacher,NOUN,1,1,Seven Seas of Rhye,1.0,False,1062
+puts,put,NOUN,1,1,Under Pressure,1.0,False,1063
+invitation,invitation,NOUN,1,1,Killer Queen,1.0,False,1064
+decline,decline,VERB,1,1,Killer Queen,1.0,False,1065
+caviar,caviar,PROPN,1,1,Killer Queen,1.0,False,1066
+cigarettes,cigarette,NOUN,1,1,Killer Queen,1.0,False,1067
+versed,verse,VERB,1,1,Killer Queen,1.0,False,1068
+etiquette,etiquette,NOUN,1,1,Killer Queen,1.0,False,1069
+extraordinarily,extraordinarily,ADV,1,1,Killer Queen,1.0,False,1070
+says,say,VERB,1,1,Killer Queen,1.0,False,1071
+marie,marie,PROPN,1,1,Killer Queen,1.0,False,1072
+antoinette,antoinette,PROPN,1,1,Killer Queen,1.0,False,1073
+buh,buh,NOUN,1,1,Under Pressure,1.0,False,1074
+remedy,remedy,NOUN,1,1,Killer Queen,1.0,False,1075
+khrushchev,khrushchev,PROPN,1,1,Killer Queen,1.0,False,1076
+kennedy,kennedy,PROPN,1,1,Killer Queen,1.0,False,1077
+anytime,anytime,ADV,1,1,Killer Queen,1.0,False,1078
+moët,moët,PROPN,1,1,Killer Queen,1.0,False,1079
+et,et,NOUN,1,1,Killer Queen,1.0,False,1080
+chandon,chandon,PROPN,1,1,Killer Queen,1.0,False,1081
+pretty,pretty,ADJ,1,1,Killer Queen,1.0,False,1082
+cabinet,cabinet,NOUN,1,1,Killer Queen,1.0,False,1083
+eat,eat,VERB,1,1,Killer Queen,1.0,False,1084
+cake,cake,NOUN,1,1,Killer Queen,1.0,False,1085
+defeat,defeat,NOUN,1,1,Somebody to Love,1.0,False,1086
+built,build,VERB,1,1,Killer Queen,1.0,False,1087
+pushing,push,VERB,1,1,Under Pressure,1.0,False,1088
+morning,morning,NOUN,1,1,Somebody to Love,1.0,False,1089
+barely,barely,ADV,1,1,Somebody to Love,1.0,False,1090
+bomb,bomb,NOUN,1,1,Don’t Stop Me Now,1.0,False,1091
+explode,explode,NOUN,1,1,Don’t Stop Me Now,1.0,False,1092
+loose,loose,ADJ,1,1,Don’t Stop Me Now,1.0,False,1093
+change,change,VERB,1,1,Under Pressure,1.0,False,1094
+caring,care,VERB,1,1,Under Pressure,1.0,False,1095
+slashed,slashed,ADJ,1,1,Under Pressure,1.0,False,1096
+torn,tear,VERB,1,1,Under Pressure,1.0,False,1097
+insanity,insanity,NOUN,1,1,Under Pressure,1.0,False,1098
+splits,split,VERB,1,1,Under Pressure,1.0,False,1099
+common,common,ADJ,1,1,Somebody to Love,1.0,False,1100
+sense,sense,NOUN,1,1,Somebody to Love,1.0,False,1101
+rhythm,rhythm,NOUN,1,1,Somebody to Love,1.0,False,1102
+earned,earn,VERB,1,1,Somebody to Love,1.0,False,1103
+knees,knee,NOUN,1,1,Somebody to Love,1.0,False,1104
+lot,lot,NOUN,1,1,Somebody to Love,1.0,False,1105
+spent,spend,VERB,1,1,Somebody to Love,1.0,False,1106
+believin,believin,PROPN,1,1,Somebody to Love,1.0,False,1107
+relief,relief,NOUN,1,1,Somebody to Love,1.0,False,1108
+ache,ache,VERB,1,1,Somebody to Love,1.0,False,1109
+pressing,press,VERB,1,1,Under Pressure,1.0,False,1110
+building,building,NOUN,1,1,Under Pressure,1.0,False,1111
+laughs,laugh,VERB,1,1,Under Pressure,1.0,False,1112
+races,race,NOUN,1,1,Bicycle Race,1.0,False,1113
+late,late,ADV,1,1,Bohemian Rhapsody,1.0,False,1114
+sends,send,VERB,1,1,Bohemian Rhapsody,1.0,False,1115
+shivers,shiver,NOUN,1,1,Bohemian Rhapsody,1.0,False,1116
+spine,spine,NOUN,1,1,Bohemian Rhapsody,1.0,False,1117
+thrown,throw,VERB,1,1,Bohemian Rhapsody,1.0,False,1118
+leaves,leave,VERB,1,1,Crazy Little Thing Called Love,1.0,False,1119
+sweat,sweat,NOUN,1,1,Crazy Little Thing Called Love,1.0,False,1120
+cradle,cradle,NOUN,1,1,Crazy Little Thing Called Love,1.0,False,1121
+swings,swing,VERB,1,1,Crazy Little Thing Called Love,1.0,False,1122
+jives,jive,VERB,1,1,Crazy Little Thing Called Love,1.0,False,1123
+ways,way,NOUN,1,1,Another One Bites the Dust,1.0,False,1124
+jellyfish,jellyfish,ADJ,1,1,Crazy Little Thing Called Love,1.0,False,1125
+drives,drive,VERB,1,1,Crazy Little Thing Called Love,1.0,False,1126
+learned,learn,VERB,1,1,Good Old-Fashioned Lover Boy,1.0,False,1127
+passion,passion,NOUN,1,1,Good Old-Fashioned Lover Boy,1.0,False,1128
+school,school,PROPN,1,1,Good Old-Fashioned Lover Boy,1.0,False,1129
+dining,dining,NOUN,1,1,Good Old-Fashioned Lover Boy,1.0,False,1130
+ritz,ritz,PROPN,1,1,Good Old-Fashioned Lover Boy,1.0,False,1131
+precisely,precisely,ADV,1,1,Good Old-Fashioned Lover Boy,1.0,False,1132
+taste,taste,VERB,1,1,Good Old-Fashioned Lover Boy,1.0,False,1133
+romancing,romancing,NOUN,1,1,Good Old-Fashioned Lover Boy,1.0,False,1134
+letter,letter,NOUN,1,1,Good Old-Fashioned Lover Boy,1.0,False,1135
+fancy,fancy,ADJ,1,1,Good Old-Fashioned Lover Boy,1.0,False,1136
+shakes,shake,VERB,1,1,Crazy Little Thing Called Love,1.0,False,1137
+cartier,cartier,PROPN,1,1,Bicycle Race,1.0,False,1138
+income,income,NOUN,1,1,Bicycle Race,1.0,False,1139
+tax,tax,NOUN,1,1,Bicycle Race,1.0,False,1140
+jesus,jesus,PROPN,1,1,Bicycle Race,1.0,False,1141
+candidate,candidate,NOUN,1,1,Bicycle Race,1.0,False,1142
+vietnam,vietnam,PROPN,1,1,Bicycle Race,1.0,False,1143
+watergate,watergate,PROPN,1,1,Bicycle Race,1.0,False,1144
+caine,caine,PROPN,1,1,Bicycle Race,1.0,False,1145
+john,john,PROPN,1,1,Bicycle Race,1.0,False,1146
+wayne,wayne,PROPN,1,1,Bicycle Race,1.0,False,1147
+president,president,PROPN,1,1,Bicycle Race,1.0,False,1148
+superman,superman,PROPN,1,1,Bicycle Race,1.0,False,1149
+cheese,cheese,NOUN,1,1,Bicycle Race,1.0,False,1150
+duties,duty,NOUN,1,1,Bicycle Race,1.0,False,1151
+riding,rid,VERB,1,1,Bicycle Race,1.0,False,1152
+beauties,beauty,NOUN,1,1,Bicycle Race,1.0,False,1153
+marks,mark,NOUN,1,1,Bicycle Race,1.0,False,1154
+coke,coke,PROPN,1,1,Bicycle Race,1.0,False,1155
+royce,royce,PROPN,1,1,Bicycle Race,1.0,False,1156
+choice,choice,NOUN,1,1,Bicycle Race,1.0,False,1157
+christ,christ,PROPN,1,1,Bicycle Race,1.0,False,1158
+peter,peter,PROPN,1,1,Bicycle Race,1.0,False,1159
+pan,pan,PROPN,1,1,Bicycle Race,1.0,False,1160
+frankenstein,frankenstein,PROPN,1,1,Bicycle Race,1.0,False,1161
+nature,nature,NOUN,1,1,Seven Seas of Rhye,1.0,False,1162
+history,history,NOUN,1,1,Hammer to Fall,1.0,False,1163
+mercy,mercy,PROPN,1,1,Hammer to Fall,1.0,False,1164
+piece,piece,NOUN,1,1,Hammer to Fall,1.0,False,1165
+builds,build,VERB,1,1,Who Wants to Live Forever,1.0,False,1166
+slips,slip,VERB,1,1,Who Wants to Live Forever,1.0,False,1167
+decided,decide,VERB,1,1,Who Wants to Live Forever,1.0,False,1168
+sweet,sweet,ADJ,1,1,Who Wants to Live Forever,1.0,False,1169
+moment,moment,NOUN,1,1,Who Wants to Live Forever,1.0,False,1170
+lips,lip,NOUN,1,1,Who Wants to Live Forever,1.0,False,1171
+wine,wine,NOUN,1,1,Good Old-Fashioned Lover Boy,1.0,False,1172
+saloon,saloon,NOUN,1,1,Good Old-Fashioned Lover Boy,1.0,False,1173
+patter,patter,NOUN,1,1,Good Old-Fashioned Lover Boy,1.0,False,1174
+yours,your,NOUN,1,1,Good Old-Fashioned Lover Boy,1.0,True,1175
+tight,tight,ADV,1,1,Good Old-Fashioned Lover Boy,1.0,False,1176
+sunny,sunny,ADJ,1,1,’39,1.0,False,1177
+morn,morn,ADJ,1,1,’39,1.0,False,1178
+sweetest,sweetest,PROPN,1,1,’39,1.0,False,1179
+sight,sight,NOUN,1,1,’39,1.0,False,1180
+followed,follow,VERB,1,1,’39,1.0,False,1181
+storytellers,storyteller,NOUN,1,1,’39,1.0,False,1182
+brave,brave,ADJ,1,1,’39,1.0,False,1183
+babe,babe,NOUN,1,1,Hammer to Fall,1.0,False,1184
+assembled,assemble,VERB,1,1,’39,1.0,False,1185
+lands,land,NOUN,1,1,’39,1.0,False,1186
+nicely,nicely,ADV,1,1,Good Old-Fashioned Lover Boy,1.0,False,1187
+telephone,telephone,NOUN,1,1,Good Old-Fashioned Lover Boy,1.0,False,1188
+serenade,serenade,VERB,1,1,Good Old-Fashioned Lover Boy,1.0,False,1189
+gently,gently,ADV,1,1,Good Old-Fashioned Lover Boy,1.0,False,1190
+play,play,VERB,1,1,Good Old-Fashioned Lover Boy,1.0,False,1191
+strings,string,NOUN,1,1,Good Old-Fashioned Lover Boy,1.0,False,1192
+valentino,valentino,PROPN,1,1,Good Old-Fashioned Lover Boy,1.0,False,1193
+alarm,alarm,NOUN,1,1,Good Old-Fashioned Lover Boy,1.0,False,1194
+charm,charm,NOUN,1,1,Good Old-Fashioned Lover Boy,1.0,False,1195
+heartbeat,heartbeat,NOUN,1,1,Good Old-Fashioned Lover Boy,1.0,False,1196
+dim,dim,VERB,1,1,Good Old-Fashioned Lover Boy,1.0,False,1197
+lights,light,NOUN,1,1,Good Old-Fashioned Lover Boy,1.0,False,1198
+anyway,anyway,ADV,1,1,Who Wants to Live Forever,1.0,True,1199
+sad,sad,ADJ,1,1,Good Old-Fashioned Lover Boy,1.0,False,1200
+tango,tango,NOUN,1,1,Good Old-Fashioned Lover Boy,1.0,False,1201
+falling,fall,VERB,1,1,Hammer to Fall,1.0,False,1202
+lift,lift,VERB,1,1,Hammer to Fall,1.0,False,1203
+western,western,ADJ,1,1,Hammer to Fall,1.0,False,1204
+build,build,VERB,1,1,Hammer to Fall,1.0,False,1205
+muscles,muscle,NOUN,1,1,Hammer to Fall,1.0,False,1206
+decays,decay,VERB,1,1,Hammer to Fall,1.0,False,1207
+anaesthetic,anaesthetic,ADJ,1,1,Hammer to Fall,1.0,False,1208
+cover,cover,VERB,1,1,Hammer to Fall,1.0,False,1209
+fingertips,fingertip,NOUN,1,1,Who Wants to Live Forever,1.0,False,1210
+waits,wait,VERB,1,1,Who Wants to Live Forever,1.0,False,1211
+songs,song,NOUN,1,1,Good Old-Fashioned Lover Boy,1.0,False,1212
+ay,ay,NOUN,1,1,Another One Bites the Dust,1.0,False,1213
+paid,pay,VERB,1,1,We Are the Champions,1.0,False,1214
+failed,fail,VERB,1,1,The Show Must Go On,1.0,False,1215
+romance,romance,NOUN,1,1,The Show Must Go On,1.0,False,1216
+learning,learn,VERB,1,1,The Show Must Go On,1.0,False,1217
+warmer,warm,ADJ,1,1,The Show Must Go On,1.0,False,1218
+turning,turn,VERB,1,1,The Show Must Go On,1.0,False,1219
+corner,corner,NOUN,1,1,The Show Must Go On,1.0,False,1220
+anymore,anymore,ADV,1,1,The Show Must Go On,1.0,False,1221
+happens,happen,VERB,1,1,The Show Must Go On,1.0,False,1222
+heartache,heartache,NOUN,1,1,The Show Must Go On,1.0,False,1223
+locality,locality,NOUN,1,1,Fat Bottomed Girls,1.0,False,1224
+hero,hero,NOUN,1,1,The Show Must Go On,1.0,False,1225
+mindless,mindless,ADJ,1,1,The Show Must Go On,1.0,False,1226
+pantomime,pantomime,ADJ,1,1,The Show Must Go On,1.0,False,1227
+whole,whole,ADJ,1,1,We Are the Champions,1.0,True,1228
+human,human,ADJ,1,1,We Are the Champions,1.0,False,1229
+lose,lose,VERB,1,1,We Are the Champions,1.0,False,1230
+spaces,space,NOUN,1,1,The Show Must Go On,1.0,False,1231
+abandoned,abandon,VERB,1,1,The Show Must Go On,1.0,False,1232
+places,place,NOUN,1,1,The Show Must Go On,1.0,False,1233
+silhouetto,silhouetto,NOUN,1,1,Bohemian Rhapsody,1.0,False,1234
+fandango,fandango,PROPN,1,1,Bohemian Rhapsody,1.0,False,1235
+thunderbolt,thunderbolt,PROPN,1,1,Bohemian Rhapsody,1.0,False,1236
+looking,look,VERB,1,1,The Show Must Go On,1.0,False,1237
+spare,spare,PROPN,1,1,Bohemian Rhapsody,1.0,False,1238
+monstrosity,monstrosity,NOUN,1,1,Bohemian Rhapsody,1.0,False,1239
+ow,ow,PROPN,1,1,Another One Bites the Dust,1.0,False,1240
+shut,shut,VERB,1,1,Another One Bites the Dust,1.0,False,1241
+hanging,hang,VERB,1,1,Another One Bites the Dust,1.0,False,1242
+along,along,ADP,1,1,Another One Bites the Dust,1.0,True,1243
+took,take,VERB,1,1,Another One Bites the Dust,1.0,False,1244
+fortune,fortune,NOUN,1,1,We Are the Champions,1.0,False,1245
+thank,thank,VERB,1,1,We Are the Champions,1.0,False,1246
+roses,rose,NOUN,1,1,We Are the Champions,1.0,False,1247
+cruise,cruise,NOUN,1,1,We Are the Champions,1.0,False,1248
+shoot,shoot,VERB,1,1,Another One Bites the Dust,1.0,False,1249
+share,share,NOUN,1,1,We Are the Champions,1.0,False,1250
+bows,bow,NOUN,1,1,We Are the Champions,1.0,False,1251
+calls,call,VERB,1,1,We Are the Champions,1.0,False,1252
+fame,fame,NOUN,1,1,We Are the Champions,1.0,False,1253
+dues,due,NOUN,1,1,We Are the Champions,1.0,False,1254
+sentence,sentence,NOUN,1,1,We Are the Champions,1.0,False,1255
+committed,commit,VERB,1,1,We Are the Champions,1.0,False,1256
+mistakes,mistake,NOUN,1,1,We Are the Champions,1.0,False,1257
+cheat,cheat,VERB,1,1,Another One Bites the Dust,1.0,False,1258
+treat,treat,VERB,1,1,Another One Bites the Dust,1.0,False,1259
+standing,stand,VERB,1,1,Another One Bites the Dust,1.0,False,1260
+repeating,repeat,VERB,1,1,Another One Bites the Dust,1.0,False,1261
+consider,consider,VERB,1,1,We Are the Champions,1.0,False,1262
+used,use,VERB,1,1,I Want to Break Free,1.0,True,1263
+white,white,ADJ,1,1,Bicycle Race,1.0,False,1264
+bark,bark,NOUN,1,1,Bicycle Race,1.0,False,1265
+jaws,jaw,NOUN,1,1,Bicycle Race,1.0,False,1266
+scene,scene,NOUN,1,1,Bicycle Race,1.0,False,1267
+rolls,rolls,PROPN,1,1,Bicycle Race,1.0,False,1268
+shine,shine,VERB,1,1,You’re My Best Friend,1.0,False,1269
+stood,stand,VERB,1,1,You’re My Best Friend,1.0,False,1270
+whenever,whenever,SCONJ,1,1,You’re My Best Friend,1.0,True,1271
+cruel,cruel,ADJ,1,1,You’re My Best Friend,1.0,False,1272
+help,help,VERB,1,1,You’re My Best Friend,1.0,False,1273
+lightning,lightning,NOUN,1,1,Bohemian Rhapsody,1.0,False,1274
+greatest,great,ADJ,1,1,Fat Bottomed Girls,1.0,False,1275
+treasure,treasure,NOUN,1,1,Fat Bottomed Girls,1.0,False,1276
+bikes,bike,NOUN,1,1,Fat Bottomed Girls,1.0,False,1277
+cowboy,cowboy,X,1,1,Fat Bottomed Girls,1.0,False,1278
+sunshine,sunshine,NOUN,1,1,You’re My Best Friend,1.0,False,1279
+feelings,feeling,NOUN,1,1,You’re My Best Friend,1.0,False,1280
+wandering,wander,VERB,1,1,You’re My Best Friend,1.0,False,1281
+ladies,lady,NOUN,1,1,Fat Bottomed Girls,1.0,False,1282
+mortgages,mortgage,NOUN,1,1,Fat Bottomed Girls,1.0,False,1283
+homes,home,NOUN,1,1,Fat Bottomed Girls,1.0,False,1284
+stiffness,stiffness,ADJ,1,1,Fat Bottomed Girls,1.0,False,1285
+queens,queen,NOUN,1,1,Fat Bottomed Girls,1.0,False,1286
+forgive,forgive,VERB,1,1,You’re My Best Friend,1.0,False,1287
+frightening,frightening,ADJ,1,1,Bohemian Rhapsody,1.0,False,1288
+sure,sure,ADJ,1,1,I Want to Break Free,1.0,False,1289
+sometimes,sometimes,ADV,1,1,Bohemian Rhapsody,1.0,True,1290
+giving,give,VERB,1,1,The Show Must Go On,1.0,False,1291
+overkill,overkill,ADV,1,1,The Show Must Go On,1.0,False,1292
+self,self,NOUN,1,1,I Want to Break Free,1.0,False,1293
+strange,strange,ADJ,1,1,I Want to Break Free,1.0,False,1294
+dark,dark,NOUN,1,1,The Show Must Go On,1.0,False,1295
+painted,paint,VERB,1,1,The Show Must Go On,1.0,False,1296
+butterflies,butterfly,NOUN,1,1,The Show Must Go On,1.0,False,1297
+fairy,fairy,PROPN,1,1,The Show Must Go On,1.0,False,1298
+tales,tale,NOUN,1,1,The Show Must Go On,1.0,False,1299
+walk,walk,VERB,1,1,I Want to Break Free,1.0,False,1300
+grin,grin,NOUN,1,1,The Show Must Go On,1.0,False,1301
+eyed,eye,VERB,1,1,Fat Bottomed Girls,1.0,False,1302
+floozy,floozy,PROPN,1,1,Fat Bottomed Girls,1.0,False,1303
+smooth,smooth,ADJ,1,1,Fat Bottomed Girls,1.0,False,1304
+dirty,dirty,ADJ,1,1,Fat Bottomed Girls,1.0,False,1305
+nanny,nanny,NOUN,1,1,Fat Bottomed Girls,1.0,False,1306
+skinny,skinny,ADJ,1,1,Fat Bottomed Girls,1.0,False,1307
+lad,lad,NOUN,1,1,Fat Bottomed Girls,1.0,False,1308
+nursery,nursery,NOUN,1,1,Fat Bottomed Girls,1.0,False,1309
+fanny,fanny,PROPN,1,1,Fat Bottomed Girls,1.0,False,1310
+figaro,figaro,PROPN,1,1,Bohemian Rhapsody,1.0,False,1311
+magnifico,magnifico,PROPN,1,1,Bohemian Rhapsody,1.0,False,1312
+yesterday,yesterday,NOUN,1,1,The Show Must Go On,1.0,False,1313

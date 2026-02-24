@@ -1,0 +1,1176 @@
+word,lemma,pos,total_count,song_count,songs,avg_per_song,is_stopword,frequency_rank
+i,i,PRON,660,46,"Arlandria; Arrows; Aurora; Best of You; Big Me; Breakout; Dirty Water; Everlong; February Stars; Friend of a Friend; Generator; Good Grief; Hey, Johnny Park!; Home; I Should Have Known; I’ll Stick Around; La Dee Da; Learn to Fly; Let It Die; Long Road to Ruin; Make It Right; Monkey Wrench; No Son of Mine; Rescued; Rest; Rope; Run; Saint Cecilia; Shame Shame; Show Me How; Something from Nothing; Stacked Actors; Stranger Things Have Happened; Sunday Rain; T-Shirt; The Glass; The Line; The Sky Is a Neighborhood; The Teacher; These Days; Times Like These; Under You; Waiting on a War; Walk; Walking after You; Wheels",14.35,True,1
+you,you,PRON,479,44,"Arlandria; Arrows; Aurora; Best of You; Big Me; Breakout; Dirty Water; Everlong; February Stars; Generator; Hey, Johnny Park!; Home; I Should Have Known; I’ll Stick Around; La Dee Da; Learn to Fly; Let It Die; Long Road to Ruin; Make It Right; Monkey Wrench; My Hero; No Son of Mine; Rescued; Rest; Rope; Run; Saint Cecilia; Shame Shame; Show Me How; Something from Nothing; Stacked Actors; Stranger Things Have Happened; Sunday Rain; T-Shirt; The Glass; The Line; The Sky Is a Neighborhood; The Teacher; These Days; Times Like These; Under You; Walk; Walking after You; Wheels",10.89,True,2
+the,the,DET,345,43,"Arlandria; Arrows; Aurora; Best of You; Breakout; Dirty Water; Everlong; February Stars; Friend of a Friend; Generator; Good Grief; Hey, Johnny Park!; Home; I Should Have Known; I’ll Stick Around; La Dee Da; Learn to Fly; Long Road to Ruin; Make It Right; Monkey Wrench; My Hero; No Son of Mine; Rescued; Rest; Rope; Run; Saint Cecilia; Shame Shame; Show Me How; Something from Nothing; Stacked Actors; Stranger Things Have Happened; Sunday Rain; The Glass; The Line; The Sky Is a Neighborhood; The Teacher; These Days; This Is a Call; Times Like These; Waiting on a War; Walk; Wheels",8.02,True,3
+to,to,PART,300,42,"Arlandria; Arrows; Aurora; Best of You; Big Me; Breakout; Everlong; February Stars; Friend of a Friend; Generator; Hey, Johnny Park!; Home; I’ll Stick Around; La Dee Da; Learn to Fly; Let It Die; Long Road to Ruin; Make It Right; Monkey Wrench; My Hero; No Son of Mine; Rescued; Run; Saint Cecilia; Shame Shame; Show Me How; Something from Nothing; Stacked Actors; Stranger Things Have Happened; Sunday Rain; T-Shirt; The Glass; The Line; The Sky Is a Neighborhood; The Teacher; These Days; This Is a Call; Times Like These; Under You; Waiting on a War; Walk; Wheels",7.14,True,4
+it,it,PRON,298,39,"Arlandria; Aurora; Best of You; Big Me; Breakout; Everlong; February Stars; Friend of a Friend; Generator; Good Grief; Hey, Johnny Park!; I Should Have Known; I’ll Stick Around; Learn to Fly; Let It Die; Long Road to Ruin; Make It Right; Monkey Wrench; My Hero; No Son of Mine; Rescued; Rope; Saint Cecilia; Shame Shame; Show Me How; Something from Nothing; Stacked Actors; Stranger Things Have Happened; Sunday Rain; T-Shirt; The Glass; The Sky Is a Neighborhood; The Teacher; These Days; This Is a Call; Times Like These; Under You; Walk; Wheels",7.64,True,5
+and,and,CCONJ,262,41,"Arlandria; Arrows; Aurora; Best of You; Breakout; Dirty Water; Everlong; February Stars; Friend of a Friend; Generator; Good Grief; Hey, Johnny Park!; Home; I’ll Stick Around; La Dee Da; Learn to Fly; Let It Die; Long Road to Ruin; Make It Right; Monkey Wrench; My Hero; Rescued; Rest; Rope; Saint Cecilia; Shame Shame; Show Me How; Something from Nothing; Stacked Actors; Stranger Things Have Happened; T-Shirt; The Glass; The Sky Is a Neighborhood; The Teacher; These Days; This Is a Call; Times Like These; Under You; Waiting on a War; Walk; Wheels",6.39,True,6
+a,a,DET,206,35,"Arlandria; Arrows; Dirty Water; Friend of a Friend; Generator; Good Grief; Hey, Johnny Park!; I Should Have Known; La Dee Da; Learn to Fly; Let It Die; Long Road to Ruin; Make It Right; Rescued; Rest; Rope; Saint Cecilia; Shame Shame; Show Me How; Something from Nothing; Stacked Actors; Stranger Things Have Happened; Sunday Rain; T-Shirt; The Glass; The Line; The Sky Is a Neighborhood; The Teacher; These Days; This Is a Call; Times Like These; Under You; Waiting on a War; Walk; Wheels",5.89,True,7
+oh,oh,INTJ,182,15,Arlandria; Arrows; Best of You; Let It Die; Long Road to Ruin; No Son of Mine; Rescued; Shame Shame; Something from Nothing; Stacked Actors; Stranger Things Have Happened; Sunday Rain; The Line; The Sky Is a Neighborhood; Walking after You,12.13,False,8
+s,be,AUX,173,32,"Arlandria; Aurora; Best of You; Big Me; Breakout; Everlong; Friend of a Friend; Generator; Hey, Johnny Park!; I’ll Stick Around; Learn to Fly; Let It Die; Long Road to Ruin; Make It Right; Monkey Wrench; My Hero; Rescued; Rope; Run; Saint Cecilia; Something from Nothing; Stacked Actors; Sunday Rain; T-Shirt; The Line; The Teacher; These Days; This Is a Call; Times Like These; Under You; Waiting on a War; Wheels",5.41,True,9
+on,on,ADP,172,30,Arlandria; Arrows; Aurora; Best of You; Big Me; Breakout; Dirty Water; Everlong; February Stars; Generator; Long Road to Ruin; Make It Right; Monkey Wrench; My Hero; No Son of Mine; Rescued; Rope; Run; Saint Cecilia; Shame Shame; Show Me How; Something from Nothing; The Glass; The Line; The Sky Is a Neighborhood; The Teacher; Times Like These; Waiting on a War; Walk; Walking after You,5.73,True,10
+do,do,AUX,169,29,Arlandria; Arrows; Aurora; Breakout; Everlong; Generator; I Should Have Known; I’ll Stick Around; La Dee Da; Let It Die; Long Road to Ruin; Make It Right; Monkey Wrench; My Hero; No Son of Mine; Run; Show Me How; Stacked Actors; Stranger Things Have Happened; Sunday Rain; T-Shirt; The Line; The Sky Is a Neighborhood; The Teacher; These Days; Times Like These; Under You; Walk; Walking after You,5.83,True,11
+of,of,ADP,164,27,"Arlandria; Arrows; Best of You; Breakout; Dirty Water; Everlong; February Stars; Generator; Good Grief; Hey, Johnny Park!; Home; I Should Have Known; Learn to Fly; Let It Die; Long Road to Ruin; My Hero; No Son of Mine; Rest; Saint Cecilia; Shame Shame; Show Me How; The Glass; The Line; These Days; Under You; Walk; Walking after You",6.07,True,12
+in,in,ADP,163,35,"Arlandria; Arrows; Best of You; Breakout; Dirty Water; Everlong; February Stars; Friend of a Friend; Generator; Hey, Johnny Park!; Home; I Should Have Known; I’ll Stick Around; La Dee Da; Let It Die; Long Road to Ruin; Monkey Wrench; No Son of Mine; Rescued; Rest; Rope; Run; Saint Cecilia; Shame Shame; Show Me How; Something from Nothing; Stacked Actors; Stranger Things Have Happened; Sunday Rain; The Glass; The Line; The Teacher; Waiting on a War; Walk; Walking after You",4.66,True,13
+me,i,PRON,160,32,"Arlandria; Arrows; Aurora; Best of You; Big Me; Breakout; Everlong; Generator; Good Grief; Hey, Johnny Park!; Home; I Should Have Known; I’ll Stick Around; La Dee Da; Learn to Fly; Let It Die; Monkey Wrench; Rescued; Rope; Run; Saint Cecilia; Shame Shame; Show Me How; Something from Nothing; Stranger Things Have Happened; Sunday Rain; T-Shirt; The Glass; The Teacher; Under You; Walk; Walking after You",5.0,True,14
+your,your,PRON,138,34,"Arlandria; Arrows; Aurora; Best of You; Everlong; February Stars; Generator; Hey, Johnny Park!; I Should Have Known; I’ll Stick Around; La Dee Da; Let It Die; Long Road to Ruin; Make It Right; Monkey Wrench; My Hero; No Son of Mine; Rest; Rope; Run; Saint Cecilia; Shame Shame; Show Me How; Something from Nothing; Stacked Actors; Sunday Rain; The Glass; The Line; The Sky Is a Neighborhood; These Days; Under You; Walk; Walking after You; Wheels",4.06,True,15
+n't,not,PART,134,29,"Arlandria; Arrows; Best of You; Breakout; Generator; Hey, Johnny Park!; Home; I Should Have Known; I’ll Stick Around; La Dee Da; Learn to Fly; Long Road to Ruin; Make It Right; Monkey Wrench; My Hero; No Son of Mine; Saint Cecilia; Show Me How; Something from Nothing; Stacked Actors; Sunday Rain; T-Shirt; The Line; The Sky Is a Neighborhood; The Teacher; These Days; Under You; Walk; Walking after You",4.62,True,16
+m,be,AUX,131,25,Arlandria; Best of You; Dirty Water; Everlong; February Stars; Generator; Good Grief; I Should Have Known; I’ll Stick Around; Learn to Fly; Long Road to Ruin; Monkey Wrench; Rescued; Rope; Saint Cecilia; Something from Nothing; Stacked Actors; Stranger Things Have Happened; Sunday Rain; The Line; The Sky Is a Neighborhood; Times Like These; Under You; Walk; Walking after You,5.24,True,17
+my,my,PRON,113,30,"Arlandria; Best of You; Breakout; Dirty Water; Everlong; Generator; Good Grief; Hey, Johnny Park!; Home; I Should Have Known; Learn to Fly; Long Road to Ruin; Monkey Wrench; My Hero; No Son of Mine; Rescued; Rest; Rope; Saint Cecilia; Shame Shame; Something from Nothing; Sunday Rain; T-Shirt; The Glass; The Line; The Sky Is a Neighborhood; This Is a Call; Walk; Walking after You; Wheels",3.77,True,18
+all,all,DET,111,29,Arlandria; Aurora; Big Me; Breakout; Dirty Water; February Stars; Generator; Good Grief; Home; I Should Have Known; I’ll Stick Around; Learn to Fly; Long Road to Ruin; Make It Right; Monkey Wrench; My Hero; Rescued; Rest; Rope; Show Me How; Something from Nothing; Stacked Actors; Sunday Rain; The Line; The Sky Is a Neighborhood; This Is a Call; Times Like These; Under You; Wheels,3.83,True,19
+no,no,DET,111,16,Best of You; Friend of a Friend; Generator; Home; I Should Have Known; I’ll Stick Around; Long Road to Ruin; Make It Right; No Son of Mine; Rope; Saint Cecilia; Something from Nothing; Sunday Rain; The Line; Under You; Walk,6.94,True,20
+that,that,PRON,106,29,"Arlandria; Aurora; Best of You; Big Me; Breakout; Everlong; Friend of a Friend; Generator; Hey, Johnny Park!; I Should Have Known; I’ll Stick Around; Learn to Fly; Long Road to Ruin; Make It Right; Monkey Wrench; My Hero; Run; Shame Shame; Something from Nothing; Stranger Things Have Happened; Sunday Rain; T-Shirt; The Glass; The Teacher; This Is a Call; Times Like These; Under You; Waiting on a War; Walk",3.66,True,21
+this,this,DET,104,26,"Arlandria; Arrows; Aurora; Breakout; Everlong; February Stars; Hey, Johnny Park!; I Should Have Known; La Dee Da; Learn to Fly; Let It Die; Long Road to Ruin; Monkey Wrench; No Son of Mine; Rescued; Rest; Rope; Saint Cecilia; Stranger Things Have Happened; The Glass; The Line; The Teacher; This Is a Call; Under You; Waiting on a War; Wheels",4.0,True,22
+be,be,AUX,101,23,Arlandria; Arrows; Best of You; Breakout; Everlong; Home; I’ll Stick Around; Make It Right; Monkey Wrench; No Son of Mine; Rescued; Rest; Shame Shame; Show Me How; Something from Nothing; Stranger Things Have Happened; T-Shirt; The Glass; The Teacher; These Days; This Is a Call; Waiting on a War; Walking after You,4.39,True,23
+is,be,AUX,97,20,Best of You; Dirty Water; Friend of a Friend; Generator; Home; I Should Have Known; Learn to Fly; Long Road to Ruin; Rescued; Rest; Something from Nothing; Stacked Actors; The Glass; The Line; The Sky Is a Neighborhood; This Is a Call; Under You; Waiting on a War; Walking after You; Wheels,4.85,True,24
+out,out,ADP,90,21,"Arlandria; Aurora; Breakout; Everlong; Generator; Good Grief; Hey, Johnny Park!; La Dee Da; Learn to Fly; Let It Die; Make It Right; My Hero; Run; Saint Cecilia; Stranger Things Have Happened; Sunday Rain; The Line; The Sky Is a Neighborhood; These Days; Under You; Walking after You",4.29,True,25
+for,for,ADP,88,27,"Arlandria; Aurora; Breakout; Everlong; February Stars; Generator; Hey, Johnny Park!; Home; I Should Have Known; Learn to Fly; Long Road to Ruin; Rest; Rope; Run; Show Me How; Something from Nothing; Stacked Actors; Stranger Things Have Happened; Sunday Rain; The Glass; The Line; The Teacher; These Days; Under You; Waiting on a War; Walk; Wheels",3.26,True,26
+now,now,ADV,81,20,"Arlandria; Aurora; Breakout; Everlong; Generator; Hey, Johnny Park!; Learn to Fly; Long Road to Ruin; Monkey Wrench; My Hero; Rescued; Rest; Rope; Shame Shame; Show Me How; Something from Nothing; Stacked Actors; The Sky Is a Neighborhood; The Teacher; Walk",4.05,True,27
+there,there,PRON,75,19,Arlandria; Aurora; Friend of a Friend; Generator; I Should Have Known; Long Road to Ruin; Monkey Wrench; My Hero; Rest; Run; Saint Cecilia; Something from Nothing; T-Shirt; The Glass; The Line; The Teacher; Under You; Waiting on a War; Wheels,3.95,True,28
+can,can,AUX,70,23,"Arlandria; Aurora; Big Me; Breakout; Dirty Water; Everlong; Generator; Hey, Johnny Park!; I Should Have Known; Learn to Fly; Long Road to Ruin; Make It Right; Rest; Run; Stacked Actors; Stranger Things Have Happened; Sunday Rain; T-Shirt; The Glass; The Teacher; This Is a Call; Walking after You; Wheels",3.04,True,29
+go,go,VERB,68,12,Arlandria; Breakout; February Stars; Generator; Let It Die; Make It Right; Rope; Saint Cecilia; Shame Shame; Something from Nothing; Sunday Rain; Waiting on a War,5.67,True,30
+make,make,VERB,68,14,Arlandria; Best of You; Breakout; Everlong; Learn to Fly; Long Road to Ruin; Make It Right; Monkey Wrench; Rest; Shame Shame; Something from Nothing; Stacked Actors; The Sky Is a Neighborhood; The Teacher,4.86,True,31
+up,up,ADP,67,13,Arlandria; La Dee Da; Learn to Fly; Long Road to Ruin; Monkey Wrench; Rest; Rope; Run; Stacked Actors; The Sky Is a Neighborhood; The Teacher; Under You; Walking after You,5.15,True,32
+will,will,AUX,66,13,Aurora; I’ll Stick Around; No Son of Mine; Rest; Saint Cecilia; Shame Shame; Show Me How; Stacked Actors; Stranger Things Have Happened; The Line; The Teacher; These Days; Wheels,5.08,True,33
+ll,will,AUX,66,19,"Arlandria; Aurora; Best of You; Breakout; Everlong; February Stars; Generator; Hey, Johnny Park!; Home; I’ll Stick Around; Learn to Fly; Monkey Wrench; Shame Shame; Show Me How; Something from Nothing; Stranger Things Have Happened; Under You; Walk; Walking after You",3.47,True,34
+we,we,PRON,62,20,Aurora; Big Me; Breakout; Dirty Water; Everlong; February Stars; I’ll Stick Around; Learn to Fly; Long Road to Ruin; Monkey Wrench; No Son of Mine; Rescued; Run; Shame Shame; Something from Nothing; Stacked Actors; The Line; This Is a Call; Walk; Wheels,3.1,True,35
+what,what,PRON,62,17,Arlandria; Friend of a Friend; La Dee Da; Make It Right; Monkey Wrench; No Son of Mine; Rescued; Run; Saint Cecilia; Shame Shame; Something from Nothing; Stacked Actors; T-Shirt; The Line; The Teacher; Under You; Wheels,3.65,True,36
+like,like,INTJ,61,13,Breakout; Everlong; Good Grief; La Dee Da; Shame Shame; Stacked Actors; Stranger Things Have Happened; The Glass; The Line; The Sky Is a Neighborhood; Times Like These; Under You; Wheels,4.69,False,37
+down,down,ADP,60,19,Arlandria; Aurora; Breakout; Dirty Water; Everlong; Generator; Good Grief; I’ll Stick Around; Long Road to Ruin; Make It Right; My Hero; No Son of Mine; Saint Cecilia; Sunday Rain; The Sky Is a Neighborhood; The Teacher; This Is a Call; Under You; Wheels,3.16,True,38
+just,just,ADV,59,16,Aurora; February Stars; Friend of a Friend; Home; Learn to Fly; Make It Right; Rescued; Rest; Saint Cecilia; Shame Shame; Stacked Actors; T-Shirt; The Glass; Under You; Waiting on a War; Walking after You,3.69,True,39
+when,when,SCONJ,58,15,Arlandria; Big Me; Everlong; Friend of a Friend; Generator; Good Grief; I’ll Stick Around; Learn to Fly; Make It Right; Monkey Wrench; Rope; Shame Shame; Stacked Actors; Sunday Rain; Wheels,3.87,True,40
+are,be,AUX,57,17,Arlandria; Best of You; I’ll Stick Around; Let It Die; Monkey Wrench; No Son of Mine; Rescued; Run; Show Me How; Something from Nothing; Stacked Actors; Stranger Things Have Happened; Sunday Rain; The Line; The Teacher; This Is a Call; Under You,3.35,True,41
+say,say,VERB,55,14,Arlandria; Everlong; Long Road to Ruin; My Hero; No Son of Mine; Run; Saint Cecilia; Show Me How; Something from Nothing; Sunday Rain; The Teacher; These Days; This Is a Call; Walk,3.93,True,42
+come,come,VERB,52,17,"Arlandria; Aurora; Everlong; February Stars; Hey, Johnny Park!; I’ll Stick Around; Long Road to Ruin; Rope; Saint Cecilia; Shame Shame; Show Me How; Something from Nothing; Stacked Actors; Stranger Things Have Happened; Sunday Rain; Under You; Wheels",3.06,False,43
+shame,shame,PROPN,51,5,Arlandria; Arrows; La Dee Da; Shame Shame; Sunday Rain,10.2,False,44
+ve,have,AUX,47,15,"Arlandria; Best of You; Dirty Water; Everlong; Hey, Johnny Park!; Home; I Should Have Known; I’ll Stick Around; Let It Die; Long Road to Ruin; Sunday Rain; Under You; Waiting on a War; Walk; Wheels",3.13,True,45
+with,with,ADP,44,15,"Everlong; Friend of a Friend; Generator; Hey, Johnny Park!; Home; Learn to Fly; Monkey Wrench; No Son of Mine; Run; Something from Nothing; Stranger Things Have Happened; T-Shirt; The Teacher; Under You; Waiting on a War",2.93,True,46
+best,good,ADJ,44,4,Best of You; Dirty Water; Friend of a Friend; My Hero,11.0,False,47
+if,if,SCONJ,43,14,Arlandria; Big Me; Everlong; Generator; I’ll Stick Around; La Dee Da; Learn to Fly; No Son of Mine; Run; Shame Shame; Show Me How; T-Shirt; The Teacher; Walking after You,3.07,True,48
+these,these,PRON,43,7,Breakout; Home; Rope; Something from Nothing; These Days; Times Like These; Walk,6.14,True,49
+wanna,wanna,VERB,42,8,Arlandria; Breakout; I Should Have Known; Make It Right; Monkey Wrench; Sunday Rain; T-Shirt; Walk,5.25,False,50
+how,how,SCONJ,42,11,Everlong; February Stars; I’ll Stick Around; La Dee Da; Make It Right; Rope; Show Me How; Sunday Rain; The Glass; The Teacher; Under You,3.82,True,51
+time,time,NOUN,41,17,"Aurora; Everlong; February Stars; Hey, Johnny Park!; I Should Have Known; Let It Die; Monkey Wrench; Rest; Run; Show Me How; Stacked Actors; The Line; The Teacher; These Days; Times Like These; Under You; Walk",2.41,False,52
+again,again,ADV,41,8,Arlandria; Best of You; Breakout; Everlong; Shame Shame; Times Like These; Under You; Walk,5.12,True,53
+was,be,AUX,40,19,"Arlandria; Arrows; Best of You; Big Me; February Stars; Friend of a Friend; Hey, Johnny Park!; I Should Have Known; I’ll Stick Around; Long Road to Ruin; Monkey Wrench; Rescued; Rope; Something from Nothing; Sunday Rain; The Glass; The Line; This Is a Call; Waiting on a War",2.11,True,54
+but,but,CCONJ,39,21,Aurora; Best of You; Big Me; Dirty Water; February Stars; Friend of a Friend; Generator; Good Grief; Home; I Should Have Known; Let It Die; Something from Nothing; Stacked Actors; Stranger Things Have Happened; The Glass; The Line; These Days; Times Like These; Under You; Walk; Wheels,1.86,True,55
+have,have,VERB,39,12,Aurora; Best of You; February Stars; Home; I Should Have Known; Let It Die; Long Road to Ruin; Monkey Wrench; Show Me How; Something from Nothing; Stranger Things Have Happened; T-Shirt,3.25,True,56
+never,never,ADV,39,13,Best of You; Big Me; Friend of a Friend; Home; Monkey Wrench; Something from Nothing; Stacked Actors; Stranger Things Have Happened; The Teacher; These Days; Under You; Waiting on a War; Walk,3.0,True,57
+by,by,ADP,38,6,Arrows; Dirty Water; Friend of a Friend; Saint Cecilia; Show Me How; The Teacher,6.33,True,58
+where,where,SCONJ,38,8,Arrows; Aurora; February Stars; Shame Shame; Show Me How; Sunday Rain; The Teacher; Walk,4.75,True,59
+days,day,NOUN,38,5,Breakout; Saint Cecilia; These Days; Under You; Walk,7.6,False,60
+waitin,waitin,PROPN,37,5,Arrows; Rescued; Rope; The Glass; Waiting on a War,7.4,False,61
+d,would,AUX,37,10,"Best of You; Everlong; February Stars; Generator; Hey, Johnny Park!; Learn to Fly; Let It Die; Monkey Wrench; Rope; Walking after You",3.7,True,62
+got,get,VERB,37,11,Arlandria; Best of You; Everlong; La Dee Da; Make It Right; Rope; Saint Cecilia; Shame Shame; Sunday Rain; The Sky Is a Neighborhood; Waiting on a War,3.36,False,63
+right,right,ADJ,36,10,Breakout; February Stars; I Should Have Known; Learn to Fly; Make It Right; Rescued; Sunday Rain; The Glass; The Line; The Sky Is a Neighborhood,3.6,False,64
+heart,heart,NOUN,36,15,Arlandria; Arrows; Best of You; Dirty Water; Generator; Home; I Should Have Known; Let It Die; Long Road to Ruin; No Son of Mine; Rescued; The Line; The Sky Is a Neighborhood; These Days; Walking after You,2.4,False,65
+more,more,ADJ,35,7,Arlandria; Aurora; Breakout; Monkey Wrench; Stacked Actors; Waiting on a War; Walking after You,5.0,True,66
+not,not,PART,35,8,Arlandria; Everlong; I Should Have Known; Show Me How; Stranger Things Have Happened; The Teacher; These Days; Walking after You,4.38,True,67
+hate,hate,PROPN,35,2,Good Grief; La Dee Da,17.5,False,68
+let,let,VERB,34,8,"Arlandria; Generator; Hey, Johnny Park!; I’ll Stick Around; Let It Die; Long Road to Ruin; Shame Shame; Sunday Rain",4.25,False,69
+know,know,VERB,34,13,Big Me; Breakout; Dirty Water; Everlong; February Stars; La Dee Da; Long Road to Ruin; My Hero; Saint Cecilia; Stranger Things Have Happened; Sunday Rain; Under You; Wheels,2.62,False,70
+from,from,ADP,34,8,"Hey, Johnny Park!; Home; I’ll Stick Around; Show Me How; Something from Nothing; The Line; These Days; Under You",4.25,True,71
+another,another,DET,33,15,"Arlandria; Best of You; Hey, Johnny Park!; Let It Die; Long Road to Ruin; Make It Right; Monkey Wrench; Rest; Run; Shame Shame; Stacked Actors; The Teacher; Walk; Walking after You; Wheels",2.2,True,72
+run,run,VERB,33,4,Good Grief; Learn to Fly; Run; Times Like These,8.25,False,73
+life,life,NOUN,32,9,Arrows; Best of You; Learn to Fly; Long Road to Ruin; Rescued; Rest; Run; Something from Nothing; The Line,3.56,False,74
+mine,mine,PRON,32,4,Arrows; I Should Have Known; No Son of Mine; Saint Cecilia,8.0,True,75
+die,die,VERB,32,5,Best of You; Learn to Fly; Let It Die; Stacked Actors; Walk,6.4,False,76
+back,back,ADV,32,9,Aurora; Breakout; I’ll Stick Around; Learn to Fly; Long Road to Ruin; Rescued; Show Me How; Times Like These; Walking after You,3.56,True,77
+breath,breath,NOUN,32,2,Rope; The Teacher,16.0,False,78
+under,under,ADP,30,10,"Arrows; Best of You; Hey, Johnny Park!; Long Road to Ruin; Monkey Wrench; No Son of Mine; Rescued; Shame Shame; Something from Nothing; Under You",3.0,True,79
+eyes,eye,NOUN,29,11,"Arlandria; Arrows; Hey, Johnny Park!; Let It Die; Long Road to Ruin; Rest; Show Me How; Stacked Actors; The Line; These Days; Wheels",2.64,False,80
+wake,wake,VERB,29,2,Run; The Teacher,14.5,False,81
+re,be,AUX,29,15,Breakout; Dirty Water; Everlong; February Stars; Generator; I Should Have Known; I’ll Stick Around; La Dee Da; Let It Die; Rescued; Saint Cecilia; Stacked Actors; Sunday Rain; The Sky Is a Neighborhood; Wheels,1.93,True,82
+take,take,VERB,29,13,"Arlandria; Aurora; Breakout; Everlong; Hey, Johnny Park!; La Dee Da; Learn to Fly; Long Road to Ruin; Make It Right; My Hero; Show Me How; Stacked Actors; Sunday Rain",2.23,True,83
+been,be,AUX,28,14,Arlandria; Dirty Water; Everlong; Friend of a Friend; I Should Have Known; I’ll Stick Around; Rope; Saint Cecilia; Something from Nothing; These Days; This Is a Call; Under You; Waiting on a War; Wheels,2.0,True,84
+some,some,DET,28,8,Arlandria; Home; Rescued; Rope; Run; Saint Cecilia; The Teacher; Walking after You,3.5,True,85
+ever,ever,ADV,28,8,Everlong; Generator; I’ll Stick Around; Learn to Fly; Let It Die; No Son of Mine; The Line; This Is a Call,3.5,True,86
+son,son,NOUN,28,1,No Son of Mine,28.0,False,87
+ca,can,AUX,27,11,"Best of You; Generator; Hey, Johnny Park!; La Dee Da; Learn to Fly; Saint Cecilia; Something from Nothing; The Line; The Teacher; Under You; Walk",2.45,True,88
+feel,feel,VERB,27,12,Arlandria; Best of You; Dirty Water; Everlong; I Should Have Known; Rest; Shame Shame; Sunday Rain; The Teacher; Under You; Walk; Wheels,2.25,False,89
+yeah,yeah,INTJ,27,8,Aurora; Breakout; Generator; I’ll Stick Around; Run; Stacked Actors; These Days; Waiting on a War,3.38,False,90
+look,look,VERB,26,6,Breakout; Home; I Should Have Known; La Dee Da; Stacked Actors; The Sky Is a Neighborhood,4.33,False,91
+could,could,AUX,26,12,Arlandria; Big Me; Everlong; Generator; Home; I Should Have Known; I’ll Stick Around; Learn to Fly; Monkey Wrench; Rest; Something from Nothing; The Glass,2.17,True,92
+war,war,NOUN,26,3,Arrows; Shame Shame; Waiting on a War,8.67,False,93
+keep,keep,VERB,26,11,Arlandria; Dirty Water; Friend of a Friend; La Dee Da; Make It Right; Saint Cecilia; Sunday Rain; T-Shirt; The Sky Is a Neighborhood; This Is a Call; Walk,2.36,True,94
+times,time,NOUN,26,2,Times Like These; Under You,13.0,False,95
+who,who,PRON,26,9,Breakout; I’ll Stick Around; La Dee Da; Make It Right; Shame Shame; Show Me How; Stacked Actors; Stranger Things Have Happened; The Teacher,2.89,True,96
+give,give,VERB,25,8,Arlandria; Best of You; La Dee Da; Learn to Fly; Something from Nothing; Sunday Rain; Times Like These; Walking after You,3.12,True,97
+want,want,VERB,25,7,Arrows; Home; I Should Have Known; La Dee Da; Shame Shame; Stacked Actors; Stranger Things Have Happened,3.57,False,98
+should,should,AUX,25,7,Arrows; I Should Have Known; I’ll Stick Around; Stacked Actors; Sunday Rain; The Sky Is a Neighborhood; This Is a Call,3.57,True,99
+around,around,ADP,24,10,Arlandria; Aurora; Big Me; Breakout; Generator; Good Grief; I’ll Stick Around; Learn to Fly; My Hero; Wheels,2.4,True,100
+na,to,PART,24,4,Make It Right; Run; Sunday Rain; T-Shirt,6.0,False,101
+break,break,VERB,24,3,Best of You; Breakout; The Line,8.0,False,102
+gon,go,VERB,24,4,Make It Right; Run; Sunday Rain; T-Shirt,6.0,False,103
+he,he,PRON,24,3,Everlong; Friend of a Friend; My Hero,8.0,True,104
+lookin,lookin,NOUN,24,4,Home; Learn to Fly; Something from Nothing; Wheels,6.0,False,105
+little,little,ADJ,23,8,Breakout; Make It Right; Rest; Show Me How; Sunday Rain; Times Like These; Waiting on a War; Walk,2.88,False,106
+everything,everything,PRON,23,9,"Everlong; Generator; Hey, Johnny Park!; Learn to Fly; Run; Show Me How; Something from Nothing; The Line; These Days",2.56,True,107
+get,get,VERB,23,9,Big Me; Breakout; Everlong; Learn to Fly; Long Road to Ruin; Stranger Things Have Happened; T-Shirt; The Line; The Sky Is a Neighborhood,2.56,True,108
+so,so,SCONJ,22,11,Arlandria; Dirty Water; Everlong; February Stars; Let It Die; Rescued; Something from Nothing; Stacked Actors; Stranger Things Have Happened; The Sky Is a Neighborhood; Waiting on a War,2.0,True,109
+leave,leave,VERB,22,7,I Should Have Known; Long Road to Ruin; Monkey Wrench; Rope; Sunday Rain; Times Like These; Walk,3.14,False,110
+away,away,ADV,22,11,"Arlandria; Arrows; Breakout; Everlong; Hey, Johnny Park!; Home; Learn to Fly; Something from Nothing; Sunday Rain; Times Like These; Walk",2.0,False,111
+learn,learn,VERB,22,4,I’ll Stick Around; Learn to Fly; These Days; Times Like These,5.5,False,112
+someone,someone,PRON,22,5,Best of You; Generator; Home; Make It Right; Under You,4.4,True,113
+left,leave,VERB,22,6,Generator; Make It Right; The Glass; The Sky Is a Neighborhood; The Teacher; Waiting on a War,3.67,False,114
+matter,matter,PROPN,21,2,Saint Cecilia; Walking after You,10.5,False,115
+comin,comin,NOUN,21,7,Dirty Water; Rescued; Rope; Stacked Actors; The Line; The Sky Is a Neighborhood; Wheels,3.0,False,116
+sky,sky,NOUN,21,6,Dirty Water; Learn to Fly; The Sky Is a Neighborhood; Times Like These; Waiting on a War; Wheels,3.5,False,117
+her,her,PRON,21,2,Arrows; Everlong,10.5,True,118
+rest,rest,NOUN,20,3,Everlong; My Hero; Rest,6.67,False,119
+head,head,NOUN,20,10,Best of You; Breakout; Everlong; Long Road to Ruin; Make It Right; Monkey Wrench; No Son of Mine; Rope; Sunday Rain; Wheels,2.0,False,120
+good,good,ADJ,20,7,Everlong; Generator; Good Grief; No Son of Mine; The Teacher; This Is a Call; Walk,2.86,False,121
+than,than,SCONJ,20,3,Aurora; Monkey Wrench; Waiting on a War,6.67,True,122
+see,see,VERB,20,9,Arlandria; Aurora; Breakout; I Should Have Known; I’ll Stick Around; Stacked Actors; The Glass; Under You; Walk,2.22,True,123
+here,here,ADV,20,8,Dirty Water; Everlong; February Stars; I Should Have Known; Long Road to Ruin; No Son of Mine; Something from Nothing; The Teacher,2.5,True,124
+why,why,SCONJ,20,1,Let It Die,20.0,True,125
+hey,hey,INTJ,19,3,Arlandria; Stacked Actors; The Teacher,6.33,False,126
+goes,go,VERB,19,4,Good Grief; My Hero; Something from Nothing; The Teacher,4.75,False,127
+bet,bet,VERB,19,2,February Stars; These Days,9.5,False,128
+remember,remember,VERB,19,7,Arlandria; Aurora; Home; Monkey Wrench; Stranger Things Have Happened; Under You; Walk,2.71,False,129
+wanted,want,VERB,19,8,Everlong; Monkey Wrench; Run; The Line; The Teacher; This Is a Call; Waiting on a War; Wheels,2.38,False,130
+dead,dead,ADJ,19,6,Arrows; Home; Long Road to Ruin; No Son of Mine; Stacked Actors; The Line,3.17,False,131
+without,without,ADP,18,5,Best of You; I Should Have Known; Long Road to Ruin; The Glass; Walking after You,3.6,True,132
+mind,mind,PROPN,18,8,"Arrows; Friend of a Friend; Hey, Johnny Park!; Saint Cecilia; Show Me How; Something from Nothing; The Sky Is a Neighborhood; Walk",2.25,False,133
+home,home,ADV,18,6,Home; Learn to Fly; Long Road to Ruin; Saint Cecilia; The Glass; Times Like These,3.0,False,134
+yet,yet,ADV,18,2,I Should Have Known; These Days,9.0,True,135
+they,they,PRON,18,7,Arrows; Everlong; February Stars; I’ll Stick Around; Run; Stacked Actors; This Is a Call,2.57,True,136
+long,long,ADV,18,4,"Hey, Johnny Park!; Long Road to Ruin; This Is a Call; Walk",4.5,False,137
+through,through,ADP,18,11,Arrows; Breakout; Long Road to Ruin; Rest; Rope; Show Me How; Stacked Actors; Stranger Things Have Happened; The Glass; The Teacher; Walk,1.64,True,138
+love,love,NOUN,17,9,Best of You; Friend of a Friend; La Dee Da; Long Road to Ruin; Rest; T-Shirt; The Glass; Times Like These; Waiting on a War,1.89,False,139
+dirty,dirty,ADJ,17,2,Dirty Water; The Line,8.5,False,140
+too,too,ADV,17,10,Best of You; Everlong; February Stars; Friend of a Friend; Generator; I’ll Stick Around; Let It Die; Long Road to Ruin; My Hero; This Is a Call,1.7,True,141
+over,over,ADP,17,6,Everlong; Rescued; Rope; Under You; Walk; Wheels,2.83,True,142
+somethin,something,NOUN,16,2,The Glass; Wheels,8.0,False,143
+dear,dear,NOUN,16,4,La Dee Da; Long Road to Ruin; Stranger Things Have Happened; The Sky Is a Neighborhood,4.0,False,144
+need,need,VERB,16,8,Learn to Fly; Make It Right; No Son of Mine; Run; Show Me How; The Teacher; Under You; Waiting on a War,2.0,False,145
+anything,anything,PRON,16,3,Everlong; I’ll Stick Around; Show Me How,5.33,True,146
+nothing,nothing,PRON,16,6,Generator; Run; Saint Cecilia; Shame Shame; Something from Nothing; T-Shirt,2.67,True,147
+something,something,PRON,16,7,Aurora; Best of You; Generator; Learn to Fly; Shame Shame; Something from Nothing; The Sky Is a Neighborhood,2.29,True,148
+think,think,VERB,16,8,Friend of a Friend; Good Grief; Learn to Fly; Let It Die; Stacked Actors; Sunday Rain; Under You; Walk,2.0,False,149
+live,live,VERB,16,3,Learn to Fly; The Glass; Times Like These,5.33,False,150
+way,way,NOUN,16,7,Arlandria; I Should Have Known; Learn to Fly; Long Road to Ruin; Something from Nothing; Times Like These; Walk,2.29,False,151
+cause,'cause,SCONJ,16,7,Dirty Water; Everlong; Friend of a Friend; La Dee Da; Learn to Fly; The Line; Waiting on a War,2.29,False,152
+alright,alright,ADJ,16,3,I’ll Stick Around; La Dee Da; These Days,5.33,False,153
+call,call,NOUN,16,3,February Stars; Generator; This Is a Call,5.33,True,154
+breathe,breathe,PROPN,16,6,Aurora; Dirty Water; Everlong; Make It Right; Run; The Teacher,2.67,False,155
+stranger,stranger,NOUN,16,2,Long Road to Ruin; Stranger Things Have Happened,8.0,False,156
+getting,get,VERB,16,3,Best of You; Generator; Under You,5.33,False,157
+at,at,ADP,15,7,"Aurora; Good Grief; Hey, Johnny Park!; I Should Have Known; Shame Shame; The Teacher; Walk",2.14,True,158
+into,into,ADP,15,8,Arrows; Big Me; Everlong; Monkey Wrench; No Son of Mine; Rope; Something from Nothing; Wheels,1.88,True,159
+every,every,DET,15,8,"Hey, Johnny Park!; Home; I’ll Stick Around; Long Road to Ruin; Monkey Wrench; The Teacher; Waiting on a War; Walk",1.88,True,160
+ta,to,PART,15,3,Arlandria; Everlong; The Sky Is a Neighborhood,5.0,False,161
+gone,go,VERB,15,10,Best of You; February Stars; I Should Have Known; Let It Die; Long Road to Ruin; Make It Right; Rope; Show Me How; The Line; The Sky Is a Neighborhood,1.5,False,162
+alone,alone,ADV,15,6,Arrows; February Stars; I’ll Stick Around; Learn to Fly; Stranger Things Have Happened; Sunday Rain,2.5,True,163
+enough,enough,ADV,15,3,Arlandria; February Stars; Walk,5.0,True,164
+known,know,VERB,15,2,I Should Have Known; I’ll Stick Around,7.5,False,165
+ceiling,ceiling,NOUN,14,1,The Sky Is a Neighborhood,14.0,False,166
+bangin,bangin,PROPN,14,1,The Sky Is a Neighborhood,14.0,False,167
+mm,mm,PROPN,14,1,Friend of a Friend,14.0,False,168
+had,have,VERB,14,8,"Arrows; Best of You; Hey, Johnny Park!; I’ll Stick Around; Rest; Something from Nothing; The Glass; This Is a Call",1.75,True,169
+started,start,VERB,14,3,Arlandria; Generator; Something from Nothing,4.67,False,170
+rescued,rescue,VERB,14,1,Rescued,14.0,False,171
+cold,cold,ADJ,14,7,Dirty Water; Home; Let It Die; Long Road to Ruin; Something from Nothing; The Line; The Teacher,2.0,False,172
+about,about,ADP,14,5,Aurora; Big Me; Good Grief; My Hero; Stranger Things Have Happened,2.8,True,173
+wait,wait,VERB,14,8,Arlandria; Aurora; February Stars; Learn to Fly; Long Road to Ruin; Show Me How; Stranger Things Have Happened; The Teacher,1.75,False,174
+tonight,tonight,PROPN,13,5,Everlong; Long Road to Ruin; Rescued; Times Like These; Walking after You,2.6,False,175
+walk,walk,VERB,13,4,Show Me How; Stranger Things Have Happened; Walk; Walking after You,3.25,False,176
+or,or,CCONJ,13,8,Best of You; Big Me; La Dee Da; Long Road to Ruin; My Hero; Sunday Rain; The Line; Times Like These,1.62,True,177
+big,big,ADJ,13,5,Big Me; Stacked Actors; The Sky Is a Neighborhood; This Is a Call; Waiting on a War,2.6,False,178
+save,save,VERB,13,3,Arlandria; Learn to Fly; Rope,4.33,False,179
+goodbye,goodbye,NOUN,13,3,Something from Nothing; The Teacher; Walk,4.33,False,180
+as,as,SCONJ,13,6,Arlandria; Arrows; I Should Have Known; My Hero; Something from Nothing; Stranger Things Have Happened,2.17,True,181
+god,god,PROPN,13,5,Arlandria; La Dee Da; Long Road to Ruin; No Son of Mine; Stacked Actors,2.6,False,182
+tomorrow,tomorrow,NOUN,13,3,Home; Long Road to Ruin; The Teacher,4.33,False,183
+showed,show,VERB,12,1,The Teacher,12.0,False,184
+arlandria,arlandria,PROPN,12,1,Arlandria,12.0,False,185
+forgive,forgive,VERB,12,1,I Should Have Known,12.0,False,186
+true,true,ADJ,12,7,"Big Me; Good Grief; Hey, Johnny Park!; I’ll Stick Around; No Son of Mine; Under You; Wheels",1.71,False,187
+owe,owe,VERB,12,1,I’ll Stick Around,12.0,False,188
+stop,stop,VERB,12,4,Arlandria; Everlong; The Teacher; These Days,3.0,False,189
+move,move,VERB,12,3,"Good Grief; Hey, Johnny Park!; Shame Shame",4.0,True,190
+rain,rain,NOUN,12,4,Arlandria; Home; Shame Shame; Sunday Rain,3.0,False,191
+them,they,PRON,12,7,Arlandria; February Stars; Home; My Hero; Something from Nothing; This Is a Call; Walk,1.71,True,192
+woah,woah,ADJ,12,2,No Son of Mine; Walking after You,6.0,False,193
+wheels,wheel,NOUN,12,1,Wheels,12.0,False,194
+forever,forever,ADV,12,5,Everlong; Generator; Long Road to Ruin; Under You; Walk,2.4,False,195
+care,care,VERB,12,4,Arlandria; Long Road to Ruin; Show Me How; The Line,3.0,False,196
+turn,turn,VERB,12,4,Arlandria; Aurora; La Dee Da; Long Road to Ruin,3.0,False,197
+always,always,ADV,12,9,Arlandria; Arrows; Aurora; Everlong; Good Grief; Monkey Wrench; Stacked Actors; Sunday Rain; Under You,1.33,True,198
+us,we,PRON,12,6,Dirty Water; Everlong; I Should Have Known; Rest; The Glass; Under You,2.0,True,199
+our,our,PRON,12,5,Everlong; Rest; Rope; The Line; Wheels,2.4,True,200
+broken,broken,ADJ,12,5,Best of You; Saint Cecilia; The Line; These Days; Wheels,2.4,False,201
+before,before,ADP,11,9,"Dirty Water; Hey, Johnny Park!; I Should Have Known; Long Road to Ruin; Monkey Wrench; Run; Something from Nothing; Stranger Things Have Happened; Wheels",1.22,True,202
+were,be,AUX,11,8,Best of You; Everlong; Generator; Home; I’ll Stick Around; Let It Die; Walking after You; Wheels,1.38,True,203
+came,come,VERB,11,6,I Should Have Known; I’ll Stick Around; Monkey Wrench; Rescued; Something from Nothing; Wheels,1.83,False,204
+change,change,VERB,11,4,"Hey, Johnny Park!; Long Road to Ruin; Something from Nothing; Stranger Things Have Happened",2.75,False,205
+somewhere,somewhere,ADV,11,8,Aurora; Best of You; February Stars; Good Grief; Run; Stacked Actors; Stranger Things Have Happened; The Line,1.38,True,206
+things,thing,NOUN,11,6,Good Grief; Learn to Fly; Stacked Actors; Stranger Things Have Happened; The Teacher; Walking after You,1.83,False,207
+well,well,INTJ,11,5,Big Me; Breakout; Generator; Something from Nothing; Wheels,2.2,True,208
+pretty,pretty,ADJ,11,2,La Dee Da; This Is a Call,5.5,False,209
+door,door,NOUN,11,4,Saint Cecilia; Shame Shame; Stranger Things Have Happened; The Teacher,2.75,False,210
+last,last,ADJ,11,6,Aurora; I Should Have Known; Learn to Fly; Monkey Wrench; Stranger Things Have Happened; Under You,1.83,True,211
+try,try,NOUN,11,5,Breakout; Learn to Fly; Monkey Wrench; Sunday Rain; The Teacher,2.2,False,212
+line,line,NOUN,11,3,Saint Cecilia; Stacked Actors; The Line,3.67,False,213
+after,after,ADP,11,2,Dirty Water; Walking after You,5.5,True,214
+wrench,wrench,NOUN,10,1,Monkey Wrench,10.0,False,215
+monkey,monkey,NOUN,10,1,Monkey Wrench,10.0,False,216
+stars,star,NOUN,10,3,Aurora; February Stars; Times Like These,3.33,False,217
+better,well,ADJ,10,6,Arlandria; Breakout; Generator; I’ll Stick Around; T-Shirt; Wheels,1.67,False,218
+hero,hero,NOUN,10,1,My Hero,10.0,False,219
+found,find,VERB,10,6,"Friend of a Friend; Hey, Johnny Park!; Shame Shame; Something from Nothing; The Glass; Walk",1.67,False,220
+believe,believe,VERB,10,5,Aurora; No Son of Mine; Stacked Actors; Under You; Walk,2.0,False,221
+gimme,gimme,PROPN,10,1,Rope,10.0,False,222
+talk,talk,VERB,10,3,Big Me; My Hero; Walk,3.33,False,223
+uh,uh,INTJ,10,1,Times Like These,10.0,False,224
+day,day,NOUN,10,5,Arlandria; February Stars; I’ll Stick Around; Times Like These; Waiting on a War,2.0,False,225
+between,between,ADP,10,2,Stacked Actors; The Glass,5.0,True,226
+heaven,heaven,PROPN,10,2,Long Road to Ruin; The Sky Is a Neighborhood,5.0,False,227
+show,show,NOUN,10,2,February Stars; Show Me How,5.0,True,228
+sun,sun,NOUN,10,7,Aurora; Dirty Water; Rest; Shame Shame; Show Me How; The Line; The Teacher,1.43,False,229
+loose,loose,ADJ,10,2,Best of You; Rope,5.0,False,230
+water,water,NOUN,10,2,Dirty Water; Something from Nothing,5.0,False,231
+she,she,PRON,9,2,Arrows; Everlong,4.5,True,232
+bones,bone,NOUN,9,4,Dirty Water; Saint Cecilia; Something from Nothing; The Line,2.25,False,233
+still,still,ADV,9,8,"Aurora; Breakout; Hey, Johnny Park!; I Should Have Known; I’ll Stick Around; Monkey Wrench; Under You; Walk",1.12,True,234
+waited,wait,VERB,9,2,Everlong; Walk,4.5,False,235
+hand,hand,NOUN,9,5,Arlandria; I’ll Stick Around; Make It Right; No Son of Mine; Show Me How,1.8,False,236
+thing,thing,NOUN,9,5,Everlong; I Should Have Known; Monkey Wrench; T-Shirt; These Days,1.8,False,237
+ground,ground,NOUN,9,5,Arlandria; Something from Nothing; These Days; This Is a Call; Wheels,1.8,False,238
+lost,lose,VERB,9,4,Let It Die; No Son of Mine; The Sky Is a Neighborhood; Walk,2.25,False,239
+mmm,mmm,PROPN,9,1,Friend of a Friend,9.0,False,240
+hell,hell,PROPN,9,2,Aurora; Long Road to Ruin,4.5,False,241
+loneliness,loneliness,NOUN,9,2,Shame Shame; Stranger Things Have Happened,4.5,False,242
+rope,rope,NOUN,9,1,Rope,9.0,False,243
+maybe,maybe,ADV,9,6,I Should Have Known; Long Road to Ruin; Rest; Show Me How; Stranger Things Have Happened; The Sky Is a Neighborhood,1.5,False,244
+generator,generator,NOUN,9,1,Generator,9.0,False,245
+has,have,AUX,9,2,Best of You; These Days,4.5,True,246
+new,new,ADJ,9,6,Arrows; Best of You; Generator; Learn to Fly; Times Like These; Wheels,1.5,False,247
+said,say,VERB,9,5,Arlandria; I’ll Stick Around; Monkey Wrench; These Days; Under You,1.8,False,248
+end,end,NOUN,9,7,Arrows; I Should Have Known; Long Road to Ruin; Monkey Wrench; Shame Shame; Something from Nothing; Wheels,1.29,False,249
+only,only,ADJ,8,3,Big Me; Everlong; I’ll Stick Around,2.67,True,250
+truth,truth,NOUN,8,3,My Hero; Stacked Actors; The Line,2.67,False,251
+burn,burn,VERB,8,4,Arlandria; Breakout; Learn to Fly; Walk,2.0,False,252
+aurora,aurora,PROPN,8,1,Aurora,8.0,False,253
+an,an,DET,8,5,Dirty Water; Friend of a Friend; Rest; Saint Cecilia; Wheels,1.6,True,254
+hear,hear,VERB,8,5,Arlandria; February Stars; Generator; I Should Have Known; Show Me How,1.6,False,255
+arrows,arrow,NOUN,8,1,Arrows,8.0,False,256
+name,name,NOUN,8,4,Long Road to Ruin; No Son of Mine; Saint Cecilia; Something from Nothing,2.0,True,257
+bleed,bleed,VERB,8,3,Aurora; Dirty Water; My Hero,2.67,False,258
+then,then,ADV,8,6,Aurora; Dirty Water; Monkey Wrench; Rescued; Walk; Wheels,1.33,True,259
+along,along,ADP,8,6,Everlong; Learn to Fly; Monkey Wrench; Shame Shame; Something from Nothing; T-Shirt,1.33,True,260
+learnin,learnin,PROPN,8,1,Walk,8.0,False,261
+sleep,sleep,VERB,8,2,Everlong; The Sky Is a Neighborhood,4.0,False,262
+sunday,sunday,PROPN,8,1,Sunday Rain,8.0,False,263
+perfect,perfect,ADJ,8,1,Run,8.0,False,264
+stick,stick,VERB,8,1,I’ll Stick Around,8.0,False,265
+hangin,hangin,ADJ,8,3,February Stars; Rope; Saint Cecilia,2.67,False,266
+somehow,somehow,ADV,8,2,Monkey Wrench; The Sky Is a Neighborhood,4.0,True,267
+neighborhood,neighborhood,NOUN,8,1,The Sky Is a Neighborhood,8.0,False,268
+ah,ah,INTJ,8,1,The Sky Is a Neighborhood,8.0,False,269
+drownin,drownin,NOUN,8,1,Sunday Rain,8.0,False,270
+light,light,NOUN,8,5,Arrows; I Should Have Known; Let It Die; Run; Times Like These,1.6,False,271
+thought,think,VERB,8,3,Good Grief; I’ll Stick Around; Rope,2.67,False,272
+him,he,PRON,7,3,Friend of a Friend; My Hero; The Glass,2.33,True,273
+free,free,ADJ,7,5,I’ll Stick Around; Monkey Wrench; Rescued; Run; Walk,1.4,False,274
+real,real,ADJ,7,3,Best of You; Everlong; Shame Shame,2.33,False,275
+since,since,SCONJ,7,3,Good Grief; Monkey Wrench; Waiting on a War,2.33,True,276
+someday,someday,ADV,7,2,The Line; Under You,3.5,False,277
+yourself,yourself,PRON,7,2,Aurora; La Dee Da,3.5,True,278
+set,set,VERB,7,2,Saint Cecilia; Walk,3.5,False,279
+whenever,whenever,ADV,7,2,Generator; Walk,3.5,True,280
+use,use,VERB,7,4,Arlandria; Best of You; Generator; My Hero,1.75,False,281
+past,past,NOUN,7,1,This Is a Call,7.0,False,282
+fear,fear,VERB,7,3,Arrows; Home; These Days,2.33,False,283
+plan,plan,NOUN,7,2,I’ll Stick Around; The Teacher,3.5,False,284
+promise,promise,VERB,7,2,Everlong; La Dee Da,3.5,False,285
+fell,fall,VERB,7,3,Big Me; Rescued; Waiting on a War,2.33,False,286
+walking,walk,VERB,7,1,Walking after You,7.0,False,287
+speaks,speak,VERB,7,1,Friend of a Friend,7.0,False,288
+bang,bang,NOUN,7,1,The Sky Is a Neighborhood,7.0,False,289
+sign,sign,NOUN,7,3,Learn to Fly; The Line; Walk,2.33,False,290
+lights,light,NOUN,7,3,Make It Right; Rescued; The Sky Is a Neighborhood,2.33,False,291
+resignations,resignation,NOUN,7,1,This Is a Call,7.0,False,292
+wrong,wrong,ADJ,7,4,Make It Right; Shame Shame; T-Shirt; The Line,1.75,False,293
+taken,take,VERB,7,4,Best of You; I’ll Stick Around; Long Road to Ruin; Sunday Rain,1.75,False,294
+same,same,ADJ,7,3,Arlandria; Home; Stranger Things Have Happened,2.33,True,295
+other,other,ADJ,7,3,Arlandria; I Should Have Known; The Teacher,2.33,True,296
+sweet,sweet,ADJ,7,3,Arlandria; Dirty Water; Something from Nothing,2.33,False,297
+safe,safe,ADJ,7,2,Home; Rest,3.5,False,298
+livin,livin,PROPN,7,2,No Son of Mine; The Teacher,3.5,False,299
+watch,watch,VERB,7,4,Arlandria; My Hero; Saint Cecilia; The Sky Is a Neighborhood,1.75,False,300
+beautiful,beautiful,ADJ,7,4,"Hey, Johnny Park!; Let It Die; Stacked Actors; Wheels",1.75,False,301
+tears,tear,VERB,7,2,Arrows; The Line,3.5,False,302
+help,help,VERB,7,2,Arlandria; Learn to Fly,3.5,False,303
+blue,blue,ADJ,7,3,"Hey, Johnny Park!; La Dee Da; The Line",2.33,False,304
+round,round,NOUN,7,4,Arlandria; Generator; Sunday Rain; Wheels,1.75,False,305
+stone,stone,NOUN,6,1,Saint Cecilia,6.0,False,306
+stack,stack,PROPN,6,1,Stacked Actors,6.0,False,307
+actors,actor,NOUN,6,1,Stacked Actors,6.0,False,308
+road,road,NOUN,6,1,Long Road to Ruin,6.0,False,309
+happened,happen,VERB,6,2,Rescued; Stranger Things Have Happened,3.0,False,310
+bring,bring,VERB,6,2,Rescued; Saint Cecilia,3.0,False,311
+starts,start,VERB,6,4,Arlandria; Best of You; Generator; Make It Right,1.5,False,312
+cry,cry,VERB,6,2,Arrows; Stacked Actors,3.0,False,313
+givin,givin,NOUN,6,1,Arlandria,6.0,False,314
+savin,savin,NOUN,6,1,Arlandria,6.0,False,315
+kid,kid,PROPN,6,1,The Teacher,6.0,False,316
+hands,hand,NOUN,6,3,I Should Have Known; Let It Die; Something from Nothing,2.0,False,317
+dododo,dododo,VERB,6,1,Everlong,6.0,False,318
+anymore,anymore,ADV,6,3,I Should Have Known; Saint Cecilia; Wheels,2.0,False,319
+bastards,bastard,NOUN,6,1,Stacked Actors,6.0,False,320
+rafters,rafter,NOUN,6,1,Stacked Actors,6.0,False,321
+streetlights,streetlight,NOUN,6,1,Long Road to Ruin,6.0,False,322
+stacked,stack,VERB,6,1,Stacked Actors,6.0,False,323
+ruin,ruin,VERB,6,1,Long Road to Ruin,6.0,False,324
+fly,fly,VERB,6,1,Learn to Fly,6.0,False,325
+fall,fall,VERB,6,5,February Stars; Long Road to Ruin; Rope; This Is a Call; Waiting on a War,1.2,False,326
+everyone,everyone,PRON,6,5,Aurora; Best of You; Generator; Waiting on a War; Wheels,1.2,True,327
+clear,clear,ADJ,6,3,Rope; Show Me How; Stacked Actors,2.0,False,328
+born,bear,VERB,6,4,Arrows; Best of You; The Line; The Teacher,1.5,False,329
+til,til,SCONJ,6,4,Aurora; Everlong; Generator; Shame Shame,1.5,False,330
+his,his,PRON,6,4,Everlong; Friend of a Friend; Let It Die; No Son of Mine,1.5,True,331
+forgot,forget,VERB,6,1,Stranger Things Have Happened,6.0,False,332
+side,side,NOUN,6,4,I Should Have Known; The Glass; The Sky Is a Neighborhood; The Teacher,1.5,True,333
+air,air,NOUN,6,3,Aurora; Stranger Things Have Happened; The Teacher,2.0,False,334
+find,find,VERB,6,2,Generator; Sunday Rain,3.0,False,335
+stolen,steal,VERB,6,1,These Days,6.0,False,336
+february,february,PROPN,6,1,February Stars,6.0,False,337
+fire,fire,NOUN,6,3,Arrows; Something from Nothing; Walk,2.0,False,338
+begin,begin,VERB,6,1,Walk,6.0,False,339
+much,much,ADJ,6,5,Arlandria; February Stars; Friend of a Friend; Monkey Wrench; T-Shirt,1.2,True,340
+debt,debt,NOUN,6,1,I Should Have Known,6.0,False,341
+sang,sing,VERB,5,1,Everlong,5.0,False,342
+fight,fight,VERB,5,2,I Should Have Known; The Line,2.5,False,343
+tired,tired,ADJ,5,2,Best of You; Learn to Fly,2.5,False,344
+did,do,AUX,5,4,Best of You; I Should Have Known; Let It Die; Rope,1.25,True,345
+cries,cry,NOUN,5,1,Arrows,5.0,False,346
+man,man,NOUN,5,2,Let It Die; Wheels,2.5,False,347
+friend,friend,NOUN,5,4,Arrows; Best of You; Breakout; Friend of a Friend,1.25,False,348
+hope,hope,NOUN,5,4,Best of You; Rope; The Sky Is a Neighborhood; These Days,1.25,False,349
+night,night,NOUN,5,3,Learn to Fly; Monkey Wrench; The Line,1.67,False,350
+ai,be,VERB,5,4,Arlandria; Make It Right; Saint Cecilia; Something from Nothing,1.25,False,351
+countin,countin,PROPN,5,2,Rope; The Teacher,2.5,False,352
+virginia,virginia,PROPN,5,2,Arlandria; Rest,2.5,False,353
+ends,end,VERB,5,3,Arrows; Breakout; Long Road to Ruin,1.67,False,354
+pain,pain,NOUN,5,3,Best of You; Home; These Days,1.67,False,355
+deserve,deserve,VERB,5,2,Rescued; T-Shirt,2.5,False,356
+goin,go,VERB,5,4,Breakout; Generator; La Dee Da; Wheels,1.25,False,357
+runnin,runnin,ADJ,5,3,Breakout; Long Road to Ruin; Walk,1.67,False,358
+put,put,VERB,5,3,Big Me; Breakout; Shame Shame,1.67,True,359
+blonde,blonde,ADJ,5,1,Stacked Actors,5.0,False,360
+off,off,ADP,5,4,Breakout; Everlong; I’ll Stick Around; Times Like These,1.25,True,361
+deep,deep,ADJ,5,2,Generator; Let It Die,2.5,False,362
+am,be,AUX,5,2,"Hey, Johnny Park!; Stranger Things Have Happened",2.5,True,363
+high,high,ADJ,5,3,Learn to Fly; Sunday Rain; The Line,1.67,False,364
+bright,bright,ADJ,5,2,Learn to Fly; Times Like These,2.5,False,365
+thinkin,thinkin,NOUN,5,2,Rescued; Wheels,2.5,False,366
+nowhere,nowhere,ADV,5,3,Make It Right; Rescued; Waiting on a War,1.67,True,367
+feelin,feelin,NOUN,5,2,Rescued; Stranger Things Have Happened,2.5,False,368
+season,season,NOUN,5,2,Long Road to Ruin; Shame Shame,2.5,False,369
+face,face,NOUN,5,3,Breakout; Let It Die; Under You,1.67,False,370
+forget,forget,VERB,5,3,Home; No Son of Mine; These Days,1.67,False,371
+brother,brother,NOUN,5,2,Make It Right; This Is a Call,2.5,False,372
+even,even,ADV,5,2,February Stars; This Is a Call,2.5,True,373
+reason,reason,NOUN,5,2,Shame Shame; Wheels,2.5,False,374
+its,its,PRON,5,3,Let It Die; Long Road to Ruin; These Days,1.67,True,375
+minute,minute,NOUN,5,2,Show Me How; The Teacher,2.5,False,376
+touch,touch,NOUN,5,2,Rest; Wheels,2.5,False,377
+sing,sing,VERB,5,3,Dirty Water; Everlong; T-Shirt,1.67,False,378
+room,room,NOUN,5,3,Friend of a Friend; Run; Stranger Things Have Happened,1.67,False,379
+dry,dry,ADJ,5,1,The Line,5.0,False,380
+death,death,NOUN,5,2,Best of You; La Dee Da,2.5,False,381
+old,old,ADJ,4,3,Friend of a Friend; Saint Cecilia; The Teacher,1.33,False,382
+page,page,NOUN,4,3,Long Road to Ruin; The Line; The Teacher,1.33,False,383
+stay,stay,VERB,4,4,Generator; Home; Run; Times Like These,1.0,False,384
+chase,chase,NOUN,4,3,Arlandria; Breakout; Run,1.33,False,385
+bedroom,bedroom,NOUN,4,1,La Dee Da,4.0,False,386
+soul,soul,PROPN,4,3,February Stars; Make It Right; The Teacher,1.33,False,387
+dime,dime,NOUN,4,2,Make It Right; Something from Nothing,2.0,False,388
+paintin,paintin,PROPN,4,1,La Dee Da,4.0,False,389
+afraid,afraid,ADJ,4,1,Sunday Rain,4.0,False,390
+boy,boy,INTJ,4,2,The Teacher; Waiting on a War,2.0,False,391
+faith,faith,NOUN,4,2,Best of You; Home,2.0,False,392
+exhausted,exhausted,ADJ,4,1,Sunday Rain,4.0,False,393
+must,must,AUX,4,2,Best of You; No Son of Mine,2.0,True,394
+june,june,PROPN,4,1,La Dee Da,4.0,False,395
+trust,trust,VERB,4,2,Best of You; Rest,2.0,False,396
+drain,drain,NOUN,4,1,Sunday Rain,4.0,False,397
+beneath,beneath,ADP,4,2,Shame Shame; These Days,2.0,False,398
+heavy,heavy,ADJ,4,3,Dirty Water; Everlong; Long Road to Ruin,1.33,False,399
+used,use,VERB,4,2,Arlandria; Everlong,2.0,True,400
+pay,pay,VERB,4,3,Long Road to Ruin; Something from Nothing; Walk,1.33,False,401
+motored,motored,ADJ,4,1,Generator,4.0,False,402
+whatever,whatever,PRON,4,1,Generator,4.0,True,403
+plays,play,VERB,4,1,Friend of a Friend,4.0,False,404
+lives,life,NOUN,4,1,The Line,4.0,False,405
+considerate,considerate,ADJ,4,1,Let It Die,4.0,False,406
+tryin,tryin,NOUN,4,2,Learn to Fly; T-Shirt,2.0,False,407
+guitar,guitar,NOUN,4,1,Friend of a Friend,4.0,False,408
+needs,need,VERB,4,2,Friend of a Friend; Make It Right,2.0,False,409
+ordinary,ordinary,ADJ,4,1,My Hero,4.0,False,410
+close,close,VERB,4,4,Arlandria; Rest; The Line; These Days,1.0,False,411
+fingernails,fingernails,PROPN,4,1,This Is a Call,4.0,False,412
+pride,pride,NOUN,4,2,Let It Die; These Days,2.0,False,413
+metal,metal,NOUN,4,1,Dirty Water,4.0,False,414
+happenin,happenin,NOUN,4,1,Rescued,4.0,False,415
+share,share,VERB,4,3,"Hey, Johnny Park!; Stranger Things Have Happened; The Line",1.33,False,416
+easy,easy,PROPN,4,2,These Days; This Is a Call,2.0,False,417
+natural,natural,ADJ,4,1,Dirty Water,4.0,False,418
+disaster,disaster,NOUN,4,1,Dirty Water,4.0,False,419
+reflection,reflection,NOUN,4,1,The Glass,4.0,False,420
+sound,sound,ADJ,4,3,Arlandria; Long Road to Ruin; The Sky Is a Neighborhood,1.33,False,421
+knew,know,VERB,4,2,Big Me; I’ll Stick Around,2.0,False,422
+dark,dark,NOUN,4,2,February Stars; Something from Nothing,2.0,False,423
+inside,inside,ADV,4,4,Arrows; Generator; I Should Have Known; Walk,1.0,False,424
+innocence,innocence,NOUN,4,2,Monkey Wrench; No Son of Mine,2.0,False,425
+suffer,suffer,VERB,4,2,Make It Right; Monkey Wrench,2.0,False,426
+count,count,VERB,4,2,Make It Right; Show Me How,2.0,False,427
+stand,stand,VERB,4,3,Big Me; February Stars; Home,1.33,False,428
+grave,grave,NOUN,4,2,No Son of Mine; Walk,2.0,False,429
+jim,jim,PROPN,4,1,La Dee Da,4.0,False,430
+jones,jones,PROPN,4,1,La Dee Da,4.0,False,431
+talked,talk,VERB,4,1,Big Me,4.0,False,432
+fame,fame,PROPN,4,1,Arlandria,4.0,False,433
+fuse,fuse,NOUN,4,1,Something from Nothing,4.0,False,434
+lie,lie,NOUN,4,4,February Stars; Learn to Fly; Something from Nothing; Sunday Rain,1.0,False,435
+tell,tell,VERB,4,2,Learn to Fly; Sunday Rain,2.0,False,436
+queen,queen,PROPN,4,4,Arrows; Long Road to Ruin; Stacked Actors; T-Shirt,1.0,False,437
+sight,sight,NOUN,4,2,Long Road to Ruin; Saint Cecilia,2.0,False,438
+spinnin,spinnin,NOUN,4,2,Make It Right; Wheels,2.0,False,439
+wish,wish,VERB,4,4,"Generator; Hey, Johnny Park!; Home; Wheels",1.0,False,440
+choose,choose,VERB,4,3,Best of You; Something from Nothing; The Teacher,1.33,False,441
+yesterday,yesterday,NOUN,4,3,Show Me How; Something from Nothing; Under You,1.33,False,442
+emptiness,emptiness,NOUN,4,2,Aurora; Shame Shame,2.0,False,443
+done,do,VERB,4,3,Aurora; Learn to Fly; Monkey Wrench,1.33,True,444
+lay,lay,VERB,4,2,I Should Have Known; Stranger Things Have Happened,2.0,False,445
+own,own,ADJ,4,2,La Dee Da; Learn to Fly,2.0,True,446
+complication,complication,NOUN,4,1,Learn to Fly,4.0,False,447
+watched,watch,VERB,4,4,February Stars; Learn to Fly; Show Me How; Walk,1.0,False,448
+spin,spin,VERB,4,2,Aurora; Generator,2.0,False,449
+ask,ask,VERB,4,2,Everlong; February Stars,2.0,False,450
+quit,quit,VERB,4,2,Generator; Monkey Wrench,2.0,False,451
+grohl,grohl,PROPN,4,1,Everlong,4.0,False,452
+dave,dave,PROPN,4,1,Everlong,4.0,False,453
+may,may,AUX,4,3,Breakout; Good Grief; Walk,1.33,True,454
+comes,come,NOUN,4,1,Good Grief,4.0,False,455
+moon,moon,NOUN,4,2,Shame Shame; The Line,2.0,False,456
+everybody,everybody,PRON,4,1,Make It Right,4.0,False,457
+choke,choke,PROPN,4,1,Rope,4.0,False,458
+says,say,VERB,4,2,Friend of a Friend; No Son of Mine,2.0,False,459
+outta,outta,ADJ,4,2,Rescued; Rope,2.0,False,460
+rescue,rescue,VERB,4,1,Rescued,4.0,False,461
+though,though,SCONJ,4,2,February Stars; I Should Have Known,2.0,True,462
+kiss,kiss,NOUN,4,1,Rope,4.0,False,463
+aloud,aloud,ADV,3,2,My Hero; Walking after You,1.5,False,464
+pictures,picture,NOUN,3,3,My Hero; Saint Cecilia; Under You,1.0,False,465
+betweens,between,NOUN,3,1,Rescued,3.0,False,466
+learned,learn,VERB,3,2,T-Shirt; The Teacher,1.5,False,467
+floatin,floatin,PROPN,3,1,February Stars,3.0,False,468
+mirror,mirror,NOUN,3,2,Home; Stacked Actors,1.5,False,469
+scars,scar,NOUN,3,1,February Stars,3.0,False,470
+temporary,temporary,ADJ,3,1,February Stars,3.0,False,471
+accident,accident,NOUN,3,1,Monkey Wrench,3.0,False,472
+rather,rather,ADV,3,1,Monkey Wrench,3.0,True,473
+carry,carry,VERB,3,1,Saint Cecilia,3.0,False,474
+baby,baby,NOUN,3,1,Make It Right,3.0,False,475
+arteries,artery,NOUN,3,1,Arrows,3.0,False,476
+army,army,NOUN,3,1,Arlandria,3.0,False,477
+wished,wish,VERB,3,1,Wheels,3.0,False,478
+angels,angel,NOUN,3,2,"Hey, Johnny Park!; Learn to Fly",1.5,False,479
+cecilia,cecilia,PROPN,3,1,Saint Cecilia,3.0,False,480
+saint,saint,PROPN,3,1,Saint Cecilia,3.0,False,481
+dee,dee,PROPN,3,1,La Dee Da,3.0,False,482
+la,la,ADJ,3,1,La Dee Da,3.0,False,483
+quiet,quiet,ADJ,3,2,Arrows; Friend of a Friend,1.5,False,484
+reasons,reason,NOUN,3,1,Big Me,3.0,False,485
+bizarre,bizarre,ADJ,3,1,La Dee Da,3.0,False,486
+psychic,psychic,PROPN,3,1,La Dee Da,3.0,False,487
+confess,confess,VERB,3,1,Best of You,3.0,False,488
+television,television,PROPN,3,1,La Dee Da,3.0,False,489
+knees,knee,NOUN,3,2,No Son of Mine; Walk,1.5,False,490
+da,da,PROPN,3,1,La Dee Da,3.0,False,491
+fake,fake,VERB,3,1,Stacked Actors,3.0,False,492
+black,black,ADJ,3,2,Show Me How; The Line,1.5,False,493
+any,any,DET,3,3,Everlong; Long Road to Ruin; Monkey Wrench,1.0,True,494
+ooh,ooh,NOUN,3,1,Home,3.0,False,495
+loud,loud,ADJ,3,2,Everlong; Show Me How,1.5,False,496
+won,win,VERB,3,1,Stacked Actors,3.0,False,497
+took,take,VERB,3,2,I’ll Stick Around; Something from Nothing,1.5,False,498
+house,house,NOUN,3,1,Saint Cecilia,3.0,False,499
+healin,healin,PROPN,3,1,Saint Cecilia,3.0,False,500
+feeling,feeling,NOUN,3,1,Saint Cecilia,3.0,False,501
+place,place,NOUN,3,2,Long Road to Ruin; Walk,1.5,False,502
+indecent,indecent,NOUN,3,1,Monkey Wrench,3.0,False,503
+mountain,mountain,NOUN,3,1,Shame Shame,3.0,False,504
+heart'll,heart'll,NOUN,3,1,These Days,3.0,False,505
+loved,love,VERB,3,3,Home; The Glass; Wheels,1.0,False,506
+glass,glass,NOUN,3,1,The Glass,3.0,False,507
+storm,storm,NOUN,3,2,Rope; The Glass,1.5,False,508
+pass,pass,VERB,3,2,February Stars; The Glass,1.5,False,509
+fact,fact,NOUN,3,1,Walking after You,3.0,False,510
+morning,morning,NOUN,3,1,Dirty Water,3.0,False,511
+storms,storm,NOUN,3,1,Dirty Water,3.0,False,512
+earthquake,earthquake,NOUN,3,1,Dirty Water,3.0,False,513
+skin,skin,NOUN,3,1,Shame Shame,3.0,False,514
+splinter,splinter,NOUN,3,1,Shame Shame,3.0,False,515
+sometimes,sometimes,ADV,3,1,Under You,3.0,True,516
+today,today,NOUN,3,3,Home; Long Road to Ruin; Under You,1.0,False,517
+dance,dance,VERB,3,1,Rescued,3.0,False,518
+degree,degree,NOUN,3,1,Rescued,3.0,False,519
+queens,queen,NOUN,3,1,Rescued,3.0,False,520
+kings,king,NOUN,3,1,Rescued,3.0,False,521
+meet,meet,VERB,3,3,Arrows; Rest; Shame Shame,1.0,False,522
+pullin,pullin,ADJ,3,1,Rope,3.0,False,523
+steal,steal,VERB,3,2,February Stars; Generator,1.5,False,524
+wo,will,AUX,3,3,The Teacher; These Days; Walking after You,1.0,False,525
+abused,abuse,VERB,3,2,Best of You; I’ll Stick Around,1.5,False,526
+game,game,NOUN,3,3,Arlandria; Rest; Saint Cecilia,1.0,False,527
+crown,crown,NOUN,3,2,Good Grief; Rope,1.5,False,528
+until,until,SCONJ,3,2,February Stars; Rest,1.5,True,529
+pride'll,pride'll,NOUN,3,1,These Days,3.0,False,530
+final,final,ADJ,3,2,February Stars; These Days,1.5,False,531
+play,play,VERB,3,2,Arlandria; These Days,1.5,False,532
+seems,seem,VERB,3,1,This Is a Call,3.0,True,533
+silence,silence,VERB,3,3,Home; Stranger Things Have Happened; These Days,1.0,False,534
+burned,burn,VERB,3,2,Something from Nothing; The Sky Is a Neighborhood,1.5,False,535
+buried,bury,VERB,3,1,Shame Shame,3.0,False,536
+veins,vein,NOUN,3,1,Let It Die,3.0,False,537
+bite,bite,PROPN,3,1,Make It Right,3.0,False,538
+spare,spare,VERB,3,1,Make It Right,3.0,False,539
+tuxedo,tuxedo,NOUN,3,1,Make It Right,3.0,False,540
+bad,bad,ADJ,3,1,Make It Right,3.0,False,541
+sellin,sellin,ADJ,3,1,"Hey, Johnny Park!",3.0,False,542
+song,song,NOUN,3,2,Shame Shame; T-Shirt,1.5,False,543
+swallow,swallow,VERB,3,2,Rope; Shame Shame,1.5,False,544
+tied,tie,VERB,3,1,Let It Die,3.0,False,545
+behave,behave,VERB,3,1,Stranger Things Have Happened,3.0,False,546
+colors,color,NOUN,3,2,"Hey, Johnny Park!; Long Road to Ruin",1.5,False,547
+blood,blood,NOUN,3,2,Dirty Water; The Line,1.5,False,548
+dream,dream,VERB,3,3,Aurora; Rest; Stranger Things Have Happened,1.0,False,549
+bloodshot,bloodshot,ADJ,3,1,Let It Die,3.0,False,550
+firin,firin,PROPN,3,1,Generator,3.0,False,551
+train,train,NOUN,3,1,Make It Right,3.0,False,552
+hop,hop,PROPN,3,1,Make It Right,3.0,False,553
+button,button,VERB,3,2,Arlandria; Something from Nothing,1.5,False,554
+hush,hush,ADJ,3,1,Arlandria,3.0,False,555
+lose,lose,VERB,3,2,Best of You; Wheels,1.5,False,556
+book,book,NOUN,3,1,No Son of Mine,3.0,False,557
+chain,chain,NOUN,3,1,Make It Right,3.0,False,558
+hitch,hitch,VERB,3,1,Make It Right,3.0,False,559
+ride,ride,NOUN,3,1,Make It Right,3.0,False,560
+hypnotized,hypnotize,VERB,3,1,Make It Right,3.0,False,561
+foot,foot,NOUN,3,1,No Son of Mine,3.0,False,562
+word,word,NOUN,3,3,I’ll Stick Around; Monkey Wrench; Something from Nothing,1.0,False,563
+temper,temper,PROPN,3,1,Monkey Wrench,3.0,False,564
+wind,wind,VERB,3,2,Good Grief; Monkey Wrench,1.5,False,565
+hang,hang,VERB,3,3,Best of You; Generator; Times Like These,1.0,False,566
+wonder,wonder,VERB,3,1,Everlong,3.0,False,567
+age,age,PROPN,3,1,No Son of Mine,3.0,False,568
+miles,mile,NOUN,3,2,Under You; Walk,1.5,False,569
+certain,certain,ADJ,2,1,I Should Have Known,2.0,False,570
+standin,standin,ADJ,2,1,I Should Have Known,2.0,False,571
+chorus,chorus,NOUN,2,1,Everlong,2.0,False,572
+louise,louise,PROPN,2,1,Everlong,2.0,False,573
+post,post,PROPN,2,1,Everlong,2.0,False,574
+gull,gull,PROPN,2,1,Good Grief,2.0,False,575
+noun,noun,NOUN,2,1,Good Grief,2.0,False,576
+gettin,gettin,PROPN,2,2,Rescued; Walk,1.0,False,577
+runs,run,VERB,2,1,Run,2.0,False,578
+full,full,ADJ,2,1,No Son of Mine,2.0,True,579
+handed,hand,VERB,2,1,Good Grief,2.0,False,580
+given,give,VERB,2,1,Good Grief,2.0,False,581
+jewels,jewel,NOUN,2,1,Good Grief,2.0,False,582
+answers,answer,NOUN,2,1,Good Grief,2.0,False,583
+bein,bein,PROPN,2,1,Good Grief,2.0,False,584
+ousted,oust,VERB,2,1,Good Grief,2.0,False,585
+blows,blow,VERB,2,1,Good Grief,2.0,False,586
+station,station,NOUN,2,1,Arlandria,2.0,False,587
+nothin,nothing,NOUN,2,2,Arlandria; Wheels,1.0,False,588
+settle,settle,VERB,2,1,Arlandria,2.0,False,589
+noose,noose,NOUN,2,2,Best of You; Generator,1.0,False,590
+satellite,satellite,PROPN,2,1,The Line,2.0,False,591
+searchin,searchin,NOUN,2,1,The Line,2.0,False,592
+yes,yes,INTJ,2,1,The Line,2.0,False,593
+cloud,cloud,NOUN,2,1,The Line,2.0,False,594
+fuckin,fuckin,VERB,2,1,Make It Right,2.0,False,595
+feeds,feed,VERB,2,1,Make It Right,2.0,False,596
+drinkin,drinkin,ADJ,2,1,Dirty Water,2.0,False,597
+dreams,dream,NOUN,2,2,Dirty Water; Stacked Actors,1.0,False,598
+piece,piece,NOUN,2,2,"Hey, Johnny Park!; Long Road to Ruin",1.0,False,599
+record,record,NOUN,2,1,Shame Shame,2.0,False,600
+tongue,tongue,NOUN,2,1,Shame Shame,2.0,False,601
+quite,quite,ADV,2,1,Learn to Fly,2.0,True,602
+outside,outside,ADP,2,2,Aurora; Saint Cecilia,1.0,False,603
+fill,fill,VERB,2,2,Aurora; Stranger Things Have Happened,1.0,False,604
+patience,patience,NOUN,2,2,Home; Learn to Fly,1.0,False,605
+kinda,kinda,ADV,2,1,Aurora,2.0,False,606
+bruise,bruise,NOUN,2,2,"Generator; Hey, Johnny Park!",1.0,False,607
+coin,coin,NOUN,2,1,Friend of a Friend,2.0,False,608
+phone,phone,NOUN,2,1,Friend of a Friend,2.0,False,609
+young,young,ADJ,2,1,Waiting on a War,2.0,False,610
+toy,toy,NOUN,2,1,Waiting on a War,2.0,False,611
+gun,gun,NOUN,2,1,Waiting on a War,2.0,False,612
+number,number,NOUN,2,2,Make It Right; Waiting on a War,1.0,False,613
+else,else,ADV,2,1,Aurora,2.0,True,614
+ritalin,ritalin,PROPN,2,1,This Is a Call,2.0,False,615
+vision,vision,NOUN,2,1,The Glass,2.0,False,616
+version,version,NOUN,2,1,The Glass,2.0,False,617
+step,step,NOUN,2,2,The Sky Is a Neighborhood; The Teacher,1.0,False,618
+ahead,ahead,ADV,2,1,The Sky Is a Neighborhood,2.0,False,619
+row,row,NOUN,2,1,Dirty Water,2.0,False,620
+rung,ring,VERB,2,1,Dirty Water,2.0,False,621
+awake,awake,ADJ,2,1,Stranger Things Have Happened,2.0,False,622
+clouds,cloud,NOUN,2,2,Show Me How; Walking after You,1.0,False,623
+cracked,crack,VERB,2,1,Walking after You,2.0,False,624
+fast,fast,ADV,2,1,Rescued,2.0,False,625
+songs,song,NOUN,2,2,Dirty Water; Under You,1.0,False,626
+walked,walk,VERB,2,1,Under You,2.0,False,627
+wall,wall,NOUN,2,2,Long Road to Ruin; Rope,1.0,False,628
+above,above,ADP,2,2,"Hey, Johnny Park!; Rope",1.0,True,629
+smoke,smoke,NOUN,2,2,Rope; Stranger Things Have Happened,1.0,False,630
+markin,markin,ADJ,2,1,This Is a Call,2.0,False,631
+balloons,balloon,NOUN,2,1,This Is a Call,2.0,False,632
+magic,magic,ADJ,2,1,This Is a Call,2.0,False,633
+marker,marker,NOUN,2,1,This Is a Call,2.0,False,634
+minocin,minocin,PROPN,2,1,This Is a Call,2.0,False,635
+storybook,storybook,NOUN,2,1,The Sky Is a Neighborhood,2.0,False,636
+star,star,NOUN,2,1,The Sky Is a Neighborhood,2.0,False,637
+secret,secret,NOUN,2,2,Sunday Rain; This Is a Call,1.0,False,638
+beat,beat,NOUN,2,1,These Days,2.0,False,639
+boots,boot,NOUN,2,1,Everlong,2.0,False,640
+really,really,ADV,2,2,Everlong; Waiting on a War,1.0,True,641
+played,play,VERB,2,1,Friend of a Friend,2.0,False,642
+belong,belong,VERB,2,1,February Stars,2.0,False,643
+their,their,PRON,2,2,Best of You; These Days,1.0,True,644
+holdin,holdin,PROPN,2,2,Best of You; Rest,1.0,False,645
+resist,resist,VERB,2,1,Best of You,2.0,False,646
+while,while,SCONJ,2,2,My Hero; Show Me How,1.0,True,647
+leavin,leavin,PROPN,2,2,Long Road to Ruin; My Hero,1.0,False,648
+confession,confession,NOUN,2,1,Best of You,2.0,False,649
+fool,fool,NOUN,2,1,Best of You,2.0,False,650
+moments,moment,NOUN,2,2,Home; Rest,1.0,False,651
+saved,save,VERB,2,1,Rest,2.0,False,652
+laugh,laugh,VERB,2,1,Rest,2.0,False,653
+wakin,wakin,PROPN,2,1,Rest,2.0,False,654
+dusty,dusty,ADJ,2,2,Stranger Things Have Happened; The Teacher,1.0,False,655
+turns,turn,VERB,2,1,The Teacher,2.0,False,656
+lesson,lesson,NOUN,2,1,The Teacher,2.0,False,657
+torn,tear,VERB,2,2,The Line; The Teacher,1.0,False,658
+blast,blast,NOUN,2,1,Breakout,2.0,False,659
+words,word,NOUN,2,2,I’ll Stick Around; No Son of Mine,1.0,False,660
+looked,look,VERB,2,2,I’ll Stick Around; Wheels,1.0,False,661
+drop,drop,VERB,2,1,These Days,2.0,False,662
+endured,endure,VERB,2,1,I’ll Stick Around,2.0,False,663
+fade,fade,VERB,2,1,I’ll Stick Around,2.0,False,664
+sure,sure,ADJ,2,1,I’ll Stick Around,2.0,False,665
+behind,behind,ADV,2,2,Long Road to Ruin; Times Like These,1.0,True,666
+erased,erase,VERB,2,1,Run,2.0,False,667
+white,white,ADJ,2,2,The Teacher; Times Like These,1.0,False,668
+upon,upon,SCONJ,2,2,Dirty Water; Times Like These,1.0,True,669
+circles,circle,NOUN,2,2,Breakout; Show Me How,1.0,False,670
+crazy,crazy,ADJ,2,1,Breakout,2.0,False,671
+consequence,consequence,NOUN,2,1,My Hero,2.0,False,672
+evidence,evidence,NOUN,2,1,My Hero,2.0,False,673
+race,race,VERB,2,1,My Hero,2.0,False,674
+please,please,INTJ,2,2,Everlong; Show Me How,1.0,True,675
+shake,shake,VERB,2,2,Arlandria; My Hero,1.0,False,676
+fuck,fuck,PROPN,2,1,Something from Nothing,2.0,False,677
+rise,rise,VERB,2,2,Arrows; Something from Nothing,1.0,False,678
+choice,choice,NOUN,2,1,Something from Nothing,2.0,False,679
+bid,bid,PROPN,2,1,Something from Nothing,2.0,False,680
+farewell,farewell,NOUN,2,1,Something from Nothing,2.0,False,681
+wine,wine,NOUN,2,2,Show Me How; Something from Nothing,1.0,False,682
+held,hold,VERB,2,2,Show Me How; Something from Nothing,1.0,False,683
+heard,hear,VERB,2,2,Long Road to Ruin; Something from Nothing,1.0,False,684
+ignition,ignition,NOUN,2,1,Something from Nothing,2.0,False,685
+bother,bother,VERB,2,2,I’ll Stick Around; Shame Shame,1.0,False,686
+carries,carry,VERB,2,1,Big Me,2.0,False,687
+aries,aries,PROPN,2,1,Big Me,2.0,False,688
+treasons,treason,NOUN,2,1,Big Me,2.0,False,689
+renew,renew,VERB,2,1,Big Me,2.0,False,690
+knowin,knowin,PROPN,2,2,Stacked Actors; Walk,1.0,False,691
+state,state,NOUN,2,2,Long Road to Ruin; Walk,1.0,False,692
+dancin,dancin,PROPN,2,2,Arrows; Walk,1.0,False,693
+raise,raise,VERB,2,1,Long Road to Ruin,2.0,False,694
+worry,worry,VERB,2,1,Show Me How,2.0,False,695
+clean,clean,ADJ,2,2,Stacked Actors; T-Shirt,1.0,False,696
+hold,hold,VERB,2,1,Everlong,2.0,False,697
+dad,dad,NOUN,2,1,Everlong,2.0,False,698
+would,would,AUX,2,2,Everlong; I Should Have Known,1.0,True,699
+sundays,sundays,PROPN,2,1,Everlong,2.0,False,700
+because,because,SCONJ,2,2,Everlong; Something from Nothing,1.0,True,701
+gets,get,VERB,2,2,T-Shirt; The Line,1.0,False,702
+puttin,puttin,ADJ,2,1,Good Grief,2.0,False,703
+pray,pray,PROPN,2,2,Home; No Son of Mine,1.0,False,704
+moment,moment,NOUN,2,2,Dirty Water; Walk,1.0,False,705
+friends,friend,NOUN,2,2,Friend of a Friend; Monkey Wrench,1.0,False,706
+revenge,revenge,NOUN,2,2,Dirty Water; Monkey Wrench,1.0,False,707
+made,make,VERB,2,2,Monkey Wrench; Show Me How,1.0,True,708
+shape,shape,NOUN,2,2,I Should Have Known; Long Road to Ruin,1.0,False,709
+valley,valley,NOUN,2,1,Long Road to Ruin,2.0,False,710
+skies,sky,NOUN,2,1,Long Road to Ruin,2.0,False,711
+sealed,seal,VERB,2,1,Long Road to Ruin,2.0,False,712
+fate,fate,NOUN,2,1,Long Road to Ruin,2.0,False,713
+town,town,NOUN,2,2,Good Grief; Long Road to Ruin,1.0,False,714
+king,king,NOUN,2,2,Long Road to Ruin; T-Shirt,1.0,False,715
+prove,prove,VERB,2,1,Big Me,2.0,False,716
+singin,singin,PROPN,2,2,Long Road to Ruin; Something from Nothing,1.0,False,717
+mend,mend,VERB,2,2,The Teacher; Wheels,1.0,False,718
+simple,simple,ADJ,2,2,Arlandria; Let It Die,1.0,False,719
+world,world,NOUN,2,2,Arrows; Waiting on a War,1.0,False,720
+hook,hook,VERB,2,2,Learn to Fly; Saint Cecilia,1.0,False,721
+sat,sit,VERB,2,2,Learn to Fly; Walk,1.0,False,722
+heal,heal,VERB,2,2,Best of You; I Should Have Known,1.0,False,723
+hearts,heart,NOUN,2,2,Best of You; Wheels,1.0,False,724
+swear,swear,VERB,2,1,Best of You,2.0,False,725
+refuse,refuse,VERB,2,1,Best of You,2.0,False,726
+memories,memory,NOUN,2,1,Arlandria,2.0,False,727
+spit,spit,VERB,2,1,Arlandria,2.0,False,728
+warnin,warnin,NOUN,2,1,I Should Have Known,2.0,False,729
+hello,hello,INTJ,2,2,Everlong; Show Me How,1.0,False,730
+throw,throw,VERB,2,2,"Everlong; Hey, Johnny Park!",1.0,False,731
+grief,grief,NOUN,2,1,Good Grief,2.0,False,732
+low,low,ADJ,1,1,The Line,1.0,False,733
+everlong,everlong,PROPN,1,1,Everlong,1.0,False,734
+myself,myself,PRON,1,1,Everlong,1.0,True,735
+red,red,NOUN,1,1,Everlong,1.0,False,736
+waste,waste,VERB,1,1,Everlong,1.0,False,737
+slow,slow,ADJ,1,1,Everlong,1.0,False,738
+harder,hard,ADJ,1,1,Make It Right,1.0,False,739
+lover,lover,NOUN,1,1,Make It Right,1.0,False,740
+deeper,deep,ADJ,1,1,Make It Right,1.0,False,741
+keeper,keeper,NOUN,1,1,Make It Right,1.0,False,742
+martyr,martyr,NOUN,1,1,Make It Right,1.0,False,743
+work,work,NOUN,1,1,No Son of Mine,1.0,False,744
+villains,villain,NOUN,1,1,No Son of Mine,1.0,False,745
+fools,fool,NOUN,1,1,No Son of Mine,1.0,False,746
+beg,beg,VERB,1,1,No Son of Mine,1.0,False,747
+forgiveness,forgiveness,NOUN,1,1,No Son of Mine,1.0,False,748
+egos,ego,NOUN,1,1,Generator,1.0,False,749
+sin,sin,VERB,1,1,Generator,1.0,False,750
+eating,eat,VERB,1,1,Generator,1.0,False,751
+criminal,criminal,NOUN,1,1,Generator,1.0,False,752
+send,send,VERB,1,1,Generator,1.0,False,753
+tether,tether,NOUN,1,1,Generator,1.0,False,754
+swing,swing,NOUN,1,1,Generator,1.0,False,755
+keeps,keep,VERB,1,1,Generator,1.0,False,756
+power,power,NOUN,1,1,No Son of Mine,1.0,False,757
+vested,vest,VERB,1,1,No Son of Mine,1.0,False,758
+thee,thee,PRON,1,1,No Son of Mine,1.0,False,759
+smile,smile,NOUN,1,1,Good Grief,1.0,False,760
+wicked,wicked,ADJ,1,1,No Son of Mine,1.0,False,761
+deed,deed,NOUN,1,1,No Son of Mine,1.0,False,762
+evil,evil,NOUN,1,1,No Son of Mine,1.0,False,763
+greed,greed,NOUN,1,1,No Son of Mine,1.0,False,764
+bend,bend,VERB,1,1,Monkey Wrench,1.0,False,765
+pressure,pressure,NOUN,1,1,Monkey Wrench,1.0,False,766
+snapping,snap,VERB,1,1,Monkey Wrench,1.0,False,767
+worse,bad,ADJ,1,1,T-Shirt,1.0,False,768
+might,might,AUX,1,1,Good Grief,1.0,True,769
+intended,intend,VERB,1,1,Good Grief,1.0,False,770
+gown,gown,NOUN,1,1,Good Grief,1.0,False,771
+pissed,piss,VERB,1,1,Good Grief,1.0,False,772
+bowels,bowel,NOUN,1,1,Good Grief,1.0,False,773
+blues,blue,NOUN,1,1,Good Grief,1.0,False,774
+delicate,delicate,ADJ,1,1,Good Grief,1.0,False,775
+grace,grace,NOUN,1,1,Home,1.0,False,776
+replace,replace,VERB,1,1,Home,1.0,False,777
+absence,absence,NOUN,1,1,Home,1.0,False,778
+people,people,NOUN,1,1,Home,1.0,False,779
+regrets,regret,NOUN,1,1,Home,1.0,False,780
+living,live,VERB,1,1,Home,1.0,False,781
+pretend,pretend,PROPN,1,1,T-Shirt,1.0,False,782
+shirt,shirt,NOUN,1,1,T-Shirt,1.0,False,783
+very,very,ADV,1,1,Walk,1.0,True,784
+alive,alive,ADJ,1,1,Walk,1.0,False,785
+whisper,whisper,NOUN,1,1,Walk,1.0,False,786
+riot,riot,NOUN,1,1,Walk,1.0,False,787
+sacrifice,sacrifice,VERB,1,1,Walk,1.0,False,788
+shelter,shelter,NOUN,1,1,Home,1.0,False,789
+cover,cover,VERB,1,1,Home,1.0,False,790
+echoes,echo,NOUN,1,1,Home,1.0,False,791
+bloody,bloody,ADJ,1,1,Something from Nothing,1.0,False,792
+doing,do,VERB,1,1,La Dee Da,1.0,True,793
+american,american,ADJ,1,1,La Dee Da,1.0,False,794
+ruse,ruse,NOUN,1,1,La Dee Da,1.0,False,795
+whitehouse,whitehouse,PROPN,1,1,La Dee Da,1.0,False,796
+notice,notice,VERB,1,1,La Dee Da,1.0,False,797
+crosses,cross,NOUN,1,1,La Dee Da,1.0,False,798
+street,street,NOUN,1,1,Arrows,1.0,False,799
+arsonist,arsonist,ADJ,1,1,Something from Nothing,1.0,False,800
+choir,choir,NOUN,1,1,Something from Nothing,1.0,False,801
+spark,spark,NOUN,1,1,Something from Nothing,1.0,False,802
+river,river,NOUN,1,1,Something from Nothing,1.0,False,803
+wild,wild,NOUN,1,1,Something from Nothing,1.0,False,804
+string,string,NOUN,1,1,Something from Nothing,1.0,False,805
+threw,throw,VERB,1,1,Something from Nothing,1.0,False,806
+hungry,hungry,ADJ,1,1,Something from Nothing,1.0,False,807
+mattered,matter,VERB,1,1,Wheels,1.0,False,808
+beginnin,beginnin,PROPN,1,1,Wheels,1.0,False,809
+flammable,flammable,ADJ,1,1,Something from Nothing,1.0,False,810
+match,match,NOUN,1,1,Something from Nothing,1.0,False,811
+ready,ready,ADJ,1,1,Something from Nothing,1.0,False,812
+strike,strike,VERB,1,1,Something from Nothing,1.0,False,813
+lies,lie,VERB,1,1,Something from Nothing,1.0,False,814
+city,city,NOUN,1,1,Something from Nothing,1.0,False,815
+sights,sight,NOUN,1,1,Arrows,1.0,False,816
+forming,form,VERB,1,1,Arrows,1.0,False,817
+blessed,bless,VERB,1,1,Arrows,1.0,False,818
+conversation,conversation,NOUN,1,1,Arlandria,1.0,False,819
+became,become,VERB,1,1,Arlandria,1.0,True,820
+shameful,shameful,ADJ,1,1,Arlandria,1.0,False,821
+equation,equation,NOUN,1,1,Arlandria,1.0,False,822
+flipped,flip,VERB,1,1,Arlandria,1.0,False,823
+flame,flame,NOUN,1,1,The Teacher,1.0,False,824
+trap,trap,NOUN,1,1,Rescued,1.0,False,825
+coldеr,coldеr,PROPN,1,1,Rescued,1.0,False,826
+shoulder,shoulder,NOUN,1,1,Rescued,1.0,False,827
+bottom,bottom,NOUN,1,1,Rest,1.0,True,828
+empty,empty,ADJ,1,1,Rest,1.0,True,829
+cup,cup,NOUN,1,1,Rest,1.0,False,830
+layin,layin,PROPN,1,1,Rest,1.0,False,831
+separate,separate,VERB,1,1,The Teacher,1.0,False,832
+spirit,spirit,PROPN,1,1,The Teacher,1.0,False,833
+movin,movin,PROPN,1,1,The Teacher,1.0,False,834
+stones,stone,NOUN,1,1,The Teacher,1.0,False,835
+riverbed,riverbed,NOUN,1,1,The Teacher,1.0,False,836
+ripped,rip,VERB,1,1,The Teacher,1.0,False,837
+candles,candle,NOUN,1,1,The Teacher,1.0,False,838
+porch,porch,NOUN,1,1,The Teacher,1.0,False,839
+washed,wash,VERB,1,1,Something from Nothing,1.0,False,840
+muddy,muddy,ADJ,1,1,Something from Nothing,1.0,False,841
+quarter,quarter,NOUN,1,1,Something from Nothing,1.0,False,842
+windows,window,VERB,1,1,The Teacher,1.0,False,843
+wide,wide,ADV,1,1,The Teacher,1.0,False,844
+closer,close,ADV,1,1,The Teacher,1.0,False,845
+others,other,NOUN,1,1,The Teacher,1.0,True,846
+hurry,hurry,VERB,1,1,The Teacher,1.0,False,847
+front,front,ADJ,1,1,Arrows,1.0,True,848
+lines,line,NOUN,1,1,Arrows,1.0,False,849
+led,lead,VERB,1,1,Arrows,1.0,False,850
+years,year,NOUN,1,1,Arrows,1.0,False,851
+passed,pass,VERB,1,1,Arrows,1.0,False,852
+rattled,rattle,VERB,1,1,Something from Nothing,1.0,False,853
+rubber,rubber,NOUN,1,1,Something from Nothing,1.0,False,854
+bands,band,NOUN,1,1,Something from Nothing,1.0,False,855
+condition,condition,NOUN,1,1,Rope,1.0,False,856
+position,position,NOUN,1,1,Rope,1.0,False,857
+does,do,VERB,1,1,Rope,1.0,True,858
+harm,harm,NOUN,1,1,Rope,1.0,False,859
+tangled,tangle,VERB,1,1,Walking after You,1.0,False,860
+woke,wake,VERB,1,1,Under You,1.0,False,861
+looking,look,VERB,1,1,Under You,1.0,False,862
+feels,feel,VERB,1,1,Under You,1.0,False,863
+chains,chain,NOUN,1,1,Best of You,1.0,False,864
+grieve,grieve,VERB,1,1,The Teacher,1.0,False,865
+indecision,indecision,NOUN,1,1,Rope,1.0,False,866
+climbin,climbin,PROPN,1,1,Rope,1.0,False,867
+cheatin,cheatin,NOUN,1,1,Rope,1.0,False,868
+gravity,gravity,NOUN,1,1,Rope,1.0,False,869
+premonitions,premonition,NOUN,1,1,Rope,1.0,False,870
+cryin,cryin,PROPN,1,1,Rope,1.0,False,871
+tiny,tiny,ADJ,1,1,Rest,1.0,False,872
+papercuts,papercut,NOUN,1,1,Rest,1.0,False,873
+onto,onto,ADP,1,1,Rest,1.0,True,874
+luck,luck,NOUN,1,1,Rest,1.0,False,875
+escaping,escape,VERB,1,1,Rest,1.0,False,876
+warm,warm,ADJ,1,1,Rest,1.0,False,877
+peter,peter,PROPN,1,1,My Hero,1.0,False,878
+kudos,kudos,PROPN,1,1,My Hero,1.0,False,879
+favorite,favorite,ADJ,1,1,Rest,1.0,False,880
+clothes,clothe,NOUN,1,1,Rest,1.0,False,881
+chosen,choose,VERB,1,1,Rest,1.0,False,882
+books,book,NOUN,1,1,Rest,1.0,False,883
+faded,fade,VERB,1,1,Rest,1.0,False,884
+photographs,photograph,NOUN,1,1,Rest,1.0,False,885
+angel,angel,PROPN,1,1,Rest,1.0,False,886
+dust,dust,NOUN,1,1,Rest,1.0,False,887
+stared,star,VERB,1,1,Aurora,1.0,False,888
+chance,chance,NOUN,1,1,Aurora,1.0,False,889
+laughin,laughin,ADV,1,1,Learn to Fly,1.0,False,890
+lyin,lyin,PROPN,1,1,Learn to Fly,1.0,False,891
+nursin,nursin,NOUN,1,1,Learn to Fly,1.0,False,892
+happily,happily,ADV,1,1,Learn to Fly,1.0,False,893
+trapped,trap,VERB,1,1,Learn to Fly,1.0,False,894
+easier,easy,ADJ,1,1,Aurora,1.0,False,895
+gold,gold,NOUN,1,1,Let It Die,1.0,False,896
+seen,see,VERB,1,1,Let It Die,1.0,False,897
+blushin,blushin,NOUN,1,1,Let It Die,1.0,False,898
+bride,bride,NOUN,1,1,Let It Die,1.0,False,899
+intravenous,intravenous,PROPN,1,1,Let It Die,1.0,False,900
+intertwined,intertwine,VERB,1,1,Let It Die,1.0,False,901
+fades,fade,VERB,1,1,"Hey, Johnny Park!",1.0,False,902
+died,die,VERB,1,1,Aurora,1.0,False,903
+accept,accept,VERB,1,1,Walking after You,1.0,False,904
+surrender,surrender,NOUN,1,1,Walking after You,1.0,False,905
+adored,adore,VERB,1,1,Walking after You,1.0,False,906
+goddamn,goddamn,VERB,1,1,Stranger Things Have Happened,1.0,False,907
+hazy,hazy,ADJ,1,1,Stranger Things Have Happened,1.0,False,908
+afternoon,afternoon,NOUN,1,1,Stranger Things Have Happened,1.0,False,909
+breathin,breathin,NOUN,1,1,Stranger Things Have Happened,1.0,False,910
+cigarette,cigarette,NOUN,1,1,Stranger Things Have Happened,1.0,False,911
+part,part,NOUN,1,1,Under You,1.0,True,912
+sharing,share,VERB,1,1,Under You,1.0,False,913
+cigarettes,cigarette,NOUN,1,1,Under You,1.0,False,914
+picture,picture,VERB,1,1,Under You,1.0,False,915
+recover,recover,VERB,1,1,Under You,1.0,False,916
+flash,flash,NOUN,1,1,Rescued,1.0,False,917
+blanket,blanket,NOUN,1,1,Walking after You,1.0,False,918
+dreaming,dream,VERB,1,1,Walking after You,1.0,False,919
+taste,taste,NOUN,1,1,Dirty Water,1.0,False,920
+battlefield,battlefield,NOUN,1,1,The Sky Is a Neighborhood,1.0,False,921
+trouble,trouble,NOUN,1,1,The Sky Is a Neighborhood,1.0,False,922
+whose,whose,DET,1,1,The Sky Is a Neighborhood,1.0,True,923
+thoughts,thought,NOUN,1,1,The Sky Is a Neighborhood,1.0,False,924
+minefield,minefield,NOUN,1,1,The Sky Is a Neighborhood,1.0,False,925
+tickin,tickin,NOUN,1,1,The Sky Is a Neighborhood,1.0,False,926
+bomb,bomb,NOUN,1,1,The Sky Is a Neighborhood,1.0,False,927
+tumble,tumble,VERB,1,1,Dirty Water,1.0,False,928
+falling,fall,VERB,1,1,Dirty Water,1.0,False,929
+faster,fast,ADV,1,1,Dirty Water,1.0,False,930
+echoing,echo,VERB,1,1,Dirty Water,1.0,False,931
+sea,sea,NOUN,1,1,Dirty Water,1.0,False,932
+poison,poison,NOUN,1,1,Dirty Water,1.0,False,933
+flowers,flower,NOUN,1,1,Dirty Water,1.0,False,934
+standing,stand,VERB,1,1,Dirty Water,1.0,False,935
+hover,hover,AUX,1,1,"Hey, Johnny Park!",1.0,False,936
+blind,blind,ADJ,1,1,"Hey, Johnny Park!",1.0,False,937
+reward,reward,NOUN,1,1,"Hey, Johnny Park!",1.0,False,938
+witchin,witchin,NOUN,1,1,Dirty Water,1.0,False,939
+hour,hour,NOUN,1,1,Dirty Water,1.0,False,940
+haunted,haunted,ADJ,1,1,Dirty Water,1.0,False,941
+climbing,climb,VERB,1,1,Dirty Water,1.0,False,942
+ladders,ladder,NOUN,1,1,Dirty Water,1.0,False,943
+buy,buy,VERB,1,1,Aurora,1.0,False,944
+hole,hole,NOUN,1,1,Aurora,1.0,False,945
+thumb,thumb,NOUN,1,1,Shame Shame,1.0,False,946
+drug,drug,NOUN,1,1,Shame Shame,1.0,False,947
+smother,smother,VERB,1,1,Shame Shame,1.0,False,948
+stab,stab,PROPN,1,1,"Hey, Johnny Park!",1.0,False,949
+undercover,undercover,NOUN,1,1,"Hey, Johnny Park!",1.0,False,950
+remind,remind,VERB,1,1,"Hey, Johnny Park!",1.0,False,951
+heals,heal,VERB,1,1,February Stars,1.0,False,952
+construction,construction,NOUN,1,1,Everlong,1.0,False,953
+clocks,clock,NOUN,1,1,These Days,1.0,False,954
+mean,mean,VERB,1,1,These Days,1.0,False,955
+bombs,bomb,NOUN,1,1,These Days,1.0,False,956
+disappear,disappear,VERB,1,1,These Days,1.0,False,957
+visiting,visit,VERB,1,1,This Is a Call,1.0,False,958
+visitin,visitin,PROPN,1,1,This Is a Call,1.0,False,959
+lock,lock,NOUN,1,1,Friend of a Friend,1.0,False,960
+knows,know,VERB,1,1,Friend of a Friend,1.0,False,961
+thinks,think,VERB,1,1,Friend of a Friend,1.0,False,962
+drinks,drink,VERB,1,1,Friend of a Friend,1.0,False,963
+tells,tell,VERB,1,1,Friend of a Friend,1.0,False,964
+drink,drink,VERB,1,1,Friend of a Friend,1.0,False,965
+gamble,gamble,VERB,1,1,February Stars,1.0,False,966
+unknown,unknown,ADJ,1,1,February Stars,1.0,False,967
+daughter,daughter,NOUN,1,1,This Is a Call,1.0,False,968
+person,person,NOUN,1,1,The Glass,1.0,False,969
+relieve,relieve,VERB,1,1,Aurora,1.0,False,970
+served,serve,VERB,1,1,Dirty Water,1.0,False,971
+crash,crash,NOUN,1,1,Waiting on a War,1.0,False,972
+small,small,ADJ,1,1,Waiting on a War,1.0,False,973
+voice,voice,NOUN,1,1,Waiting on a War,1.0,False,974
+radio,radio,NOUN,1,1,Waiting on a War,1.0,False,975
+motorway,motorway,PROPN,1,1,Times Like These,1.0,False,976
+drives,drive,VERB,1,1,Times Like These,1.0,False,977
+cysts,cyst,NOUN,1,1,This Is a Call,1.0,False,978
+mollusks,mollusk,NOUN,1,1,This Is a Call,1.0,False,979
+tend,tend,VERB,1,1,This Is a Call,1.0,False,980
+barter,barter,VERB,1,1,This Is a Call,1.0,False,981
+ones,one,NOUN,1,1,This Is a Call,1.0,False,982
+watered,water,VERB,1,1,This Is a Call,1.0,False,983
+charade,charade,NOUN,1,1,Run,1.0,False,984
+hounds,hound,NOUN,1,1,Run,1.0,False,985
+gagged,gag,VERB,1,1,I’ll Stick Around,1.0,False,986
+bound,bind,VERB,1,1,I’ll Stick Around,1.0,False,987
+knock,knock,VERB,1,1,I’ll Stick Around,1.0,False,988
+desperate,desperate,ADJ,1,1,I’ll Stick Around,1.0,False,989
+returns,return,VERB,1,1,I’ll Stick Around,1.0,False,990
+lands,land,VERB,1,1,I’ll Stick Around,1.0,False,991
+blindin,blindin,ADJ,1,1,Times Like These,1.0,False,992
+burnin,burnin,NOUN,1,1,Times Like These,1.0,False,993
+risin,risin,NOUN,1,1,Times Like These,1.0,False,994
+brand,brand,NOUN,1,1,Times Like These,1.0,False,995
+divided,divided,ADJ,1,1,Times Like These,1.0,False,996
+rats,rat,NOUN,1,1,Run,1.0,False,997
+parade,parade,NOUN,1,1,Run,1.0,False,998
+mad,mad,ADJ,1,1,Run,1.0,False,999
+tall,tall,ADJ,1,1,February Stars,1.0,False,1000
+granted,grant,VERB,1,1,Sunday Rain,1.0,False,1001
+ceilin,ceilin,NOUN,1,1,Sunday Rain,1.0,False,1002
+leadin,leadin,NOUN,1,1,Sunday Rain,1.0,False,1003
+follow,follow,VERB,1,1,Sunday Rain,1.0,False,1004
+mistake,mistake,NOUN,1,1,Sunday Rain,1.0,False,1005
+believin,believin,NOUN,1,1,Sunday Rain,1.0,False,1006
+dizzy,dizzy,ADJ,1,1,Breakout,1.0,False,1007
+problem,problem,NOUN,1,1,This Is a Call,1.0,False,1008
+start,start,NOUN,1,1,Everlong,1.0,False,1009
+crying,cry,VERB,1,1,Everlong,1.0,False,1010
+alarmin,alarmin,PROPN,1,1,My Hero,1.0,False,1011
+walls,wall,NOUN,1,1,February Stars,1.0,False,1012
+build,build,VERB,1,1,February Stars,1.0,False,1013
+higher,high,ADJ,1,1,February Stars,1.0,False,1014
+shadows,shadow,NOUN,1,1,February Stars,1.0,False,1015
+mess,mess,NOUN,1,1,Stacked Actors,1.0,False,1016
+seem,seem,VERB,1,1,Stacked Actors,1.0,True,1017
+teary,teary,ADJ,1,1,Stacked Actors,1.0,False,1018
+famous,famous,ADJ,1,1,Stacked Actors,1.0,False,1019
+disguise,disguise,NOUN,1,1,Stacked Actors,1.0,False,1020
+agin,agin,NOUN,1,1,Stacked Actors,1.0,False,1021
+drag,drag,PROPN,1,1,Stacked Actors,1.0,False,1022
+square,square,NOUN,1,1,Show Me How,1.0,False,1023
+design,design,NOUN,1,1,Stacked Actors,1.0,False,1024
+messy,messy,ADJ,1,1,Stacked Actors,1.0,False,1025
+dress,dress,VERB,1,1,Stacked Actors,1.0,False,1026
+hire,hire,NOUN,1,1,Stacked Actors,1.0,False,1027
+wonderful,wonderful,ADJ,1,1,Stacked Actors,1.0,False,1028
+liar,liar,NOUN,1,1,Stacked Actors,1.0,False,1029
+bless,bless,VERB,1,1,Stacked Actors,1.0,False,1030
+sensitive,sensitive,ADJ,1,1,Stacked Actors,1.0,False,1031
+crawl,crawl,VERB,1,1,Breakout,1.0,False,1032
+finally,finally,ADV,1,1,Stacked Actors,1.0,False,1033
+impressed,impressed,ADJ,1,1,Stacked Actors,1.0,False,1034
+chest,chest,NOUN,1,1,Stacked Actors,1.0,False,1035
+meant,mean,VERB,1,1,Stacked Actors,1.0,False,1036
+scene,scene,NOUN,1,1,Stacked Actors,1.0,False,1037
+resign,resign,VERB,1,1,Stacked Actors,1.0,False,1038
+latest,late,ADJ,1,1,Stacked Actors,1.0,False,1039
+due,due,ADJ,1,1,I’ll Stick Around,1.0,True,1040
+shown,show,VERB,1,1,I’ll Stick Around,1.0,False,1041
+feet,foot,NOUN,1,1,These Days,1.0,False,1042
+therapy,therapy,NOUN,1,1,Breakout,1.0,False,1043
+scares,scar,VERB,1,1,Breakout,1.0,False,1044
+frayed,fray,VERB,1,1,Breakout,1.0,False,1045
+phase,phase,VERB,1,1,Breakout,1.0,False,1046
+watchin,watchin,PROPN,1,1,Breakout,1.0,False,1047
+refused,refuse,VERB,1,1,I’ll Stick Around,1.0,False,1048
+methods,method,NOUN,1,1,I’ll Stick Around,1.0,False,1049
+confused,confused,ADJ,1,1,I’ll Stick Around,1.0,False,1050
+pawns,pawn,NOUN,1,1,I’ll Stick Around,1.0,False,1051
+follows,follow,VERB,1,1,Times Like These,1.0,False,1052
+streetlight,streetlight,ADJ,1,1,Times Like These,1.0,False,1053
+shinin,shinin,PROPN,1,1,Times Like These,1.0,False,1054
+shut,shut,VERB,1,1,Long Road to Ruin,1.0,False,1055
+unchanged,unchanged,ADJ,1,1,Long Road to Ruin,1.0,False,1056
+survive,survive,VERB,1,1,Walk,1.0,False,1057
+climb,climb,VERB,1,1,Walk,1.0,False,1058
+prayin,prayin,NOUN,1,1,Walk,1.0,False,1059
+carried,carry,VERB,1,1,Big Me,1.0,False,1060
+sees,see,VERB,1,1,I’ll Stick Around,1.0,False,1061
+rehearsed,rehearsed,ADJ,1,1,I’ll Stick Around,1.0,False,1062
+insanity,insanity,NOUN,1,1,I’ll Stick Around,1.0,False,1063
+mе,mе,NOUN,1,1,Show Me How,1.0,False,1064
+stopping,stop,VERB,1,1,Show Me How,1.0,False,1065
+news,news,NOUN,1,1,Long Road to Ruin,1.0,False,1066
+flag,flag,NOUN,1,1,Long Road to Ruin,1.0,False,1067
+cross,cross,NOUN,1,1,Long Road to Ruin,1.0,False,1068
+bear,bear,VERB,1,1,Long Road to Ruin,1.0,False,1069
+stubborn,stubborn,ADJ,1,1,Long Road to Ruin,1.0,False,1070
+remains,remain,VERB,1,1,Long Road to Ruin,1.0,False,1071
+spilling,spill,VERB,1,1,Show Me How,1.0,False,1072
+thinking,think,VERB,1,1,Show Me How,1.0,False,1073
+wrote,write,VERB,1,1,Show Me How,1.0,False,1074
+melody,melody,NOUN,1,1,Show Me How,1.0,False,1075
+rolling,roll,VERB,1,1,Show Me How,1.0,False,1076
+hummingbirds,hummingbird,NOUN,1,1,Show Me How,1.0,False,1077
+naming,name,VERB,1,1,Show Me How,1.0,False,1078
+evеry,evеry,NOUN,1,1,Show Me How,1.0,False,1079
+amends,amend,NOUN,1,1,Monkey Wrench,1.0,False,1080
+enemies,enemy,NOUN,1,1,Monkey Wrench,1.0,False,1081
+built,build,VERB,1,1,Walk,1.0,False,1082
+paper,paper,NOUN,1,1,Walk,1.0,False,1083
+mountains,mountain,NOUN,1,1,Walk,1.0,False,1084
+growin,growin,VERB,1,1,Walk,1.0,False,1085
+stronger,strong,ADJ,1,1,Walk,1.0,False,1086
+conquerors,conqueror,NOUN,1,1,Walk,1.0,False,1087
+leads,lead,VERB,1,1,Home,1.0,False,1088
+stakes,stake,NOUN,1,1,Run,1.0,False,1089
+disappeared,disappear,VERB,1,1,Monkey Wrench,1.0,False,1090
+sense,sense,NOUN,1,1,Monkey Wrench,1.0,False,1091
+adolescent,adolescent,ADJ,1,1,Monkey Wrench,1.0,False,1092
+resident,resident,NOUN,1,1,Monkey Wrench,1.0,False,1093
+wasting,wasting,NOUN,1,1,Monkey Wrench,1.0,False,1094
+plannin,plannin,PROPN,1,1,Monkey Wrench,1.0,False,1095
+takes,take,VERB,1,1,Long Road to Ruin,1.0,False,1096
+turnin,turnin,NOUN,1,1,Long Road to Ruin,1.0,False,1097
+price,price,NOUN,1,1,Long Road to Ruin,1.0,False,1098
+secrets,secret,NOUN,1,1,Saint Cecilia,1.0,False,1099
+eyesore,eyesore,NOUN,1,1,Saint Cecilia,1.0,False,1100
+sittin,sittin,ADJ,1,1,Saint Cecilia,1.0,False,1101
+dryin,dryin,NOUN,1,1,Saint Cecilia,1.0,False,1102
+direction,direction,NOUN,1,1,Home,1.0,False,1103
+open,open,VERB,1,1,Long Road to Ruin,1.0,False,1104
+streets,street,NOUN,1,1,Long Road to Ruin,1.0,False,1105
+gates,gate,NOUN,1,1,Long Road to Ruin,1.0,False,1106
+scale,scale,VERB,1,1,Long Road to Ruin,1.0,False,1107
+field,field,NOUN,1,1,Long Road to Ruin,1.0,False,1108
+late,late,ADV,1,1,Long Road to Ruin,1.0,False,1109
+trace,trace,NOUN,1,1,Long Road to Ruin,1.0,False,1110
+horizon,horizon,NOUN,1,1,Long Road to Ruin,1.0,False,1111
+unaware,unaware,ADJ,1,1,I Should Have Known,1.0,False,1112
+read,read,VERB,1,1,I Should Have Known,1.0,False,1113
+signs,sign,NOUN,1,1,I Should Have Known,1.0,False,1114
+lately,lately,ADV,1,1,Generator,1.0,False,1115
+sick,sick,ADJ,1,1,Generator,1.0,False,1116
+many,many,ADJ,1,1,Generator,1.0,True,1117
+spine,spine,NOUN,1,1,The Line,1.0,False,1118
+march,march,PROPN,1,1,No Son of Mine,1.0,False,1119
+petty,petty,ADJ,1,1,Good Grief,1.0,False,1120
+band,band,PROPN,1,1,Good Grief,1.0,False,1121
+aids,aids,PROPN,1,1,Good Grief,1.0,False,1122
+wrapped,wrap,VERB,1,1,Good Grief,1.0,False,1123
+damn,damn,INTJ,1,1,I Should Have Known,1.0,False,1124
+deaf,deaf,ADJ,1,1,I Should Have Known,1.0,False,1125
+dove,dove,VERB,1,1,I Should Have Known,1.0,False,1126
+caught,catch,VERB,1,1,I Should Have Known,1.0,False,1127
+concern,concern,VERB,1,1,Walk,1.0,False,1128
+startin,startin,PROPN,1,1,Walk,1.0,False,1129
+return,return,VERB,1,1,Walk,1.0,False,1130
+asleep,asleep,ADJ,1,1,Run,1.0,False,1131
+nation,nation,NOUN,1,1,Run,1.0,False,1132
+missed,miss,VERB,1,1,Good Grief,1.0,False,1133
+sideways,sideways,ADJ,1,1,Good Grief,1.0,False,1134
+chills,chills,PROPN,1,1,Good Grief,1.0,False,1135
+fit,fit,VERB,1,1,Monkey Wrench,1.0,False,1136
+single,single,ADJ,1,1,Monkey Wrench,1.0,False,1137
+shit,shit,NOUN,1,1,Monkey Wrench,1.0,False,1138
+comforts,comfort,VERB,1,1,Monkey Wrench,1.0,False,1139
+caged,cage,VERB,1,1,Monkey Wrench,1.0,False,1140
+signal,signal,NOUN,1,1,Walk,1.0,False,1141
+distance,distance,NOUN,1,1,Walk,1.0,False,1142
+whom,whom,PRON,1,1,Walk,1.0,True,1143
+flashed,flash,VERB,1,1,Wheels,1.0,False,1144
+starting,start,VERB,1,1,Best of You,1.0,False,1145
+devil,devil,NOUN,1,1,Learn to Fly,1.0,False,1146
+revolution,revolution,NOUN,1,1,Learn to Fly,1.0,False,1147
+silent,silent,ADJ,1,1,Arrows,1.0,False,1148
+screamin,screamin,NOUN,1,1,Arrows,1.0,False,1149
+biology,biology,NOUN,1,1,Arrows,1.0,False,1150
+gemini,gemini,PROPN,1,1,Arrows,1.0,False,1151
+those,those,DET,1,1,Arlandria,1.0,True,1152
+drowned,drown,VERB,1,1,Arlandria,1.0,False,1153
+arms,arm,NOUN,1,1,Arlandria,1.0,False,1154
+hauntin,hauntin,NOUN,1,1,Arlandria,1.0,False,1155
+blame,blame,NOUN,1,1,Arlandria,1.0,False,1156
+okay,okay,ADJ,1,1,Arlandria,1.0,False,1157
+flames,flame,NOUN,1,1,Arlandria,1.0,False,1158
+sinkin,sinkin,NOUN,1,1,Wheels,1.0,False,1159
+listen,listen,VERB,1,1,The Line,1.0,False,1160
+hide,hide,VERB,1,1,The Line,1.0,False,1161
+needed,need,VERB,1,1,Best of You,1.0,False,1162
+gave,give,VERB,1,1,Best of You,1.0,False,1163
+weak,weak,ADJ,1,1,Best of You,1.0,False,1164
+strong,strong,ADJ,1,1,Best of You,1.0,False,1165
+arrest,arrest,NOUN,1,1,Best of You,1.0,False,1166
+giving,give,VERB,1,1,Best of You,1.0,False,1167
+slaughter,slaughter,NOUN,1,1,No Son of Mine,1.0,False,1168
+illusion,illusion,NOUN,1,1,No Son of Mine,1.0,False,1169
+heretofore,heretofore,PROPN,1,1,No Son of Mine,1.0,False,1170
+takin,takin,NOUN,1,1,No Son of Mine,1.0,False,1171
+vain,vain,ADJ,1,1,No Son of Mine,1.0,False,1172
+body,body,NOUN,1,1,The Line,1.0,False,1173
+brush,brush,PROPN,1,1,The Line,1.0,False,1174
+ran,run,VERB,1,1,The Line,1.0,False,1175

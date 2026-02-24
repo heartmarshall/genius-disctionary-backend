@@ -1,0 +1,968 @@
+word,lemma,pos,total_count,song_count,songs,avg_per_song,is_stopword,frequency_rank
+you,you,PRON,588,48,Angel; As Long as You Follow; Beautiful Child; Big Love; Black Magic Woman; Blue Letter; Crystal; Don’t Stop; Don’t Stop (Live 1977); Dreams; Everywhere; Future Games; Go Your Own Way; Gold Dust Woman; Gypsy; Hold Me; Hypnotized; I Don’t Want to Know; Landslide; Little Lies; Man of the World; Monday Morning; Need Your Love So Bad; Never Going Back Again; Oh Daddy; Oh Well (Part 1); Oh Well - Parts I & II; Over & Over; Over My Head; Peacekeeper; Rhiannon; Rhiannon (Live 1977); Sara; Say You Love Me; Say You Will; Second Hand News; Seven Wonders; Silver Springs; Silver Springs (Live 1997) (Edit); Songbird; Storms; The Chain; The Green Manalishi (With the Two Prong Crown); Think About Me; Thrown Down; Tusk; Warm Ways; You Make Loving Fun,12.25,True,1
+i,i,PRON,505,46,Angel; As Long as You Follow; Beautiful Child; Big Love; Black Magic Woman; Blue Letter; Crystal; Don’t Stop; Don’t Stop (Live 1977); Dreams; Everywhere; Future Games; Go Your Own Way; Gold Dust Woman; Gypsy; Hold Me; Hypnotized; I Don’t Want to Know; I’m So Afraid; Landslide; Little Lies; Man of the World; Monday Morning; Need Your Love So Bad; Never Going Back Again; Oh Daddy; Oh Well (Part 1); Oh Well - Parts I & II; Over & Over; Over My Head; Sara; Say You Love Me; Say You Will; Second Hand News; Seven Wonders; Silver Springs; Silver Springs (Live 1997) (Edit); Sisters of the Moon; Songbird; Storms; The Chain; The Green Manalishi (With the Two Prong Crown); Think About Me; Thrown Down; Warm Ways; You Make Loving Fun,10.98,True,2
+the,the,DET,347,46,Angel; As Long as You Follow; Beautiful Child; Big Love; Blue Letter; Crystal; Don’t Stop; Don’t Stop (Live 1977); Dreams; Everywhere; Future Games; Go Your Own Way; Gold Dust Woman; Gypsy; Hold Me; Hypnotized; I Don’t Want to Know; I’m So Afraid; Landslide; Little Lies; Man of the World; Monday Morning; Need Your Love So Bad; Oh Daddy; Oh Well (Part 1); Oh Well - Parts I & II; Over My Head; Peacekeeper; Rhiannon; Rhiannon (Live 1977); Sara; Say You Love Me; Say You Will; Second Hand News; Seven Wonders; Silver Springs; Silver Springs (Live 1997) (Edit); Sisters of the Moon; Songbird; Storms; The Chain; The Green Manalishi (With the Two Prong Crown); Think About Me; Tusk; Warm Ways; You Make Loving Fun,7.54,True,3
+me,i,PRON,298,42,Angel; Beautiful Child; Big Love; Black Magic Woman; Blue Letter; Crystal; Dreams; Everywhere; Go Your Own Way; Gold Dust Woman; Gypsy; Hold Me; Hypnotized; I Don’t Want to Know; Landslide; Little Lies; Man of the World; Monday Morning; Need Your Love So Bad; Never Going Back Again; Oh Daddy; Oh Well (Part 1); Oh Well - Parts I & II; Over & Over; Over My Head; Rhiannon (Live 1977); Sara; Say You Love Me; Say You Will; Second Hand News; Seven Wonders; Silver Springs; Silver Springs (Live 1997) (Edit); Sisters of the Moon; Storms; The Chain; The Green Manalishi (With the Two Prong Crown); Think About Me; Thrown Down; Tusk; Warm Ways; You Make Loving Fun,7.1,True,4
+to,to,PART,232,48,Angel; As Long as You Follow; Beautiful Child; Big Love; Black Magic Woman; Blue Letter; Crystal; Don’t Stop; Don’t Stop (Live 1977); Dreams; Everywhere; Future Games; Go Your Own Way; Gold Dust Woman; Gypsy; Hold Me; Hypnotized; I Don’t Want to Know; I’m So Afraid; Little Lies; Man of the World; Monday Morning; Need Your Love So Bad; Never Going Back Again; Oh Daddy; Oh Well (Part 1); Oh Well - Parts I & II; Over & Over; Over My Head; Peacekeeper; Rhiannon; Rhiannon (Live 1977); Sara; Say You Love Me; Say You Will; Second Hand News; Seven Wonders; Silver Springs; Silver Springs (Live 1997) (Edit); Sisters of the Moon; Songbird; Storms; The Chain; The Green Manalishi (With the Two Prong Crown); Think About Me; Thrown Down; Warm Ways; You Make Loving Fun,4.83,True,5
+and,and,CCONJ,218,44,Angel; As Long as You Follow; Beautiful Child; Big Love; Black Magic Woman; Crystal; Don’t Stop; Don’t Stop (Live 1977); Dreams; Everywhere; Future Games; Gold Dust Woman; Gypsy; Hold Me; Hypnotized; I Don’t Want to Know; I’m So Afraid; Landslide; Man of the World; Monday Morning; Need Your Love So Bad; Never Going Back Again; Oh Daddy; Oh Well (Part 1); Oh Well - Parts I & II; Over & Over; Over My Head; Peacekeeper; Rhiannon; Rhiannon (Live 1977); Sara; Say You Love Me; Second Hand News; Seven Wonders; Silver Springs; Silver Springs (Live 1997) (Edit); Sisters of the Moon; Songbird; Storms; The Chain; The Green Manalishi (With the Two Prong Crown); Think About Me; Thrown Down; You Make Loving Fun,4.95,True,6
+n't,not,PART,185,36,As Long as You Follow; Beautiful Child; Black Magic Woman; Blue Letter; Don’t Stop; Don’t Stop (Live 1977); Everywhere; Go Your Own Way; Hold Me; Hypnotized; I Don’t Want to Know; Little Lies; Man of the World; Monday Morning; Need Your Love So Bad; Never Going Back Again; Oh Daddy; Oh Well (Part 1); Oh Well - Parts I & II; Over & Over; Over My Head; Peacekeeper; Rhiannon; Rhiannon (Live 1977); Sara; Second Hand News; Silver Springs; Silver Springs (Live 1997) (Edit); Storms; The Chain; The Green Manalishi (With the Two Prong Crown); Think About Me; Thrown Down; Tusk; Warm Ways; You Make Loving Fun,5.14,True,7
+a,a,DET,178,38,Angel; As Long as You Follow; Beautiful Child; Big Love; Black Magic Woman; Blue Letter; Crystal; Don’t Stop; Don’t Stop (Live 1977); Dreams; Everywhere; Future Games; Gold Dust Woman; Gypsy; Hold Me; Hypnotized; I Don’t Want to Know; Landslide; Little Lies; Man of the World; Need Your Love So Bad; Oh Daddy; Over My Head; Peacekeeper; Rhiannon; Rhiannon (Live 1977); Sara; Say You Love Me; Say You Will; Seven Wonders; Silver Springs; Silver Springs (Live 1997) (Edit); Sisters of the Moon; Storms; Think About Me; Thrown Down; Warm Ways; You Make Loving Fun,4.68,True,8
+do,do,AUX,157,33,Beautiful Child; Black Magic Woman; Blue Letter; Crystal; Don’t Stop; Don’t Stop (Live 1977); Everywhere; Go Your Own Way; Gold Dust Woman; Hold Me; Hypnotized; I Don’t Want to Know; Man of the World; Monday Morning; Need Your Love So Bad; Never Going Back Again; Oh Daddy; Oh Well (Part 1); Oh Well - Parts I & II; Over & Over; Peacekeeper; Sara; Second Hand News; Silver Springs; Silver Springs (Live 1997) (Edit); Sisters of the Moon; Storms; The Chain; The Green Manalishi (With the Two Prong Crown); Think About Me; Thrown Down; Tusk; You Make Loving Fun,4.76,True,9
+it,it,PRON,150,38,Angel; As Long as You Follow; Beautiful Child; Big Love; Blue Letter; Don’t Stop; Don’t Stop (Live 1977); Dreams; Everywhere; Future Games; Go Your Own Way; Gold Dust Woman; Gypsy; Hold Me; Hypnotized; I Don’t Want to Know; Landslide; Little Lies; Monday Morning; Need Your Love So Bad; Never Going Back Again; Oh Daddy; Over & Over; Over My Head; Peacekeeper; Rhiannon (Live 1977); Sara; Say You Love Me; Say You Will; Second Hand News; Seven Wonders; Silver Springs; Silver Springs (Live 1997) (Edit); Sisters of the Moon; Songbird; Think About Me; Thrown Down; You Make Loving Fun,3.95,True,10
+love,love,VERB,136,33,Angel; Beautiful Child; Big Love; Black Magic Woman; Blue Letter; Crystal; Dreams; Gold Dust Woman; Gypsy; Hold Me; I Don’t Want to Know; Landslide; Man of the World; Monday Morning; Need Your Love So Bad; Oh Daddy; Over My Head; Peacekeeper; Rhiannon; Rhiannon (Live 1977); Sara; Say You Love Me; Say You Will; Silver Springs; Silver Springs (Live 1997) (Edit); Sisters of the Moon; Songbird; Storms; The Chain; The Green Manalishi (With the Two Prong Crown); Think About Me; Tusk; Warm Ways,4.12,False,11
+s,be,AUX,129,33,Angel; Black Magic Woman; Blue Letter; Don’t Stop; Don’t Stop (Live 1977); Dreams; Everywhere; Future Games; Go Your Own Way; Gold Dust Woman; Hold Me; Hypnotized; I Don’t Want to Know; I’m So Afraid; Little Lies; Man of the World; Monday Morning; Need Your Love So Bad; Oh Daddy; Peacekeeper; Rhiannon; Rhiannon (Live 1977); Sara; Say You Love Me; Say You Will; Second Hand News; Seven Wonders; Silver Springs; Songbird; Think About Me; Thrown Down; Tusk; You Make Loving Fun,3.91,True,12
+that,that,SCONJ,116,34,Angel; As Long as You Follow; Beautiful Child; Big Love; Crystal; Don’t Stop; Don’t Stop (Live 1977); Dreams; Everywhere; Future Games; Go Your Own Way; Gypsy; Hypnotized; I Don’t Want to Know; Little Lies; Man of the World; Monday Morning; Need Your Love So Bad; Oh Well (Part 1); Oh Well - Parts I & II; Over My Head; Peacekeeper; Sara; Say You Love Me; Say You Will; Seven Wonders; Silver Springs; Silver Springs (Live 1997) (Edit); Songbird; Storms; The Green Manalishi (With the Two Prong Crown); Think About Me; Thrown Down; Tusk,3.41,True,13
+your,your,PRON,112,36,As Long as You Follow; Beautiful Child; Black Magic Woman; Blue Letter; Crystal; Don’t Stop; Don’t Stop (Live 1977); Dreams; Everywhere; Future Games; Go Your Own Way; Gold Dust Woman; Gypsy; Hold Me; Hypnotized; I Don’t Want to Know; Little Lies; Need Your Love So Bad; Oh Daddy; Oh Well (Part 1); Oh Well - Parts I & II; Over My Head; Peacekeeper; Rhiannon; Rhiannon (Live 1977); Sara; Say You Love Me; Say You Will; Seven Wonders; Silver Springs; Silver Springs (Live 1997) (Edit); Storms; The Chain; The Green Manalishi (With the Two Prong Crown); Thrown Down; Warm Ways,3.11,True,14
+bow,bow,PROPN,102,1,Second Hand News,102.0,False,15
+my,my,PRON,90,31,Angel; Beautiful Child; Black Magic Woman; Dreams; Everywhere; Future Games; Go Your Own Way; Hold Me; I’m So Afraid; Landslide; Little Lies; Man of the World; Monday Morning; Need Your Love So Bad; Oh Daddy; Oh Well (Part 1); Oh Well - Parts I & II; Over & Over; Over My Head; Sara; Say You Love Me; Say You Will; Second Hand News; Seven Wonders; Silver Springs; Silver Springs (Live 1997) (Edit); Sisters of the Moon; Storms; The Green Manalishi (With the Two Prong Crown); Thrown Down; Warm Ways,2.9,True,16
+oh,oh,INTJ,90,26,Beautiful Child; Big Love; Black Magic Woman; Blue Letter; Crystal; Dreams; Everywhere; Future Games; Go Your Own Way; Gypsy; Hold Me; I Don’t Want to Know; Landslide; Little Lies; Man of the World; Monday Morning; Oh Daddy; Oh Well (Part 1); Oh Well - Parts I & II; Over & Over; Over My Head; Rhiannon (Live 1977); Sara; Silver Springs; Silver Springs (Live 1997) (Edit); You Make Loving Fun,3.46,False,17
+be,be,AUX,89,29,Beautiful Child; Blue Letter; Don’t Stop; Don’t Stop (Live 1977); Everywhere; Future Games; Hold Me; Hypnotized; Man of the World; Monday Morning; Need Your Love So Bad; Oh Daddy; Oh Well (Part 1); Oh Well - Parts I & II; Over & Over; Over My Head; Peacekeeper; Rhiannon; Rhiannon (Live 1977); Say You Love Me; Say You Will; Silver Springs; Silver Springs (Live 1997) (Edit); Sisters of the Moon; Songbird; Storms; Think About Me; Thrown Down; You Make Loving Fun,3.07,True,18
+of,of,ADP,88,29,Angel; As Long as You Follow; Black Magic Woman; Crystal; Dreams; Future Games; Gold Dust Woman; Hold Me; Hypnotized; Landslide; Man of the World; Need Your Love So Bad; Oh Well (Part 1); Oh Well - Parts I & II; Over My Head; Peacekeeper; Rhiannon; Rhiannon (Live 1977); Sara; Say You Love Me; Say You Will; Second Hand News; Seven Wonders; Silver Springs; Silver Springs (Live 1997) (Edit); Sisters of the Moon; Songbird; Storms; You Make Loving Fun,3.03,True,19
+know,know,VERB,88,27,As Long as You Follow; Don’t Stop; Don’t Stop (Live 1977); Dreams; Everywhere; Future Games; Gold Dust Woman; Gypsy; Hypnotized; I Don’t Want to Know; Monday Morning; Need Your Love So Bad; Never Going Back Again; Oh Daddy; Oh Well - Parts I & II; Over & Over; Peacekeeper; Sara; Say You Love Me; Second Hand News; Seven Wonders; Silver Springs; Silver Springs (Live 1997) (Edit); Sisters of the Moon; Songbird; Storms; You Make Loving Fun,3.26,False,20
+in,in,ADP,86,34,Angel; As Long as You Follow; Beautiful Child; Big Love; Blue Letter; Crystal; Don’t Stop; Don’t Stop (Live 1977); Dreams; Future Games; Gold Dust Woman; Hold Me; Hypnotized; Landslide; Little Lies; Man of the World; Monday Morning; Never Going Back Again; Oh Daddy; Oh Well (Part 1); Oh Well - Parts I & II; Rhiannon; Rhiannon (Live 1977); Sara; Say You Will; Second Hand News; Sisters of the Moon; Songbird; Storms; The Chain; The Green Manalishi (With the Two Prong Crown); Think About Me; Thrown Down; You Make Loving Fun,2.53,True,21
+but,but,CCONJ,83,31,Angel; As Long as You Follow; Beautiful Child; Big Love; Black Magic Woman; Crystal; Dreams; Future Games; Gold Dust Woman; Hold Me; I Don’t Want to Know; Landslide; Little Lies; Man of the World; Monday Morning; Oh Daddy; Oh Well (Part 1); Oh Well - Parts I & II; Over My Head; Peacekeeper; Rhiannon (Live 1977); Sara; Seven Wonders; Silver Springs; Silver Springs (Live 1997) (Edit); Sisters of the Moon; Songbird; Storms; Think About Me; Thrown Down; You Make Loving Fun,2.68,True,22
+m,be,AUX,83,26,Angel; As Long as You Follow; Beautiful Child; Everywhere; Future Games; Gypsy; Hold Me; I Don’t Want to Know; I’m So Afraid; Landslide; Little Lies; Man of the World; Need Your Love So Bad; Never Going Back Again; Oh Daddy; Oh Well (Part 1); Oh Well - Parts I & II; Over My Head; Sara; Say You Love Me; Second Hand News; Seven Wonders; Songbird; Think About Me; Warm Ways; You Make Loving Fun,3.19,True,23
+never,never,ADV,70,24,Angel; As Long as You Follow; Beautiful Child; Don’t Stop; Don’t Stop (Live 1977); Gold Dust Woman; Hypnotized; I’m So Afraid; Man of the World; Never Going Back Again; Oh Daddy; Peacekeeper; Rhiannon; Rhiannon (Live 1977); Sara; Say You Will; Seven Wonders; Silver Springs; Silver Springs (Live 1997) (Edit); Songbird; Storms; The Chain; Thrown Down; You Make Loving Fun,2.92,True,24
+if,if,SCONJ,69,23,Beautiful Child; Don’t Stop; Don’t Stop (Live 1977); Future Games; Go Your Own Way; Gypsy; Hold Me; Hypnotized; Landslide; Little Lies; Man of the World; Monday Morning; Oh Daddy; Over My Head; Rhiannon; Rhiannon (Live 1977); Sara; Say You Love Me; Say You Will; Seven Wonders; The Chain; Think About Me; Tusk,3.0,True,25
+ll,will,AUX,63,19,Angel; Big Love; Don’t Stop; Don’t Stop (Live 1977); Dreams; Everywhere; Gold Dust Woman; Hold Me; Little Lies; Monday Morning; Oh Well (Part 1); Oh Well - Parts I & II; Over My Head; Sara; Say You Love Me; Seven Wonders; Silver Springs; Silver Springs (Live 1997) (Edit); Songbird,3.32,True,26
+down,down,ADP,63,21,As Long as You Follow; Blue Letter; Dreams; Gold Dust Woman; Gypsy; Hypnotized; I Don’t Want to Know; I’m So Afraid; Landslide; Monday Morning; Never Going Back Again; Over & Over; Say You Love Me; Second Hand News; Seven Wonders; Silver Springs; Silver Springs (Live 1997) (Edit); The Chain; The Green Manalishi (With the Two Prong Crown); Think About Me; Thrown Down,3.0,True,27
+all,all,DET,61,23,Angel; Big Love; Crystal; Don’t Stop; Don’t Stop (Live 1977); Future Games; Go Your Own Way; Gypsy; I’m So Afraid; Man of the World; Oh Daddy; Over & Over; Over My Head; Peacekeeper; Rhiannon; Rhiannon (Live 1977); Sara; Seven Wonders; Songbird; Storms; The Green Manalishi (With the Two Prong Crown); Think About Me; Thrown Down,2.65,True,28
+when,when,SCONJ,58,20,Angel; Beautiful Child; Blue Letter; Dreams; Go Your Own Way; Hypnotized; I’m So Afraid; Monday Morning; Need Your Love So Bad; Oh Daddy; Oh Well (Part 1); Oh Well - Parts I & II; Peacekeeper; Rhiannon; Rhiannon (Live 1977); Sara; Say You Love Me; Second Hand News; Songbird; The Green Manalishi (With the Two Prong Crown),2.9,True,29
+tell,tell,VERB,58,14,Angel; Go Your Own Way; Gold Dust Woman; I Don’t Want to Know; Little Lies; Man of the World; Monday Morning; Need Your Love So Bad; Over & Over; Peacekeeper; Silver Springs; Silver Springs (Live 1997) (Edit); Tusk; You Make Loving Fun,4.14,False,30
+ooh,ooh,PROPN,58,14,Angel; Beautiful Child; Big Love; Don’t Stop; Don’t Stop (Live 1977); Dreams; Gold Dust Woman; Oh Daddy; Peacekeeper; Rhiannon (Live 1977); Sara; Seven Wonders; Sisters of the Moon; Storms,4.14,False,31
+like,like,ADP,57,15,Angel; As Long as You Follow; Crystal; Dreams; Hypnotized; Man of the World; Over My Head; Rhiannon; Rhiannon (Live 1977); Sara; Say You Love Me; Sisters of the Moon; Songbird; Storms; Thrown Down,3.8,False,32
+so,so,ADV,57,22,Angel; Beautiful Child; Big Love; Black Magic Woman; Blue Letter; Future Games; Gypsy; Hold Me; I’m So Afraid; Little Lies; Need Your Love So Bad; Oh Daddy; Say You Love Me; Second Hand News; Seven Wonders; Silver Springs; Sisters of the Moon; Storms; The Green Manalishi (With the Two Prong Crown); Think About Me; Thrown Down; You Make Loving Fun,2.59,True,33
+not,not,PART,55,18,Angel; Beautiful Child; Don’t Stop; Don’t Stop (Live 1977); Future Games; Hypnotized; Little Lies; Oh Well (Part 1); Oh Well - Parts I & II; Peacekeeper; Say You Love Me; Seven Wonders; Silver Springs; Silver Springs (Live 1997) (Edit); Sisters of the Moon; Storms; Think About Me; Thrown Down,3.06,True,34
+on,on,ADP,53,20,Big Love; Black Magic Woman; Blue Letter; Gold Dust Woman; Hypnotized; I Don’t Want to Know; Monday Morning; Need Your Love So Bad; Over My Head; Peacekeeper; Sara; Say You Love Me; Say You Will; Second Hand News; Seven Wonders; Silver Springs; Silver Springs (Live 1997) (Edit); The Green Manalishi (With the Two Prong Crown); Thrown Down; Tusk,2.65,True,35
+hold,hold,VERB,52,8,Beautiful Child; Hold Me; Need Your Love So Bad; Over My Head; Sara; Say You Will; Think About Me; Thrown Down,6.5,False,36
+will,will,AUX,52,19,Beautiful Child; Big Love; Don’t Stop; Don’t Stop (Live 1977); Dreams; Future Games; Hypnotized; I’m So Afraid; Landslide; Peacekeeper; Rhiannon; Rhiannon (Live 1977); Say You Will; Silver Springs; Silver Springs (Live 1997) (Edit); Songbird; Storms; The Chain; You Make Loving Fun,2.74,True,37
+can,can,AUX,50,20,Beautiful Child; Everywhere; Go Your Own Way; Hold Me; Hypnotized; Landslide; Need Your Love So Bad; Oh Daddy; Over & Over; Over My Head; Peacekeeper; Say You Will; Silver Springs; Silver Springs (Live 1997) (Edit); Storms; The Chain; Think About Me; Thrown Down; Warm Ways; You Make Loving Fun,2.5,True,38
+say,say,VERB,49,20,Angel; Beautiful Child; Blue Letter; Dreams; Everywhere; Hypnotized; I Don’t Want to Know; Man of the World; Monday Morning; Sara; Say You Love Me; Say You Will; Second Hand News; Silver Springs; Silver Springs (Live 1997) (Edit); Sisters of the Moon; Storms; Think About Me; Thrown Down; Tusk,2.45,True,39
+she,she,PRON,47,12,Black Magic Woman; Blue Letter; Gold Dust Woman; Gypsy; Never Going Back Again; Rhiannon; Rhiannon (Live 1977); Silver Springs; Silver Springs (Live 1997) (Edit); Sisters of the Moon; Storms; Thrown Down,3.92,True,40
+want,want,VERB,47,16,Black Magic Woman; Blue Letter; Don’t Stop; Don’t Stop (Live 1977); Dreams; Future Games; Hold Me; I Don’t Want to Know; Man of the World; Monday Morning; Need Your Love So Bad; Oh Well (Part 1); Oh Well - Parts I & II; Think About Me; Thrown Down; Tusk,2.94,False,41
+go,go,VERB,45,13,Beautiful Child; Blue Letter; Dreams; Go Your Own Way; Gold Dust Woman; Monday Morning; Need Your Love So Bad; Sara; Say You Love Me; Second Hand News; Storms; Think About Me; You Make Loving Fun,3.46,True,42
+yeah,yeah,INTJ,45,13,Angel; Black Magic Woman; Blue Letter; Crystal; Future Games; Go Your Own Way; Hypnotized; I Don’t Want to Know; Monday Morning; Over & Over; Rhiannon (Live 1977); Sara; Second Hand News,3.46,False,43
+for,for,ADP,45,22,Angel; As Long as You Follow; Beautiful Child; Big Love; Blue Letter; Future Games; Go Your Own Way; Gold Dust Woman; Gypsy; Hold Me; Little Lies; Man of the World; Monday Morning; Peacekeeper; Sara; Say You Love Me; Say You Will; Sisters of the Moon; Songbird; Think About Me; Thrown Down; Warm Ways,2.05,True,44
+just,just,ADV,43,21,Beautiful Child; Big Love; Black Magic Woman; Don’t Stop; Don’t Stop (Live 1977); Gypsy; Hold Me; I Don’t Want to Know; Little Lies; Man of the World; Need Your Love So Bad; Oh Daddy; Peacekeeper; Sara; Say You Love Me; Second Hand News; Silver Springs; The Green Manalishi (With the Two Prong Crown); Think About Me; Thrown Down; Tusk,2.05,True,45
+no,no,INTJ,43,19,Angel; Beautiful Child; Don’t Stop (Live 1977); Future Games; Gypsy; Hold Me; Hypnotized; I’m So Afraid; Little Lies; Man of the World; Monday Morning; Peacekeeper; Rhiannon (Live 1977); Sara; Seven Wonders; Silver Springs; Silver Springs (Live 1997) (Edit); Songbird; Thrown Down,2.26,True,46
+baby,baby,PROPN,43,17,Angel; Black Magic Woman; Blue Letter; Everywhere; Future Games; Go Your Own Way; Hold Me; I Don’t Want to Know; Need Your Love So Bad; Oh Daddy; Over My Head; Rhiannon (Live 1977); Sara; Say You Love Me; Silver Springs; Silver Springs (Live 1997) (Edit); Think About Me,2.53,False,47
+now,now,ADV,41,18,Angel; As Long as You Follow; Dreams; Future Games; Gold Dust Woman; Gypsy; Hypnotized; I Don’t Want to Know; Need Your Love So Bad; Oh Well (Part 1); Oh Well - Parts I & II; Over & Over; Sara; Say You Love Me; Say You Will; The Chain; The Green Manalishi (With the Two Prong Crown); Thrown Down,2.28,True,48
+only,only,ADV,38,12,Beautiful Child; Big Love; Dreams; Future Games; Gypsy; Monday Morning; Peacekeeper; Say You Will; Silver Springs; Silver Springs (Live 1997) (Edit); Storms; You Make Loving Fun,3.17,True,49
+is,be,AUX,38,18,Beautiful Child; Don’t Stop; Don’t Stop (Live 1977); Go Your Own Way; Gold Dust Woman; Gypsy; Hypnotized; Landslide; Oh Daddy; Over & Over; Over My Head; Peacekeeper; Rhiannon; Rhiannon (Live 1977); Sara; Storms; The Green Manalishi (With the Two Prong Crown); Thrown Down,2.11,True,50
+over,over,ADV,37,6,Gold Dust Woman; Hypnotized; Monday Morning; Over & Over; Over My Head; Say You Love Me,6.17,True,51
+would,would,AUX,37,12,Angel; Hypnotized; Man of the World; Over & Over; Rhiannon; Rhiannon (Live 1977); Sara; Silver Springs; Silver Springs (Live 1997) (Edit); The Chain; Think About Me; You Make Loving Fun,3.08,True,52
+they,they,PRON,35,12,Angel; Dreams; Future Games; Gold Dust Woman; Hypnotized; Man of the World; Peacekeeper; Sara; Sisters of the Moon; Songbird; Think About Me; Thrown Down,2.92,True,53
+night,night,NOUN,34,14,Big Love; Blue Letter; Future Games; Gypsy; I’m So Afraid; Need Your Love So Bad; Peacekeeper; Rhiannon; Rhiannon (Live 1977); Sara; Storms; The Chain; The Green Manalishi (With the Two Prong Crown); Thrown Down,2.43,False,54
+re,be,AUX,34,15,As Long as You Follow; Black Magic Woman; Dreams; Hypnotized; Little Lies; Oh Daddy; Over My Head; Sara; Say You Love Me; Second Hand News; Sisters of the Moon; The Green Manalishi (With the Two Prong Crown); Think About Me; Thrown Down; You Make Loving Fun,2.27,True,55
+got,get,VERB,34,9,Black Magic Woman; Hold Me; Hypnotized; I Don’t Want to Know; Man of the World; Monday Morning; Oh Daddy; Say You Love Me; Second Hand News,3.78,False,56
+there,there,PRON,34,15,Beautiful Child; Blue Letter; Future Games; Hold Me; Hypnotized; Little Lies; Man of the World; Monday Morning; Oh Daddy; Peacekeeper; Sara; Say You Love Me; Second Hand News; Songbird; Storms,2.27,True,57
+around,around,ADP,34,18,Black Magic Woman; Blue Letter; Crystal; Dreams; Go Your Own Way; Hold Me; Hypnotized; I’m So Afraid; Landslide; Oh Daddy; Over & Over; Over My Head; Say You Love Me; Second Hand News; Silver Springs; Silver Springs (Live 1997) (Edit); The Green Manalishi (With the Two Prong Crown); Think About Me,1.89,True,58
+could,could,AUX,34,10,Go Your Own Way; Little Lies; Man of the World; Monday Morning; Over & Over; Second Hand News; Silver Springs; Silver Springs (Live 1997) (Edit); Think About Me; Thrown Down,3.4,True,59
+make,make,VERB,32,11,Black Magic Woman; Everywhere; Gold Dust Woman; Hypnotized; Man of the World; Need Your Love So Bad; Oh Daddy; Peacekeeper; Say You Love Me; Seven Wonders; You Make Loving Fun,2.91,True,60
+well,well,PROPN,32,14,Beautiful Child; Black Magic Woman; Dreams; Future Games; Gold Dust Woman; Gypsy; Landslide; Oh Well (Part 1); Oh Well - Parts I & II; Peacekeeper; Seven Wonders; Silver Springs; Sisters of the Moon; Thrown Down,2.29,True,61
+ah,ah,INTJ,32,5,As Long as You Follow; Big Love; Black Magic Woman; I Don’t Want to Know; Rhiannon (Live 1977),6.4,False,62
+ve,have,AUX,32,16,Angel; As Long as You Follow; Blue Letter; Don’t Stop; Don’t Stop (Live 1977); Hypnotized; I’m So Afraid; Landslide; Man of the World; Peacekeeper; Rhiannon; Rhiannon (Live 1977); Say You Will; Second Hand News; Thrown Down; You Make Loving Fun,2.0,True,63
+was,be,AUX,31,16,Angel; As Long as You Follow; Beautiful Child; Blue Letter; Crystal; Don’t Stop; Don’t Stop (Live 1977); Gypsy; Man of the World; Sara; Say You Love Me; Say You Will; Silver Springs; Silver Springs (Live 1997) (Edit); Sisters of the Moon; Think About Me,1.94,True,64
+see,see,VERB,31,14,Black Magic Woman; Don’t Stop; Don’t Stop (Live 1977); Dreams; Gold Dust Woman; Gypsy; Hypnotized; Landslide; Never Going Back Again; Oh Daddy; Seven Wonders; Silver Springs; Silver Springs (Live 1997) (Edit); The Green Manalishi (With the Two Prong Crown),2.21,True,65
+ca,can,AUX,31,12,As Long as You Follow; Black Magic Woman; Everywhere; Little Lies; Monday Morning; Oh Daddy; Oh Well (Part 1); Oh Well - Parts I & II; Over My Head; Second Hand News; The Green Manalishi (With the Two Prong Crown); Warm Ways,2.58,True,66
+time,time,NOUN,31,17,Beautiful Child; Future Games; Hold Me; I Don’t Want to Know; Landslide; Little Lies; Need Your Love So Bad; Never Going Back Again; Over & Over; Over My Head; Peacekeeper; Sara; Say You Will; Seven Wonders; Silver Springs; Silver Springs (Live 1997) (Edit); You Make Loving Fun,1.82,False,67
+what,what,PRON,30,15,Don’t Stop; Don’t Stop (Live 1977); Dreams; Everywhere; Hypnotized; Landslide; Monday Morning; Never Going Back Again; Oh Well (Part 1); Oh Well - Parts I & II; Over & Over; Sara; Think About Me; Thrown Down; Tusk,2.0,True,68
+her,she,PRON,30,4,Rhiannon; Rhiannon (Live 1977); Sisters of the Moon; Thrown Down,7.5,True,69
+day,day,NOUN,29,10,Blue Letter; Don’t Stop; Don’t Stop (Live 1977); Future Games; Go Your Own Way; Little Lies; Over My Head; Say You Love Me; The Green Manalishi (With the Two Prong Crown); Thrown Down,2.9,False,70
+been,be,AUX,28,12,As Long as You Follow; Hypnotized; I Don’t Want to Know; I’m So Afraid; Landslide; Man of the World; Never Going Back Again; Oh Daddy; Say You Will; Second Hand News; Storms; Thrown Down,2.33,True,71
+by,by,ADP,28,11,Angel; Beautiful Child; Future Games; Hypnotized; Oh Well (Part 1); Oh Well - Parts I & II; Rhiannon; Rhiannon (Live 1977); Sara; Thrown Down; Warm Ways,2.55,True,72
+up,up,ADP,28,12,Angel; Big Love; Black Magic Woman; Don’t Stop; Don’t Stop (Live 1977); Go Your Own Way; Gold Dust Woman; Gypsy; Need Your Love So Bad; Say You Love Me; The Green Manalishi (With the Two Prong Crown); Warm Ways,2.33,True,73
+lies,lie,NOUN,28,2,Little Lies; The Chain,14.0,False,74
+about,about,ADP,28,9,Don’t Stop; Don’t Stop (Live 1977); Hypnotized; Man of the World; Oh Well (Part 1); Oh Well - Parts I & II; Rhiannon (Live 1977); Think About Me; Thrown Down,3.11,True,75
+gone,go,VERB,27,8,As Long as You Follow; Beautiful Child; Don’t Stop; Don’t Stop (Live 1977); Hypnotized; I’m So Afraid; Rhiannon (Live 1977); Sara,3.38,False,76
+with,with,ADP,27,13,As Long as You Follow; Big Love; Black Magic Woman; Everywhere; Gypsy; Oh Daddy; Sara; Seven Wonders; Songbird; Storms; The Green Manalishi (With the Two Prong Crown); Warm Ways; You Make Loving Fun,2.08,True,77
+woman,woman,NOUN,26,10,Black Magic Woman; Gold Dust Woman; Man of the World; Need Your Love So Bad; Rhiannon; Rhiannon (Live 1977); Sara; Silver Springs; Silver Springs (Live 1997) (Edit); Warm Ways,2.6,False,78
+have,have,VERB,26,13,Beautiful Child; Crystal; Dreams; Future Games; Gypsy; Over & Over; Peacekeeper; Say You Love Me; Silver Springs; Silver Springs (Live 1997) (Edit); Storms; Thrown Down; You Make Loving Fun,2.0,True,79
+why,why,SCONJ,26,12,Don’t Stop; Don’t Stop (Live 1977); Go Your Own Way; Hypnotized; I Don’t Want to Know; Little Lies; Need Your Love So Bad; Oh Daddy; Peacekeeper; Think About Me; Tusk; You Make Loving Fun,2.17,True,80
+way,way,NOUN,25,10,Don’t Stop; Don’t Stop (Live 1977); Dreams; Go Your Own Way; I’m So Afraid; Little Lies; Monday Morning; Peacekeeper; Seven Wonders; Storms,2.5,False,81
+need,need,VERB,24,7,Black Magic Woman; Hypnotized; Man of the World; Need Your Love So Bad; Over & Over; Peacekeeper; The Green Manalishi (With the Two Prong Crown),3.43,False,82
+life,life,NOUN,23,8,Don’t Stop; Don’t Stop (Live 1977); Future Games; Landslide; Man of the World; Oh Daddy; Rhiannon; Rhiannon (Live 1977),2.88,False,83
+rhiannon,rhiannon,PROPN,22,2,Rhiannon; Rhiannon (Live 1977),11.0,False,84
+wanna,wanna,VERB,22,9,Blue Letter; Don’t Stop; Don’t Stop (Live 1977); Everywhere; Go Your Own Way; Hold Me; Silver Springs; Silver Springs (Live 1997) (Edit); The Green Manalishi (With the Two Prong Crown),2.44,False,85
+again,again,ADV,22,9,As Long as You Follow; Beautiful Child; Dreams; Never Going Back Again; Over My Head; Say You Love Me; Seven Wonders; The Chain; Thrown Down,2.44,True,86
+out,out,ADP,22,11,Angel; Big Love; Black Magic Woman; Everywhere; Gold Dust Woman; Hypnotized; I Don’t Want to Know; Over & Over; Say You Will; Seven Wonders; Think About Me,2.0,True,87
+think,think,VERB,22,10,Don’t Stop; Don’t Stop (Live 1977); Hypnotized; Oh Well (Part 1); Oh Well - Parts I & II; Over My Head; Sara; Second Hand News; Sisters of the Moon; Think About Me,2.2,False,88
+take,take,VERB,21,8,Future Games; Go Your Own Way; Gold Dust Woman; I Don’t Want to Know; Landslide; Over My Head; Peacekeeper; Rhiannon (Live 1977),2.62,True,89
+he,he,PRON,21,7,Hypnotized; Oh Well (Part 1); Oh Well - Parts I & II; Sara; Storms; Thrown Down; Tusk,3.0,True,90
+ever,ever,ADV,21,12,Blue Letter; Future Games; Go Your Own Way; Hold Me; Hypnotized; Monday Morning; Over & Over; Peacekeeper; Rhiannon; Rhiannon (Live 1977); Sara; Storms,1.75,True,91
+fallin,fallin,NOUN,21,1,Say You Love Me,21.0,False,92
+come,come,VERB,21,16,Blue Letter; Don’t Stop; Don’t Stop (Live 1977); Dreams; Everywhere; Future Games; Hypnotized; I Don’t Want to Know; Need Your Love So Bad; Never Going Back Again; Over & Over; Sara; Storms; The Green Manalishi (With the Two Prong Crown); Thrown Down; Warm Ways,1.31,False,93
+are,be,AUX,21,15,As Long as You Follow; Beautiful Child; Future Games; Hypnotized; I’m So Afraid; Need Your Love So Bad; Oh Daddy; Oh Well (Part 1); Oh Well - Parts I & II; Peacekeeper; Sara; Sisters of the Moon; Songbird; Storms; Tusk,1.4,True,94
+back,back,ADV,21,8,As Long as You Follow; Black Magic Woman; Don’t Stop; Don’t Stop (Live 1977); Gypsy; Never Going Back Again; Peacekeeper; Seven Wonders,2.62,True,95
+feel,feel,VERB,20,11,Angel; Dreams; Go Your Own Way; Hypnotized; I Don’t Want to Know; I’m So Afraid; Man of the World; Need Your Love So Bad; Over My Head; Songbird; Storms,1.82,False,96
+another,another,DET,20,4,Blue Letter; Go Your Own Way; Say You Love Me; Storms,5.0,True,97
+get,get,VERB,20,10,As Long as You Follow; Blue Letter; Everywhere; Hypnotized; Landslide; Monday Morning; Say You Will; Second Hand News; Silver Springs; Silver Springs (Live 1997) (Edit),2.0,True,98
+hand,hand,NOUN,20,7,Hold Me; Hypnotized; Need Your Love So Bad; Oh Well (Part 1); Oh Well - Parts I & II; Second Hand News; Seven Wonders,2.86,False,99
+did,do,AUX,20,8,Future Games; Gold Dust Woman; I Don’t Want to Know; Silver Springs; Silver Springs (Live 1997) (Edit); Storms; Think About Me; You Make Loving Fun,2.5,True,100
+little,little,ADJ,19,10,Beautiful Child; Don’t Stop; Don’t Stop (Live 1977); Everywhere; Gypsy; I Don’t Want to Know; Little Lies; Sara; Say You Love Me; Storms,1.9,False,101
+break,break,VERB,19,6,Black Magic Woman; Everywhere; Gold Dust Woman; Storms; The Chain; You Make Loving Fun,3.17,False,102
+then,then,ADV,19,10,Beautiful Child; Crystal; Hypnotized; Little Lies; Monday Morning; Over My Head; Rhiannon; Rhiannon (Live 1977); Sara; The Green Manalishi (With the Two Prong Crown),1.9,True,103
+stop,stop,VERB,19,4,Don’t Stop; Don’t Stop (Live 1977); Need Your Love So Bad; Sara,4.75,False,104
+mind,mind,NOUN,19,5,Monday Morning; Rhiannon; Rhiannon (Live 1977); Say You Will; Second Hand News,3.8,False,105
+same,same,ADJ,18,5,Angel; Future Games; Hypnotized; Peacekeeper; Rhiannon (Live 1977),3.6,True,106
+ba,ba,PROPN,18,1,Second Hand News,18.0,False,107
+as,as,ADV,18,7,As Long as You Follow; Beautiful Child; I’m So Afraid; Over My Head; Say You Love Me; Sisters of the Moon; Storms,2.57,True,108
+taken,take,VERB,18,3,Rhiannon; Rhiannon (Live 1977); Second Hand News,6.0,False,109
+give,give,VERB,18,12,Blue Letter; Go Your Own Way; Little Lies; Need Your Love So Bad; Oh Well (Part 1); Oh Well - Parts I & II; Sara; Say You Will; Second Hand News; Silver Springs; Songbird; Think About Me,1.5,True,110
+away,away,ADV,17,13,As Long as You Follow; Beautiful Child; Gypsy; Monday Morning; Oh Daddy; Over & Over; Say You Love Me; Silver Springs; Silver Springs (Live 1997) (Edit); Storms; The Green Manalishi (With the Two Prong Crown); Thrown Down; Tusk,1.31,False,111
+we,we,PRON,17,8,Angel; Everywhere; Future Games; Little Lies; Need Your Love So Bad; Peacekeeper; Storms; Think About Me,2.12,True,112
+through,through,ADP,17,7,Angel; Crystal; Landslide; Need Your Love So Bad; Rhiannon; Rhiannon (Live 1977); Storms,2.43,True,113
+how,how,SCONJ,17,11,Crystal; Future Games; Go Your Own Way; Gold Dust Woman; I’m So Afraid; Man of the World; Oh Daddy; Over & Over; Peacekeeper; Thrown Down; Tusk,1.55,True,114
+dreams,dream,NOUN,17,5,Angel; Dreams; Rhiannon; Rhiannon (Live 1977); The Green Manalishi (With the Two Prong Crown),3.4,False,115
+eyes,eye,NOUN,17,9,Angel; As Long as You Follow; Beautiful Child; Blue Letter; Don’t Stop; Don’t Stop (Live 1977); Gypsy; Little Lies; Sisters of the Moon,1.89,False,116
+yes,yes,INTJ,17,3,Beautiful Child; Black Magic Woman; Oh Daddy,5.67,False,117
+right,right,ADJ,16,7,Dreams; Go Your Own Way; Hypnotized; I Don’t Want to Know; Oh Daddy; Say You Love Me; Songbird,2.29,False,118
+stay,stay,VERB,16,8,Beautiful Child; Blue Letter; I’m So Afraid; Rhiannon; Rhiannon (Live 1977); Sara; Say You Love Me; Tusk,2.0,False,119
+d,would,AUX,16,10,Dreams; Future Games; Go Your Own Way; Little Lies; Man of the World; Never Going Back Again; Oh Well (Part 1); Peacekeeper; Sara; Storms,1.6,True,120
+look,look,VERB,16,5,Angel; Don’t Stop; Don’t Stop (Live 1977); Monday Morning; Think About Me,3.2,False,121
+sky,sky,NOUN,16,3,Landslide; Rhiannon; Rhiannon (Live 1977),5.33,False,122
+here,here,ADV,16,7,As Long as You Follow; Don’t Stop; Don’t Stop (Live 1977); Dreams; Future Games; Say You Will; The Green Manalishi (With the Two Prong Crown),2.29,True,123
+from,from,ADP,16,11,Beautiful Child; Go Your Own Way; Gypsy; Hypnotized; Oh Daddy; Say You Love Me; Silver Springs; Silver Springs (Live 1997) (Edit); Songbird; Storms; The Green Manalishi (With the Two Prong Crown),1.45,True,124
+chain,chain,NOUN,16,1,The Chain,16.0,False,125
+really,really,ADV,15,7,Monday Morning; Over & Over; Sara; Silver Springs (Live 1997) (Edit); Storms; Think About Me; Thrown Down,2.14,True,126
+better,well,ADV,15,6,Don’t Stop; Don’t Stop (Live 1977); Everywhere; Future Games; Gold Dust Woman; Little Lies,2.5,False,127
+let,let,VERB,15,8,Hold Me; Little Lies; Never Going Back Again; Over & Over; Second Hand News; Silver Springs; Silver Springs (Live 1997) (Edit); Think About Me,1.88,False,128
+bad,bad,ADJ,15,7,Black Magic Woman; Don’t Stop; Don’t Stop (Live 1977); Gold Dust Woman; Need Your Love So Bad; Second Hand News; The Green Manalishi (With the Two Prong Crown),2.14,False,129
+before,before,ADP,15,5,Don’t Stop; Don’t Stop (Live 1977); Everywhere; Songbird; Think About Me,3.0,True,130
+at,at,ADP,15,11,As Long as You Follow; Don’t Stop; Don’t Stop (Live 1977); Future Games; Hypnotized; I’m So Afraid; Need Your Love So Bad; Sara; Say You Love Me; Say You Will; Sisters of the Moon,1.36,True,131
+every,every,DET,15,9,Blue Letter; Man of the World; Over My Head; Peacekeeper; Sara; Say You Love Me; Storms; Think About Me; Thrown Down,1.67,True,132
+still,still,ADV,15,8,Angel; Big Love; Future Games; Gypsy; Peacekeeper; Rhiannon (Live 1977); Sisters of the Moon; The Chain,1.88,True,133
+yesterday,yesterday,NOUN,15,2,Don’t Stop; Don’t Stop (Live 1977),7.5,False,134
+were,be,AUX,15,5,Angel; Beautiful Child; Future Games; Hypnotized; Storms,3.0,True,135
+future,future,NOUN,14,2,Future Games; Hold Me,7.0,False,136
+long,long,ADV,14,7,Angel; As Long as You Follow; Hypnotized; I’m So Afraid; Monday Morning; Second Hand News; Seven Wonders,2.0,False,137
+together,together,ADV,14,5,Hypnotized; The Chain; Think About Me; Thrown Down; Warm Ways,2.8,True,138
+things,thing,NOUN,14,7,Angel; Don’t Stop; Don’t Stop (Live 1977); Future Games; Go Your Own Way; The Green Manalishi (With the Two Prong Crown); You Make Loving Fun,2.0,False,139
+loved,love,VERB,14,3,Silver Springs; Silver Springs (Live 1997) (Edit); Storms,4.67,False,140
+home,home,NOUN,13,5,Future Games; Gold Dust Woman; Need Your Love So Bad; Sara; Thrown Down,2.6,False,141
+black,black,ADJ,13,5,Black Magic Woman; Gold Dust Woman; I’m So Afraid; Sisters of the Moon; The Green Manalishi (With the Two Prong Crown),2.6,False,142
+believe,believe,VERB,13,9,As Long as You Follow; Don’t Stop; Don’t Stop (Live 1977); I Don’t Want to Know; Little Lies; Say You Will; The Green Manalishi (With the Two Prong Crown); Think About Me; You Make Loving Fun,1.44,False,143
+lonely,lonely,ADJ,13,1,Go Your Own Way,13.0,False,144
+ask,ask,VERB,13,6,Hypnotized; Man of the World; Oh Well (Part 1); Oh Well - Parts I & II; Sara; Tusk,2.17,False,145
+own,own,ADJ,13,2,Go Your Own Way; Peacekeeper,6.5,True,146
+waitin,waitin,NOUN,13,2,Blue Letter; Hold Me,6.5,False,147
+keep,keep,VERB,13,8,Angel; Big Love; Dreams; Man of the World; Over & Over; Songbird; The Chain; The Green Manalishi (With the Two Prong Crown),1.62,True,148
+maybe,maybe,ADV,13,4,Go Your Own Way; Gypsy; Think About Me; Thrown Down,3.25,False,149
+child,child,NOUN,12,4,Beautiful Child; Gypsy; Landslide; Rhiannon (Live 1977),3.0,False,150
+cause,'cause,SCONJ,12,7,Hypnotized; Landslide; Need Your Love So Bad; Sara; Say You Love Me; Songbird; The Green Manalishi (With the Two Prong Crown),1.71,False,151
+tomorrow,tomorrow,NOUN,12,3,Don’t Stop; Don’t Stop (Live 1977); Future Games,4.0,False,152
+good,good,ADJ,12,3,Angel; Man of the World; Thrown Down,4.0,False,153
+had,have,VERB,12,6,Beautiful Child; Crystal; Dreams; Peacekeeper; Sara; Thrown Down,2.0,True,154
+ai,be,AUX,12,4,Blue Letter; Oh Well (Part 1); Oh Well - Parts I & II; Second Hand News,3.0,False,155
+wo,will,AUX,12,5,Blue Letter; Go Your Own Way; Second Hand News; Silver Springs; Silver Springs (Live 1997) (Edit),2.4,False,156
+call,call,VERB,12,3,Go Your Own Way; Sara; Sisters of the Moon,4.0,True,157
+disguise,disguise,VERB,12,1,Little Lies,12.0,False,158
+sun,sun,NOUN,12,6,As Long as You Follow; I’m So Afraid; Say You Love Me; Songbird; The Chain; Warm Ways,2.0,False,159
+wish,wish,NOUN,12,4,Beautiful Child; Gypsy; Man of the World; Songbird,3.0,False,160
+end,end,NOUN,11,4,As Long as You Follow; Need Your Love So Bad; Say You Love Me; Seven Wonders,2.75,False,161
+live,live,VERB,11,1,Seven Wonders,11.0,False,162
+going,go,VERB,11,7,As Long as You Follow; Hold Me; Never Going Back Again; Peacekeeper; Second Hand News; Thrown Down; Tusk,1.57,False,163
+soon,soon,ADV,11,4,Don’t Stop; Don’t Stop (Live 1977); Everywhere; Peacekeeper,2.75,False,164
+heart,heart,NOUN,11,7,Black Magic Woman; Everywhere; I’m So Afraid; Landslide; Sara; Say You Will; Storms,1.57,False,165
+more,more,ADJ,11,9,Beautiful Child; Blue Letter; Little Lies; Man of the World; Say You Will; Sisters of the Moon; Songbird; Think About Me; Thrown Down,1.22,True,166
+turn,turn,VERB,11,7,Angel; Black Magic Woman; Landslide; Little Lies; Over & Over; Silver Springs; Silver Springs (Live 1997) (Edit),1.57,False,167
+close,close,VERB,11,2,Angel; Little Lies,5.5,False,168
+comes,come,VERB,11,4,Gypsy; Say You Love Me; Say You Will; The Chain,2.75,False,169
+sound,sound,NOUN,11,4,Dreams; Silver Springs; Silver Springs (Live 1997) (Edit); Sisters of the Moon,2.75,False,170
+who,who,PRON,11,8,Blue Letter; Dreams; Gold Dust Woman; Peacekeeper; Rhiannon; Rhiannon (Live 1977); Second Hand News; Tusk,1.38,True,171
+wind,wind,NOUN,10,4,Angel; Rhiannon; Rhiannon (Live 1977); The Chain,2.5,False,172
+follow,follow,VERB,10,4,As Long as You Follow; Gold Dust Woman; Silver Springs; Silver Springs (Live 1997) (Edit),2.5,False,173
+shadow,shadow,NOUN,10,2,Gold Dust Woman; The Chain,5.0,False,174
+said,say,VERB,10,7,Angel; Big Love; Oh Well (Part 1); Oh Well - Parts I & II; Over & Over; Sara; Storms,1.43,False,175
+times,time,NOUN,10,5,Don’t Stop; Don’t Stop (Live 1977); Man of the World; Never Going Back Again; Second Hand News,2.0,False,176
+sea,sea,NOUN,10,3,Crystal; Sara; Storms,3.33,False,177
+too,too,ADV,10,5,As Long as You Follow; Beautiful Child; I’m So Afraid; Landslide; Rhiannon (Live 1977),2.0,True,178
+try,try,VERB,10,5,Angel; Little Lies; Rhiannon (Live 1977); Storms; You Make Loving Fun,2.0,False,179
+once,once,ADV,9,5,Beautiful Child; Gypsy; Rhiannon (Live 1977); Say You Will; Think About Me,1.8,True,180
+line,line,NOUN,9,3,Hold Me; I Don’t Want to Know; Monday Morning,3.0,False,181
+kind,kind,NOUN,9,4,As Long as You Follow; Hypnotized; Say You Will; Seven Wonders,2.25,False,182
+hard,hard,ADJ,9,6,Angel; Rhiannon (Live 1977); Say You Will; Seven Wonders; Sisters of the Moon; Thrown Down,1.5,False,183
+everywhere,everywhere,ADV,9,1,Everywhere,9.0,True,184
+us,we,PRON,9,4,Angel; Peacekeeper; Storms; The Chain,2.25,True,185
+spell,spell,NOUN,9,4,Black Magic Woman; Silver Springs; Silver Springs (Live 1997) (Edit); You Make Loving Fun,2.25,False,186
+always,always,ADV,9,5,Big Love; Crystal; I’m So Afraid; Say You Will; Storms,1.8,True,187
+games,game,NOUN,9,1,Future Games,9.0,False,188
+afraid,afraid,ADJ,9,4,Future Games; I’m So Afraid; Landslide; Peacekeeper,2.25,False,189
+win,win,VERB,9,5,As Long as You Follow; Never Going Back Again; Rhiannon; Rhiannon (Live 1977); Storms,1.8,False,190
+hypnotized,hypnotize,VERB,9,1,Hypnotized,9.0,False,191
+than,than,ADP,9,3,Don’t Stop; Don’t Stop (Live 1977); Sisters of the Moon,3.0,True,192
+those,those,PRON,9,6,Angel; Future Games; Gold Dust Woman; Hypnotized; Sisters of the Moon; Storms,1.5,True,193
+cry,cry,VERB,9,4,Gold Dust Woman; Oh Daddy; Rhiannon (Live 1977); Storms,2.25,False,194
+dream,dream,NOUN,9,4,Hypnotized; Silver Springs; Silver Springs (Live 1997) (Edit); Warm Ways,2.25,False,195
+sweet,sweet,ADJ,9,3,Little Lies; Peacekeeper; You Make Loving Fun,3.0,False,196
+til,til,PROPN,8,4,Angel; Landslide; Silver Springs; Silver Springs (Live 1997) (Edit),2.0,False,197
+something,something,PRON,8,6,Everywhere; Hypnotized; Peacekeeper; Say You Will; Storms; Thrown Down,1.33,True,198
+magic,magic,NOUN,8,2,Black Magic Woman; You Make Loving Fun,4.0,False,199
+should,should,AUX,8,5,Dreams; Man of the World; Second Hand News; Storms; Thrown Down,1.6,True,200
+fine,fine,ADJ,8,4,I Don’t Want to Know; Monday Morning; Rhiannon; Rhiannon (Live 1977),2.0,False,201
+mine,mine,PRON,8,2,Beautiful Child; Need Your Love So Bad,4.0,True,202
+or,or,CCONJ,8,5,As Long as You Follow; Future Games; Hypnotized; Little Lies; Need Your Love So Bad,1.6,True,203
+nothing,nothing,PRON,8,5,Hypnotized; I Don’t Want to Know; Monday Morning; Second Hand News; Thrown Down,1.6,True,204
+find,find,VERB,8,6,As Long as You Follow; Little Lies; Rhiannon (Live 1977); Second Hand News; Seven Wonders; Storms,1.33,False,205
+world,world,NOUN,8,5,Future Games; Go Your Own Way; Man of the World; Songbird; Storms,1.6,False,206
+rainbow,rainbow,NOUN,8,2,As Long as You Follow; Seven Wonders,4.0,False,207
+someone,someone,PRON,8,4,Need Your Love So Bad; Say You Will; Second Hand News; Seven Wonders,2.0,True,208
+seems,seem,VERB,8,2,Hypnotized; Say You Will,4.0,True,209
+some,some,DET,8,5,Gypsy; Hypnotized; Monday Morning; Need Your Love So Bad; Sisters of the Moon,1.6,True,210
+might,might,AUX,8,6,Black Magic Woman; Hypnotized; Oh Well (Part 1); Oh Well - Parts I & II; Over My Head; Seven Wonders,1.33,True,211
+while,while,NOUN,8,4,Don’t Stop; Don’t Stop (Live 1977); Future Games; Think About Me,2.0,True,212
+unwind,unwind,ADJ,8,2,Rhiannon; Rhiannon (Live 1977),4.0,False,213
+dark,dark,ADJ,8,8,Over My Head; Peacekeeper; Rhiannon; Rhiannon (Live 1977); Sara; Say You Will; Sisters of the Moon; The Chain,1.0,False,214
+big,big,ADJ,8,1,Big Love,8.0,False,215
+knew,know,VERB,8,5,Angel; Crystal; Oh Well (Part 1); Sisters of the Moon; Think About Me,1.6,False,216
+answer,answer,NOUN,7,4,Oh Well (Part 1); Oh Well - Parts I & II; Rhiannon (Live 1977); Storms,1.75,False,217
+dreamer,dreamer,PROPN,7,1,Rhiannon (Live 1977),7.0,False,218
+told,tell,VERB,7,5,Beautiful Child; Blue Letter; I Don’t Want to Know; Sara; Thrown Down,1.4,False,219
+tusk,tusk,PROPN,7,1,Tusk,7.0,False,220
+bring,bring,VERB,7,3,Future Games; Landslide; Need Your Love So Bad,2.33,False,221
+gypsy,gypsy,NOUN,7,1,Gypsy,7.0,False,222
+help,help,VERB,7,4,Oh Well (Part 1); Oh Well - Parts I & II; Over My Head; Say You Love Me,1.75,False,223
+voice,voice,NOUN,7,4,Blue Letter; Need Your Love So Bad; Silver Springs; Silver Springs (Live 1997) (Edit),1.75,False,224
+everything,everything,PRON,7,5,Go Your Own Way; Man of the World; Need Your Love So Bad; Oh Daddy; Thrown Down,1.4,True,225
+lights,light,VERB,7,4,Future Games; Gypsy; Need Your Love So Bad; Say You Love Me,1.75,False,226
+sure,sure,ADV,7,3,Man of the World; Monday Morning; Over My Head,2.33,False,227
+stand,stand,VERB,7,2,I Don’t Want to Know; Need Your Love So Bad,3.5,False,228
+pretty,pretty,ADJ,7,5,Man of the World; Oh Well (Part 1); Oh Well - Parts I & II; Silver Springs; Silver Springs (Live 1997) (Edit),1.4,False,229
+this,this,DET,7,6,Future Games; Monday Morning; Peacekeeper; Rhiannon (Live 1977); Storms; You Make Loving Fun,1.17,True,230
+because,because,SCONJ,7,4,Black Magic Woman; Hypnotized; Need Your Love So Bad; Say You Will,1.75,True,231
+does,do,VERB,7,4,Gypsy; Hold Me; Sara; Sisters of the Moon,1.75,True,232
+news,news,NOUN,7,1,Second Hand News,7.0,False,233
+hear,hear,VERB,7,2,Everywhere; The Chain,3.5,False,234
+years,year,NOUN,6,6,Beautiful Child; I’m So Afraid; Rhiannon (Live 1977); Silver Springs; Silver Springs (Live 1997) (Edit); Storms,1.0,False,235
+name,name,NOUN,6,3,Everywhere; Over & Over; Sisters of the Moon,2.0,True,236
+seen,see,VERB,6,3,Man of the World; Rhiannon; Rhiannon (Live 1977),2.0,False,237
+change,change,VERB,6,4,Go Your Own Way; I’m So Afraid; Sara; Say You Will,1.5,False,238
+loving,love,VERB,6,2,Go Your Own Way; You Make Loving Fun,3.0,False,239
+thing,thing,NOUN,6,5,Future Games; Go Your Own Way; Oh Daddy; Second Hand News; Thrown Down,1.2,False,240
+ago,ago,ADV,6,5,Hypnotized; Seven Wonders; Silver Springs; Silver Springs (Live 1997) (Edit); Storms,1.2,False,241
+wonderin,wonderin,PROPN,6,1,Future Games,6.0,False,242
+match,match,NOUN,6,2,Sara; Seven Wonders,3.0,False,243
+looking,look,VERB,6,2,Big Love; Over My Head,3.0,False,244
+fool,fool,NOUN,6,4,Beautiful Child; Hold Me; Oh Daddy; Silver Springs,1.5,False,245
+light,light,NOUN,6,5,As Long as You Follow; Future Games; Sara; The Chain; Warm Ways,1.2,False,246
+damn,damn,NOUN,6,1,The Chain,6.0,False,247
+enough,enough,ADJ,6,3,Beautiful Child; Gypsy; Second Hand News,2.0,True,248
+between,between,ADP,6,2,I Don’t Want to Know; Storms,3.0,True,249
+finally,finally,ADV,6,2,Crystal; I Don’t Want to Know,3.0,False,250
+state,state,NOUN,6,2,Rhiannon; Rhiannon (Live 1977),3.0,False,251
+daddy,daddy,NOUN,6,1,Oh Daddy,6.0,False,252
+else,else,ADV,6,3,Monday Morning; Say You Will; Thrown Down,2.0,True,253
+song,song,NOUN,6,3,Angel; Blue Letter; Rhiannon (Live 1977),2.0,False,254
+smile,smile,VERB,6,3,Don’t Stop; Don’t Stop (Live 1977); Oh Daddy,2.0,False,255
+our,our,PRON,6,3,Over & Over; Peacekeeper; Seven Wonders,2.0,True,256
+rain,rain,NOUN,6,2,Dreams; I’m So Afraid,3.0,False,257
+playing,play,VERB,6,3,Dreams; Future Games; Hypnotized,2.0,False,258
+place,place,NOUN,6,4,Hypnotized; Say You Will; Second Hand News; Seven Wonders,1.5,False,259
+wonders,wonder,NOUN,6,1,Seven Wonders,6.0,False,260
+doot,doot,PROPN,6,1,Second Hand News,6.0,False,261
+thinkin,thinkin,NOUN,6,2,Don’t Stop; Future Games,3.0,False,262
+path,path,NOUN,6,2,Gold Dust Woman; Seven Wonders,3.0,False,263
+made,make,VERB,6,5,Hypnotized; Never Going Back Again; Peacekeeper; Sisters of the Moon; Warm Ways,1.2,True,264
+house,house,NOUN,6,2,Big Love; Sara,3.0,False,265
+even,even,ADV,6,4,Beautiful Child; Everywhere; Landslide; Rhiannon (Live 1977),1.5,True,266
+wrong,wrong,ADJ,6,3,Monday Morning; Oh Daddy; Tusk,2.0,False,267
+ghost,ghost,NOUN,5,1,Angel,5.0,False,268
+fog,fog,NOUN,5,1,Angel,5.0,False,269
+faith,faith,NOUN,5,2,Future Games; Thrown Down,2.5,False,270
+heaven,heaven,VERB,5,2,Rhiannon; Rhiannon (Live 1977),2.5,False,271
+goes,go,VERB,5,3,Blue Letter; Storms; The Green Manalishi (With the Two Prong Crown),1.67,False,272
+many,many,ADJ,5,4,Angel; Future Games; I’m So Afraid; Storms,1.25,True,273
+rules,rule,VERB,5,2,Rhiannon; Rhiannon (Live 1977),2.5,False,274
+thrown,throw,VERB,5,1,Thrown Down,5.0,False,275
+hour,hour,NOUN,5,2,Angel; Storms,2.5,False,276
+body,body,NOUN,5,2,Hypnotized; Storms,2.5,False,277
+listen,listen,VERB,5,4,Dreams; I Don’t Want to Know; Need Your Love So Bad; The Chain,1.25,False,278
+promised,promise,VERB,5,2,Rhiannon; Rhiannon (Live 1977),2.5,False,279
+true,true,ADJ,5,4,Crystal; Don’t Stop; Don’t Stop (Live 1977); Monday Morning,1.25,False,280
+head,head,NOUN,5,2,Over My Head; Say You Love Me,2.5,False,281
+until,until,SCONJ,5,2,Say You Love Me; Warm Ways,2.5,True,282
+sister,sister,PROPN,5,1,Sisters of the Moon,5.0,False,283
+runnin,runnin,PROPN,5,2,Say You Love Me; The Chain,2.5,False,284
+blue,blue,ADJ,5,4,Blue Letter; Silver Springs; Silver Springs (Live 1997) (Edit); Storms,1.25,False,285
+forget,forget,VERB,5,2,Silver Springs; Silver Springs (Live 1997) (Edit),2.5,False,286
+silver,silver,NOUN,5,4,Blue Letter; Gold Dust Woman; Silver Springs; Silver Springs (Live 1997) (Edit),1.25,False,287
+lover,lover,PROPN,5,3,Blue Letter; Rhiannon; Rhiannon (Live 1977),1.67,False,288
+alright,alright,ADJ,5,3,Future Games; Need Your Love So Bad; Songbird,1.67,False,289
+an,an,DET,5,4,Hypnotized; Need Your Love So Bad; Say You Will; Storms,1.25,True,290
+honey,honey,NOUN,5,1,I Don’t Want to Know,5.0,False,291
+reasons,reason,NOUN,5,1,I Don’t Want to Know,5.0,False,292
+keeps,keep,VERB,5,1,I Don’t Want to Know,5.0,False,293
+walkin,walkin,NOUN,5,1,I Don’t Want to Know,5.0,False,294
+sayin,sayin,PROPN,5,1,The Chain,5.0,False,295
+people,people,NOUN,5,3,Future Games; Sisters of the Moon; Thrown Down,1.67,False,296
+strong,strong,ADJ,5,2,Oh Daddy; Say You Love Me,2.5,False,297
+mmm,mmm,PROPN,5,2,Never Going Back Again; Over My Head,2.5,False,298
+ways,way,NOUN,5,3,I’m So Afraid; Warm Ways; You Make Loving Fun,1.67,False,299
+feeling,feeling,NOUN,5,3,Crystal; Hypnotized; You Make Loving Fun,1.67,False,300
+storm,storm,NOUN,5,2,Sara; Storms,2.5,False,301
+turned,turn,VERB,5,4,Crystal; Future Games; Go Your Own Way; Landslide,1.25,False,302
+build,build,VERB,5,2,Big Love; Sara,2.5,False,303
+wait,wait,VERB,5,5,Beautiful Child; Peacekeeper; Sara; Think About Me; Thrown Down,1.0,False,304
+matter,matter,VERB,5,2,Hold Me; Sara,2.5,False,305
+angel,angel,NOUN,5,1,Angel,5.0,False,306
+pick,pick,VERB,5,1,Gold Dust Woman,5.0,False,307
+man,man,NOUN,5,2,Hypnotized; Man of the World,2.5,False,308
+certain,certain,ADJ,5,2,Say You Will; Seven Wonders,2.5,False,309
+run,run,NOUN,5,1,The Chain,5.0,False,310
+most,most,ADJ,5,4,Angel; Hypnotized; Sisters of the Moon; Songbird,1.25,True,311
+older,old,ADJ,5,1,Landslide,5.0,False,312
+loves,love,VERB,5,2,Gold Dust Woman; Silver Springs (Live 1997) (Edit),2.5,False,313
+beauty,beauty,NOUN,5,1,Seven Wonders,5.0,False,314
+fun,fun,NOUN,5,1,You Make Loving Fun,5.0,False,315
+has,have,AUX,5,4,Beautiful Child; I Don’t Want to Know; Second Hand News; Storms,1.25,True,316
+pale,pale,VERB,5,1,Gold Dust Woman,5.0,False,317
+anymore,anymore,ADV,5,3,Beautiful Child; Man of the World; Sara,1.67,False,318
+him,he,PRON,5,2,Thrown Down; Tusk,2.5,True,319
+where,where,SCONJ,5,4,As Long as You Follow; Hypnotized; Never Going Back Again; Sara,1.25,True,320
+wake,wake,VERB,5,4,Big Love; Don’t Stop; Don’t Stop (Live 1977); Gold Dust Woman,1.25,False,321
+woo,woo,VERB,4,1,Say You Love Me,4.0,False,322
+slip,slip,VERB,4,2,Hold Me; I’m So Afraid,2.0,False,323
+livin,livin,NOUN,4,1,Say You Love Me,4.0,False,324
+starts,start,VERB,4,1,Say You Love Me,4.0,False,325
+water,water,NOUN,4,1,Crystal,4.0,False,326
+morning,morning,NOUN,4,3,Beautiful Child; Monday Morning; Warm Ways,1.33,False,327
+thinking,think,VERB,4,1,Don’t Stop (Live 1977),4.0,False,328
+soul,soul,NOUN,4,1,Say You Love Me,4.0,False,329
+alone,alone,ADJ,4,3,Big Love; Black Magic Woman; I’m So Afraid,1.33,True,330
+fall,fall,VERB,4,2,Big Love; I’m So Afraid,2.0,False,331
+flight,flight,NOUN,4,2,Rhiannon; Rhiannon (Live 1977),2.0,False,332
+calling,call,VERB,4,1,Everywhere,4.0,False,333
+bird,bird,NOUN,4,2,Rhiannon; Rhiannon (Live 1977),2.0,False,334
+haunt,haunt,VERB,4,2,Silver Springs; Silver Springs (Live 1997) (Edit),2.0,False,335
+forever,forever,ADV,4,1,Warm Ways,4.0,False,336
+inside,inside,ADP,4,3,Hold Me; Storms; Thrown Down,1.33,False,337
+road,road,NOUN,4,4,As Long as You Follow; Blue Letter; Hypnotized; Storms,1.0,False,338
+inherit,inherit,PROPN,4,1,Future Games,4.0,False,339
+nice,nice,ADJ,4,1,Over My Head,4.0,False,340
+feels,feel,VERB,4,1,Over My Head,4.0,False,341
+lovin,lovin',PROPN,4,1,Say You Love Me,4.0,False,342
+girl,girl,NOUN,4,2,Angel; Say You Love Me,2.0,False,343
+moon,moon,NOUN,4,2,Sisters of the Moon; The Green Manalishi (With the Two Prong Crown),2.0,False,344
+walk,walk,VERB,4,3,Angel; Oh Daddy; Thrown Down,1.33,False,345
+drove,drive,VERB,4,1,Crystal,4.0,False,346
+peace,peace,NOUN,4,2,Monday Morning; Second Hand News,2.0,False,347
+rise,rise,VERB,4,4,As Long as You Follow; Landslide; Peacekeeper; The Chain,1.0,False,348
+friends,friend,NOUN,4,4,Everywhere; Hypnotized; Peacekeeper; Sisters of the Moon,1.0,False,349
+hmm,hmm,PROPN,4,1,Landslide,4.0,False,350
+understand,understand,VERB,4,4,Hold Me; Little Lies; Oh Daddy; Oh Well (Part 1),1.0,False,351
+days,day,NOUN,4,2,I’m So Afraid; Sara,2.0,False,352
+read,read,VERB,4,2,Blue Letter; Need Your Love So Bad,2.0,False,353
+whoa,whoa,INTJ,4,2,Black Magic Woman; Need Your Love So Bad,2.0,False,354
+sara,sara,PROPN,4,1,Sara,4.0,False,355
+beautiful,beautiful,ADJ,4,2,Angel; Beautiful Child,2.0,False,356
+stuff,stuff,NOUN,4,1,Second Hand News,4.0,False,357
+women,woman,NOUN,4,2,Beautiful Child; Dreams,2.0,False,358
+without,without,ADP,4,3,Blue Letter; Hypnotized; Thrown Down,1.33,True,359
+their,their,PRON,4,3,Gold Dust Woman; Hypnotized; Peacekeeper,1.33,True,360
+lost,lose,VERB,4,1,Dreams,4.0,False,361
+tall,tall,ADJ,4,2,Beautiful Child; Second Hand News,2.0,False,362
+fear,fear,NOUN,4,2,Gypsy; Storms,2.0,False,363
+hills,hill,NOUN,4,2,Hypnotized; Landslide,2.0,False,364
+landslide,landslide,NOUN,4,1,Landslide,4.0,False,365
+means,mean,VERB,4,2,Hypnotized; Never Going Back Again,2.0,False,366
+become,become,VERB,4,2,Angel; Say You Will,2.0,True,367
+any,any,DET,4,4,Don’t Stop; Don’t Stop (Live 1977); Dreams; Hypnotized,1.0,True,368
+mad,mad,ADJ,4,3,Dreams; Need Your Love So Bad; The Green Manalishi (With the Two Prong Crown),1.33,False,369
+illusions,illusion,NOUN,4,2,Gold Dust Woman; Sisters of the Moon,2.0,False,370
+gon,go,VERB,4,4,Rhiannon (Live 1977); Say You Love Me; Second Hand News; Tusk,1.0,False,371
+na,to,PART,4,4,Rhiannon (Live 1977); Say You Love Me; Second Hand News; Tusk,1.0,False,372
+myself,myself,PRON,4,4,Dreams; Silver Springs; Silver Springs (Live 1997) (Edit); Songbird,1.0,True,373
+makes,make,VERB,4,3,Landslide; Sisters of the Moon; Thrown Down,1.33,False,374
+children,child,NOUN,4,2,Future Games; Landslide,2.0,False,375
+green,green,ADJ,4,3,Silver Springs; Silver Springs (Live 1997) (Edit); The Green Manalishi (With the Two Prong Crown),1.33,False,376
+sleep,sleep,NOUN,4,2,The Green Manalishi (With the Two Prong Crown); Warm Ways,2.0,False,377
+bell,bell,NOUN,4,2,Rhiannon; Rhiannon (Live 1977),2.0,False,378
+rings,ring,NOUN,4,2,Rhiannon; Rhiannon (Live 1977),2.0,False,379
+spend,spend,VERB,4,2,Future Games; Storms,2.0,False,380
+takes,take,VERB,4,3,Don’t Stop; Don’t Stop (Live 1977); Rhiannon,1.33,False,381
+darkness,darkness,NOUN,3,3,Rhiannon; Rhiannon (Live 1977); The Green Manalishi (With the Two Prong Crown),1.0,False,382
+much,much,ADJ,3,3,Beautiful Child; Storms; Thrown Down,1.0,True,383
+since,since,SCONJ,3,3,Beautiful Child; Say You Will; Storms,1.0,True,384
+barricade,barricade,NOUN,3,1,Thrown Down,3.0,False,385
+sit,sit,VERB,3,2,Future Games; Thrown Down,1.5,False,386
+prove,prove,VERB,3,1,Thrown Down,3.0,False,387
+happen,happen,VERB,3,2,Future Games; Thrown Down,1.5,False,388
+undoing,undo,VERB,3,1,Sara,3.0,False,389
+heartbeat,heartbeat,NOUN,3,2,Dreams; Sara,1.5,False,390
+widow,widow,NOUN,3,2,Gold Dust Woman; Sisters of the Moon,1.5,False,391
+tryin,tryin,NOUN,3,1,The Green Manalishi (With the Two Prong Crown),3.0,False,392
+colors,color,NOUN,3,2,Silver Springs; Silver Springs (Live 1997) (Edit),1.5,False,393
+message,message,NOUN,3,1,Blue Letter,3.0,False,394
+side,side,NOUN,3,3,Future Games; Over My Head; Warm Ways,1.0,True,395
+track,track,PROPN,3,1,Angel,3.0,False,396
+crazy,crazy,PROPN,3,2,I Don’t Want to Know; Sara,1.5,False,397
+getting,get,VERB,3,1,Landslide,3.0,False,398
+hope,hope,VERB,3,3,Little Lies; Say You Love Me; Seven Wonders,1.0,False,399
+different,different,ADJ,3,3,Don’t Stop; Don’t Stop (Live 1977); You Make Loving Fun,1.0,False,400
+shatter,shatter,NOUN,3,1,Gold Dust Woman,3.0,False,401
+very,very,ADV,3,1,Angel,3.0,True,402
+part,part,NOUN,3,2,Angel; Say You Will,1.5,True,403
+talk,talk,VERB,3,3,Hypnotized; Need Your Love So Bad; Oh Well - Parts I & II,1.0,False,404
+anywhere,anywhere,ADV,3,1,Sara,3.0,True,405
+mountains,mountain,NOUN,3,2,Crystal; Hypnotized,1.5,False,406
+crystal,crystal,NOUN,3,2,Crystal; Dreams,1.5,False,407
+snow,snow,NOUN,3,1,Landslide,3.0,False,408
+grass,grass,NOUN,3,1,Second Hand News,3.0,False,409
+lay,lay,VERB,3,1,Second Hand News,3.0,False,410
+haunted,haunted,ADJ,3,1,Angel,3.0,False,411
+charmed,charmed,ADJ,3,1,Angel,3.0,False,412
+clean,clean,VERB,3,1,Dreams,3.0,False,413
+rough,rough,ADJ,3,2,As Long as You Follow; Second Hand News,1.5,False,414
+dance,dance,VERB,3,2,Hold Me; Say You Will,1.5,False,415
+knowledge,knowledge,NOUN,3,1,Crystal,3.0,False,416
+vain,vain,ADJ,3,2,As Long as You Follow; Future Games,1.5,False,417
+glove,glove,NOUN,3,2,Crystal; Hold Me,1.5,False,418
+changin,changin,NOUN,3,1,Landslide,3.0,False,419
+held,hold,VERB,3,3,Beautiful Child; Seven Wonders; Thrown Down,1.0,False,420
+touched,touch,VERB,3,1,Seven Wonders,3.0,False,421
+room,room,NOUN,3,3,Angel; Gypsy; Sisters of the Moon,1.0,False,422
+sorry,sorry,ADJ,3,2,Seven Wonders; Thrown Down,1.5,False,423
+agony,agony,PROPN,3,1,I’m So Afraid,3.0,False,424
+into,into,ADP,3,3,Black Magic Woman; Thrown Down; Warm Ways,1.0,True,425
+die,die,VERB,3,1,I’m So Afraid,3.0,False,426
+torn,tear,VERB,3,1,I’m So Afraid,3.0,False,427
+ocean,ocean,NOUN,3,3,Landslide; Silver Springs; Silver Springs (Live 1997) (Edit),1.0,False,428
+covered,cover,VERB,3,1,Landslide,3.0,False,429
+reflection,reflection,NOUN,3,1,Landslide,3.0,False,430
+took,take,VERB,3,2,Landslide; Think About Me,1.5,False,431
+pieces,piece,NOUN,3,1,Gold Dust Woman,3.0,False,432
+washes,wash,VERB,3,1,Dreams,3.0,False,433
+happens,happen,VERB,3,1,Dreams,3.0,False,434
+thunder,thunder,NOUN,3,1,Dreams,3.0,False,435
+warm,warm,ADJ,3,2,Storms; Warm Ways,1.5,False,436
+shining,shin,VERB,3,3,As Long as You Follow; Silver Springs (Live 1997) (Edit); Songbird,1.0,False,437
+left,leave,VERB,3,3,Gypsy; Storms; Thrown Down,1.0,False,438
+dust,dust,NOUN,3,1,Gold Dust Woman,3.0,False,439
+start,start,NOUN,3,2,Everywhere; Storms,1.5,False,440
+gold,gold,NOUN,3,2,As Long as You Follow; Gold Dust Woman,1.5,False,441
+speak,speak,VERB,3,3,Everywhere; Over & Over; Sara,1.0,False,442
+believing,believe,VERB,3,2,Crystal; Monday Morning,1.5,False,443
+stick,stick,PROPN,3,3,Black Magic Woman; Oh Well (Part 1); Oh Well - Parts I & II,1.0,False,444
+god,god,PROPN,3,3,Oh Well (Part 1); Oh Well - Parts I & II; Rhiannon (Live 1977),1.0,False,445
+thought,think,VERB,3,3,As Long as You Follow; Peacekeeper; Say You Love Me,1.0,False,446
+waiting,wait,VERB,3,2,Go Your Own Way; Warm Ways,1.5,False,447
+running,run,VERB,3,3,Over & Over; Silver Springs; Silver Springs (Live 1997) (Edit),1.0,False,448
+begin,begin,VERB,3,3,Silver Springs; Silver Springs (Live 1997) (Edit); Think About Me,1.0,False,449
+chance,chance,NOUN,3,2,Say You Will; Silver Springs,1.5,False,450
+cast,cast,VERB,3,1,Silver Springs,3.0,False,451
+trying,try,VERB,3,2,Black Magic Woman; I Don’t Want to Know,1.5,False,452
+face,face,NOUN,3,2,Future Games; Peacekeeper,1.5,False,453
+calm,calm,NOUN,3,1,Storms,3.0,False,454
+strikes,strike,NOUN,3,1,Gypsy,3.0,False,455
+twice,twice,ADV,3,1,Gypsy,3.0,False,456
+cold,cold,ADJ,3,3,Over My Head; Peacekeeper; Songbird,1.0,False,457
+lightning,lightning,NOUN,3,1,Gypsy,3.0,False,458
+tonight,tonight,NOUN,3,2,Future Games; Warm Ways,1.5,False,459
+spring,spring,NOUN,3,2,Silver Springs; Silver Springs (Live 1997) (Edit),1.5,False,460
+sometimes,sometimes,ADV,3,2,Angel; Over My Head,1.5,True,461
+open,open,VERB,3,3,Don’t Stop; Don’t Stop (Live 1977); Go Your Own Way,1.0,False,462
+wonder,wonder,VERB,2,1,You Make Loving Fun,2.0,False,463
+sittin,sittin,ADJ,2,1,Future Games,2.0,False,464
+wild,wild,ADJ,2,1,Future Games,2.0,False,465
+tame,tame,VERB,2,1,Future Games,2.0,False,466
+journeys,journey,NOUN,2,1,Future Games,2.0,False,467
+sometime,sometime,ADJ,2,1,Angel,2.0,True,468
+fire,fire,NOUN,2,2,Peacekeeper; Sara,1.0,False,469
+minute,minute,NOUN,2,2,Hold Me; Sara,1.0,False,470
+round,round,NOUN,2,2,Angel; Never Going Back Again,1.0,False,471
+drown,drown,VERB,2,1,Sara,2.0,False,472
+great,great,ADJ,2,2,Angel; Sara,1.0,False,473
+laces,lace,NOUN,2,1,Sara,2.0,False,474
+dragon,dragon,NOUN,2,1,Gold Dust Woman,2.0,False,475
+invent,invent,VERB,2,1,Future Games,2.0,False,476
+sale,sale,NOUN,2,1,Gold Dust Woman,2.0,False,477
+beginning,begin,VERB,2,1,You Make Loving Fun,2.0,False,478
+redbird,redbird,PROPN,2,1,Blue Letter,2.0,False,479
+neighbors,neighbor,NOUN,2,1,Future Games,2.0,False,480
+word,word,NOUN,2,1,Blue Letter,2.0,False,481
+makin,makin,PROPN,2,1,The Green Manalishi (With the Two Prong Crown),2.0,False,482
+late,late,ADJ,2,1,Rhiannon (Live 1977),2.0,False,483
+skylark,skylark,NOUN,2,2,Rhiannon; Rhiannon (Live 1977),1.0,False,484
+felt,feel,VERB,2,2,Storms; Think About Me,1.0,False,485
+cat,cat,NOUN,2,2,Rhiannon; Rhiannon (Live 1977),1.0,False,486
+knows,know,VERB,2,1,Rhiannon (Live 1977),2.0,False,487
+shaken,shake,VERB,2,1,Thrown Down,2.0,False,488
+other,other,ADJ,2,1,Thrown Down,2.0,True,489
+easy,easy,ADJ,2,2,Think About Me; Warm Ways,1.0,False,490
+test,test,NOUN,2,2,Peacekeeper; Storms,1.0,False,491
+watched,watch,VERB,2,1,Thrown Down,2.0,False,492
+peacekeeper,peacekeeper,PROPN,2,1,Peacekeeper,2.0,False,493
+suns,sun,NOUN,2,1,Peacekeeper,2.0,False,494
+loneliness,loneliness,NOUN,2,1,Dreams,2.0,False,495
+casts,cast,VERB,2,1,Silver Springs (Live 1997) (Edit),2.0,False,496
+play,play,VERB,2,2,Dreams; Thrown Down,1.0,False,497
+flashing,flash,VERB,2,1,Silver Springs (Live 1997) (Edit),2.0,False,498
+instant,instant,NOUN,2,1,Say You Will,2.0,False,499
+visions,vision,NOUN,2,1,Dreams,2.0,False,500
+catch,catch,VERB,2,1,Angel,2.0,False,501
+story,story,NOUN,2,2,Angel; Hypnotized,1.0,False,502
+least,least,ADJ,2,2,Hypnotized; Say You Will,1.0,True,503
+meaningless,meaningless,ADJ,2,1,Hypnotized,2.0,False,504
+question,question,NOUN,2,1,Hypnotized,2.0,False,505
+remember,remember,VERB,2,2,Hypnotized; Say You Will,1.0,False,506
+miracles,miracle,NOUN,2,1,You Make Loving Fun,2.0,False,507
+fell,fall,VERB,2,2,Beautiful Child; Thrown Down,1.0,False,508
+clear,clear,ADJ,2,1,Crystal,2.0,False,509
+fountain,fountain,NOUN,2,1,Crystal,2.0,False,510
+magnet,magnet,NOUN,2,1,Crystal,2.0,False,511
+changed,change,VERB,2,1,Crystal,2.0,False,512
+turning,turn,VERB,2,2,Black Magic Woman; Crystal,1.0,False,513
+lindsey,lindsey,PROPN,2,2,Say You Love Me; Second Hand News,1.0,False,514
+buckingham,buckingham,PROPN,2,2,Say You Love Me; Second Hand News,1.0,False,515
+although,although,SCONJ,2,2,Hold Me; Little Lies,1.0,True,516
+care,care,VERB,2,2,Sara; Storms,1.0,False,517
+dreaming,dream,VERB,2,2,As Long as You Follow; Sara,1.0,False,518
+poet,poet,NOUN,2,1,Sara,2.0,False,519
+sleepless,sleepless,ADJ,2,1,Beautiful Child,2.0,False,520
+pride,pride,NOUN,2,2,Over My Head; Sara,1.0,False,521
+loud,loud,ADV,2,2,Gold Dust Woman; I Don’t Want to Know,1.0,False,522
+died,die,VERB,2,1,Sara,2.0,False,523
+bolder,bolder,VERB,2,1,Landslide,2.0,False,524
+built,build,VERB,2,1,Landslide,2.0,False,525
+reason,reason,NOUN,2,2,Future Games; Little Lies,1.0,False,526
+plans,plan,NOUN,2,2,Little Lies; Peacekeeper,1.0,False,527
+off,off,ADP,2,2,Future Games; Little Lies,1.0,True,528
+page,page,NOUN,2,1,Little Lies,2.0,False,529
+rearrange,rearrange,VERB,2,1,Little Lies,2.0,False,530
+settle,settle,VERB,2,1,Little Lies,2.0,False,531
+softly,softly,ADV,2,1,Angel,2.0,False,532
+understood,understand,VERB,2,1,Angel,2.0,False,533
+remembering,remember,VERB,2,1,Dreams,2.0,False,534
+funny,funny,ADJ,2,1,Angel,2.0,False,535
+stillness,stillness,NOUN,2,1,Dreams,2.0,False,536
+touch,touch,VERB,2,2,Beautiful Child; Say You Will,1.0,False,537
+old,old,ADJ,2,2,Beautiful Child; Blue Letter,1.0,False,538
+reach,reach,VERB,2,2,Angel; Beautiful Child,1.0,False,539
+drives,drive,VERB,2,1,Dreams,2.0,False,540
+his,his,PRON,2,2,Thrown Down; Tusk,1.0,True,541
+wrap,wrap,VERB,2,2,Dreams; Sisters of the Moon,1.0,False,542
+sell,sell,VERB,2,2,Dreams; Peacekeeper,1.0,False,543
+hands,hand,NOUN,2,2,Beautiful Child; Thrown Down,1.0,False,544
+heard,hear,VERB,2,1,Blue Letter,2.0,False,545
+living,live,VERB,2,1,Storms,2.0,False,546
+tries,try,VERB,2,1,Storms,2.0,False,547
+pray,pray,VERB,2,2,Gold Dust Woman; Seven Wonders,1.0,False,548
+darling,darle,VERB,2,1,Black Magic Woman,2.0,False,549
+cross,cross,ADJ,2,1,Seven Wonders,2.0,False,550
+paper,paper,NOUN,2,2,Gypsy; Need Your Love So Bad,1.0,False,551
+paths,path,NOUN,2,1,Seven Wonders,2.0,False,552
+work,work,VERB,2,2,Seven Wonders; Think About Me,1.0,False,553
+players,player,NOUN,2,1,Dreams,2.0,False,554
+wide,wide,ADJ,2,2,Angel; Hypnotized,1.0,False,555
+lovers,lover,NOUN,2,1,Gold Dust Woman,2.0,False,556
+kingdom,kingdom,NOUN,2,2,Big Love; Gold Dust Woman,1.0,False,557
+put,put,VERB,2,2,Gold Dust Woman; Say You Will,1.0,True,558
+brought,bring,VERB,2,2,Landslide; Say You Will,1.0,False,559
+words,word,NOUN,2,2,Blue Letter; Everywhere,1.0,False,560
+mountain,mountain,NOUN,2,1,Landslide,2.0,False,561
+within,within,ADP,2,2,Landslide; Sara,1.0,True,562
+rainin,rainin,PROPN,2,1,Dreams,2.0,False,563
+meant,mean,VERB,2,2,Don’t Stop; Don’t Stop (Live 1977),1.0,False,564
+done,do,VERB,2,2,Don’t Stop; Don’t Stop (Live 1977),1.0,True,565
+harm,harm,NOUN,2,2,Don’t Stop; Don’t Stop (Live 1977),1.0,False,566
+monday,monday,PROPN,2,1,Monday Morning,2.0,False,567
+cared,care,VERB,2,2,I’m So Afraid; Sisters of the Moon,1.0,False,568
+use,use,VERB,2,1,Say You Love Me,2.0,False,569
+weaker,weak,ADJ,2,1,Say You Love Me,2.0,False,570
+guess,guess,VERB,2,2,Man of the World; Say You Love Me,1.0,False,571
+travelin,travelin,PROPN,2,1,Monday Morning,2.0,False,572
+special,special,ADJ,2,2,Crystal; Think About Me,1.0,False,573
+happening,happening,NOUN,2,1,Everywhere,2.0,False,574
+strange,strange,ADJ,2,1,Hypnotized,2.0,False,575
+closing,close,VERB,2,1,Crystal,2.0,False,576
+found,find,VERB,2,1,Crystal,2.0,False,577
+crystalline,crystalline,ADJ,2,1,Crystal,2.0,False,578
+friday,friday,PROPN,2,1,Monday Morning,2.0,False,579
+along,along,ADP,2,1,Everywhere,2.0,True,580
+rock,rock,VERB,2,1,Gold Dust Woman,2.0,False,581
+louder,louder,ADV,2,2,Everywhere; Sara,1.0,False,582
+best,good,ADJ,2,1,Oh Daddy,2.0,False,583
+silence,silence,NOUN,2,2,Sisters of the Moon; The Chain,1.0,False,584
+tight,tight,ADJ,2,2,Need Your Love So Bad; Over My Head,1.0,False,585
+leave,leave,VERB,2,2,Black Magic Woman; Storms,1.0,False,586
+guiding,guide,VERB,2,2,Oh Well (Part 1); Oh Well - Parts I & II,1.0,False,587
+thin,thin,ADJ,2,2,Oh Well (Part 1); Oh Well - Parts I & II,1.0,False,588
+save,save,VERB,2,1,Storms,2.0,False,589
+weak,weak,ADJ,2,1,Oh Daddy,2.0,False,590
+hill,hill,NOUN,2,1,Big Love,2.0,False,591
+shape,shape,NOUN,2,2,Oh Well (Part 1); Oh Well - Parts I & II,1.0,False,592
+sing,sing,VERB,2,2,Oh Well (Part 1); Oh Well - Parts I & II,1.0,False,593
+legs,leg,NOUN,2,2,Oh Well (Part 1); Oh Well - Parts I & II,1.0,False,594
+tried,try,VERB,2,1,Oh Daddy,2.0,False,595
+worth,worth,ADJ,2,2,Silver Springs; Silver Springs (Live 1997) (Edit),1.0,False,596
+faces,face,VERB,2,2,Crystal; Gypsy,1.0,False,597
+bright,bright,ADJ,2,1,Gypsy,2.0,False,598
+shadows,shadow,NOUN,2,1,The Chain,2.0,False,599
+songbirds,songbird,NOUN,2,1,Songbird,2.0,False,600
+singing,sing,VERB,2,1,Songbird,2.0,False,601
+score,score,NOUN,2,1,Songbird,2.0,False,602
+falling,fall,VERB,2,1,Everywhere,2.0,False,603
+starless,starless,NOUN,2,2,Rhiannon; Rhiannon (Live 1977),1.0,False,604
+blow,blow,NOUN,2,1,The Chain,2.0,False,605
+letting,let,VERB,2,1,Oh Daddy,2.0,False,606
+soothe,soothe,VERB,2,1,Oh Daddy,2.0,False,607
+velvet,velvet,NOUN,2,2,Gypsy; Sisters of the Moon,1.0,False,608
+autumn,autumn,PROPN,2,2,Silver Springs; Silver Springs (Live 1997) (Edit),1.0,False,609
+circus,circus,NOUN,2,1,Over My Head,2.0,False,610
+mood,mood,NOUN,2,1,Over My Head,2.0,False,611
+huh,huh,PROPN,2,1,I Don’t Want to Know,2.0,False,612
+wasting,waste,VERB,2,1,Over My Head,2.0,False,613
+changing,change,VERB,2,1,Over My Head,2.0,False,614
+wheel,wheel,NOUN,2,1,Over My Head,2.0,False,615
+reeling,reel,VERB,2,1,I Don’t Want to Know,2.0,False,616
+paradise,paradise,NOUN,2,2,Blue Letter; Over My Head,1.0,False,617
+truth,truth,NOUN,2,1,I Don’t Want to Know,2.0,False,618
+rockin,rockin,NOUN,2,1,I Don’t Want to Know,2.0,False,619
+each,each,DET,2,1,Storms,2.0,True,620
+deal,deal,VERB,2,1,Storms,2.0,False,621
+uh,uh,INTJ,2,1,I Don’t Want to Know,2.0,False,622
+deadly,deadly,ADJ,2,1,Storms,2.0,False,623
+empty,empty,ADJ,2,1,Storms,2.0,True,624
+am,be,AUX,2,2,Beautiful Child; Dreams,1.0,True,625
+last,last,ADJ,2,1,Future Games,2.0,True,626
+freedom,freedom,NOUN,2,2,Dreams; Gypsy,1.0,False,627
+carefully,carefully,ADV,1,1,Dreams,1.0,False,628
+brush,brush,NOUN,1,1,Peacekeeper,1.0,False,629
+leaves,leave,VERB,1,1,Peacekeeper,1.0,False,630
+trace,trace,NOUN,1,1,Peacekeeper,1.0,False,631
+came,come,VERB,1,1,Future Games,1.0,False,632
+explain,explain,VERB,1,1,Future Games,1.0,False,633
+real,real,ADJ,1,1,Future Games,1.0,False,634
+rhyme,rhyme,NOUN,1,1,Future Games,1.0,False,635
+upon,upon,SCONJ,1,1,Future Games,1.0,True,636
+playin,playin,PROPN,1,1,Future Games,1.0,False,637
+talking,talk,VERB,1,1,Future Games,1.0,False,638
+escape,escape,NOUN,1,1,Future Games,1.0,False,639
+sends,send,VERB,1,1,Future Games,1.0,False,640
+sign,sign,NOUN,1,1,Future Games,1.0,False,641
+create,create,VERB,1,1,Future Games,1.0,False,642
+talkin,talkin,PROPN,1,1,Future Games,1.0,False,643
+understands,understand,VERB,1,1,Oh Well - Parts I & II,1.0,False,644
+flashin,flashin,ADV,1,1,Silver Springs,1.0,False,645
+mm,mm,INTJ,1,1,Rhiannon (Live 1977),1.0,False,646
+waste,waste,VERB,1,1,Over & Over,1.0,False,647
+underground,underground,ADJ,1,1,Gypsy,1.0,False,648
+shinin,shinin,NOUN,1,1,Silver Springs,1.0,False,649
+crashin,crashin,PROPN,1,1,Silver Springs,1.0,False,650
+yourself,yourself,PRON,1,1,Think About Me,1.0,True,651
+important,important,ADJ,1,1,Thrown Down,1.0,False,652
+listened,listen,VERB,1,1,Thrown Down,1.0,False,653
+decision,decision,NOUN,1,1,Thrown Down,1.0,False,654
+says,say,VERB,1,1,Thrown Down,1.0,False,655
+remains,remain,VERB,1,1,Gypsy,1.0,False,656
+dancing,dance,VERB,1,1,Gypsy,1.0,False,657
+memory,memory,NOUN,1,1,Gypsy,1.0,False,658
+crying,cry,VERB,1,1,Songbird,1.0,False,659
+ohh,ohh,NOUN,1,1,Landslide,1.0,False,660
+watch,watch,VERB,1,1,The Chain,1.0,False,661
+packing,pack,VERB,1,1,Go Your Own Way,1.0,False,662
+shacking,shack,VERB,1,1,Go Your Own Way,1.0,False,663
+cried,cry,VERB,1,1,Man of the World,1.0,False,664
+sad,sad,ADJ,1,1,Man of the World,1.0,False,665
+mean,mean,VERB,1,1,Think About Me,1.0,False,666
+against,against,ADP,1,1,Think About Me,1.0,True,667
+law,law,NOUN,1,1,Think About Me,1.0,False,668
+floor,floor,NOUN,1,1,Gypsy,1.0,False,669
+lace,lace,NOUN,1,1,Gypsy,1.0,False,670
+flowers,flower,NOUN,1,1,Gypsy,1.0,False,671
+flown,fly,VERB,1,1,Man of the World,1.0,False,672
+across,across,ADP,1,1,Man of the World,1.0,True,673
+tide,tide,NOUN,1,1,Man of the World,1.0,False,674
+lots,lot,NOUN,1,1,Man of the World,1.0,False,675
+girls,girl,NOUN,1,1,Man of the World,1.0,False,676
+rather,rather,ADV,1,1,Man of the World,1.0,True,677
+born,bear,VERB,1,1,Man of the World,1.0,False,678
+amused,amused,ADJ,1,1,Man of the World,1.0,False,679
+i'm,i'm,PROPN,1,1,Hold Me,1.0,False,680
+corner,corner,NOUN,1,1,Hold Me,1.0,False,681
+spare,spare,VERB,1,1,Hold Me,1.0,False,682
+ya,ya,PRON,1,1,Hold Me,1.0,False,683
+intense,intense,ADJ,1,1,Sisters of the Moon,1.0,False,684
+walked,walk,VERB,1,1,Sisters of the Moon,1.0,False,685
+robes,robe,NOUN,1,1,Sisters of the Moon,1.0,False,686
+trailing,trail,VERB,1,1,Sisters of the Moon,1.0,False,687
+nobody,nobody,PRON,1,1,Hold Me,1.0,True,688
+step,step,NOUN,1,1,Hold Me,1.0,False,689
+damage,damage,NOUN,1,1,Hold Me,1.0,False,690
+how'm,how'm,NOUN,1,1,Hold Me,1.0,False,691
+manage,manage,VERB,1,1,Hold Me,1.0,False,692
+percentage,percentage,NOUN,1,1,Hold Me,1.0,False,693
+payin,payin,NOUN,1,1,Hold Me,1.0,False,694
+dues,due,NOUN,1,1,Hold Me,1.0,False,695
+friend,friend,NOUN,1,1,Storms,1.0,False,696
+frail,frail,ADJ,1,1,Storms,1.0,False,697
+known,know,VERB,1,1,Storms,1.0,False,698
+brokenhearted,brokenhearted,ADJ,1,1,Storms,1.0,False,699
+prayers,prayer,NOUN,1,1,Storms,1.0,False,700
+talked,talk,VERB,1,1,Oh Well (Part 1),1.0,False,701
+begged,beg,VERB,1,1,Big Love,1.0,False,702
+plenty,plenty,NOUN,1,1,Hold Me,1.0,False,703
+spirit,spirit,NOUN,1,1,I Don’t Want to Know,1.0,False,704
+cryin,cryin,NOUN,1,1,I Don’t Want to Know,1.0,False,705
+survive,survive,VERB,1,1,I Don’t Want to Know,1.0,False,706
+hanging,hang,VERB,1,1,I Don’t Want to Know,1.0,False,707
+ice,ice,NOUN,1,1,Over My Head,1.0,False,708
+anytime,anytime,ADV,1,1,Over My Head,1.0,False,709
+truly,truly,ADV,1,1,Storms,1.0,False,710
+goodbye,goodbye,NOUN,1,1,Storms,1.0,False,711
+followed,follow,VERB,1,1,Sisters of the Moon,1.0,False,712
+often,often,ADV,1,1,Sisters of the Moon,1.0,True,713
+nor,nor,CCONJ,1,1,Sisters of the Moon,1.0,True,714
+money,money,NOUN,1,1,Sisters of the Moon,1.0,False,715
+cruel,cruel,ADJ,1,1,Sisters of the Moon,1.0,False,716
+asked,ask,VERB,1,1,Sisters of the Moon,1.0,False,717
+game,game,NOUN,1,1,Sisters of the Moon,1.0,False,718
+anyone,anyone,PRON,1,1,Sisters of the Moon,1.0,True,719
+cover,cover,NOUN,1,1,Say You Love Me,1.0,False,720
+beggin,beggin,ADJ,1,1,Say You Love Me,1.0,False,721
+sympathy,sympathy,NOUN,1,1,Say You Love Me,1.0,False,722
+gettin,gettin,ADJ,1,1,Say You Love Me,1.0,False,723
+used,use,VERB,1,1,Say You Love Me,1.0,True,724
+outro,outro,PROPN,1,1,Say You Love Me,1.0,False,725
+fleetwood,fleetwood,PROPN,1,1,Say You Love Me,1.0,False,726
+called,call,VERB,1,1,Sisters of the Moon,1.0,False,727
+stairs,stair,NOUN,1,1,Sisters of the Moon,1.0,False,728
+mercy,mercy,NOUN,1,1,Say You Love Me,1.0,False,729
+poor,poor,ADJ,1,1,Say You Love Me,1.0,False,730
+feet,foot,NOUN,1,1,Say You Love Me,1.0,False,731
+tinglin,tinglin,ADJ,1,1,Say You Love Me,1.0,False,732
+toes,toe,NOUN,1,1,Say You Love Me,1.0,False,733
+feelin,feelin,NOUN,1,1,Say You Love Me,1.0,False,734
+pity,pity,NOUN,1,1,Say You Love Me,1.0,False,735
+spider,spider,NOUN,1,1,Sisters of the Moon,1.0,False,736
+moons,moon,NOUN,1,1,Sisters of the Moon,1.0,False,737
+hers,her,NOUN,1,1,Sisters of the Moon,1.0,True,738
+sense,sense,NOUN,1,1,Sisters of the Moon,1.0,False,739
+heavy,heavy,ADJ,1,1,Sisters of the Moon,1.0,False,740
+persuasion,persuasion,NOUN,1,1,Sisters of the Moon,1.0,False,741
+breathe,breathe,VERB,1,1,Sisters of the Moon,1.0,False,742
+top,top,NOUN,1,1,Sisters of the Moon,1.0,True,743
+refrain,refrain,NOUN,1,1,Second Hand News,1.0,False,744
+stevie,stevie,PROPN,1,1,Second Hand News,1.0,False,745
+pages,page,NOUN,1,1,Crystal,1.0,False,746
+remain,remain,VERB,1,1,Crystal,1.0,False,747
+ageless,ageless,ADJ,1,1,Crystal,1.0,False,748
+lead,lead,VERB,1,1,Need Your Love So Bad,1.0,False,749
+arms,arm,NOUN,1,1,Need Your Love So Bad,1.0,False,750
+squeeze,squeeze,VERB,1,1,Need Your Love So Bad,1.0,False,751
+reached,reach,VERB,1,1,Seven Wonders,1.0,False,752
+smiled,smile,VERB,1,1,Seven Wonders,1.0,False,753
+someday,someday,ADV,1,1,Seven Wonders,1.0,False,754
+climbed,climb,VERB,1,1,Landslide,1.0,False,755
+saw,see,VERB,1,1,Landslide,1.0,False,756
+mirror,mirror,NOUN,1,1,Landslide,1.0,False,757
+nothin,nothing,NOUN,1,1,Second Hand News,1.0,False,758
+miss,miss,VERB,1,1,Second Hand News,1.0,False,759
+tossed,toss,VERB,1,1,Second Hand News,1.0,False,760
+enoughoh,enoughoh,PROPN,1,1,Second Hand News,1.0,False,761
+hoping,hop,VERB,1,1,Second Hand News,1.0,False,762
+newsi'm,newsi'm,PROPN,1,1,Second Hand News,1.0,False,763
+emmeline,emmeline,PROPN,1,1,Seven Wonders,1.0,False,764
+intensity,intensity,NOUN,1,1,Seven Wonders,1.0,False,765
+played,play,VERB,1,1,Seven Wonders,1.0,False,766
+cool,cool,ADJ,1,1,Seven Wonders,1.0,False,767
+yеsterday,yеsterday,PROPN,1,1,Don’t Stop (Live 1977),1.0,False,768
+takеs,takеs,VERB,1,1,Don’t Stop (Live 1977),1.0,False,769
+fade,fade,VERB,1,1,Monday Morning,1.0,False,770
+trust,trust,VERB,1,1,Crystal,1.0,False,771
+initial,initial,ADJ,1,1,Crystal,1.0,False,772
+holds,hold,VERB,1,1,Crystal,1.0,False,773
+bears,bear,VERB,1,1,Crystal,1.0,False,774
+nicks,nicks,PROPN,1,1,Second Hand News,1.0,False,775
+wants,want,VERB,1,1,Dreams,1.0,False,776
+lip,lip,NOUN,1,1,Beautiful Child,1.0,False,777
+send,send,VERB,1,1,Beautiful Child,1.0,False,778
+choice,choice,NOUN,1,1,Beautiful Child,1.0,False,779
+harder,hard,ADJ,1,1,Beautiful Child,1.0,False,780
+few,few,ADJ,1,1,Beautiful Child,1.0,True,781
+hours,hour,NOUN,1,1,Beautiful Child,1.0,False,782
+stars,star,NOUN,1,1,Beautiful Child,1.0,False,783
+please,please,INTJ,1,1,Sara,1.0,True,784
+swallow,swallow,VERB,1,1,Sara,1.0,False,785
+wanted,want,VERB,1,1,Sara,1.0,False,786
+tenors,tenor,NOUN,1,1,Tusk,1.0,False,787
+johnny,johnny,PROPN,1,1,Tusk,1.0,False,788
+phone,phone,NOUN,1,1,Tusk,1.0,False,789
+latest,late,ADJ,1,1,Tusk,1.0,False,790
+throne,throne,NOUN,1,1,Tusk,1.0,False,791
+soft,soft,ADJ,1,1,Need Your Love So Bad,1.0,False,792
+worry,worry,VERB,1,1,Need Your Love So Bad,1.0,False,793
+plea,plea,NOUN,1,1,Need Your Love So Bad,1.0,False,794
+disappeared,disappear,VERB,1,1,Beautiful Child,1.0,False,795
+bite,bite,VERB,1,1,Beautiful Child,1.0,False,796
+coming,come,VERB,1,1,Sara,1.0,False,797
+starling,starling,NOUN,1,1,Sara,1.0,False,798
+flew,fly,VERB,1,1,Sara,1.0,False,799
+begins,begin,VERB,1,1,Need Your Love So Bad,1.0,False,800
+lips,lip,NOUN,1,1,Need Your Love So Bad,1.0,False,801
+next,next,ADJ,1,1,Need Your Love So Bad,1.0,True,802
+lyin,lyin,ADJ,1,1,Need Your Love So Bad,1.0,False,803
+low,low,ADJ,1,1,Need Your Love So Bad,1.0,False,804
+write,write,VERB,1,1,Need Your Love So Bad,1.0,False,805
+piece,piece,NOUN,1,1,Need Your Love So Bad,1.0,False,806
+drivin,drivin,NOUN,1,1,Need Your Love So Bad,1.0,False,807
+climb,climb,VERB,1,1,Landslide,1.0,False,808
+mornin,mornin,NOUN,1,1,Gold Dust Woman,1.0,False,809
+sunrise,sunrise,NOUN,1,1,Gold Dust Woman,1.0,False,810
+lousy,lousy,ADJ,1,1,Gold Dust Woman,1.0,False,811
+prey,prey,NOUN,1,1,Gold Dust Woman,1.0,False,812
+ancient,ancient,ADJ,1,1,Gold Dust Woman,1.0,False,813
+queen,queen,NOUN,1,1,Gold Dust Woman,1.0,False,814
+rulers,rulers,PROPN,1,1,Gold Dust Woman,1.0,False,815
+singin,singin,ADJ,1,1,Sara,1.0,False,816
+wonderful,wonderful,ADJ,1,1,You Make Loving Fun,1.0,False,817
+happy,happy,ADJ,1,1,You Make Loving Fun,1.0,False,818
+follows,follow,VERB,1,1,You Make Loving Fun,1.0,False,819
+wherever,wherever,SCONJ,1,1,You Make Loving Fun,1.0,True,820
+making,make,VERB,1,1,Little Lies,1.0,False,821
+broken,broken,ADJ,1,1,Little Lies,1.0,False,822
+hearts,heart,NOUN,1,1,Little Lies,1.0,False,823
+broke,break,VERB,1,1,Never Going Back Again,1.0,False,824
+awhile,awhile,ADV,1,1,Sara,1.0,False,825
+bout,'bout,ADP,1,1,Sara,1.0,False,826
+drowned,drown,VERB,1,1,Sara,1.0,False,827
+everyone,everyone,PRON,1,1,Sara,1.0,True,828
+wing,wing,NOUN,1,1,Sara,1.0,False,829
+wings,wing,NOUN,1,1,Sara,1.0,False,830
+met,meet,VERB,1,1,Sara,1.0,False,831
+afar,afar,ADJ,1,1,Beautiful Child,1.0,False,832
+trusting,trusting,NOUN,1,1,Beautiful Child,1.0,False,833
+usually,usually,ADV,1,1,Beautiful Child,1.0,False,834
+innocent,innocent,ADJ,1,1,Angel,1.0,False,835
+pass,pass,VERB,1,1,Angel,1.0,False,836
+passing,pass,VERB,1,1,Angel,1.0,False,837
+apart,apart,ADV,1,1,Little Lies,1.0,False,838
+​bridge}​,​bridge}​,PROPN,1,1,Little Lies,1.0,False,839
+mexico,mexico,PROPN,1,1,Hypnotized,1.0,False,840
+fly,fly,VERB,1,1,Hypnotized,1.0,False,841
+airplane,airplane,NOUN,1,1,Hypnotized,1.0,False,842
+engine,engine,NOUN,1,1,Hypnotized,1.0,False,843
+stories,story,NOUN,1,1,Hypnotized,1.0,False,844
+matters,matter,VERB,1,1,Hypnotized,1.0,False,845
+float,float,PROPN,1,1,Hypnotized,1.0,False,846
+searching,search,VERB,1,1,As Long as You Follow,1.0,False,847
+carolina,carolina,PROPN,1,1,Hypnotized,1.0,False,848
+pond,pond,NOUN,1,1,Hypnotized,1.0,False,849
+sides,side,NOUN,1,1,Hypnotized,1.0,False,850
+glass,glass,NOUN,1,1,Hypnotized,1.0,False,851
+thick,thick,NOUN,1,1,Hypnotized,1.0,False,852
+forest,forest,NOUN,1,1,Hypnotized,1.0,False,853
+land,land,NOUN,1,1,Hypnotized,1.0,False,854
+showed,show,VERB,1,1,Hypnotized,1.0,False,855
+window,window,NOUN,1,1,Hypnotized,1.0,False,856
+lawn,lawn,NOUN,1,1,Hypnotized,1.0,False,857
+which,which,PRON,1,1,Hypnotized,1.0,True,858
+half,half,NOUN,1,1,Hypnotized,1.0,False,859
+field,field,NOUN,1,1,Hypnotized,1.0,False,860
+explaining,explaining,NOUN,1,1,Hypnotized,1.0,False,861
+imagination,imagination,NOUN,1,1,Hypnotized,1.0,False,862
+north,north,PROPN,1,1,Hypnotized,1.0,False,863
+rainin'players,rainin'player,NOUN,1,1,Dreams,1.0,False,864
+hello,hello,INTJ,1,1,Angel,1.0,False,865
+both,both,PRON,1,1,Angel,1.0,True,866
+pretend,pretend,VERB,1,1,Angel,1.0,False,867
+pretender,pretender,NOUN,1,1,Angel,1.0,False,868
+having,have,VERB,1,1,Hypnotized,1.0,False,869
+coffee,coffee,NOUN,1,1,Hypnotized,1.0,False,870
+flies,fly,VERB,1,1,Hypnotized,1.0,False,871
+devil,devil,PROPN,1,1,Black Magic Woman,1.0,False,872
+messing,mess,VERB,1,1,Black Magic Woman,1.0,False,873
+tricks,trick,NOUN,1,1,Black Magic Woman,1.0,False,874
+stone,stone,NOUN,1,1,Black Magic Woman,1.0,False,875
+whoh,whoh,PROPN,1,1,Black Magic Woman,1.0,False,876
+count,count,VERB,1,1,I’m So Afraid,1.0,False,877
+tears,tear,NOUN,1,1,I’m So Afraid,1.0,False,878
+shall,shall,AUX,1,1,Man of the World,1.0,False,879
+handle,handle,VERB,1,1,Landslide,1.0,False,880
+seasons,season,NOUN,1,1,Landslide,1.0,False,881
+borrow,borrow,VERB,1,1,As Long as You Follow,1.0,False,882
+wandering,wander,VERB,1,1,As Long as You Follow,1.0,False,883
+far,far,ADV,1,1,As Long as You Follow,1.0,False,884
+went,go,VERB,1,1,As Long as You Follow,1.0,False,885
+seemed,seem,VERB,1,1,As Long as You Follow,1.0,True,886
+blind,blind,ADJ,1,1,Black Magic Woman,1.0,False,887
+spoon,spoon,NOUN,1,1,Gold Dust Woman,1.0,False,888
+dig,dig,VERB,1,1,Gold Dust Woman,1.0,False,889
+grave,grave,ADJ,1,1,Gold Dust Woman,1.0,False,890
+heartless,heartless,ADJ,1,1,Gold Dust Woman,1.0,False,891
+challenge,challenge,NOUN,1,1,Gold Dust Woman,1.0,False,892
+above,above,ADV,1,1,Landslide,1.0,True,893
+sail,sail,VERB,1,1,Landslide,1.0,False,894
+tides,tide,NOUN,1,1,Landslide,1.0,False,895
+pot,pot,NOUN,1,1,As Long as You Follow,1.0,False,896
+lose,lose,VERB,1,1,As Long as You Follow,1.0,False,897
+beg,beg,VERB,1,1,As Long as You Follow,1.0,False,898
+steal,steal,ADJ,1,1,As Long as You Follow,1.0,False,899
+shout,shout,VERB,1,1,Everywhere,1.0,False,900
+proud,proud,ADJ,1,1,Everywhere,1.0,False,901
+acting,act,VERB,1,1,Everywhere,1.0,False,902
+peculiarly,peculiarly,ADV,1,1,Everywhere,1.0,False,903
+drill,drill,NOUN,1,1,Peacekeeper,1.0,False,904
+kill,kill,VERB,1,1,Peacekeeper,1.0,False,905
+crashing,crashing,NOUN,1,1,Silver Springs (Live 1997) (Edit),1.0,False,906
+prisoners,prisoner,NOUN,1,1,Peacekeeper,1.0,False,907
+gentle,gentle,ADJ,1,1,Warm Ways,1.0,False,908
+slumber,slumber,NOUN,1,1,Warm Ways,1.0,False,909
+hide,hide,VERB,1,1,Warm Ways,1.0,False,910
+anyway,anyway,ADV,1,1,Over & Over,1.0,True,911
+explode,explode,VERB,1,1,Peacekeeper,1.0,False,912
+gods,god,NOUN,1,1,Peacekeeper,1.0,False,913
+fight,fight,VERB,1,1,Peacekeeper,1.0,False,914
+surprise,surprise,NOUN,1,1,Peacekeeper,1.0,False,915
+creatures,creature,NOUN,1,1,Peacekeeper,1.0,False,916
+poison,poison,VERB,1,1,Peacekeeper,1.0,False,917
+hate,hate,VERB,1,1,Peacekeeper,1.0,False,918
+fill,fill,NOUN,1,1,Peacekeeper,1.0,False,919
+heal,heal,VERB,1,1,Say You Will,1.0,False,920
+wounds,wound,NOUN,1,1,Say You Will,1.0,False,921
+electricity,electricity,NOUN,1,1,Say You Will,1.0,False,922
+grace,grace,NOUN,1,1,Say You Will,1.0,False,923
+witch,witch,NOUN,1,1,Rhiannon (Live 1977),1.0,False,924
+lady,lady,NOUN,1,1,Rhiannon (Live 1977),1.0,False,925
+rises,rise,NOUN,1,1,Rhiannon (Live 1977),1.0,False,926
+suffer,suffer,VERB,1,1,Peacekeeper,1.0,False,927
+overwhelming,overwhelming,ADJ,1,1,Thrown Down,1.0,False,928
+outside,outside,ADP,1,1,Thrown Down,1.0,False,929
+door,door,NOUN,1,1,Thrown Down,1.0,False,930
+dedicate,dedicate,VERB,1,1,Thrown Down,1.0,False,931
+pain,pain,NOUN,1,1,Thrown Down,1.0,False,932
+difficult,difficult,ADJ,1,1,Thrown Down,1.0,False,933
+romance,romance,NOUN,1,1,Say You Will,1.0,False,934
+fever,fever,NOUN,1,1,Say You Will,1.0,False,935
+fades,fade,VERB,1,1,Storms,1.0,False,936
+anything,anything,PRON,1,1,Storms,1.0,True,937
+year,year,NOUN,1,1,Storms,1.0,False,938
+lifetimes,lifetime,NOUN,1,1,Storms,1.0,False,939
+past,past,ADP,1,1,Storms,1.0,False,940
+though,though,SCONJ,1,1,Storms,1.0,True,941
+search,search,VERB,1,1,Storms,1.0,False,942
+mac,mac,PROPN,1,1,Say You Love Me,1.0,False,943
+letter,letter,NOUN,1,1,Blue Letter,1.0,False,944
+wrote,write,VERB,1,1,Blue Letter,1.0,False,945
+its,its,PRON,1,1,Blue Letter,1.0,True,946
+paint,paint,VERB,1,1,Peacekeeper,1.0,False,947
+hurt,hurt,VERB,1,1,Over My Head,1.0,False,948
+less,less,ADJ,1,1,Storms,1.0,True,949
+slowly,slowly,ADV,1,1,Storms,1.0,False,950
+softness,softness,NOUN,1,1,Storms,1.0,False,951
+manalishi,manalishi,PROPN,1,1,The Green Manalishi (With the Two Prong Crown),1.0,False,952
+prong,prong,NOUN,1,1,The Green Manalishi (With the Two Prong Crown),1.0,False,953
+crown,crown,NOUN,1,1,The Green Manalishi (With the Two Prong Crown),1.0,False,954
+bringin,bringin,NOUN,1,1,The Green Manalishi (With the Two Prong Crown),1.0,False,955
+takin,takin,NOUN,1,1,The Green Manalishi (With the Two Prong Crown),1.0,False,956
+slippin,slippin,NOUN,1,1,The Green Manalishi (With the Two Prong Crown),1.0,False,957
+leavin,leavin,PROPN,1,1,The Green Manalishi (With the Two Prong Crown),1.0,False,958
+followin,followin,NOUN,1,1,The Green Manalishi (With the Two Prong Crown),1.0,False,959
+full,full,ADJ,1,1,The Green Manalishi (With the Two Prong Crown),1.0,True,960
+looks,look,VERB,1,1,The Green Manalishi (With the Two Prong Crown),1.0,False,961
+cooks,cook,VERB,1,1,The Green Manalishi (With the Two Prong Crown),1.0,False,962
+creepin,creepin,NOUN,1,1,The Green Manalishi (With the Two Prong Crown),1.0,False,963
+sneakin,sneakin,NOUN,1,1,The Green Manalishi (With the Two Prong Crown),1.0,False,964
+drive,drive,VERB,1,1,The Green Manalishi (With the Two Prong Crown),1.0,False,965
+bustin,bustin,PROPN,1,1,The Green Manalishi (With the Two Prong Crown),1.0,False,966
+da,da,PROPN,1,1,The Green Manalishi (With the Two Prong Crown),1.0,False,967

@@ -1,0 +1,1440 @@
+word,lemma,pos,total_count,song_count,songs,avg_per_song,is_stopword,frequency_rank
+you,you,PRON,458,41,"A Day in the Life; A Hard Day’s Night; All My Loving; All You Need Is Love; Back in the U.S.S.R.; Birthday; Blackbird; Come Together; Don’t Let Me Down; Get Back; Golden Slumbers; Happiness Is a Warm Gun; Hello, Goodbye; Help!; Helter Skelter; Hey Jude; I Am the Walrus; I Saw Her Standing There; I Want to Hold Your Hand; I Will; In My Life; Lucy in the Sky with Diamonds; Maxwell’s Silver Hammer; Michelle; Now and Then; Ob-La-Di, Ob-La-Da; Octopus’s Garden; Oh! Darling; Revolution; Revolution 9; Rocky Raccoon; Sgt. Pepper’s Lonely Hearts Club Band; She Loves You; Something; Strawberry Fields Forever; The End; The Long and Winding Road; When I’m Sixty-Four; While My Guitar Gently Weeps; With a Little Help from My Friends; You Never Give Me Your Money",11.17,True,1
+i,i,PRON,448,43,"A Day in the Life; A Hard Day’s Night; All My Loving; Back in the U.S.S.R.; Birthday; Come Together; Don’t Let Me Down; Get Back; Golden Slumbers; Happiness Is a Warm Gun; Hello, Goodbye; Help!; Helter Skelter; Here Comes the Sun; Here, There and Everywhere; I Am the Walrus; I Saw Her Standing There; I Want to Hold Your Hand; I Will; In My Life; Let It Be; Maxwell’s Silver Hammer; Michelle; Norwegian Wood (This Bird Has Flown); Now and Then; Ob-La-Di, Ob-La-Da; Octopus’s Garden; Oh! Darling; Penny Lane; Revolution; Revolution 9; Rocky Raccoon; Sgt. Pepper’s Lonely Hearts Club Band; She Loves You; Something; Strawberry Fields Forever; The Long and Winding Road; When I’m Sixty-Four; While My Guitar Gently Weeps; With a Little Help from My Friends; Yellow Submarine; Yesterday; You Never Give Me Your Money",10.42,True,2
+the,the,DET,327,41,"A Day in the Life; A Hard Day’s Night; Across the Universe; All My Loving; All You Need Is Love; Back in the U.S.S.R.; Blackbird; Don’t Let Me Down; Eleanor Rigby; Get Back; Happiness Is a Warm Gun; Help!; Helter Skelter; Here Comes the Sun; Here, There and Everywhere; Hey Jude; I Am the Walrus; I Saw Her Standing There; I Will; Let It Be; Lucy in the Sky with Diamonds; Maxwell’s Silver Hammer; Michelle; Norwegian Wood (This Bird Has Flown); Ob-La-Di, Ob-La-Da; Octopus’s Garden; Penny Lane; Revolution; Revolution 9; Rocky Raccoon; Sgt. Pepper’s Lonely Hearts Club Band; She Loves You; Something; The End; The Long and Winding Road; When I’m Sixty-Four; While My Guitar Gently Weeps; With a Little Help from My Friends; Yellow Submarine; Yesterday; You Never Give Me Your Money",7.98,True,3
+and,and,CCONJ,235,46,"A Day in the Life; A Hard Day’s Night; Across the Universe; All My Loving; Back in the U.S.S.R.; Blackbird; Come Together; Don’t Let Me Down; Eleanor Rigby; Get Back; Golden Slumbers; Happiness Is a Warm Gun; Hello, Goodbye; Help!; Helter Skelter; Here Comes the Sun; Here, There and Everywhere; Hey Jude; I Am the Walrus; I Saw Her Standing There; I Want to Hold Your Hand; I Will; In My Life; Let It Be; Lucy in the Sky with Diamonds; Maxwell’s Silver Hammer; Michelle; Norwegian Wood (This Bird Has Flown); Now and Then; Ob-La-Di, Ob-La-Da; Octopus’s Garden; Oh! Darling; Penny Lane; Revolution 9; Rocky Raccoon; Sgt. Pepper’s Lonely Hearts Club Band; She Loves You; Something; Strawberry Fields Forever; The End; The Long and Winding Road; When I’m Sixty-Four; While My Guitar Gently Weeps; With a Little Help from My Friends; Yellow Submarine; You Never Give Me Your Money",5.11,True,4
+to,to,PART,230,44,"A Day in the Life; A Hard Day’s Night; All My Loving; All You Need Is Love; Back in the U.S.S.R.; Birthday; Blackbird; Come Together; Get Back; Golden Slumbers; Happiness Is a Warm Gun; Hello, Goodbye; Help!; Helter Skelter; Here Comes the Sun; Here, There and Everywhere; Hey Jude; I Am the Walrus; I Want to Hold Your Hand; I Will; Let It Be; Lucy in the Sky with Diamonds; Maxwell’s Silver Hammer; Michelle; Norwegian Wood (This Bird Has Flown); Now and Then; Ob-La-Di, Ob-La-Da; Octopus’s Garden; Penny Lane; Revolution; Revolution 9; Rocky Raccoon; Sgt. Pepper’s Lonely Hearts Club Band; She Loves You; Something; Strawberry Fields Forever; The End; The Long and Winding Road; When I’m Sixty-Four; While My Guitar Gently Weeps; With a Little Help from My Friends; Yellow Submarine; Yesterday; You Never Give Me Your Money",5.23,True,5
+na,na,VERB,230,8,A Hard Day’s Night; Across the Universe; Birthday; Don’t Let Me Down; Hey Jude; Revolution; Rocky Raccoon; With a Little Help from My Friends,28.75,False,6
+do,do,AUX,203,26,"A Hard Day’s Night; All You Need Is Love; Back in the U.S.S.R.; Come Together; Don’t Let Me Down; Eleanor Rigby; Golden Slumbers; Happiness Is a Warm Gun; Hello, Goodbye; Help!; Helter Skelter; Hey Jude; I Am the Walrus; I Will; Michelle; Octopus’s Garden; Oh! Darling; Revolution; Revolution 9; Rocky Raccoon; Sgt. Pepper’s Lonely Hearts Club Band; Something; The Long and Winding Road; While My Guitar Gently Weeps; With a Little Help from My Friends; Yesterday",7.81,True,7
+a,a,DET,200,38,"A Day in the Life; A Hard Day’s Night; Across the Universe; Back in the U.S.S.R.; Birthday; Blackbird; Come Together; Don’t Let Me Down; Eleanor Rigby; Get Back; Golden Slumbers; Happiness Is a Warm Gun; Helter Skelter; Here Comes the Sun; Here, There and Everywhere; Hey Jude; I Am the Walrus; I Want to Hold Your Hand; I Will; Let It Be; Lucy in the Sky with Diamonds; Maxwell’s Silver Hammer; Michelle; Norwegian Wood (This Bird Has Flown); Ob-La-Di, Ob-La-Da; Octopus’s Garden; Penny Lane; Revolution; Revolution 9; Rocky Raccoon; Sgt. Pepper’s Lonely Hearts Club Band; She Loves You; Strawberry Fields Forever; The Long and Winding Road; When I’m Sixty-Four; With a Little Help from My Friends; Yellow Submarine; Yesterday",5.26,True,8
+me,i,PRON,187,31,"A Hard Day’s Night; Across the Universe; Back in the U.S.S.R.; Come Together; Don’t Let Me Down; Happiness Is a Warm Gun; Help!; Helter Skelter; Here, There and Everywhere; Hey Jude; I Am the Walrus; I Saw Her Standing There; I Want to Hold Your Hand; I Will; Let It Be; Michelle; Norwegian Wood (This Bird Has Flown); Now and Then; Octopus’s Garden; Oh! Darling; Revolution; Revolution 9; Sgt. Pepper’s Lonely Hearts Club Band; She Loves You; Something; Strawberry Fields Forever; The Long and Winding Road; When I’m Sixty-Four; With a Little Help from My Friends; Yesterday; You Never Give Me Your Money",6.03,True,9
+it,it,PRON,183,36,"A Day in the Life; A Hard Day’s Night; All You Need Is Love; Back in the U.S.S.R.; Birthday; Don’t Let Me Down; Eleanor Rigby; Get Back; Happiness Is a Warm Gun; Hello, Goodbye; Here Comes the Sun; Here, There and Everywhere; Hey Jude; I Am the Walrus; I Want to Hold Your Hand; I Will; Let It Be; Norwegian Wood (This Bird Has Flown); Now and Then; Ob-La-Di, Ob-La-Da; Oh! Darling; Penny Lane; Revolution; Revolution 9; Rocky Raccoon; Sgt. Pepper’s Lonely Hearts Club Band; She Loves You; Something; Strawberry Fields Forever; The Long and Winding Road; When I’m Sixty-Four; While My Guitar Gently Weeps; With a Little Help from My Friends; Yellow Submarine; Yesterday; You Never Give Me Your Money",5.08,True,10
+in,in,ADP,166,32,"A Day in the Life; All You Need Is Love; Back in the U.S.S.R.; Blackbird; Come Together; Don’t Let Me Down; Eleanor Rigby; Get Back; Happiness Is a Warm Gun; Help!; Hey Jude; I Am the Walrus; I Saw Her Standing There; In My Life; Let It Be; Lucy in the Sky with Diamonds; Maxwell’s Silver Hammer; Norwegian Wood (This Bird Has Flown); Ob-La-Di, Ob-La-Da; Octopus’s Garden; Penny Lane; Revolution 9; Rocky Raccoon; Sgt. Pepper’s Lonely Hearts Club Band; Something; Strawberry Fields Forever; The End; When I’m Sixty-Four; With a Little Help from My Friends; Yellow Submarine; Yesterday; You Never Give Me Your Money",5.19,True,11
+s,be,VERB,157,37,"A Hard Day’s Night; Across the Universe; All You Need Is Love; Back in the U.S.S.R.; Birthday; Come Together; Don’t Let Me Down; Eleanor Rigby; Get Back; Happiness Is a Warm Gun; Hello, Goodbye; Help!; Helter Skelter; Here Comes the Sun; Here, There and Everywhere; Hey Jude; I Am the Walrus; I Want to Hold Your Hand; Lucy in the Sky with Diamonds; Maxwell’s Silver Hammer; Michelle; Norwegian Wood (This Bird Has Flown); Now and Then; Ob-La-Di, Ob-La-Da; Octopus’s Garden; Penny Lane; Revolution; Revolution 9; Rocky Raccoon; Sgt. Pepper’s Lonely Hearts Club Band; She Loves You; Strawberry Fields Forever; When I’m Sixty-Four; While My Guitar Gently Weeps; With a Little Help from My Friends; Yesterday; You Never Give Me Your Money",4.24,True,12
+love,love,PROPN,141,20,"A Day in the Life; Across the Universe; All You Need Is Love; Don’t Let Me Down; Helter Skelter; Here, There and Everywhere; I Saw Her Standing There; I Want to Hold Your Hand; I Will; In My Life; Michelle; Now and Then; Revolution; Sgt. Pepper’s Lonely Hearts Club Band; She Loves You; Something; The End; While My Guitar Gently Weeps; With a Little Help from My Friends; Yesterday",7.05,False,13
+all,all,PRON,131,24,A Day in the Life; A Hard Day’s Night; All My Loving; All You Need Is Love; Blackbird; Eleanor Rigby; Get Back; I Am the Walrus; I Will; In My Life; Maxwell’s Silver Hammer; Michelle; Now and Then; Penny Lane; Revolution; Revolution 9; Sgt. Pepper’s Lonely Hearts Club Band; Something; Strawberry Fields Forever; While My Guitar Gently Weeps; With a Little Help from My Friends; Yellow Submarine; Yesterday; You Never Give Me Your Money,5.46,True,14
+be,be,AUX,117,27,"A Hard Day’s Night; All My Loving; All You Need Is Love; Back in the U.S.S.R.; Blackbird; Come Together; Helter Skelter; Here, There and Everywhere; Hey Jude; I Want to Hold Your Hand; I Will; Let It Be; Maxwell’s Silver Hammer; Now and Then; Octopus’s Garden; Revolution; Revolution 9; Rocky Raccoon; Sgt. Pepper’s Lonely Hearts Club Band; She Loves You; Strawberry Fields Forever; The End; When I’m Sixty-Four; While My Guitar Gently Weeps; With a Little Help from My Friends; Yesterday; You Never Give Me Your Money",4.33,True,15
+n't,not,PART,113,29,"A Day in the Life; All You Need Is Love; Back in the U.S.S.R.; Don’t Let Me Down; Get Back; Happiness Is a Warm Gun; Hello, Goodbye; Help!; Helter Skelter; Here, There and Everywhere; Hey Jude; I Am the Walrus; I Saw Her Standing There; I Want to Hold Your Hand; I Will; Norwegian Wood (This Bird Has Flown); Octopus’s Garden; Oh! Darling; Revolution; Revolution 9; Rocky Raccoon; Sgt. Pepper’s Lonely Hearts Club Band; She Loves You; Something; Strawberry Fields Forever; The Long and Winding Road; While My Guitar Gently Weeps; With a Little Help from My Friends; Yesterday",3.9,True,16
+that,that,PRON,112,33,"A Day in the Life; A Hard Day’s Night; All My Loving; All You Need Is Love; Back in the U.S.S.R.; Don’t Let Me Down; Eleanor Rigby; Happiness Is a Warm Gun; Help!; Here Comes the Sun; Here, There and Everywhere; Hey Jude; I Saw Her Standing There; I Want to Hold Your Hand; In My Life; Let It Be; Lucy in the Sky with Diamonds; Maxwell’s Silver Hammer; Michelle; Now and Then; Octopus’s Garden; Penny Lane; Revolution; Revolution 9; Rocky Raccoon; Sgt. Pepper’s Lonely Hearts Club Band; She Loves You; Something; Strawberry Fields Forever; The Long and Winding Road; While My Guitar Gently Weeps; With a Little Help from My Friends; You Never Give Me Your Money",3.39,True,17
+my,my,PRON,108,28,"A Day in the Life; Across the Universe; All My Loving; Back in the U.S.S.R.; Birthday; Happiness Is a Warm Gun; Help!; Helter Skelter; Here, There and Everywhere; I Am the Walrus; I Saw Her Standing There; I Want to Hold Your Hand; I Will; In My Life; Let It Be; Michelle; Norwegian Wood (This Bird Has Flown); Octopus’s Garden; Penny Lane; Revolution 9; Something; Strawberry Fields Forever; The End; When I’m Sixty-Four; While My Guitar Gently Weeps; With a Little Help from My Friends; Yesterday; You Never Give Me Your Money",3.86,True,18
+yeah,yeah,INTJ,105,19,"A Hard Day’s Night; Back in the U.S.S.R.; Birthday; Come Together; Don’t Let Me Down; Get Back; Happiness Is a Warm Gun; Helter Skelter; Hey Jude; I Saw Her Standing There; I Want to Hold Your Hand; Let It Be; Ob-La-Di, Ob-La-Da; Rocky Raccoon; Sgt. Pepper’s Lonely Hearts Club Band; She Loves You; The End; The Long and Winding Road; While My Guitar Gently Weeps",5.53,False,19
+number,number,PROPN,102,2,Revolution 9; You Never Give Me Your Money,51.0,False,20
+is,be,VERB,101,23,"All You Need Is Love; Come Together; Eleanor Rigby; Happiness Is a Warm Gun; Helter Skelter; Here Comes the Sun; Here, There and Everywhere; Hey Jude; I Am the Walrus; In My Life; Let It Be; Lucy in the Sky with Diamonds; Norwegian Wood (This Bird Has Flown); Ob-La-Di, Ob-La-Da; Penny Lane; Revolution; Revolution 9; Rocky Raccoon; Something; Strawberry Fields Forever; The End; With a Little Help from My Friends; Yellow Submarine",4.39,True,21
+know,know,VERB,100,29,"A Day in the Life; A Hard Day’s Night; All You Need Is Love; Back in the U.S.S.R.; Come Together; Don’t Let Me Down; Happiness Is a Warm Gun; Hello, Goodbye; Help!; Here, There and Everywhere; Hey Jude; I Am the Walrus; I Saw Her Standing There; I Will; In My Life; Michelle; Now and Then; Octopus’s Garden; Oh! Darling; Revolution; Revolution 9; Sgt. Pepper’s Lonely Hearts Club Band; She Loves You; Something; Strawberry Fields Forever; The Long and Winding Road; While My Guitar Gently Weeps; With a Little Help from My Friends; Yesterday",3.45,False,22
+of,of,ADP,90,26,"A Day in the Life; Across the Universe; Blackbird; Eleanor Rigby; Get Back; Happiness Is a Warm Gun; Helter Skelter; Here, There and Everywhere; I Am the Walrus; In My Life; Let It Be; Lucy in the Sky with Diamonds; Now and Then; Ob-La-Di, Ob-La-Da; Penny Lane; Revolution; Revolution 9; Rocky Raccoon; Sgt. Pepper’s Lonely Hearts Club Band; She Loves You; Something; The Long and Winding Road; When I’m Sixty-Four; With a Little Help from My Friends; Yellow Submarine; You Never Give Me Your Money",3.46,True,23
+she,she,PRON,86,17,"Don’t Let Me Down; Eleanor Rigby; Get Back; Happiness Is a Warm Gun; Helter Skelter; Here, There and Everywhere; I Saw Her Standing There; Let It Be; Lucy in the Sky with Diamonds; Maxwell’s Silver Hammer; Norwegian Wood (This Bird Has Flown); Ob-La-Di, Ob-La-Da; Penny Lane; Rocky Raccoon; She Loves You; Something; Yesterday",5.06,True,24
+let,let,VERB,84,13,Back in the U.S.S.R.; Don’t Let Me Down; Helter Skelter; Hey Jude; I Am the Walrus; I Want to Hold Your Hand; Let It Be; Octopus’s Garden; Oh! Darling; Rocky Raccoon; Sgt. Pepper’s Lonely Hearts Club Band; Strawberry Fields Forever; The Long and Winding Road,6.46,False,25
+oh,oh,INTJ,82,27,"A Day in the Life; All You Need Is Love; Back in the U.S.S.R.; Come Together; Get Back; Happiness Is a Warm Gun; Hello, Goodbye; Help!; Helter Skelter; Hey Jude; I Am the Walrus; I Saw Her Standing There; I Want to Hold Your Hand; I Will; Let It Be; Maxwell’s Silver Hammer; Michelle; Now and Then; Octopus’s Garden; Oh! Darling; Revolution 9; Rocky Raccoon; The End; While My Guitar Gently Weeps; With a Little Help from My Friends; Yesterday; You Never Give Me Your Money",3.04,False,26
+with,with,ADP,78,21,"Eleanor Rigby; Happiness Is a Warm Gun; Here, There and Everywhere; Hey Jude; I Saw Her Standing There; I Will; In My Life; Lucy in the Sky with Diamonds; Maxwell’s Silver Hammer; Ob-La-Di, Ob-La-Da; Octopus’s Garden; Penny Lane; Revolution; Revolution 9; Rocky Raccoon; Sgt. Pepper’s Lonely Hearts Club Band; She Loves You; Strawberry Fields Forever; When I’m Sixty-Four; While My Guitar Gently Weeps; With a Little Help from My Friends",3.71,True,27
+need,need,VERB,72,12,"All You Need Is Love; Happiness Is a Warm Gun; Help!; Here, There and Everywhere; Hey Jude; Michelle; Oh! Darling; Something; When I’m Sixty-Four; With a Little Help from My Friends; Yellow Submarine; Yesterday",6.0,False,28
+say,say,VERB,72,16,"A Hard Day’s Night; All You Need Is Love; Birthday; Come Together; Get Back; Hello, Goodbye; Here Comes the Sun; I Want to Hold Your Hand; Maxwell’s Silver Hammer; Michelle; Norwegian Wood (This Bird Has Flown); Penny Lane; Revolution; She Loves You; When I’m Sixty-Four; Yesterday",4.5,True,29
+get,get,VERB,65,15,A Hard Day’s Night; Back in the U.S.S.R.; Get Back; Golden Slumbers; Help!; Helter Skelter; Hey Jude; I Am the Walrus; Michelle; Revolution 9; Rocky Raccoon; Strawberry Fields Forever; When I’m Sixty-Four; With a Little Help from My Friends; You Never Give Me Your Money,4.33,True,30
+your,your,PRON,63,22,"All My Loving; Back in the U.S.S.R.; Birthday; Blackbird; Golden Slumbers; Happiness Is a Warm Gun; Helter Skelter; Hey Jude; I Am the Walrus; I Want to Hold Your Hand; I Will; Lucy in the Sky with Diamonds; Ob-La-Di, Ob-La-Da; Revolution; Revolution 9; Rocky Raccoon; She Loves You; The Long and Winding Road; When I’m Sixty-Four; While My Guitar Gently Weeps; With a Little Help from My Friends; You Never Give Me Your Money",2.86,True,31
+back,back,ADV,62,13,"Back in the U.S.S.R.; Get Back; Golden Slumbers; Help!; Helter Skelter; Lucy in the Sky with Diamonds; Maxwell’s Silver Hammer; Ob-La-Di, Ob-La-Da; Penny Lane; Rocky Raccoon; Sgt. Pepper’s Lonely Hearts Club Band; The Long and Winding Road; You Never Give Me Your Money",4.77,True,32
+on,on,ADP,61,23,"A Day in the Life; A Hard Day’s Night; Across the Universe; Back in the U.S.S.R.; Get Back; Happiness Is a Warm Gun; Help!; Helter Skelter; Hey Jude; I Am the Walrus; Let It Be; Lucy in the Sky with Diamonds; Maxwell’s Silver Hammer; Norwegian Wood (This Bird Has Flown); Ob-La-Di, Ob-La-Da; Octopus’s Garden; Penny Lane; Revolution 9; Rocky Raccoon; When I’m Sixty-Four; With a Little Help from My Friends; Yellow Submarine; You Never Give Me Your Money",2.65,True,33
+we,we,PRON,57,17,Birthday; Get Back; I Am the Walrus; I Saw Her Standing There; I Will; Maxwell’s Silver Hammer; Norwegian Wood (This Bird Has Flown); Now and Then; Octopus’s Garden; Penny Lane; Revolution; Revolution 9; Sgt. Pepper’s Lonely Hearts Club Band; When I’m Sixty-Four; While My Guitar Gently Weeps; Yellow Submarine; You Never Give Me Your Money,3.35,True,34
+when,when,SCONJ,56,20,A Hard Day’s Night; Eleanor Rigby; Golden Slumbers; Happiness Is a Warm Gun; Help!; Helter Skelter; I Saw Her Standing There; I Want to Hold Your Hand; I Will; In My Life; Let It Be; Maxwell’s Silver Hammer; Norwegian Wood (This Bird Has Flown); Oh! Darling; Revolution; Revolution 9; Sgt. Pepper’s Lonely Hearts Club Band; Strawberry Fields Forever; When I’m Sixty-Four; With a Little Help from My Friends,2.8,True,35
+her,she,PRON,55,13,"Eleanor Rigby; Get Back; Here, There and Everywhere; Hey Jude; I Saw Her Standing There; Lucy in the Sky with Diamonds; Maxwell’s Silver Hammer; Norwegian Wood (This Bird Has Flown); Ob-La-Di, Ob-La-Da; Revolution 9; Rocky Raccoon; She Loves You; Something",4.23,True,36
+he,he,PRON,54,15,"A Day in the Life; Come Together; Eleanor Rigby; Get Back; Happiness Is a Warm Gun; Here, There and Everywhere; I Am the Walrus; Maxwell’s Silver Hammer; Ob-La-Di, Ob-La-Da; Octopus’s Garden; Penny Lane; Revolution 9; Rocky Raccoon; Sgt. Pepper’s Lonely Hearts Club Band; Yellow Submarine",3.6,True,37
+ll,will,AUX,53,15,All My Loving; Hey Jude; I Saw Her Standing There; I Want to Hold Your Hand; In My Life; Michelle; Now and Then; Oh! Darling; Revolution; Revolution 9; Rocky Raccoon; The Long and Winding Road; When I’m Sixty-Four; With a Little Help from My Friends; You Never Give Me Your Money,3.53,True,38
+m,be,AUX,52,17,"A Hard Day’s Night; All My Loving; Back in the U.S.S.R.; Birthday; Don’t Let Me Down; Happiness Is a Warm Gun; Help!; Helter Skelter; Here, There and Everywhere; I Am the Walrus; Michelle; Revolution 9; Rocky Raccoon; Strawberry Fields Forever; When I’m Sixty-Four; With a Little Help from My Friends; Yesterday",3.06,True,39
+down,down,ADP,49,13,Back in the U.S.S.R.; Come Together; Don’t Let Me Down; Happiness Is a Warm Gun; Help!; Helter Skelter; Hey Jude; I Am the Walrus; Lucy in the Sky with Diamonds; Maxwell’s Silver Hammer; Oh! Darling; Strawberry Fields Forever; You Never Give Me Your Money,3.77,True,40
+for,for,ADP,47,21,Blackbird; Don’t Let Me Down; Eleanor Rigby; Get Back; Helter Skelter; Hey Jude; I Am the Walrus; I Will; In My Life; Let It Be; Lucy in the Sky with Diamonds; Norwegian Wood (This Bird Has Flown); Now and Then; Octopus’s Garden; Penny Lane; Revolution; Revolution 9; Sgt. Pepper’s Lonely Hearts Club Band; The Long and Winding Road; When I’m Sixty-Four; Yesterday,2.24,True,41
+there,there,PRON,47,16,"All You Need Is Love; Eleanor Rigby; Golden Slumbers; Here, There and Everywhere; I Saw Her Standing There; In My Life; Let It Be; Lucy in the Sky with Diamonds; Norwegian Wood (This Bird Has Flown); Now and Then; Octopus’s Garden; Penny Lane; Revolution 9; Rocky Raccoon; While My Guitar Gently Weeps; Yesterday",2.94,True,42
+but,but,CCONJ,46,21,"A Day in the Life; A Hard Day’s Night; All You Need Is Love; Get Back; Hello, Goodbye; Help!; Helter Skelter; Here Comes the Sun; Here, There and Everywhere; I Will; In My Life; Maxwell’s Silver Hammer; Revolution; Revolution 9; Rocky Raccoon; Sgt. Pepper’s Lonely Hearts Club Band; She Loves You; Strawberry Fields Forever; The Long and Winding Road; With a Little Help from My Friends; You Never Give Me Your Money",2.19,True,43
+they,they,PRON,45,14,"A Day in the Life; Across the Universe; Back in the U.S.S.R.; Birthday; Eleanor Rigby; I Am the Walrus; Let It Be; Ob-La-Di, Ob-La-Da; Octopus’s Garden; Revolution 9; Sgt. Pepper’s Lonely Hearts Club Band; The Long and Winding Road; While My Guitar Gently Weeps; Yesterday",3.21,True,44
+now,now,ADV,42,14,A Day in the Life; Come Together; Help!; Helter Skelter; Hey Jude; I Saw Her Standing There; I Want to Hold Your Hand; Michelle; Now and Then; Rocky Raccoon; She Loves You; Something; When I’m Sixty-Four; Yesterday,3.0,True,45
+like,like,ADP,42,16,"A Hard Day’s Night; Across the Universe; Birthday; Don’t Let Me Down; Get Back; Happiness Is a Warm Gun; Help!; Here Comes the Sun; I Am the Walrus; Ob-La-Di, Ob-La-Da; Octopus’s Garden; Revolution 9; Rocky Raccoon; Sgt. Pepper’s Lonely Hearts Club Band; She Loves You; Something",2.62,False,46
+will,will,AUX,41,15,"A Hard Day’s Night; All My Loving; Eleanor Rigby; Golden Slumbers; Helter Skelter; Here, There and Everywhere; I Will; Let It Be; Michelle; Now and Then; Revolution 9; Sgt. Pepper’s Lonely Hearts Club Band; Something; The Long and Winding Road; When I’m Sixty-Four",2.73,True,47
+go,go,VERB,39,13,"Hello, Goodbye; Helter Skelter; Hey Jude; Maxwell’s Silver Hammer; Michelle; Now and Then; Penny Lane; Revolution; Revolution 9; Sgt. Pepper’s Lonely Hearts Club Band; When I’m Sixty-Four; Yesterday; You Never Give Me Your Money",3.0,True,48
+was,be,AUX,38,14,A Day in the Life; Back in the U.S.S.R.; Eleanor Rigby; Get Back; Golden Slumbers; Help!; I Saw Her Standing There; Maxwell’s Silver Hammer; Norwegian Wood (This Bird Has Flown); Revolution 9; Rocky Raccoon; Sgt. Pepper’s Lonely Hearts Club Band; Yellow Submarine; Yesterday,2.71,True,49
+alright,alright,ADJ,36,5,A Hard Day’s Night; Here Comes the Sun; Revolution; Revolution 9; The End,7.2,False,50
+can,can,AUX,34,16,"All You Need Is Love; Come Together; Don’t Let Me Down; Get Back; Happiness Is a Warm Gun; Hello, Goodbye; Help!; Here, There and Everywhere; Hey Jude; I Will; In My Life; Maxwell’s Silver Hammer; Revolution; Revolution 9; She Loves You; When I’m Sixty-Four",2.12,True,51
+so,so,ADV,33,18,A Hard Day’s Night; Back in the U.S.S.R.; Come Together; Help!; Hey Jude; I Saw Her Standing There; I Will; Lucy in the Sky with Diamonds; Maxwell’s Silver Hammer; Michelle; Norwegian Wood (This Bird Has Flown); Octopus’s Garden; Revolution 9; Rocky Raccoon; Sgt. Pepper’s Lonely Hearts Club Band; She Loves You; Yellow Submarine; Yesterday,1.83,True,52
+la,la,ADJ,33,1,"Ob-La-Di, Ob-La-Da",33.0,False,53
+how,how,SCONJ,33,12,"A Day in the Life; All You Need Is Love; Back in the U.S.S.R.; Here, There and Everywhere; I Am the Walrus; I Saw Her Standing There; I Will; Ob-La-Di, Ob-La-Da; Revolution 9; Something; While My Guitar Gently Weeps; With a Little Help from My Friends",2.75,True,54
+his,his,PRON,33,13,"A Day in the Life; Come Together; Eleanor Rigby; Get Back; Happiness Is a Warm Gun; Hey Jude; Maxwell’s Silver Hammer; Ob-La-Di, Ob-La-Da; Octopus’s Garden; Penny Lane; Revolution 9; Rocky Raccoon; Yellow Submarine",2.54,True,55
+from,from,ADP,33,11,A Day in the Life; Back in the U.S.S.R.; Don’t Let Me Down; Eleanor Rigby; I Am the Walrus; Maxwell’s Silver Hammer; Penny Lane; Revolution 9; When I’m Sixty-Four; With a Little Help from My Friends; You Never Give Me Your Money,3.0,True,56
+hello,hello,INTJ,33,2,"Hello, Goodbye; Penny Lane",16.5,False,57
+help,help,NOUN,32,3,Help!; Rocky Raccoon; With a Little Help from My Friends,10.67,False,58
+come,come,VERB,32,9,All My Loving; Back in the U.S.S.R.; Come Together; Eleanor Rigby; Helter Skelter; I Am the Walrus; Octopus’s Garden; Penny Lane; Rocky Raccoon,3.56,False,59
+jude,jude,PROPN,32,1,Hey Jude,32.0,False,60
+no,no,DET,32,16,"All You Need Is Love; Come Together; Don’t Let Me Down; Eleanor Rigby; Happiness Is a Warm Gun; Hello, Goodbye; Helter Skelter; In My Life; Octopus’s Garden; Oh! Darling; Rocky Raccoon; Something; Strawberry Fields Forever; While My Guitar Gently Weeps; With a Little Help from My Friends; You Never Give Me Your Money",2.0,True,61
+life,life,NOUN,31,7,"Across the Universe; Blackbird; Help!; Here, There and Everywhere; In My Life; Ob-La-Di, Ob-La-Da; Yellow Submarine",4.43,False,62
+well,well,INTJ,31,13,A Day in the Life; Birthday; Happiness Is a Warm Gun; Helter Skelter; Hey Jude; I Am the Walrus; I Saw Her Standing There; Michelle; Now and Then; Oh! Darling; Revolution; Revolution 9; She Loves You,2.38,True,63
+ooh,ooh,PROPN,31,14,"All My Loving; Birthday; Don’t Let Me Down; Get Back; Happiness Is a Warm Gun; Hello, Goodbye; Help!; Helter Skelter; I Saw Her Standing There; In My Life; Revolution 9; She Loves You; When I’m Sixty-Four; While My Guitar Gently Weeps",2.21,False,64
+hey,hey,INTJ,31,3,Back in the U.S.S.R.; Don’t Let Me Down; Hey Jude,10.33,False,65
+yellow,yellow,NOUN,31,5,I Am the Walrus; Lucy in the Sky with Diamonds; Revolution 9; Yellow Submarine; You Never Give Me Your Money,6.2,False,66
+here,here,ADV,31,8,"Come Together; Helter Skelter; Here Comes the Sun; Here, There and Everywhere; Sgt. Pepper’s Lonely Hearts Club Band; The Long and Winding Road; Yesterday; You Never Give Me Your Money",3.88,True,67
+nothing,nothing,PRON,30,4,Across the Universe; All You Need Is Love; Revolution 9; Strawberry Fields Forever,7.5,True,68
+ah,ah,INTJ,30,4,"A Day in the Life; A Hard Day’s Night; Eleanor Rigby; Hello, Goodbye",7.5,False,69
+sun,sun,NOUN,29,4,Here Comes the Sun; I Am the Walrus; Lucy in the Sky with Diamonds; Yellow Submarine,7.25,False,70
+are,be,VERB,29,12,Across the Universe; Back in the U.S.S.R.; Happiness Is a Warm Gun; Help!; I Am the Walrus; In My Life; Maxwell’s Silver Hammer; Michelle; Revolution 9; The End; With a Little Help from My Friends; Yellow Submarine,2.42,True,71
+if,if,SCONJ,28,15,"A Day in the Life; Don’t Let Me Down; Help!; Here, There and Everywhere; I Am the Walrus; I Saw Her Standing There; I Will; Now and Then; Ob-La-Di, Ob-La-Da; Oh! Darling; Penny Lane; Revolution; Revolution 9; When I’m Sixty-Four; With a Little Help from My Friends",1.87,True,72
+submarine,submarine,NOUN,27,1,Yellow Submarine,27.0,False,73
+never,never,ADV,26,10,"Help!; Here, There and Everywhere; I Saw Her Standing There; I Will; In My Life; Now and Then; Oh! Darling; Penny Lane; The Long and Winding Road; You Never Give Me Your Money",2.6,True,74
+see,see,VERB,26,16,All You Need Is Love; Blackbird; Come Together; Helter Skelter; I Am the Walrus; I Saw Her Standing There; Let It Be; Michelle; Octopus’s Garden; Penny Lane; Revolution; Revolution 9; Strawberry Fields Forever; While My Guitar Gently Weeps; With a Little Help from My Friends; You Never Give Me Your Money,1.62,True,75
+little,little,ADJ,26,7,Here Comes the Sun; Hey Jude; I Am the Walrus; Octopus’s Garden; Penny Lane; Revolution 9; With a Little Help from My Friends,3.71,False,76
+make,make,VERB,25,12,A Hard Day’s Night; Across the Universe; All You Need Is Love; Back in the U.S.S.R.; Helter Skelter; Hey Jude; I Will; Michelle; Now and Then; Oh! Darling; Revolution; The End,2.08,True,77
+gon,go,NOUN,25,7,A Hard Day’s Night; Across the Universe; Birthday; Don’t Let Me Down; Revolution; Rocky Raccoon; With a Little Help from My Friends,3.57,False,78
+at,at,ADP,25,11,"Eleanor Rigby; I Am the Walrus; I Saw Her Standing There; I Will; Lucy in the Sky with Diamonds; Ob-La-Di, Ob-La-Da; Penny Lane; Revolution 9; Rocky Raccoon; While My Guitar Gently Weeps; With a Little Help from My Friends",2.27,True,79
+home,home,NOUN,24,8,"A Hard Day’s Night; All My Loving; Back in the U.S.S.R.; Get Back; Golden Slumbers; Maxwell’s Silver Hammer; Ob-La-Di, Ob-La-Da; Sgt. Pepper’s Lonely Hearts Club Band",3.0,False,80
+out,out,ADV,24,14,A Day in the Life; Across the Universe; Back in the U.S.S.R.; Helter Skelter; Hey Jude; I Am the Walrus; Maxwell’s Silver Hammer; Revolution; Rocky Raccoon; Sgt. Pepper’s Lonely Hearts Club Band; Strawberry Fields Forever; When I’m Sixty-Four; With a Little Help from My Friends; You Never Give Me Your Money,1.71,True,81
+hold,hold,VERB,24,4,Come Together; Happiness Is a Warm Gun; I Want to Hold Your Hand; Revolution 9,6.0,False,82
+shoot,shoot,VERB,23,3,Come Together; Happiness Is a Warm Gun; Rocky Raccoon,7.67,False,83
+as,as,SCONJ,22,12,"Across the Universe; Eleanor Rigby; I Am the Walrus; In My Life; Lucy in the Sky with Diamonds; Maxwell’s Silver Hammer; Ob-La-Di, Ob-La-Da; Penny Lane; Revolution 9; Rocky Raccoon; Yellow Submarine; Yesterday",1.83,True,84
+re,be,AUX,22,14,A Hard Day’s Night; All You Need Is Love; Birthday; Hey Jude; I Will; Lucy in the Sky with Diamonds; Octopus’s Garden; Revolution; Revolution 9; Sgt. Pepper’s Lonely Hearts Club Band; She Loves You; Something; With a Little Help from My Friends; Yesterday,1.57,True,85
+want,want,VERB,22,11,"Helter Skelter; Here, There and Everywhere; I Want to Hold Your Hand; I Will; Michelle; Now and Then; Ob-La-Di, Ob-La-Da; Revolution; Sgt. Pepper’s Lonely Hearts Club Band; Something; With a Little Help from My Friends",2.0,False,86
+why,why,SCONJ,22,5,"A Hard Day’s Night; Hello, Goodbye; The Long and Winding Road; While My Guitar Gently Weeps; Yesterday",4.4,True,87
+tell,tell,VERB,21,8,Back in the U.S.S.R.; Come Together; Helter Skelter; I Want to Hold Your Hand; Octopus’s Garden; Oh! Darling; Revolution; With a Little Help from My Friends,2.62,False,88
+lonely,lonely,ADJ,21,4,Eleanor Rigby; Here Comes the Sun; I Will; Sgt. Pepper’s Lonely Hearts Club Band,5.25,False,89
+comes,come,VERB,21,5,Eleanor Rigby; Helter Skelter; Here Comes the Sun; Let It Be; Maxwell’s Silver Hammer,4.2,False,90
+good,good,ADJ,21,9,"Back in the U.S.S.R.; Birthday; Come Together; Don’t Let Me Down; Here, There and Everywhere; Norwegian Wood (This Bird Has Flown); Revolution 9; Rocky Raccoon; You Never Give Me Your Money",2.33,False,91
+been,be,AUX,21,9,A Hard Day’s Night; Back in the U.S.S.R.; Eleanor Rigby; Here Comes the Sun; I Am the Walrus; Octopus’s Garden; Sgt. Pepper’s Lonely Hearts Club Band; The Long and Winding Road; When I’m Sixty-Four,2.33,True,92
+people,people,NOUN,20,7,A Day in the Life; Eleanor Rigby; In My Life; Let It Be; Lucy in the Sky with Diamonds; Penny Lane; Revolution,2.86,False,93
+take,take,VERB,20,12,"Back in the U.S.S.R.; Birthday; Blackbird; Hey Jude; I Am the Walrus; Lucy in the Sky with Diamonds; Maxwell’s Silver Hammer; Ob-La-Di, Ob-La-Da; Revolution 9; Sgt. Pepper’s Lonely Hearts Club Band; Strawberry Fields Forever; The End",1.67,True,94
+hand,hand,NOUN,20,5,"Happiness Is a Warm Gun; Here, There and Everywhere; I Saw Her Standing There; I Want to Hold Your Hand; Ob-La-Di, Ob-La-Da",4.0,False,95
+where,where,SCONJ,20,7,All You Need Is Love; Eleanor Rigby; Get Back; Helter Skelter; Lucy in the Sky with Diamonds; Octopus’s Garden; Yellow Submarine,2.86,True,96
+got,get,VERB,20,7,Come Together; Get Back; Helter Skelter; I Am the Walrus; I Want to Hold Your Hand; Revolution; You Never Give Me Your Money,2.86,False,97
+d,would,AUX,20,8,A Day in the Life; Get Back; I Saw Her Standing There; Octopus’s Garden; Revolution; Revolution 9; Sgt. Pepper’s Lonely Hearts Club Band; When I’m Sixty-Four,2.5,True,98
+ve,have,AUX,19,10,A Hard Day’s Night; Help!; I Am the Walrus; I Will; In My Life; Octopus’s Garden; Revolution 9; Sgt. Pepper’s Lonely Hearts Club Band; She Loves You; The Long and Winding Road,1.9,True,99
+night,night,NOUN,19,8,A Hard Day’s Night; Back in the U.S.S.R.; Blackbird; Eleanor Rigby; I Saw Her Standing There; Let It Be; Revolution 9; The Long and Winding Road,2.38,False,100
+sky,sky,NOUN,18,3,I Am the Walrus; Lucy in the Sky with Diamonds; Yellow Submarine,6.0,False,101
+cha,cha,ADJ,18,2,"Birthday; Hello, Goodbye",9.0,False,102
+then,then,ADV,18,7,All My Loving; Help!; Hey Jude; Norwegian Wood (This Bird Has Flown); Now and Then; Penny Lane; Revolution 9,2.57,True,103
+yes,yes,PROPN,18,10,"Birthday; Don’t Let Me Down; Happiness Is a Warm Gun; Hello, Goodbye; Helter Skelter; Ob-La-Di, Ob-La-Da; She Loves You; Strawberry Fields Forever; With a Little Help from My Friends; You Never Give Me Your Money",1.8,False,104
+world,world,NOUN,18,5,Across the Universe; Hey Jude; Let It Be; Revolution; While My Guitar Gently Weeps,3.6,False,105
+still,still,ADV,18,8,"I Will; In My Life; Let It Be; Ob-La-Di, Ob-La-Da; Revolution 9; The Long and Winding Road; When I’m Sixty-Four; While My Guitar Gently Weeps",2.25,True,106
+better,well,ADJ,18,6,"Here, There and Everywhere; Hey Jude; In My Life; Revolution; Revolution 9; Rocky Raccoon",3.0,False,107
+friends,friend,NOUN,18,4,In My Life; Octopus’s Garden; With a Little Help from My Friends; Yellow Submarine,4.5,False,108
+look,look,VERB,18,5,A Day in the Life; Eleanor Rigby; Helter Skelter; Lucy in the Sky with Diamonds; While My Guitar Gently Weeps,3.6,False,109
+an,an,DET,18,6,I Am the Walrus; Let It Be; Maxwell’s Silver Hammer; Octopus’s Garden; Penny Lane; Yesterday,3.0,True,110
+dan,dan,PROPN,18,1,Rocky Raccoon,18.0,False,111
+way,way,NOUN,18,9,A Day in the Life; Across the Universe; Back in the U.S.S.R.; Golden Slumbers; Help!; I Saw Her Standing There; Michelle; Something; The Long and Winding Road,2.0,False,112
+dooroo,dooroo,PROPN,18,1,Rocky Raccoon,18.0,False,113
+away,away,ADV,17,12,A Day in the Life; Across the Universe; All My Loving; Back in the U.S.S.R.; Lucy in the Sky with Diamonds; Maxwell’s Silver Hammer; Now and Then; The Long and Winding Road; When I’m Sixty-Four; With a Little Help from My Friends; Yesterday; You Never Give Me Your Money,1.42,False,114
+ob,ob,PROPN,17,1,"Ob-La-Di, Ob-La-Da",17.0,False,115
+eyes,eye,NOUN,17,10,"Across the Universe; All My Loving; Blackbird; Golden Slumbers; Happiness Is a Warm Gun; Here, There and Everywhere; Lucy in the Sky with Diamonds; Penny Lane; Revolution 9; Strawberry Fields Forever",1.7,False,116
+think,think,VERB,17,8,I Am the Walrus; I Want to Hold Your Hand; In My Life; Michelle; She Loves You; Something; Strawberry Fields Forever; With a Little Help from My Friends,2.12,False,117
+feel,feel,VERB,17,9,A Hard Day’s Night; Come Together; Happiness Is a Warm Gun; Help!; Here Comes the Sun; Hey Jude; I Want to Hold Your Hand; I Will; With a Little Help from My Friends,1.89,False,118
+da,da,PROPN,17,3,"I Will; Ob-La-Di, Ob-La-Da; Revolution 9",5.67,False,119
+had,have,VERB,16,7,A Day in the Life; Back in the U.S.S.R.; In My Life; Norwegian Wood (This Bird Has Flown); Penny Lane; Rocky Raccoon; Yesterday,2.29,True,120
+ca,can,AUX,16,6,All You Need Is Love; I Want to Hold Your Hand; Octopus’s Garden; She Loves You; Strawberry Fields Forever; With a Little Help from My Friends,2.67,True,121
+lucy,lucy,PROPN,16,2,I Am the Walrus; Lucy in the Sky with Diamonds,8.0,False,122
+what,what,PRON,16,11,Come Together; Eleanor Rigby; I Am the Walrus; I Saw Her Standing There; Michelle; Octopus’s Garden; Revolution; Revolution 9; She Loves You; When I’m Sixty-Four; With a Little Help from My Friends,1.45,True,123
+long,long,ADV,16,7,Back in the U.S.S.R.; Here Comes the Sun; I Am the Walrus; I Saw Her Standing There; I Will; The Long and Winding Road; Yesterday,2.29,False,124
+would,would,AUX,16,7,Birthday; I Am the Walrus; I Saw Her Standing There; Octopus’s Garden; When I’m Sixty-Four; With a Little Help from My Friends; Yesterday,2.29,True,125
+goes,go,VERB,16,1,"Ob-La-Di, Ob-La-Da",16.0,False,126
+right,right,ADV,16,5,A Hard Day’s Night; Come Together; Let It Be; Revolution 9; Strawberry Fields Forever,3.2,False,127
+change,change,VERB,16,2,Across the Universe; Revolution,8.0,False,128
+not,not,PART,16,11,Golden Slumbers; Happiness Is a Warm Gun; Help!; In My Life; Maxwell’s Silver Hammer; Revolution 9; She Loves You; Strawberry Fields Forever; When I’m Sixty-Four; With a Little Help from My Friends; Yesterday,1.45,True,129
+joob,joob,NOUN,16,1,I Am the Walrus,16.0,False,130
+mi,mi,NOUN,16,1,Back in the U.S.S.R.,16.0,False,131
+only,only,ADV,15,7,Blackbird; Michelle; Revolution 9; Rocky Raccoon; Sgt. Pepper’s Lonely Hearts Club Band; She Loves You; You Never Give Me Your Money,2.14,True,132
+together,together,ADV,15,4,Come Together; I Am the Walrus; I Will; Michelle,3.75,True,133
+goodbye,goodbye,PROPN,15,1,"Hello, Goodbye",15.0,False,134
+something,something,PRON,15,5,"Here, There and Everywhere; I Want to Hold Your Hand; In My Life; Something; Yesterday",3.0,True,135
+paul,paul,PROPN,15,7,A Day in the Life; Birthday; Don’t Let Me Down; Happiness Is a Warm Gun; Here Comes the Sun; I Saw Her Standing There; With a Little Help from My Friends,2.14,False,136
+diamonds,diamond,NOUN,15,1,Lucy in the Sky with Diamonds,15.0,False,137
+by,by,ADP,15,9,"Eleanor Rigby; Hey Jude; Lucy in the Sky with Diamonds; Michelle; Ob-La-Di, Ob-La-Da; Revolution 9; Rocky Raccoon; When I’m Sixty-Four; With a Little Help from My Friends",1.67,True,138
+gun,gun,NOUN,15,3,Happiness Is a Warm Gun; I Am the Walrus; Rocky Raccoon,5.0,False,139
+mm,mm,PROPN,15,2,I Will; With a Little Help from My Friends,7.5,False,140
+mccartney,mccartney,PROPN,15,7,A Day in the Life; Birthday; Don’t Let Me Down; Happiness Is a Warm Gun; Here Comes the Sun; I Saw Her Standing There; With a Little Help from My Friends,2.14,False,141
+time,time,NOUN,15,8,"All You Need Is Love; Birthday; Don’t Let Me Down; Hello, Goodbye; Norwegian Wood (This Bird Has Flown); Revolution 9; The Long and Winding Road; With a Little Help from My Friends",1.88,False,142
+day,day,NOUN,15,6,"A Hard Day’s Night; All My Loving; Here, There and Everywhere; Rocky Raccoon; The Long and Winding Road; With a Little Help from My Friends",2.5,False,143
+have,have,AUX,14,10,"Birthday; Hey Jude; I Am the Walrus; In My Life; Ob-La-Di, Ob-La-Da; Penny Lane; Revolution; Revolution 9; Something; When I’m Sixty-Four",1.4,True,144
+kick,kick,VERB,14,1,Revolution 9,14.0,False,145
+goo,goo,PROPN,14,1,I Am the Walrus,14.0,False,146
+find,find,VERB,14,7,A Hard Day’s Night; Help!; I Will; Let It Be; Michelle; Revolution 9; Rocky Raccoon,2.0,False,147
+please,please,AUX,14,6,Come Together; Don’t Let Me Down; Help!; I Want to Hold Your Hand; Oh! Darling; Revolution 9,2.33,True,148
+rocky,rocky,PROPN,14,1,Rocky Raccoon,14.0,False,149
+should,should,AUX,14,4,A Hard Day’s Night; I Am the Walrus; Norwegian Wood (This Bird Has Flown); She Loves You,3.5,True,150
+once,once,ADV,14,3,Get Back; Golden Slumbers; Norwegian Wood (This Bird Has Flown),4.67,True,151
+boy,boy,NOUN,14,6,A Day in the Life; Back in the U.S.S.R.; I Am the Walrus; Maxwell’s Silver Hammer; Octopus’s Garden; Rocky Raccoon,2.33,False,152
+block,block,NOUN,14,1,Revolution 9,14.0,False,153
+darling,darling,NOUN,13,3,Golden Slumbers; Here Comes the Sun; Oh! Darling,4.33,False,154
+believe,believe,VERB,13,4,Oh! Darling; Something; With a Little Help from My Friends; Yesterday,3.25,False,155
+wanna,wanna,VERB,13,2,I Want to Hold Your Hand; Revolution,6.5,False,156
+words,word,NOUN,13,5,Across the Universe; Eleanor Rigby; Let It Be; Maxwell’s Silver Hammer; Michelle,2.6,False,157
+dance,dance,NOUN,13,4,Across the Universe; Birthday; I Saw Her Standing There; Octopus’s Garden,3.25,False,158
+loves,love,VERB,13,1,She Loves You,13.0,False,159
+who,who,PRON,13,10,A Day in the Life; Eleanor Rigby; Get Back; Happiness Is a Warm Gun; Hey Jude; I Will; Revolution 9; Rocky Raccoon; When I’m Sixty-Four; Yellow Submarine,1.3,True,160
+waiting,wait,VERB,13,7,"Blackbird; Hey Jude; I Am the Walrus; Lucy in the Sky with Diamonds; Ob-La-Di, Ob-La-Da; Penny Lane; The Long and Winding Road",1.86,False,161
+up,up,ADP,13,10,A Day in the Life; Come Together; Eleanor Rigby; Help!; I Am the Walrus; Let It Be; Maxwell’s Silver Hammer; She Loves You; With a Little Help from My Friends; You Never Give Me Your Money,1.3,True,162
+man,man,NOUN,13,10,A Day in the Life; Back in the U.S.S.R.; Get Back; Happiness Is a Warm Gun; I Am the Walrus; I Want to Hold Your Hand; Revolution 9; Rocky Raccoon; Yellow Submarine; Yesterday,1.3,False,163
+sing,sing,VERB,13,8,"All You Need Is Love; Back in the U.S.S.R.; Golden Slumbers; I Will; Ob-La-Di, Ob-La-Da; Octopus’s Garden; Sgt. Pepper’s Lonely Hearts Club Band; With a Little Help from My Friends",1.62,False,164
+children,child,NOUN,12,3,"Ob-La-Di, Ob-La-Da; Penny Lane; You Never Give Me Your Money",4.0,False,165
+this,this,DET,12,5,"Blackbird; Norwegian Wood (This Bird Has Flown); Ob-La-Di, Ob-La-Da; Revolution 9; Rocky Raccoon",2.4,True,166
+bang,bang,PROPN,12,2,Happiness Is a Warm Gun; Maxwell’s Silver Hammer,6.0,False,167
+about,about,ADP,12,7,A Day in the Life; I Am the Walrus; In My Life; Octopus’s Garden; Revolution; Revolution 9; Strawberry Fields Forever,1.71,True,168
+doo,doo,PROPN,12,1,Here Comes the Sun,12.0,False,169
+were,be,AUX,12,6,A Day in the Life; Blackbird; Hey Jude; Revolution 9; Rocky Raccoon; While My Guitar Gently Weeps,2.0,True,170
+these,these,DET,12,5,Blackbird; Help!; In My Life; Michelle; Sgt. Pepper’s Lonely Hearts Club Band,2.4,True,171
+does,do,AUX,11,7,"Don’t Let Me Down; Eleanor Rigby; Here, There and Everywhere; Maxwell’s Silver Hammer; Ob-La-Di, Ob-La-Da; Strawberry Fields Forever; With a Little Help from My Friends",1.57,True,172
+leave,leave,VERB,11,4,Back in the U.S.S.R.; Oh! Darling; Something; The Long and Winding Road,2.75,False,173
+always,always,ADV,11,8,"All My Loving; Back in the U.S.S.R.; Here, There and Everywhere; I Will; Now and Then; Revolution 9; Strawberry Fields Forever; The Long and Winding Road",1.38,True,174
+am,be,AUX,11,3,All My Loving; I Am the Walrus; Rocky Raccoon,3.67,True,175
+john,john,PROPN,11,6,A Day in the Life; Birthday; Don’t Let Me Down; Happiness Is a Warm Gun; I Saw Her Standing There; With a Little Help from My Friends,1.83,False,176
+lennon,lennon,PROPN,11,6,A Day in the Life; Birthday; Don’t Let Me Down; Happiness Is a Warm Gun; I Saw Her Standing There; With a Little Help from My Friends,1.83,False,177
+skelter,skelter,ADJ,11,1,Helter Skelter,11.0,False,178
+garden,garden,NOUN,11,3,I Am the Walrus; Octopus’s Garden; When I’m Sixty-Four,3.67,False,179
+helter,helter,ADJ,11,1,Helter Skelter,11.0,False,180
+true,true,ADJ,11,3,All My Loving; Now and Then; You Never Give Me Your Money,3.67,False,181
+birthday,birthday,NOUN,11,2,Birthday; When I’m Sixty-Four,5.5,False,182
+told,tell,VERB,10,5,Norwegian Wood (This Bird Has Flown); Oh! Darling; She Loves You; While My Guitar Gently Weeps; Yellow Submarine,2.0,False,183
+just,just,ADV,10,7,A Day in the Life; A Hard Day’s Night; Come Together; Help!; Hey Jude; I Saw Her Standing There; With a Little Help from My Friends,1.43,True,184
+every,every,DET,10,7,All My Loving; Help!; Octopus’s Garden; Penny Lane; When I’m Sixty-Four; While My Guitar Gently Weeps; Yellow Submarine,1.43,True,185
+forever,forever,ADV,10,4,Don’t Let Me Down; I Will; In My Life; Strawberry Fields Forever,2.5,False,186
+live,live,VERB,10,1,Yellow Submarine,10.0,False,187
+yesterday,yesterday,NOUN,10,2,She Loves You; Yesterday,5.0,False,188
+answer,answer,NOUN,10,4,Helter Skelter; Let It Be; Lucy in the Sky with Diamonds; When I’m Sixty-Four,2.5,False,189
+gone,go,VERB,10,6,Help!; In My Life; Lucy in the Sky with Diamonds; Maxwell’s Silver Hammer; When I’m Sixty-Four; You Never Give Me Your Money,1.67,False,190
+hela,hela,PROPN,10,1,"Hello, Goodbye",10.0,False,191
+lovin,lovin',NOUN,10,1,All My Loving,10.0,False,192
+band,band,NOUN,10,3,"Ob-La-Di, Ob-La-Da; Sgt. Pepper’s Lonely Hearts Club Band; Yellow Submarine",3.33,False,193
+strawberry,strawberry,PROPN,10,1,Strawberry Fields Forever,10.0,False,194
+fields,fields,PROPN,10,1,Strawberry Fields Forever,10.0,False,195
+alone,alone,ADV,10,6,A Hard Day’s Night; Maxwell’s Silver Hammer; Norwegian Wood (This Bird Has Flown); Oh! Darling; The Long and Winding Road; With a Little Help from My Friends,1.67,True,196
+because,because,SCONJ,10,6,Happiness Is a Warm Gun; Now and Then; Octopus’s Garden; Revolution 9; She Loves You; With a Little Help from My Friends,1.67,True,197
+too,too,ADV,10,6,Birthday; I Saw Her Standing There; She Loves You; Strawberry Fields Forever; When I’m Sixty-Four; While My Guitar Gently Weeps,1.67,True,198
+did,do,AUX,10,7,A Day in the Life; Back in the U.S.S.R.; I Will; Norwegian Wood (This Bird Has Flown); Oh! Darling; Rocky Raccoon; You Never Give Me Your Money,1.43,True,199
+cause,'cause,SCONJ,10,5,A Hard Day’s Night; Come Together; Happiness Is a Warm Gun; Helter Skelter; Strawberry Fields Forever,2.0,False,200
+said,say,VERB,10,5,Maxwell’s Silver Hammer; Norwegian Wood (This Bird Has Flown); Rocky Raccoon; She Loves You; Yesterday,2.0,False,201
+saw,see,VERB,10,4,A Day in the Life; I Saw Her Standing There; I Will; She Loves You,2.5,False,202
+u.s.s.r.​,u.s.s.r.​,NOUN,9,1,Back in the U.S.S.R.,9.0,False,203
+door,door,NOUN,9,6,"Eleanor Rigby; Maxwell’s Silver Hammer; Ob-La-Di, Ob-La-Da; The Long and Winding Road; When I’m Sixty-Four; Yellow Submarine",1.5,False,204
+nobody,nobody,PRON,9,7,"A Day in the Life; Don’t Let Me Down; Eleanor Rigby; Happiness Is a Warm Gun; Here, There and Everywhere; Revolution 9; While My Guitar Gently Weeps",1.29,True,205
+could,could,AUX,9,5,Get Back; I Saw Her Standing There; Revolution 9; When I’m Sixty-Four; With a Little Help from My Friends,1.8,True,206
+warm,warm,ADJ,9,3,Back in the U.S.S.R.; Happiness Is a Warm Gun; Octopus’s Garden,3.0,False,207
+has,have,AUX,9,7,"Don’t Let Me Down; Eleanor Rigby; Help!; Maxwell’s Silver Hammer; Ob-La-Di, Ob-La-Da; The Long and Winding Road; Yellow Submarine",1.29,True,208
+feeling,feel,VERB,9,4,A Hard Day’s Night; Help!; I Want to Hold Your Hand; You Never Give Me Your Money,2.25,False,209
+helloa,helloa,PROPN,9,1,"Hello, Goodbye",9.0,False,210
+some,some,PRON,9,4,"Get Back; In My Life; Ob-La-Di, Ob-La-Da; Revolution 9",2.25,True,211
+deva,deva,PROPN,9,1,Across the Universe,9.0,False,212
+came,come,VERB,9,5,Eleanor Rigby; Maxwell’s Silver Hammer; Rocky Raccoon; Yesterday; You Never Give Me Your Money,1.8,False,213
+heaven,heaven,PROPN,9,1,You Never Give Me Your Money,9.0,False,214
+line,line,NOUN,9,2,Revolution 9; When I’m Sixty-Four,4.5,False,215
+before,before,ADV,9,6,A Day in the Life; Across the Universe; Help!; I Saw Her Standing There; In My Life; The Long and Winding Road,1.5,True,216
+di,di,PROPN,9,1,"Ob-La-Di, Ob-La-Da",9.0,False,217
+glad,glad,ADJ,9,2,Birthday; She Loves You,4.5,False,218
+heba,heba,PROPN,9,1,"Hello, Goodbye",9.0,False,219
+them,they,PRON,9,6,A Day in the Life; I Am the Walrus; In My Life; Maxwell’s Silver Hammer; Revolution 9; Yellow Submarine,1.5,True,220
+dead,dead,ADJ,9,4,Blackbird; I Am the Walrus; In My Life; Maxwell’s Silver Hammer,2.25,False,221
+guru,guru,PROPN,9,1,Across the Universe,9.0,False,222
+jai,jai,PROPN,9,1,Across the Universe,9.0,False,223
+octopus,octopus,NOUN,9,1,Octopus’s Garden,9.0,False,224
+head,head,NOUN,9,6,A Day in the Life; Lucy in the Sky with Diamonds; Maxwell’s Silver Hammer; Octopus’s Garden; Penny Lane; Revolution,1.5,False,225
+going,go,VERB,9,4,Happiness Is a Warm Gun; Sgt. Pepper’s Lonely Hearts Club Band; Strawberry Fields Forever; The End,2.25,False,226
+maxwell,maxwell,PROPN,9,1,Maxwell’s Silver Hammer,9.0,False,227
+today,today,NOUN,9,4,A Day in the Life; Help!; Sgt. Pepper’s Lonely Hearts Club Band; You Never Give Me Your Money,2.25,False,228
+girl,girl,NOUN,9,7,"Happiness Is a Warm Gun; I Am the Walrus; Lucy in the Sky with Diamonds; Norwegian Wood (This Bird Has Flown); Ob-La-Di, Ob-La-Da; Octopus’s Garden; Rocky Raccoon",1.29,False,229
+sea,sea,NOUN,9,3,Octopus’s Garden; Revolution 9; Yellow Submarine,3.0,False,230
+may,may,AUX,8,6,"Hello, Goodbye; Helter Skelter; Let It Be; Revolution 9; Sgt. Pepper’s Lonely Hearts Club Band; Something",1.33,True,231
+though,though,SCONJ,8,5,A Day in the Life; In My Life; Let It Be; Penny Lane; Yesterday,1.6,True,232
+stop,stop,VERB,8,5,"Hello, Goodbye; Helter Skelter; In My Life; Penny Lane; Sgt. Pepper’s Lonely Hearts Club Band",1.6,False,233
+brah,brah,PROPN,8,1,"Ob-La-Di, Ob-La-Da",8.0,False,234
+molly,molly,PROPN,8,1,"Ob-La-Di, Ob-La-Da",8.0,False,235
+happy,happy,PROPN,8,4,"Birthday; I Want to Hold Your Hand; Ob-La-Di, Ob-La-Da; Octopus’s Garden",2.0,False,236
+through,through,ADP,8,5,"Across the Universe; Here, There and Everywhere; I Saw Her Standing There; Now and Then; Revolution 9",1.6,True,237
+done,do,VERB,8,3,All You Need Is Love; Don’t Let Me Down; Help!,2.67,True,238
+penny,penny,PROPN,8,1,Penny Lane,8.0,False,239
+into,into,ADP,8,5,A Day in the Life; Across the Universe; Blackbird; Hey Jude; Rocky Raccoon,1.6,True,240
+while,while,SCONJ,8,4,All My Loving; Get Back; Happiness Is a Warm Gun; While My Guitar Gently Weeps,2.0,True,241
+belonged,belong,VERB,8,1,Get Back,8.0,False,242
+mind,mind,NOUN,8,6,A Day in the Life; Across the Universe; Back in the U.S.S.R.; Help!; Revolution; She Loves You,1.33,False,243
+fly,fly,VERB,8,2,Blackbird; I Am the Walrus,4.0,False,244
+really,really,ADV,8,6,A Day in the Life; Back in the U.S.S.R.; Don’t Let Me Down; I Will; Revolution 9; Sgt. Pepper’s Lonely Hearts Club Band,1.33,True,245
+someone,someone,PRON,8,8,"Help!; Here, There and Everywhere; Hey Jude; Lucy in the Sky with Diamonds; Revolution 9; Strawberry Fields Forever; While My Guitar Gently Weeps; With a Little Help from My Friends",1.0,True,246
+years,year,NOUN,8,4,"Here Comes the Sun; Ob-La-Di, Ob-La-Da; Sgt. Pepper’s Lonely Hearts Club Band; When I’m Sixty-Four",2.0,False,247
+mother,mother,PROPN,8,2,Happiness Is a Warm Gun; Let It Be,4.0,False,248
+went,go,VERB,8,4,A Day in the Life; I Saw Her Standing There; In My Life; Revolution 9,2.0,False,249
+things,thing,NOUN,8,4,A Hard Day’s Night; I Will; In My Life; Something,2.0,False,250
+us,we,PRON,8,5,"Here, There and Everywhere; Octopus’s Garden; Revolution 9; Sgt. Pepper’s Lonely Hearts Club Band; Yellow Submarine",1.6,True,251
+sgt,sgt,PROPN,8,1,Sgt. Pepper’s Lonely Hearts Club Band,8.0,False,252
+george,george,PROPN,8,5,Birthday; Happiness Is a Warm Gun; Here Comes the Sun; Revolution 9; With a Little Help from My Friends,1.6,False,253
+hard,hard,ADJ,8,3,A Hard Day’s Night; Come Together; Strawberry Fields Forever,2.67,False,254
+lane,lane,PROPN,8,1,Penny Lane,8.0,False,255
+pepper,pepper,PROPN,8,1,Sgt. Pepper’s Lonely Hearts Club Band,8.0,False,256
+hide,hide,VERB,8,2,I Want to Hold Your Hand; Yesterday,4.0,False,257
+easy,easy,ADJ,7,4,All You Need Is Love; I Will; Strawberry Fields Forever; Yesterday,1.75,False,258
+ever,ever,ADV,7,5,"Don’t Let Me Down; I Am the Walrus; I Will; Ob-La-Di, Ob-La-Da; Oh! Darling",1.4,True,259
+room,room,NOUN,7,3,I Saw Her Standing There; Norwegian Wood (This Bird Has Flown); Rocky Raccoon,2.33,False,260
+give,give,VERB,7,4,A Hard Day’s Night; I Am the Walrus; When I’m Sixty-Four; You Never Give Me Your Money,1.75,True,261
+pretty,pretty,ADV,7,4,"Golden Slumbers; I Am the Walrus; Ob-La-Di, Ob-La-Da; Penny Lane",1.75,False,262
+since,since,SCONJ,7,2,Here Comes the Sun; I Saw Her Standing There,3.5,True,263
+behind,behind,ADP,7,3,Back in the U.S.S.R.; Maxwell’s Silver Hammer; Penny Lane,2.33,True,264
+somebody,somebody,PRON,7,5,A Day in the Life; Don’t Let Me Down; Help!; Lucy in the Sky with Diamonds; With a Little Help from My Friends,1.4,False,265
+wisdom,wisdom,NOUN,7,1,Let It Be,7.0,False,266
+many,many,ADJ,7,5,A Day in the Life; Help!; The Long and Winding Road; When I’m Sixty-Four; Yellow Submarine,1.4,True,267
+anybody,anybody,PRON,7,2,Help!; With a Little Help from My Friends,3.5,False,268
+mean,mean,VERB,7,5,"Hello, Goodbye; I Saw Her Standing There; Michelle; Strawberry Fields Forever; When I’m Sixty-Four",1.4,False,269
+standing,stand,VERB,7,5,I Am the Walrus; I Saw Her Standing There; Let It Be; Revolution 9; The Long and Winding Road,1.4,False,270
+our,our,PRON,7,3,Octopus’s Garden; Revolution 9; Yellow Submarine,2.33,True,271
+send,send,VERB,7,2,All My Loving; When I’m Sixty-Four,3.5,False,272
+party,party,PROPN,7,2,Birthday; I Am the Walrus,3.5,False,273
+desmond,desmond,PROPN,7,1,"Ob-La-Di, Ob-La-Da",7.0,False,274
+sweet,sweet,ADJ,7,3,"Get Back; Ob-La-Di, Ob-La-Da; You Never Give Me Your Money",2.33,False,275
+made,make,VERB,7,4,A Day in the Life; All You Need Is Love; Hey Jude; Maxwell’s Silver Hammer,1.75,True,276
+broken,break,VERB,7,5,Across the Universe; Blackbird; Let It Be; Revolution 9; Rocky Raccoon,1.4,False,277
+blackbird,blackbird,PROPN,7,1,Blackbird,7.0,False,278
+high,high,ADJ,7,4,"Hello, Goodbye; Lucy in the Sky with Diamonds; Strawberry Fields Forever; With a Little Help from My Friends",1.75,False,279
+seems,seem,VERB,6,4,A Hard Day’s Night; Help!; Here Comes the Sun; Rocky Raccoon,1.5,True,280
+superior,superior,PROPN,6,1,Happiness Is a Warm Gun,6.0,False,281
+jumped,jump,VERB,6,1,Happiness Is a Warm Gun,6.0,False,282
+stay,stay,VERB,6,6,"Hello, Goodbye; Maxwell’s Silver Hammer; Norwegian Wood (This Bird Has Flown); Now and Then; When I’m Sixty-Four; Yesterday",1.0,False,283
+clang,clang,PROPN,6,1,Maxwell’s Silver Hammer,6.0,False,284
+silver,silver,NOUN,6,1,Maxwell’s Silver Hammer,6.0,False,285
+lead,lead,VERB,6,2,"Here, There and Everywhere; The Long and Winding Road",3.0,False,286
+hammer,hammer,NOUN,6,1,Maxwell’s Silver Hammer,6.0,False,287
+nowhere,nowhere,ADV,6,2,All You Need Is Love; You Never Give Me Your Money,3.0,True,288
+left,leave,VERB,6,4,Get Back; Happiness Is a Warm Gun; Rocky Raccoon; The Long and Winding Road,1.5,False,289
+cryin,cryin,ADJ,6,1,I Am the Walrus,6.0,False,290
+face,face,NOUN,6,4,"A Day in the Life; Eleanor Rigby; I Am the Walrus; Ob-La-Di, Ob-La-Da",1.5,False,291
+weeps,weep,VERB,6,1,While My Guitar Gently Weeps,6.0,False,292
+fell,fall,VERB,6,4,A Day in the Life; I Saw Her Standing There; Oh! Darling; Rocky Raccoon,1.5,False,293
+ensemble,ensemble,NOUN,6,1,Michelle,6.0,False,294
+everywhere,everywhere,ADV,6,1,"Here, There and Everywhere",6.0,True,295
+under,under,ADP,6,2,Hey Jude; Octopus’s Garden,3.0,True,296
+tight,tight,ADJ,6,2,A Hard Day’s Night; I Saw Her Standing There,3.0,False,297
+found,find,VERB,6,4,A Day in the Life; Hey Jude; Octopus’s Garden; Yellow Submarine,1.5,False,298
+jo,jo,PROPN,6,1,Get Back,6.0,False,299
+upon,upon,SCONJ,6,4,Hey Jude; I Am the Walrus; Maxwell’s Silver Hammer; Revolution 9,1.5,True,300
+beneath,beneath,ADP,6,3,Octopus’s Garden; Penny Lane; Yellow Submarine,2.0,False,301
+changed,change,VERB,6,3,A Day in the Life; Help!; In My Life,2.0,False,302
+remember,remember,VERB,6,3,All My Loving; Hey Jude; In My Life,2.0,False,303
+bad,bad,ADJ,6,3,Hey Jude; She Loves You; Strawberry Fields Forever,2.0,False,304
+play,play,VERB,6,5,All You Need Is Love; Penny Lane; Sgt. Pepper’s Lonely Hearts Club Band; Yellow Submarine; Yesterday,1.2,False,305
+ears,ear,NOUN,6,3,Across the Universe; Penny Lane; With a Little Help from My Friends,2.0,False,306
+harrison,harrison,PROPN,6,4,Birthday; Happiness Is a Warm Gun; Here Comes the Sun; With a Little Help from My Friends,1.5,False,307
+michelle,michelle,PROPN,6,1,Michelle,6.0,False,308
+try,try,VERB,6,2,Revolution 9; With a Little Help from My Friends,3.0,False,309
+très,très,ADJ,6,1,Michelle,6.0,False,310
+coming,come,VERB,6,2,Get Back; Helter Skelter,3.0,False,311
+understand,understand,VERB,6,2,I Want to Hold Your Hand; Michelle,3.0,False,312
+guitar,guitar,NOUN,6,1,While My Guitar Gently Weeps,6.0,False,313
+bien,bien,PROPN,6,1,Michelle,6.0,False,314
+gently,gently,ADV,6,1,While My Guitar Gently Weeps,6.0,False,315
+g'joob,g'joob,PROPN,6,1,I Am the Walrus,6.0,False,316
+over,over,ADP,5,3,Come Together; Lucy in the Sky with Diamonds; Yesterday,1.67,True,317
+must,must,AUX,5,4,Maxwell’s Silver Hammer; Now and Then; Strawberry Fields Forever; While My Guitar Gently Weeps,1.25,True,318
+harm,harm,NOUN,5,2,Happiness Is a Warm Gun; Oh! Darling,2.5,False,319
+song,song,NOUN,5,4,Hey Jude; I Will; Sgt. Pepper’s Lonely Hearts Club Band; With a Little Help from My Friends,1.25,False,320
+heart,heart,NOUN,5,3,Hey Jude; I Saw Her Standing There; I Will,1.67,False,321
+their,their,PRON,5,3,"Across the Universe; In My Life; Ob-La-Di, Ob-La-Da",1.67,True,322
+each,each,DET,5,2,"Here, There and Everywhere; I Saw Her Standing There",2.5,True,323
+lucky,lucky,ADJ,5,2,A Day in the Life; Back in the U.S.S.R.,2.5,False,324
+rain,rain,NOUN,5,4,Across the Universe; I Am the Walrus; Penny Lane; The Long and Winding Road,1.25,False,325
+woo,woo,NOUN,5,3,"Hello, Goodbye; Helter Skelter; When I’m Sixty-Four",1.67,False,326
+which,which,PRON,5,4,Across the Universe; Happiness Is a Warm Gun; I Am the Walrus; Revolution 9,1.25,True,327
+such,such,DET,5,3,I Want to Hold Your Hand; Sgt. Pepper’s Lonely Hearts Club Band; Yesterday,1.67,True,328
+much,much,ADJ,5,4,Happiness Is a Warm Gun; Help!; Revolution 9; Strawberry Fields Forever,1.25,True,329
+around,around,ADP,5,5,Across the Universe; Get Back; Norwegian Wood (This Bird Has Flown); Octopus’s Garden; Something,1.0,True,330
+mmm,mmm,PROPN,5,1,Yesterday,5.0,False,331
+light,light,NOUN,5,4,Across the Universe; Blackbird; Let It Be; With a Little Help from My Friends,1.25,False,332
+till,till,SCONJ,5,5,"Back in the U.S.S.R.; Hello, Goodbye; Helter Skelter; When I’m Sixty-Four; Yellow Submarine",1.0,False,333
+blue,blue,NOUN,5,2,Penny Lane; Yellow Submarine,2.5,False,334
+more,more,ADV,5,3,In My Life; When I’m Sixty-Four; Yellow Submarine,1.67,True,335
+real,real,ADJ,5,2,Revolution; Strawberry Fields Forever,2.5,False,336
+until,until,ADP,5,3,Let It Be; Michelle; Norwegian Wood (This Bird Has Flown),1.67,True,337
+hear,hear,VERB,5,5,A Hard Day’s Night; Back in the U.S.S.R.; Eleanor Rigby; I Will; Revolution 9,1.0,False,338
+working,work,VERB,5,3,A Hard Day’s Night; Eleanor Rigby; Happiness Is a Warm Gun,1.67,False,339
+again,again,ADV,5,3,Helter Skelter; Maxwell’s Silver Hammer; Now and Then,1.67,True,340
+days,day,NOUN,5,2,Help!; Revolution 9,2.5,False,341
+girls,girl,NOUN,5,2,Back in the U.S.S.R.; Get Back,2.5,False,342
+him,he,PRON,5,5,"Eleanor Rigby; I Am the Walrus; Ob-La-Di, Ob-La-Da; Penny Lane; Revolution 9",1.0,True,343
+across,across,ADP,5,2,A Day in the Life; Across the Universe,2.5,True,344
+sure,sure,ADJ,5,3,A Day in the Life; Maxwell’s Silver Hammer; Now and Then,1.67,False,345
+sleeping,sleep,VERB,5,2,A Hard Day’s Night; While My Guitar Gently Weeps,2.5,False,346
+sit,sit,VERB,5,4,I Am the Walrus; Norwegian Wood (This Bird Has Flown); Penny Lane; Sgt. Pepper’s Lonely Hearts Club Band,1.25,False,347
+road,road,NOUN,5,2,Revolution 9; The Long and Winding Road,2.5,False,348
+learn,learn,VERB,5,2,All You Need Is Love; Blackbird,2.5,False,349
+club,club,PROPN,5,1,Sgt. Pepper’s Lonely Hearts Club Band,5.0,False,350
+any,any,DET,5,3,Help!; Revolution 9; You Never Give Me Your Money,1.67,True,351
+turn,turn,VERB,5,3,A Day in the Life; Helter Skelter; With a Little Help from My Friends,1.67,False,352
+fast,fast,ADV,5,1,Helter Skelter,5.0,False,353
+hearts,hearts,PROPN,5,1,Sgt. Pepper’s Lonely Hearts Club Band,5.0,False,354
+ahh,ahh,PROPN,5,2,"Lucy in the Sky with Diamonds; Ob-La-Di, Ob-La-Da",2.5,False,355
+hoo,hoo,PROPN,5,2,"Back in the U.S.S.R.; Hello, Goodbye",2.5,False,356
+moment,moment,NOUN,5,1,Blackbird,5.0,False,357
+knows,know,VERB,5,4,I Will; Octopus’s Garden; She Loves You; Something,1.25,False,358
+lover,lover,NOUN,5,2,Helter Skelter; Something,2.5,False,359
+dream,dream,NOUN,5,4,A Day in the Life; Eleanor Rigby; Strawberry Fields Forever; You Never Give Me Your Money,1.25,False,360
+walrus,walrus,PROPN,5,2,Come Together; I Am the Walrus,2.5,False,361
+money,money,NOUN,5,3,A Hard Day’s Night; Revolution; You Never Give Me Your Money,1.67,False,362
+standin,standin,ADJ,5,1,I Saw Her Standing There,5.0,False,363
+happiness,happiness,NOUN,4,1,Happiness Is a Warm Gun,4.0,False,364
+hands,hand,NOUN,4,4,"Eleanor Rigby; Happiness Is a Warm Gun; Here, There and Everywhere; Revolution 9",1.0,False,365
+smile,smile,NOUN,4,4,Here Comes the Sun; I Am the Walrus; Sgt. Pepper’s Lonely Hearts Club Band; Something,1.0,False,366
+dog,dog,NOUN,4,2,A Hard Day’s Night; I Am the Walrus,2.0,False,367
+top,top,NOUN,4,3,Come Together; Helter Skelter; Rocky Raccoon,1.33,True,368
+ahhh,ahhh,PROPN,4,1,You Never Give Me Your Money,4.0,False,369
+bye,bye,INTJ,4,1,"Hello, Goodbye",4.0,False,370
+aye,aye,ADJ,4,1,Yellow Submarine,4.0,False,371
+g'goo,g'goo,PROPN,4,1,I Am the Walrus,4.0,False,372
+hair,hair,NOUN,4,4,"Come Together; Here, There and Everywhere; Revolution 9; When I’m Sixty-Four",1.0,False,373
+sleep,sleep,VERB,4,2,Golden Slumbers; Norwegian Wood (This Bird Has Flown),2.0,False,374
+another,another,DET,4,4,Get Back; I Saw Her Standing There; Penny Lane; Rocky Raccoon,1.0,True,375
+bridge,bridge,NOUN,4,4,A Day in the Life; Birthday; Lucy in the Sky with Diamonds; With a Little Help from My Friends,1.0,False,376
+bottom,bottom,NOUN,4,1,Helter Skelter,4.0,True,377
+free,free,ADJ,4,4,Blackbird; Come Together; Maxwell’s Silver Hammer; Revolution,1.0,False,378
+knew,know,VERB,4,4,Back in the U.S.S.R.; Get Back; Revolution 9; Rocky Raccoon,1.0,False,379
+singing,singing,NOUN,4,2,Blackbird; I Am the Walrus,2.0,False,380
+show,show,VERB,4,3,Back in the U.S.S.R.; Sgt. Pepper’s Lonely Hearts Club Band; Something,1.33,True,381
+other,other,ADJ,4,2,I Saw Her Standing There; Something,2.0,True,382
+arise,arise,VERB,4,1,Blackbird,4.0,False,383
+whisper,whisper,PROPN,4,1,Let It Be,4.0,False,384
+opened,opened,ADJ,4,2,Across the Universe; Help!,2.0,False,385
+last,last,VERB,4,4,Back in the U.S.S.R.; Don’t Let Me Down; Get Back; I Will,1.0,True,386
+says,say,VERB,4,2,"Ob-La-Di, Ob-La-Da; She Loves You",2.0,False,387
+belle,belle,PROPN,4,1,Michelle,4.0,False,388
+couple,couple,NOUN,4,1,"Ob-La-Di, Ob-La-Da",4.0,False,389
+ow,ow,VERB,4,3,Birthday; Don’t Let Me Down; Rocky Raccoon,1.33,False,390
+miss,miss,VERB,4,2,All My Loving; Now and Then,2.0,False,391
+round,round,ADJ,4,2,Back in the U.S.S.R.; Help!,2.0,False,392
+wo,will,AUX,4,2,Help!; Helter Skelter,2.0,False,393
+shade,shade,NOUN,4,1,Octopus’s Garden,4.0,False,394
+being,be,AUX,4,2,Help!; Revolution 9,2.0,True,395
+english,english,PROPN,4,2,A Day in the Life; I Am the Walrus,2.0,False,396
+held,hold,VERB,4,1,I Saw Her Standing There,4.0,False,397
+ma,ma,PROPN,4,1,Michelle,4.0,False,398
+fill,fill,VERB,4,4,A Day in the Life; Golden Slumbers; I Will; When I’m Sixty-Four,1.0,False,399
+younger,young,ADJ,4,1,Help!,4.0,False,400
+thought,think,VERB,4,2,Get Back; Sgt. Pepper’s Lonely Hearts Club Band,2.0,False,401
+feet,foot,NOUN,4,2,Come Together; Help!,2.0,False,402
+sad,sad,ADJ,4,3,A Day in the Life; Hey Jude; With a Little Help from My Friends,1.33,False,403
+takes,take,VERB,4,2,"A Day in the Life; Ob-La-Di, Ob-La-Da",2.0,False,404
+ai,be,VERB,4,2,Helter Skelter; Revolution,2.0,False,405
+break,break,VERB,4,2,Helter Skelter; You Never Give Me Your Money,2.0,False,406
+sitting,sit,VERB,4,2,I Am the Walrus; Penny Lane,2.0,False,407
+nearly,nearly,ADV,4,1,Oh! Darling,4.0,False,408
+anymore,anymore,ADV,4,1,Oh! Darling,4.0,False,409
+father,father,PROPN,4,3,Eleanor Rigby; I Am the Walrus; Revolution 9,1.33,False,410
+speaking,speak,VERB,4,2,"Here, There and Everywhere; Let It Be",2.0,False,411
+universe,universe,NOUN,4,1,Across the Universe,4.0,False,412
+waves,wave,NOUN,4,3,Across the Universe; Octopus’s Garden; Yellow Submarine,1.33,False,413
+times,time,NOUN,4,3,Let It Be; Maxwell’s Silver Hammer; The Long and Winding Road,1.33,False,414
+knee,knee,NOUN,4,3,Back in the U.S.S.R.; Come Together; When I’m Sixty-Four,1.33,False,415
+next,next,ADJ,4,3,Revolution 9; Rocky Raccoon; Yellow Submarine,1.33,True,416
+green,green,NOUN,4,2,Lucy in the Sky with Diamonds; Yellow Submarine,2.0,False,417
+verse,verse,PROPN,4,2,I Saw Her Standing There; With a Little Help from My Friends,2.0,False,418
+skies,sky,NOUN,4,2,Lucy in the Sky with Diamonds; Penny Lane,2.0,False,419
+mine,mine,PRON,4,3,I Saw Her Standing There; When I’m Sixty-Four; With a Little Help from My Friends,1.33,True,420
+tomorrow,tomorrow,NOUN,4,3,All My Loving; Back in the U.S.S.R.; Let It Be,1.33,False,421
+hung,hang,VERB,4,1,Strawberry Fields Forever,4.0,False,422
+loved,love,VERB,4,3,Don’t Let Me Down; I Will; In My Life,1.33,False,423
+full,full,ADJ,3,1,Yellow Submarine,3.0,True,424
+living,live,VERB,3,3,In My Life; Let It Be; Strawberry Fields Forever,1.0,False,425
+wrong,wrong,ADJ,3,2,Strawberry Fields Forever; Yesterday,1.5,False,426
+game,game,NOUN,3,2,All You Need Is Love; Yesterday,1.5,False,427
+place,place,NOUN,3,2,Back in the U.S.S.R.; Yesterday,1.5,False,428
+or,or,CCONJ,3,3,Norwegian Wood (This Bird Has Flown); Revolution 9; Strawberry Fields Forever,1.0,True,429
+calls,call,VERB,3,3,Across the Universe; Lucy in the Sky with Diamonds; Maxwell’s Silver Hammer,1.0,False,430
+lived,live,VERB,3,2,Rocky Raccoon; Yellow Submarine,1.5,False,431
+picture,picture,VERB,3,2,Get Back; Lucy in the Sky with Diamonds,1.5,False,432
+lose,lose,VERB,3,1,In My Life,3.0,False,433
+write,write,VERB,3,1,All My Loving,3.0,False,434
+chance,chance,NOUN,3,2,Birthday; Let It Be,1.5,False,435
+grow,grow,VERB,3,3,I Am the Walrus; Lucy in the Sky with Diamonds; Something,1.0,False,436
+ahead,ahead,ADV,3,1,Yellow Submarine,3.0,False,437
+low,low,ADJ,3,3,"Hello, Goodbye; Revolution 9; Strawberry Fields Forever",1.0,False,438
+speed,speed,NOUN,3,1,Yellow Submarine,3.0,False,439
+shout,shout,VERB,3,2,Back in the U.S.S.R.; Octopus’s Garden,1.5,False,440
+banker,banker,NOUN,3,1,Penny Lane,3.0,False,441
+near,near,ADP,3,3,Eleanor Rigby; I Will; Octopus’s Garden,1.0,False,442
+chorus,chorus,NOUN,3,3,Don’t Let Me Down; Happiness Is a Warm Gun; Here Comes the Sun,1.0,False,443
+belong,belong,VERB,3,1,Eleanor Rigby,3.0,False,444
+dancer,dancer,NOUN,3,1,Helter Skelter,3.0,False,445
+cry,cry,VERB,3,1,Golden Slumbers,3.0,False,446
+hope,hope,VERB,3,3,All My Loving; Get Back; Sgt. Pepper’s Lonely Hearts Club Band,1.0,False,447
+finger,finger,NOUN,3,3,Come Together; Happiness Is a Warm Gun; Penny Lane,1.0,False,448
+cried,cry,VERB,3,2,Oh! Darling; The Long and Winding Road,1.5,False,449
+holes,hole,NOUN,3,1,A Day in the Life,3.0,False,450
+eggman,eggman,NOUN,3,1,I Am the Walrus,3.0,False,451
+whoa,whoa,PROPN,3,1,Maxwell’s Silver Hammer,3.0,False,452
+touch,touch,VERB,3,2,Happiness Is a Warm Gun; I Want to Hold Your Hand,1.5,False,453
+eggmen,eggman,NOUN,3,1,I Am the Walrus,3.0,False,454
+martin,martin,PROPN,3,2,Get Back; Revolution 9,1.5,False,455
+everything,everything,PRON,3,1,A Hard Day’s Night,3.0,True,456
+okay,okay,ADJ,3,2,A Hard Day’s Night; Get Back,1.5,False,457
+rosetta,rosetta,PROPN,3,1,Get Back,3.0,False,458
+bed,bed,NOUN,3,3,A Day in the Life; Back in the U.S.S.R.; Norwegian Wood (This Bird Has Flown),1.0,False,459
+start,start,VERB,3,2,Hey Jude; Now and Then,1.5,False,460
+lend,lend,VERB,3,2,"Ob-La-Di, Ob-La-Da; With a Little Help from My Friends",1.5,False,461
+evening,evening,NOUN,3,2,"Ob-La-Di, Ob-La-Da; Sgt. Pepper’s Lonely Hearts Club Band",1.5,False,462
+huh,huh,INTJ,3,1,All My Loving,3.0,False,463
+knowing,know,VERB,3,2,"Here, There and Everywhere; Octopus’s Garden",1.5,False,464
+appreciate,appreciate,VERB,3,1,Help!,3.0,False,465
+running,run,VERB,3,2,"Here, There and Everywhere; Ob-La-Di, Ob-La-Da",1.5,False,466
+ground,ground,NOUN,3,1,Help!,3.0,False,467
+than,than,ADP,3,2,Help!; Revolution 9,1.5,True,468
+log,log,NOUN,3,1,A Hard Day’s Night,3.0,False,469
+singer,singer,NOUN,3,2,"Ob-La-Di, Ob-La-Da; Sgt. Pepper’s Lonely Hearts Club Band",1.5,False,470
+marketplace,marketplace,NOUN,3,1,"Ob-La-Di, Ob-La-Da",3.0,False,471
+hoping,hop,VERB,3,2,"Here, There and Everywhere; Michelle",1.5,False,472
+young,young,ADJ,3,2,Help!; Rocky Raccoon,1.5,False,473
+sont,sont,PROPN,3,1,Michelle,3.0,False,474
+des,des,X,3,1,Michelle,3.0,False,475
+mots,mots,X,3,1,Michelle,3.0,False,476
+qui,qui,NOUN,3,1,Michelle,3.0,False,477
+vont,vont,VERB,3,1,Michelle,3.0,False,478
+older,old,ADJ,3,2,Revolution 9; When I’m Sixty-Four,1.5,False,479
+feed,feed,VERB,3,1,When I’m Sixty-Four,3.0,False,480
+instead,instead,ADV,3,2,Revolution; Revolution 9,1.5,False,481
+suburban,suburban,ADJ,3,1,Penny Lane,3.0,False,482
+meanwhile,meanwhile,ADV,3,1,Penny Lane,3.0,True,483
+wings,wing,NOUN,3,2,Blackbird; Revolution 9,1.5,False,484
+laugh,laugh,VERB,3,3,A Day in the Life; Norwegian Wood (This Bird Has Flown); Penny Lane,1.0,False,485
+black,black,ADJ,3,2,Blackbird; Rocky Raccoon,1.5,False,486
+inside,inside,ADP,3,2,Across the Universe; I Want to Hold Your Hand,1.5,False,487
+everyone,everyone,PRON,3,3,Lucy in the Sky with Diamonds; Revolution 9; Rocky Raccoon,1.0,True,488
+paper,paper,NOUN,3,3,Across the Universe; Back in the U.S.S.R.; You Never Give Me Your Money,1.0,False,489
+om,om,PROPN,3,1,Across the Universe,3.0,False,490
+begin,begin,VERB,3,1,Hey Jude,3.0,False,491
+known,know,VERB,3,3,All You Need Is Love; Penny Lane; Sgt. Pepper’s Lonely Hearts Club Band,1.0,False,492
+thing,thing,NOUN,3,2,Come Together; Revolution 9,1.5,False,493
+middle,middle,NOUN,3,2,Penny Lane; You Never Give Me Your Money,1.5,False,494
+late,late,ADJ,3,3,A Day in the Life; Maxwell’s Silver Hammer; Revolution 9,1.0,False,495
+dreams,dream,NOUN,3,3,All My Loving; Rocky Raccoon; The End,1.0,False,496
+care,care,VERB,3,2,"Eleanor Rigby; Here, There and Everywhere",1.5,False,497
+mama,mama,PROPN,3,1,Happiness Is a Warm Gun,3.0,False,498
+ago,ago,ADV,3,2,Sgt. Pepper’s Lonely Hearts Club Band; The Long and Winding Road,1.5,False,499
+keep,keep,VERB,3,3,Back in the U.S.S.R.; Penny Lane; The Long and Winding Road,1.0,True,500
+lullaby,lullaby,ADJ,3,1,Golden Slumbers,3.0,False,501
+gideon,gideon,PROPN,3,1,Rocky Raccoon,3.0,False,502
+raccoon,raccoon,PROPN,3,1,Rocky Raccoon,3.0,False,503
+called,call,VERB,3,2,Revolution 9; Rocky Raccoon,1.5,False,504
+crowd,crowd,NOUN,3,2,A Day in the Life; Happiness Is a Warm Gun,1.5,False,505
+seen,see,VERB,3,3,A Day in the Life; I Am the Walrus; The Long and Winding Road,1.0,False,506
+died,die,VERB,3,2,Eleanor Rigby; Oh! Darling,1.5,False,507
+name,name,NOUN,3,3,Eleanor Rigby; I Will; Rocky Raccoon,1.0,True,508
+read,read,VERB,3,1,A Day in the Life,3.0,False,509
+news,news,NOUN,3,1,A Day in the Life,3.0,False,510
+goin,go,VERB,3,1,Birthday,3.0,False,511
+winding,winding,ADJ,3,1,The Long and Winding Road,3.0,False,512
+pictures,picture,NOUN,3,2,Maxwell’s Silver Hammer; Revolution,1.5,False,513
+oa,oa,NOUN,3,1,Maxwell’s Silver Hammer,3.0,False,514
+knock,knock,NOUN,3,2,Back in the U.S.S.R.; Maxwell’s Silver Hammer,1.5,False,515
+ride,ride,NOUN,3,2,Helter Skelter; When I’m Sixty-Four,1.5,False,516
+off,off,ADP,3,2,Norwegian Wood (This Bird Has Flown); Rocky Raccoon,1.5,True,517
+ask,ask,VERB,3,3,Octopus’s Garden; Revolution; When I’m Sixty-Four,1.0,False,518
+looked,look,VERB,3,2,I Saw Her Standing There; Norwegian Wood (This Bird Has Flown),1.5,False,519
+wow,wow,PROPN,3,3,Birthday; Hey Jude; Revolution 9,1.0,False,520
+slowly,slowly,ADV,3,3,Come Together; Here Comes the Sun; Lucy in the Sky with Diamonds,1.0,False,521
+suddenly,suddenly,ADV,3,2,Lucy in the Sky with Diamonds; Yesterday,1.5,False,522
+maybe,maybe,ADV,3,1,Revolution 9,3.0,False,523
+believing,believe,VERB,2,1,"Here, There and Everywhere",2.0,False,524
+dies,dies,AUX,2,1,"Here, There and Everywhere",2.0,False,525
+watching,watch,VERB,2,1,"Here, There and Everywhere",2.0,False,526
+fix,fix,NOUN,2,1,Happiness Is a Warm Gun,2.0,False,527
+case,case,NOUN,2,2,Back in the U.S.S.R.; Revolution 9,1.0,False,528
+waits,wait,NOUN,2,2,Eleanor Rigby; Maxwell’s Silver Hammer,1.0,False,529
+window,window,NOUN,2,2,Eleanor Rigby; Happiness Is a Warm Gun,1.0,False,530
+wearing,wear,VERB,2,2,Eleanor Rigby; Revolution 9,1.0,False,531
+mckenzie,mckenzie,PROPN,2,1,Eleanor Rigby,2.0,False,532
+writing,write,VERB,2,2,Eleanor Rigby; Maxwell’s Silver Hammer,1.0,False,533
+u.s.​,u.s.​,PROPN,2,1,Back in the U.S.S.R.,2.0,False,534
+ukraine,ukraine,PROPN,2,1,Back in the U.S.S.R.,2.0,False,535
+west,west,PROPN,2,1,Back in the U.S.S.R.,2.0,False,536
+moscow,moscow,PROPN,2,1,Back in the U.S.S.R.,2.0,False,537
+barber,barber,NOUN,2,1,Penny Lane,2.0,False,538
+pouring,pour,VERB,2,1,Penny Lane,2.0,False,539
+aaah,aaah,PROPN,2,1,Revolution 9,2.0,False,540
+whatever,whatever,PRON,2,1,Revolution 9,2.0,True,541
+affection,affection,NOUN,2,1,In My Life,2.0,False,542
+often,often,ADV,2,1,In My Life,2.0,True,543
+places,place,NOUN,2,1,In My Life,2.0,False,544
+sometimes,sometimes,ADV,2,2,Revolution 9; Strawberry Fields Forever,1.0,True,545
+cranberry,cranberry,PROPN,2,1,Strawberry Fields Forever,2.0,False,546
+getting,get,VERB,2,2,Maxwell’s Silver Hammer; Strawberry Fields Forever,1.0,False,547
+joy,joy,NOUN,2,2,Across the Universe; Octopus’s Garden,1.0,False,548
+sauce,sauce,NOUN,2,1,Strawberry Fields Forever,2.0,False,549
+town,town,NOUN,2,2,Rocky Raccoon; Yellow Submarine,1.0,False,550
+cable,cable,NOUN,2,1,Yellow Submarine,2.0,False,551
+captain,captain,PROPN,2,1,Yellow Submarine,2.0,False,552
+ha,ha,INTJ,2,1,Yellow Submarine,2.0,False,553
+billy,billy,PROPN,2,2,Sgt. Pepper’s Lonely Hearts Club Band; With a Little Help from My Friends,1.0,False,554
+flat,flat,ADJ,2,2,A Day in the Life; Come Together,1.0,False,555
+roller,roller,NOUN,2,1,Come Together,2.0,False,556
+joker,joker,NOUN,2,2,Come Together; I Am the Walrus,1.0,False,557
+wood,wood,NOUN,2,1,Norwegian Wood (This Bird Has Flown),2.0,False,558
+wait,wait,VERB,2,2,I Will; Revolution,1.0,False,559
+chair,chair,NOUN,2,2,Norwegian Wood (This Bird Has Flown); Revolution 9,1.0,False,560
+morning,morning,NOUN,2,2,Norwegian Wood (This Bird Has Flown); You Never Give Me Your Money,1.0,False,561
+doing,do,VERB,2,2,Revolution 9; When I’m Sixty-Four,1.0,True,562
+summer,summer,NOUN,2,2,Penny Lane; When I’m Sixty-Four,1.0,False,563
+rent,rent,VERB,2,2,When I’m Sixty-Four; You Never Give Me Your Money,1.0,False,564
+umpa,umpa,PROPN,2,1,I Am the Walrus,2.0,False,565
+thou,thou,ADJ,2,1,I Am the Walrus,2.0,False,566
+everybody,everybody,PRON,2,1,I Am the Walrus,2.0,False,567
+villain,villain,NOUN,2,1,I Am the Walrus,2.0,False,568
+matter,matter,NOUN,2,2,I Am the Walrus; Strawberry Fields Forever,1.0,False,569
+save,save,VERB,2,2,All You Need Is Love; When I’m Sixty-Four,1.0,False,570
+fire,fire,NOUN,2,2,Norwegian Wood (This Bird Has Flown); Penny Lane,1.0,False,571
+lips,lip,NOUN,2,2,All My Loving; Maxwell’s Silver Hammer,1.0,False,572
+eye,eye,NOUN,2,2,I Am the Walrus; Rocky Raccoon,1.0,False,573
+egg,egg,NOUN,2,1,I Am the Walrus,2.0,False,574
+gets,get,VERB,2,2,Get Back; Maxwell’s Silver Hammer,1.0,False,575
+phone,phone,NOUN,2,2,Back in the U.S.S.R.; Maxwell’s Silver Hammer,1.0,False,576
+same,same,ADJ,2,2,I Will; Revolution 9,1.0,True,577
+norwegian,norwegian,ADJ,2,1,Norwegian Wood (This Bird Has Flown),2.0,False,578
+leads,lead,VERB,2,1,The Long and Winding Road,2.0,False,579
+fireman,fireman,NOUN,2,1,Penny Lane,2.0,False,580
+shoulder,shoulder,NOUN,2,2,Hey Jude; Revolution 9,1.0,False,581
+bottle,bottle,NOUN,2,2,Revolution 9; When I’m Sixty-Four,1.0,False,582
+wine,wine,NOUN,2,2,Norwegian Wood (This Bird Has Flown); When I’m Sixty-Four,1.0,False,583
+self,self,NOUN,2,1,Help!,2.0,False,584
+assured,assure,VERB,2,1,Help!,2.0,False,585
+doors,door,NOUN,2,1,Help!,2.0,False,586
+holding,hold,VERB,2,1,A Hard Day’s Night,2.0,False,587
+loretta,loretta,PROPN,2,1,Get Back,2.0,False,588
+picker,picker,NOUN,2,1,Get Back,2.0,False,589
+fingers,finger,NOUN,2,2,Get Back; Helter Skelter,1.0,False,590
+earth,earth,PROPN,2,1,A Hard Day’s Night,2.0,False,591
+moan,moan,VERB,2,1,A Hard Day’s Night,2.0,False,592
+tells,tell,VERB,2,1,Maxwell’s Silver Hammer,2.0,False,593
+run,run,VERB,2,1,I Am the Walrus,2.0,False,594
+pigs,pig,NOUN,2,1,I Am the Walrus,2.0,False,595
+bloody,bloody,ADJ,2,2,I Am the Walrus; Revolution 9,1.0,False,596
+mister,mister,PROPN,2,2,I Am the Walrus; Yellow Submarine,1.0,False,597
+naughty,naughty,ADJ,2,1,I Am the Walrus,2.0,False,598
+leaving,leave,VERB,2,2,Maxwell’s Silver Hammer; Revolution 9,1.0,False,599
+below,below,ADP,2,2,Come Together; Octopus’s Garden,1.0,True,600
+broke,break,VERB,2,1,Oh! Darling,2.0,False,601
+woman,woman,NOUN,2,2,Get Back; Rocky Raccoon,1.0,False,602
+homeward,homeward,NOUN,2,1,Golden Slumbers,2.0,False,603
+anotherwoo,anotherwoo,PROPN,2,1,I Saw Her Standing There,2.0,False,604
+boom,boom,NOUN,2,1,I Saw Her Standing There,2.0,False,605
+crossed,cross,VERB,2,1,I Saw Her Standing There,2.0,False,606
+danced,dance,VERB,2,1,I Saw Her Standing There,2.0,False,607
+count,count,VERB,2,2,A Day in the Life; Revolution,1.0,False,608
+turning,turn,VERB,2,2,While My Guitar Gently Weeps; You Never Give Me Your Money,1.0,False,609
+ways,way,NOUN,2,2,Help!; The Long and Winding Road,1.0,False,610
+needed,need,VERB,2,1,Help!,2.0,False,611
+flowers,flower,NOUN,2,1,Lucy in the Sky with Diamonds,2.0,False,612
+kids,kid,NOUN,2,1,"Ob-La-Di, Ob-La-Da",2.0,False,613
+yard,yard,NOUN,2,1,"Ob-La-Di, Ob-La-Da",2.0,False,614
+jones,jones,PROPN,2,1,"Ob-La-Di, Ob-La-Da",2.0,False,615
+golden,golden,PROPN,2,2,"Golden Slumbers; Ob-La-Di, Ob-La-Da",1.0,False,616
+stays,stay,VERB,2,1,"Ob-La-Di, Ob-La-Da",2.0,False,617
+thinking,think,VERB,2,2,"Here, There and Everywhere; She Loves You",1.0,False,618
+hurt,hurt,VERB,2,1,She Loves You,2.0,False,619
+brother,brother,NOUN,2,2,Revolution; Revolution 9,1.0,False,620
+lost,lose,VERB,2,1,She Loves You,2.0,False,621
+cup,cup,NOUN,2,2,A Day in the Life; Across the Universe,1.0,False,622
+looking,look,VERB,2,2,A Day in the Life; Lucy in the Sky with Diamonds,1.0,False,623
+noticed,notice,VERB,2,2,A Day in the Life; Norwegian Wood (This Bird Has Flown),1.0,False,624
+slide,slide,NOUN,2,1,Helter Skelter,2.0,False,625
+ju,ju,PROPN,2,1,Come Together,2.0,False,626
+clean,clean,ADJ,2,1,Penny Lane,2.0,False,627
+fish,fish,NOUN,2,2,Penny Lane; Revolution 9,1.0,False,628
+very,very,ADV,2,1,Penny Lane,2.0,True,629
+strange,strange,ADJ,2,1,Penny Lane,2.0,False,630
+anyway,anyway,ADV,2,2,Penny Lane; The Long and Winding Road,1.0,True,631
+introduce,introduce,VERB,2,1,Sgt. Pepper’s Lonely Hearts Club Band,2.0,False,632
+bag,bag,NOUN,2,2,Back in the U.S.S.R.; Come Together,1.0,False,633
+fool,fool,NOUN,2,2,Hey Jude; Maxwell’s Silver Hammer,1.0,False,634
+plays,play,VERB,2,2,Hey Jude; Maxwell’s Silver Hammer,1.0,False,635
+making,make,VERB,2,2,"Here, There and Everywhere; Hey Jude",1.0,False,636
+skin,skin,NOUN,2,1,Hey Jude,2.0,False,637
+built,build,VERB,2,1,"Ob-La-Di, Ob-La-Da",2.0,False,638
+thank,thank,VERB,2,2,"Get Back; Ob-La-Di, Ob-La-Da",1.0,False,639
+after,after,ADV,2,1,"Ob-La-Di, Ob-La-Da",2.0,True,640
+lets,let,VERB,2,1,"Ob-La-Di, Ob-La-Da",2.0,False,641
+death,death,NOUN,2,1,I Am the Walrus,2.0,False,642
+gives,give,VERB,2,2,"Ob-La-Di, Ob-La-Da; Revolution 9",1.0,False,643
+begins,begin,VERB,2,2,"Ob-La-Di, Ob-La-Da; Yellow Submarine",1.0,False,644
+pies,pie,NOUN,2,2,Lucy in the Sky with Diamonds; Penny Lane,1.0,False,645
+smiles,smile,VERB,2,2,Golden Slumbers; Lucy in the Sky with Diamonds,1.0,False,646
+kaleidoscope,kaleidoscope,ADJ,2,1,Lucy in the Sky with Diamonds,2.0,False,647
+past,past,ADP,2,2,Don’t Let Me Down; Lucy in the Sky with Diamonds,1.0,False,648
+mary,mary,PROPN,2,1,Let It Be,2.0,False,649
+situation,situation,NOUN,2,2,Revolution 9; You Never Give Me Your Money,1.0,False,650
+bit,bit,NOUN,2,1,Revolution 9,2.0,False,651
+pay,pay,VERB,2,2,Revolution 9; You Never Give Me Your Money,1.0,False,652
+close,close,VERB,2,1,All My Loving,2.0,False,653
+rigby,rigby,PROPN,2,1,Eleanor Rigby,2.0,False,654
+church,church,NOUN,2,1,Eleanor Rigby,2.0,False,655
+shows,show,VERB,2,1,Something,2.0,False,656
+corner,corner,NOUN,2,2,Penny Lane; Rocky Raccoon,1.0,False,657
+doc,doc,PROPN,2,1,Rocky Raccoon,2.0,False,658
+c'm,come,NOUN,2,1,Rocky Raccoon,2.0,False,659
+soon,soon,ADV,2,2,Rocky Raccoon; You Never Give Me Your Money,1.0,False,660
+dark,dark,ADJ,2,1,Blackbird,2.0,False,661
+lights,light,NOUN,2,2,A Day in the Life; When I’m Sixty-Four,1.0,False,662
+rather,rather,ADV,2,1,A Day in the Life,2.0,True,663
+along,along,ADP,2,2,Eleanor Rigby; Sgt. Pepper’s Lonely Hearts Club Band,1.0,True,664
+notice,notice,VERB,2,2,A Day in the Life; While My Guitar Gently Weeps,1.0,False,665
+himself,himself,PRON,2,1,Rocky Raccoon,2.0,True,666
+checked,check,VERB,2,1,Rocky Raccoon,2.0,False,667
+bible,bible,PROPN,2,1,Rocky Raccoon,2.0,False,668
+rival,rival,NOUN,2,1,Rocky Raccoon,2.0,False,669
+feels,feel,VERB,2,2,Here Comes the Sun; Penny Lane,1.0,False,670
+wife,wife,NOUN,2,2,Happiness Is a Warm Gun; Revolution 9,1.0,False,671
+georgia,georgia,PROPN,2,1,Back in the U.S.S.R.,2.0,False,672
+boys,boy,NOUN,2,1,Back in the U.S.S.R.,2.0,False,673
+honey,honey,PROPN,2,1,Back in the U.S.S.R.,2.0,False,674
+saved,save,VERB,2,2,All You Need Is Love; Eleanor Rigby,1.0,False,675
+somewhere,somewhere,ADV,2,2,Rocky Raccoon; Something,1.0,True,676
+style,style,NOUN,2,2,Sgt. Pepper’s Lonely Hearts Club Band; Something,1.0,False,677
+stick,stick,VERB,2,2,I Am the Walrus; Something,1.0,False,678
+eleanor,eleanor,PROPN,2,1,Eleanor Rigby,2.0,False,679
+kiss,kiss,VERB,2,1,All My Loving,2.0,False,680
+shines,shin,VERB,2,2,Across the Universe; Let It Be,1.0,False,681
+agree,agree,VERB,2,2,Let It Be; Maxwell’s Silver Hammer,1.0,False,682
+darlin,darlin,PROPN,2,1,All My Loving,2.0,False,683
+starr,starr,PROPN,2,1,With a Little Help from My Friends,2.0,False,684
+end,end,NOUN,2,2,The End; With a Little Help from My Friends,1.0,False,685
+shears,shears,PROPN,2,2,Sgt. Pepper’s Lonely Hearts Club Band; With a Little Help from My Friends,1.0,False,686
+ringo,ringo,PROPN,2,1,With a Little Help from My Friends,2.0,False,687
+sailed,sail,VERB,2,1,Yellow Submarine,2.0,False,688
+yourself,yourself,PRON,2,1,Lucy in the Sky with Diamonds,2.0,True,689
+tune,tune,NOUN,2,2,Strawberry Fields Forever; With a Little Help from My Friends,1.0,False,690
+share,share,VERB,2,1,"Here, There and Everywhere",2.0,False,691
+ringing,ring,VERB,2,2,Across the Universe; Back in the U.S.S.R.,1.0,False,692
+lovers,lover,NOUN,2,1,In My Life,2.0,False,693
+drop,drop,VERB,2,2,When I’m Sixty-Four; Yellow Submarine,1.0,False,694
+hmm,hmm,NOUN,2,1,Yesterday,2.0,False,695
+magic,magic,ADJ,2,1,You Never Give Me Your Money,2.0,False,696
+beside,beside,ADP,2,1,"Here, There and Everywhere",2.0,True,697
+naked,naked,ADJ,2,1,Revolution 9,2.0,False,698
+troubles,trouble,NOUN,1,1,Yesterday,1.0,False,699
+half,half,DET,1,1,Yesterday,1.0,False,700
+used,use,VERB,1,1,Yesterday,1.0,True,701
+peace,peace,NOUN,1,1,Revolution 9,1.0,False,702
+become,become,VERB,1,1,Revolution 9,1.0,True,703
+headmaster,headmaster,NOUN,1,1,Revolution 9,1.0,False,704
+presence,presence,NOUN,1,1,Revolution 9,1.0,False,705
+building,building,NOUN,1,1,Revolution 9,1.0,False,706
+onion,onion,PROPN,1,1,Revolution 9,1.0,False,707
+soup,soup,NOUN,1,1,Revolution 9,1.0,False,708
+industrial,industrial,ADJ,1,1,Revolution 9,1.0,False,709
+output,output,NOUN,1,1,Revolution 9,1.0,False,710
+moments,moment,NOUN,1,1,In My Life,1.0,False,711
+price,price,VERB,1,1,Revolution 9,1.0,False,712
+underclothes,underclothe,NOUN,1,1,Revolution 9,1.0,False,713
+dentist,dentist,NOUN,1,1,Revolution 9,1.0,False,714
+gave,give,VERB,1,1,Revolution 9,1.0,False,715
+pair,pair,NOUN,1,1,Revolution 9,1.0,False,716
+teeth,tooth,NOUN,1,1,Revolution 9,1.0,False,717
+joined,join,VERB,1,1,Revolution 9,1.0,False,718
+false,false,ADJ,1,1,Revolution 9,1.0,False,719
+whimming,whimme,VERB,1,1,Revolution 9,1.0,False,720
+flag,flag,NOUN,1,1,Revolution 9,1.0,False,721
+navy,navy,NOUN,1,1,Revolution 9,1.0,False,722
+mood,mood,NOUN,1,1,Revolution 9,1.0,False,723
+whirling,whirl,VERB,1,1,Revolution 9,1.0,False,724
+um,um,PROPN,1,1,Revolution 9,1.0,False,725
+dogs,dog,NOUN,1,1,Revolution 9,1.0,False,726
+surgeon,surgeon,NOUN,1,1,Revolution 9,1.0,False,727
+deal,deal,NOUN,1,1,Revolution 9,1.0,False,728
+falls,fall,VERB,1,1,Revolution 9,1.0,False,729
+dogging,dog,VERB,1,1,Revolution 9,1.0,False,730
+clapping,clapping,NOUN,1,1,Revolution 9,1.0,False,731
+birds,birds,PROPN,1,1,Revolution 9,1.0,False,732
+birding,birding,NOUN,1,1,Revolution 9,1.0,False,733
+fishing,fish,VERB,1,1,Revolution 9,1.0,False,734
+themming,themme,VERB,1,1,Revolution 9,1.0,False,735
+sang,sing,VERB,1,1,With a Little Help from My Friends,1.0,False,736
+stand,stand,VERB,1,1,With a Little Help from My Friends,1.0,False,737
+walk,walk,VERB,1,1,With a Little Help from My Friends,1.0,False,738
+key,key,ADJ,1,1,With a Little Help from My Friends,1.0,False,739
+train,train,NOUN,1,1,Lucy in the Sky with Diamonds,1.0,False,740
+station,station,NOUN,1,1,Lucy in the Sky with Diamonds,1.0,False,741
+plasticine,plasticine,VERB,1,1,Lucy in the Sky with Diamonds,1.0,False,742
+porters,porter,NOUN,1,1,Lucy in the Sky with Diamonds,1.0,False,743
+tangerine,tangerine,NOUN,1,1,Lucy in the Sky with Diamonds,1.0,False,744
+trees,tree,NOUN,1,1,Lucy in the Sky with Diamonds,1.0,False,745
+marmalade,marmalade,NOUN,1,1,Lucy in the Sky with Diamonds,1.0,False,746
+own,own,ADJ,1,1,With a Little Help from My Friends,1.0,True,747
+sight,sight,NOUN,1,1,With a Little Help from My Friends,1.0,False,748
+certain,certain,ADJ,1,1,With a Little Help from My Friends,1.0,False,749
+happens,happen,VERB,1,1,With a Little Help from My Friends,1.0,False,750
+worry,worry,VERB,1,1,With a Little Help from My Friends,1.0,False,751
+suns,sun,NOUN,1,1,Across the Universe,1.0,False,752
+closed,close,VERB,1,1,Strawberry Fields Forever,1.0,False,753
+laughter,laughter,NOUN,1,1,Across the Universe,1.0,False,754
+shades,shade,VERB,1,1,Across the Universe,1.0,False,755
+born,bear,VERB,1,1,Yellow Submarine,1.0,False,756
+land,land,NOUN,1,1,Yellow Submarine,1.0,False,757
+boat,boat,NOUN,1,1,Lucy in the Sky with Diamonds,1.0,False,758
+river,river,NOUN,1,1,Lucy in the Sky with Diamonds,1.0,False,759
+pools,pool,NOUN,1,1,Across the Universe,1.0,False,760
+sorrow,sorrow,NOUN,1,1,Across the Universe,1.0,False,761
+drifting,drift,VERB,1,1,Across the Universe,1.0,False,762
+er,er,INTJ,1,1,Strawberry Fields Forever,1.0,False,763
+disagree,disagree,VERB,1,1,Strawberry Fields Forever,1.0,False,764
+misunderstanding,misunderstand,VERB,1,1,Strawberry Fields Forever,1.0,False,765
+works,work,VERB,1,1,Strawberry Fields Forever,1.0,False,766
+tree,tree,NOUN,1,1,Strawberry Fields Forever,1.0,False,767
+images,image,NOUN,1,1,Across the Universe,1.0,False,768
+call,call,VERB,1,1,Across the Universe,1.0,True,769
+thoughts,thought,NOUN,1,1,Across the Universe,1.0,False,770
+meander,meander,NOUN,1,1,Across the Universe,1.0,False,771
+possessing,possessing,PROPN,1,1,Across the Universe,1.0,False,772
+caressing,caress,VERB,1,1,Across the Universe,1.0,False,773
+wildly,wildly,ADV,1,1,Across the Universe,1.0,False,774
+slip,slip,VERB,1,1,Across the Universe,1.0,False,775
+ring,ring,NOUN,1,1,"Ob-La-Di, Ob-La-Da",1.0,False,776
+restless,restless,ADJ,1,1,Across the Universe,1.0,False,777
+wind,wind,NOUN,1,1,Across the Universe,1.0,False,778
+letter,letter,NOUN,1,1,Across the Universe,1.0,False,779
+box,box,NOUN,1,1,Across the Universe,1.0,False,780
+tumble,tumble,VERB,1,1,Across the Universe,1.0,False,781
+blindly,blindly,ADV,1,1,Across the Universe,1.0,False,782
+sounds,sound,NOUN,1,1,Across the Universe,1.0,False,783
+climb,climb,PROPN,1,1,Lucy in the Sky with Diamonds,1.0,False,784
+clouds,cloud,NOUN,1,1,Lucy in the Sky with Diamonds,1.0,False,785
+rocking,rock,VERB,1,1,Lucy in the Sky with Diamonds,1.0,False,786
+horse,horse,NOUN,1,1,Lucy in the Sky with Diamonds,1.0,False,787
+eat,eat,VERB,1,1,Lucy in the Sky with Diamonds,1.0,False,788
+marshmallow,marshmallow,NOUN,1,1,Lucy in the Sky with Diamonds,1.0,False,789
+drift,drift,VERB,1,1,Lucy in the Sky with Diamonds,1.0,False,790
+quite,quite,ADV,1,1,Lucy in the Sky with Diamonds,1.0,True,791
+glass,glass,NOUN,1,1,Lucy in the Sky with Diamonds,1.0,False,792
+ties,tie,NOUN,1,1,Lucy in the Sky with Diamonds,1.0,False,793
+turnstile,turnstile,NOUN,1,1,Lucy in the Sky with Diamonds,1.0,False,794
+incredibly,incredibly,ADV,1,1,Lucy in the Sky with Diamonds,1.0,False,795
+newspaper,newspaper,PROPN,1,1,Lucy in the Sky with Diamonds,1.0,False,796
+taxis,taxis,AUX,1,1,Lucy in the Sky with Diamonds,1.0,False,797
+appear,appear,VERB,1,1,Lucy in the Sky with Diamonds,1.0,False,798
+shore,shore,NOUN,1,1,Lucy in the Sky with Diamonds,1.0,False,799
+hare,hare,PROPN,1,1,I Am the Walrus,1.0,False,800
+krishna,krishna,PROPN,1,1,I Am the Walrus,1.0,False,801
+trolley,trolley,NOUN,1,1,"Ob-La-Di, Ob-La-Da",1.0,False,802
+jeweler,jeweler,NOUN,1,1,"Ob-La-Di, Ob-La-Da",1.0,False,803
+store,store,NOUN,1,1,"Ob-La-Di, Ob-La-Da",1.0,False,804
+buys,buy,VERB,1,1,"Ob-La-Di, Ob-La-Da",1.0,False,805
+thy,thy,PRON,1,1,I Am the Walrus,1.0,False,806
+mistress,mistress,PROPN,1,1,I Am the Walrus,1.0,False,807
+independ,independ,NOUN,1,1,Help!,1.0,False,808
+independence,independence,NOUN,1,1,Help!,1.0,False,809
+somehow,somehow,ADV,1,1,Michelle,1.0,True,810
+telling,tell,VERB,1,1,Michelle,1.0,False,811
+eiffel,eiffel,PROPN,1,1,I Am the Walrus,1.0,False,812
+tower,tower,PROPN,1,1,I Am the Walrus,1.0,False,813
+elementary,elementary,PROPN,1,1,I Am the Walrus,1.0,False,814
+penguin,penguin,NOUN,1,1,I Am the Walrus,1.0,False,815
+endless,endless,ADJ,1,1,Across the Universe,1.0,False,816
+slither,slither,VERB,1,1,Across the Universe,1.0,False,817
+sings,sing,VERB,1,1,"Ob-La-Di, Ob-La-Da",1.0,False,818
+karat,karat,NOUN,1,1,"Ob-La-Di, Ob-La-Da",1.0,False,819
+cellophane,cellophane,PROPN,1,1,Lucy in the Sky with Diamonds,1.0,False,820
+towering,towering,PROPN,1,1,Lucy in the Sky with Diamonds,1.0,False,821
+follow,follow,VERB,1,1,Lucy in the Sky with Diamonds,1.0,False,822
+fountain,fountain,NOUN,1,1,Lucy in the Sky with Diamonds,1.0,False,823
+untimely,untimely,ADJ,1,1,I Am the Walrus,1.0,False,824
+thee,thee,PRON,1,1,I Am the Walrus,1.0,False,825
+serviceable,serviceable,ADJ,1,1,I Am the Walrus,1.0,False,826
+duteous,duteous,ADJ,1,1,I Am the Walrus,1.0,False,827
+vices,vice,NOUN,1,1,I Am the Walrus,1.0,False,828
+fun,fun,NOUN,1,1,"Ob-La-Di, Ob-La-Da",1.0,False,829
+bla,bla,NOUN,1,1,"Ob-La-Di, Ob-La-Da",1.0,False,830
+flowing,flow,VERB,1,1,Across the Universe,1.0,False,831
+insecure,insecure,ADJ,1,1,Help!,1.0,False,832
+return,return,VERB,1,1,Now and Then,1.0,False,833
+view,view,NOUN,1,1,When I’m Sixty-Four,1.0,False,834
+indicate,indicate,VERB,1,1,When I’m Sixty-Four,1.0,False,835
+precisely,precisely,ADV,1,1,When I’m Sixty-Four,1.0,False,836
+yours,your,NOUN,1,1,When I’m Sixty-Four,1.0,True,837
+sincerely,sincerely,ADV,1,1,When I’m Sixty-Four,1.0,False,838
+wasting,waste,VERB,1,1,When I’m Sixty-Four,1.0,False,839
+lock,lock,VERB,1,1,When I’m Sixty-Four,1.0,False,840
+lasts,last,VERB,1,1,Don’t Let Me Down,1.0,False,841
+guess,guess,VERB,1,1,Don’t Let Me Down,1.0,False,842
+dig,dig,VERB,1,1,Don’t Let Me Down,1.0,False,843
+losing,lose,VERB,1,1,When I’m Sixty-Four,1.0,False,844
+sending,send,VERB,1,1,When I’m Sixty-Four,1.0,False,845
+vanish,vanish,VERB,1,1,Help!,1.0,False,846
+haze,haze,NOUN,1,1,Help!,1.0,False,847
+fuse,fuse,NOUN,1,1,When I’m Sixty-Four,1.0,False,848
+knit,knit,VERB,1,1,When I’m Sixty-Four,1.0,False,849
+sweater,sweater,NOUN,1,1,When I’m Sixty-Four,1.0,False,850
+fireside,fireside,NOUN,1,1,When I’m Sixty-Four,1.0,False,851
+sunday,sunday,PROPN,1,1,When I’m Sixty-Four,1.0,False,852
+valentine,valentine,NOUN,1,1,When I’m Sixty-Four,1.0,False,853
+greetings,greeting,NOUN,1,1,When I’m Sixty-Four,1.0,False,854
+quarter,quarter,NOUN,1,1,When I’m Sixty-Four,1.0,False,855
+badness,badness,ADJ,1,1,I Am the Walrus,1.0,False,856
+desire,desire,VERB,1,1,I Am the Walrus,1.0,False,857
+rest,rest,VERB,1,1,I Am the Walrus,1.0,False,858
+barrow,barrow,NOUN,1,1,"Ob-La-Di, Ob-La-Da",1.0,False,859
+seek,seek,VERB,1,1,I Am the Walrus,1.0,False,860
+word,word,NOUN,1,1,When I’m Sixty-Four,1.0,False,861
+handy,handy,ADJ,1,1,When I’m Sixty-Four,1.0,False,862
+mending,mending,NOUN,1,1,When I’m Sixty-Four,1.0,False,863
+purse,purse,NOUN,1,1,I Am the Walrus,1.0,False,864
+wilt,wilt,NOUN,1,1,I Am the Walrus,1.0,False,865
+thrive,thrive,NOUN,1,1,I Am the Walrus,1.0,False,866
+bury,bury,VERB,1,1,I Am the Walrus,1.0,False,867
+kicking,kicking,PROPN,1,1,I Am the Walrus,1.0,False,868
+edgar,edgar,PROPN,1,1,I Am the Walrus,1.0,False,869
+allan,allan,PROPN,1,1,I Am the Walrus,1.0,False,870
+poe,poe,PROPN,1,1,I Am the Walrus,1.0,False,871
+row,row,NOUN,1,1,I Am the Walrus,1.0,False,872
+custard,custard,NOUN,1,1,I Am the Walrus,1.0,False,873
+body,body,NOUN,1,1,I Am the Walrus,1.0,False,874
+letters,letters,PROPN,1,1,I Am the Walrus,1.0,False,875
+findst,findst,ADV,1,1,I Am the Walrus,1.0,False,876
+edmund,edmund,PROPN,1,1,I Am the Walrus,1.0,False,877
+earl,earl,PROPN,1,1,I Am the Walrus,1.0,False,878
+gloucester,gloucester,PROPN,1,1,I Am the Walrus,1.0,False,879
+cottage,cottage,NOUN,1,1,When I’m Sixty-Four,1.0,False,880
+isle,isle,PROPN,1,1,When I’m Sixty-Four,1.0,False,881
+wight,wight,PROPN,1,1,When I’m Sixty-Four,1.0,False,882
+dear,dear,ADJ,1,1,When I’m Sixty-Four,1.0,False,883
+shall,shall,AUX,1,1,When I’m Sixty-Four,1.0,False,884
+scrimp,scrimp,VERB,1,1,When I’m Sixty-Four,1.0,False,885
+grandchildren,grandchildren,PROPN,1,1,When I’m Sixty-Four,1.0,False,886
+mornings,morning,NOUN,1,1,When I’m Sixty-Four,1.0,False,887
+form,form,NOUN,1,1,When I’m Sixty-Four,1.0,False,888
+evermore,evermore,ADV,1,1,When I’m Sixty-Four,1.0,False,889
+vera,vera,PROPN,1,1,When I’m Sixty-Four,1.0,False,890
+chuck,chuck,PROPN,1,1,When I’m Sixty-Four,1.0,False,891
+dave,dave,PROPN,1,1,When I’m Sixty-Four,1.0,False,892
+postcard,postcard,NOUN,1,1,When I’m Sixty-Four,1.0,False,893
+stating,stating,ADJ,1,1,When I’m Sixty-Four,1.0,False,894
+point,point,NOUN,1,1,When I’m Sixty-Four,1.0,False,895
+whenever,whenever,SCONJ,1,1,I Will,1.0,True,896
+apart,apart,ADV,1,1,I Will,1.0,False,897
+school,school,NOUN,1,1,Maxwell’s Silver Hammer,1.0,False,898
+teacher,teacher,NOUN,1,1,Maxwell’s Silver Hammer,1.0,False,899
+annoyed,annoyed,ADJ,1,1,Maxwell’s Silver Hammer,1.0,False,900
+medicine,medicine,NOUN,1,1,Maxwell’s Silver Hammer,1.0,False,901
+joa,joa,PROPN,1,1,Maxwell’s Silver Hammer,1.0,False,902
+oan,oan,PROPN,1,1,Maxwell’s Silver Hammer,1.0,False,903
+drinking,drink,VERB,1,1,Norwegian Wood (This Bird Has Flown),1.0,False,904
+air,air,NOUN,1,1,I Will,1.0,False,905
+loud,loud,ADV,1,1,I Will,1.0,False,906
+endear,endear,VERB,1,1,I Will,1.0,False,907
+showed,show,VERB,1,1,Norwegian Wood (This Bird Has Flown),1.0,False,908
+lifetime,lifetime,NOUN,1,1,I Will,1.0,False,909
+catch,catch,VERB,1,1,I Will,1.0,False,910
+mattered,matter,VERB,1,1,I Will,1.0,False,911
+started,start,VERB,1,1,Norwegian Wood (This Bird Has Flown),1.0,False,912
+crawled,crawl,VERB,1,1,Norwegian Wood (This Bird Has Flown),1.0,False,913
+bath,bath,NOUN,1,1,Norwegian Wood (This Bird Has Flown),1.0,False,914
+asked,ask,VERB,1,1,Norwegian Wood (This Bird Has Flown),1.0,False,915
+anywhere,anywhere,ADV,1,1,Norwegian Wood (This Bird Has Flown),1.0,True,916
+sat,sit,VERB,1,1,Norwegian Wood (This Bird Has Flown),1.0,False,917
+rug,rug,NOUN,1,1,Norwegian Wood (This Bird Has Flown),1.0,False,918
+biding,bid,VERB,1,1,Norwegian Wood (This Bird Has Flown),1.0,False,919
+a'joob,a'joob,PROPN,1,1,I Am the Walrus,1.0,False,920
+jumper,jumper,NOUN,1,1,I Am the Walrus,1.0,False,921
+pilchard,pilchard,NOUN,1,1,I Am the Walrus,1.0,False,922
+climbing,climb,VERB,1,1,I Am the Walrus,1.0,False,923
+digging,dig,VERB,1,1,When I’m Sixty-Four,1.0,False,924
+weeds,weed,NOUN,1,1,When I’m Sixty-Four,1.0,False,925
+talked,talk,VERB,1,1,Norwegian Wood (This Bird Has Flown),1.0,False,926
+worked,work,VERB,1,1,Norwegian Wood (This Bird Has Flown),1.0,False,927
+men,man,NOUN,1,1,I Am the Walrus,1.0,False,928
+dripping,dripping,ADJ,1,1,I Am the Walrus,1.0,False,929
+crabalocker,crabalocker,PROPN,1,1,I Am the Walrus,1.0,False,930
+fishwife,fishwife,NOUN,1,1,I Am the Walrus,1.0,False,931
+pornographic,pornographic,ADJ,1,1,I Am the Walrus,1.0,False,932
+priestess,priestess,NOUN,1,1,I Am the Walrus,1.0,False,933
+policemen,policeman,NOUN,1,1,I Am the Walrus,1.0,False,934
+flown,fly,VERB,1,1,Norwegian Wood (This Bird Has Flown),1.0,False,935
+choking,choke,VERB,1,1,I Am the Walrus,1.0,False,936
+smokers,smoker,NOUN,1,1,I Am the Walrus,1.0,False,937
+laughs,laugh,VERB,1,1,I Am the Walrus,1.0,False,938
+sty,sty,NOUN,1,1,I Am the Walrus,1.0,False,939
+snied,snie,VERB,1,1,I Am the Walrus,1.0,False,940
+semolina,semolina,PROPN,1,1,I Am the Walrus,1.0,False,941
+knickers,knicker,NOUN,1,1,I Am the Walrus,1.0,False,942
+tan,tan,NOUN,1,1,I Am the Walrus,1.0,False,943
+awoke,awake,VERB,1,1,Norwegian Wood (This Bird Has Flown),1.0,False,944
+bird,bird,NOUN,1,1,Norwegian Wood (This Bird Has Flown),1.0,False,945
+surely,surely,ADV,1,1,While My Guitar Gently Weeps,1.0,False,946
+learning,learn,VERB,1,1,While My Guitar Gently Weeps,1.0,False,947
+diverted,divert,VERB,1,1,While My Guitar Gently Weeps,1.0,False,948
+perverted,pervert,VERB,1,1,While My Guitar Gently Weeps,1.0,False,949
+expert,expert,PROPN,1,1,I Am the Walrus,1.0,False,950
+textpert,textpert,NOUN,1,1,I Am the Walrus,1.0,False,951
+ready,ready,ADJ,1,1,Maxwell’s Silver Hammer,1.0,False,952
+pataphysical,pataphysical,ADJ,1,1,Maxwell’s Silver Hammer,1.0,False,953
+science,science,PROPN,1,1,Maxwell’s Silver Hammer,1.0,False,954
+nights,night,NOUN,1,1,Maxwell’s Silver Hammer,1.0,False,955
+test,test,NOUN,1,1,Maxwell’s Silver Hammer,1.0,False,956
+tube,tube,NOUN,1,1,Maxwell’s Silver Hammer,1.0,False,957
+edison,edison,PROPN,1,1,Maxwell’s Silver Hammer,1.0,False,958
+majoring,major,VERB,1,1,Maxwell’s Silver Hammer,1.0,False,959
+upstairs,upstairs,ADV,1,1,A Day in the Life,1.0,False,960
+smoke,smoke,NOUN,1,1,A Day in the Life,1.0,False,961
+spoke,speak,VERB,1,1,A Day in the Life,1.0,False,962
+city,city,PROPN,1,1,I Am the Walrus,1.0,False,963
+policeman,policeman,NOUN,1,1,I Am the Walrus,1.0,False,964
+cornflake,cornflake,NOUN,1,1,I Am the Walrus,1.0,False,965
+van,van,PROPN,1,1,I Am the Walrus,1.0,False,966
+corporation,corporation,PROPN,1,1,I Am the Walrus,1.0,False,967
+p,p.,PROPN,1,1,Maxwell’s Silver Hammer,1.0,False,968
+c,c.,PROPN,1,1,Maxwell’s Silver Hammer,1.0,False,969
+caught,catch,VERB,1,1,Maxwell’s Silver Hammer,1.0,False,970
+dirty,dirty,ADJ,1,1,Maxwell’s Silver Hammer,1.0,False,971
+stands,stand,VERB,1,1,Maxwell’s Silver Hammer,1.0,False,972
+wishing,wish,VERB,1,1,Maxwell’s Silver Hammer,1.0,False,973
+avoid,avoid,VERB,1,1,Maxwell’s Silver Hammer,1.0,False,974
+seconds,second,NOUN,1,1,A Day in the Life,1.0,False,975
+testimonial,testimonial,ADJ,1,1,Maxwell’s Silver Hammer,1.0,False,976
+rose,rose,PROPN,1,1,Maxwell’s Silver Hammer,1.0,False,977
+valerie,valerie,PROPN,1,1,Maxwell’s Silver Hammer,1.0,False,978
+screaming,scream,VERB,1,1,Maxwell’s Silver Hammer,1.0,False,979
+gallery,gallery,NOUN,1,1,Maxwell’s Silver Hammer,1.0,False,980
+judge,judge,NOUN,1,1,Maxwell’s Silver Hammer,1.0,False,981
+turns,turn,VERB,1,1,Maxwell’s Silver Hammer,1.0,False,982
+creeps,creep,VERB,1,1,Maxwell’s Silver Hammer,1.0,False,983
+lit,light,VERB,1,1,Norwegian Wood (This Bird Has Flown),1.0,False,984
+joan,joan,PROPN,1,1,Maxwell’s Silver Hammer,1.0,False,985
+quizzical,quizzical,ADJ,1,1,Maxwell’s Silver Hammer,1.0,False,986
+studied,study,VERB,1,1,Maxwell’s Silver Hammer,1.0,False,987
+noise,noise,NOUN,1,1,Maxwell’s Silver Hammer,1.0,False,988
+beyond,beyond,ADP,1,1,I Saw Her Standing There,1.0,True,989
+compare,compare,NOUN,1,1,I Saw Her Standing There,1.0,False,990
+painting,paint,VERB,1,1,Maxwell’s Silver Hammer,1.0,False,991
+film,film,NOUN,1,1,A Day in the Life,1.0,False,992
+army,army,PROPN,1,1,A Day in the Life,1.0,False,993
+sweeping,sweeping,ADJ,1,1,While My Guitar Gently Weeps,1.0,False,994
+unfold,unfold,VERB,1,1,While My Guitar Gently Weeps,1.0,False,995
+controlled,control,VERB,1,1,While My Guitar Gently Weeps,1.0,False,996
+bought,buy,VERB,1,1,While My Guitar Gently Weeps,1.0,False,997
+sold,sell,VERB,1,1,While My Guitar Gently Weeps,1.0,False,998
+hall,hall,PROPN,1,1,A Day in the Life,1.0,False,999
+fart,fart,PROPN,1,1,Get Back,1.0,False,1000
+anotherooh,anotherooh,PROPN,1,1,I Saw Her Standing There,1.0,False,1001
+work,work,VERB,1,1,A Hard Day’s Night,1.0,False,1002
+buy,buy,VERB,1,1,A Hard Day’s Night,1.0,False,1003
+worth,worth,ADJ,1,1,A Hard Day’s Night,1.0,False,1004
+fall,fall,VERB,1,1,I Saw Her Standing There,1.0,False,1005
+house,house,PROPN,1,1,A Day in the Life,1.0,False,1006
+lords,lords,PROPN,1,1,A Day in the Life,1.0,False,1007
+sce,sce,NOUN,1,1,Maxwell’s Silver Hammer,1.0,False,1008
+ene,ene,VERB,1,1,Maxwell’s Silver Hammer,1.0,False,1009
+max,max,PROPN,1,1,Maxwell’s Silver Hammer,1.0,False,1010
+class,class,NOUN,1,1,Maxwell’s Silver Hammer,1.0,False,1011
+cleaner,clean,ADJ,1,1,Get Back,1.0,False,1012
+frying,fry,VERB,1,1,Get Back,1.0,False,1013
+pan,pan,NOUN,1,1,Get Back,1.0,False,1014
+burning,burn,VERB,1,1,Get Back,1.0,False,1015
+tee,tee,NOUN,1,1,I Am the Walrus,1.0,False,1016
+shirt,shirt,NOUN,1,1,I Am the Walrus,1.0,False,1017
+stupid,stupid,ADJ,1,1,I Am the Walrus,1.0,False,1018
+tuesday,tuesday,PROPN,1,1,I Am the Walrus,1.0,False,1019
+inverted,invert,VERB,1,1,While My Guitar Gently Weeps,1.0,False,1020
+alerted,alert,VERB,1,1,While My Guitar Gently Weeps,1.0,False,1021
+mistake,mistake,NOUN,1,1,While My Guitar Gently Weeps,1.0,False,1022
+unpleasant,unpleasant,ADJ,1,1,Maxwell’s Silver Hammer,1.0,False,1023
+woke,woke,PROPN,1,1,A Day in the Life,1.0,False,1024
+dragged,drag,VERB,1,1,A Day in the Life,1.0,False,1025
+comb,comb,NOUN,1,1,A Day in the Life,1.0,False,1026
+won,win,VERB,1,1,A Day in the Life,1.0,False,1027
+war,war,NOUN,1,1,A Day in the Life,1.0,False,1028
+turned,turn,VERB,1,1,A Day in the Life,1.0,False,1029
+having,having,AUX,1,1,A Day in the Life,1.0,False,1030
+book,book,NOUN,1,1,A Day in the Life,1.0,False,1031
+group,group,NOUN,1,1,Get Back,1.0,False,1032
+ourselves,ourselves,PRON,1,1,Get Back,1.0,True,1033
+loner,loner,NOUN,1,1,Get Back,1.0,False,1034
+sunken,sunken,ADJ,1,1,Blackbird,1.0,False,1035
+downstairs,downstairs,ADV,1,1,A Day in the Life,1.0,False,1036
+drank,drink,VERB,1,1,A Day in the Life,1.0,False,1037
+coat,coat,NOUN,1,1,A Day in the Life,1.0,False,1038
+grabbed,grab,VERB,1,1,A Day in the Life,1.0,False,1039
+blisters,blister,NOUN,1,1,Helter Skelter,1.0,False,1040
+passed,pass,VERB,1,1,Get Back,1.0,False,1041
+audition,audition,NOUN,1,1,Get Back,1.0,False,1042
+miles,mile,NOUN,1,1,Helter Skelter,1.0,False,1043
+above,above,ADP,1,1,Helter Skelter,1.0,True,1044
+thanks,thanks,PROPN,1,1,Get Back,1.0,False,1045
+mo,mo,PROPN,1,1,Get Back,1.0,False,1046
+behalf,behalf,NOUN,1,1,Get Back,1.0,False,1047
+floor,floor,NOUN,1,1,While My Guitar Gently Weeps,1.0,False,1048
+needs,need,VERB,1,1,While My Guitar Gently Weeps,1.0,False,1049
+blackburn,blackburn,PROPN,1,1,A Day in the Life,1.0,False,1050
+lancashire,lancashire,PROPN,1,1,A Day in the Life,1.0,False,1051
+small,small,ADJ,1,1,A Day in the Life,1.0,False,1052
+albert,albert,PROPN,1,1,A Day in the Life,1.0,False,1053
+hat,hat,NOUN,1,1,A Day in the Life,1.0,False,1054
+bus,bus,NOUN,1,1,A Day in the Life,1.0,False,1055
+stared,star,VERB,1,1,A Day in the Life,1.0,False,1056
+grade,grade,NOUN,1,1,A Day in the Life,1.0,False,1057
+photograph,photograph,NOUN,1,1,A Day in the Life,1.0,False,1058
+blew,blow,VERB,1,1,A Day in the Life,1.0,False,1059
+car,car,NOUN,1,1,A Day in the Life,1.0,False,1060
+awake,awake,ADJ,1,1,Golden Slumbers,1.0,False,1061
+rise,rise,VERB,1,1,Golden Slumbers,1.0,False,1062
+mining,mining,NOUN,1,1,Rocky Raccoon,1.0,False,1063
+hit,hit,VERB,1,1,Rocky Raccoon,1.0,False,1064
+walked,walk,VERB,1,1,Rocky Raccoon,1.0,False,1065
+booked,booked,PROPN,1,1,Rocky Raccoon,1.0,False,1066
+slumbers,slumber,NOUN,1,1,Golden Slumbers,1.0,False,1067
+buried,bury,VERB,1,1,Eleanor Rigby,1.0,False,1068
+wiping,wipe,VERB,1,1,Eleanor Rigby,1.0,False,1069
+dirt,dirt,NOUN,1,1,Eleanor Rigby,1.0,False,1070
+stood,stand,VERB,1,1,A Day in the Life,1.0,False,1071
+lil,lil,PROPN,1,1,Rocky Raccoon,1.0,False,1072
+nancy,nancy,PROPN,1,1,Rocky Raccoon,1.0,False,1073
+local,local,ADJ,1,1,Rocky Raccoon,1.0,False,1074
+saloon,saloon,NOUN,1,1,Rocky Raccoon,1.0,False,1075
+equipped,equip,VERB,1,1,Rocky Raccoon,1.0,False,1076
+legs,leg,NOUN,1,1,Rocky Raccoon,1.0,False,1077
+ran,run,VERB,1,1,Rocky Raccoon,1.0,False,1078
+guy,guy,NOUN,1,1,Rocky Raccoon,1.0,False,1079
+tucson,tucson,PROPN,1,1,Get Back,1.0,False,1080
+arizona,arizona,PROPN,1,1,Get Back,1.0,False,1081
+california,california,PROPN,1,1,Get Back,1.0,False,1082
+grass,grass,NOUN,1,1,Get Back,1.0,False,1083
+stealing,steal,VERB,1,1,Rocky Raccoon,1.0,False,1084
+fancy,fancy,ADJ,1,1,Rocky Raccoon,1.0,False,1085
+magill,magill,PROPN,1,1,Rocky Raccoon,1.0,False,1086
+herself,herself,PRON,1,1,Rocky Raccoon,1.0,True,1087
+rice,rice,NOUN,1,1,Eleanor Rigby,1.0,False,1088
+asking,ask,VERB,1,1,Something,1.0,False,1089
+woos,woo,VERB,1,1,Something,1.0,False,1090
+walks,walk,VERB,1,1,Eleanor Rigby,1.0,False,1091
+grave,grave,NOUN,1,1,Eleanor Rigby,1.0,False,1092
+moves,move,VERB,1,1,Something,1.0,False,1093
+attracts,attract,VERB,1,1,Something,1.0,False,1094
+burst,burst,VERB,1,1,Rocky Raccoon,1.0,False,1095
+hot,hot,ADJ,1,1,Rocky Raccoon,1.0,False,1096
+drew,draw,VERB,1,1,Rocky Raccoon,1.0,False,1097
+shot,shoot,VERB,1,1,Rocky Raccoon,1.0,False,1098
+collapsed,collapse,VERB,1,1,Rocky Raccoon,1.0,False,1099
+doctor,doctor,NOUN,1,1,Rocky Raccoon,1.0,False,1100
+stinking,stink,VERB,1,1,Rocky Raccoon,1.0,False,1101
+hoedown,hoedown,NOUN,1,1,Rocky Raccoon,1.0,False,1102
+picks,pick,VERB,1,1,Eleanor Rigby,1.0,False,1103
+beach,beach,PROPN,1,1,Back in the U.S.S.R.,1.0,False,1104
+gin,gin,NOUN,1,1,Rocky Raccoon,1.0,False,1105
+proceeded,proceed,VERB,1,1,Rocky Raccoon,1.0,False,1106
+lie,lie,VERB,1,1,Rocky Raccoon,1.0,False,1107
+table,table,NOUN,1,1,Rocky Raccoon,1.0,False,1108
+met,meet,VERB,1,1,Rocky Raccoon,1.0,False,1109
+match,match,NOUN,1,1,Rocky Raccoon,1.0,False,1110
+scratch,scratch,NOUN,1,1,Rocky Raccoon,1.0,False,1111
+hills,hill,NOUN,1,1,Rocky Raccoon,1.0,False,1112
+dakota,dakota,PROPN,1,1,Rocky Raccoon,1.0,False,1113
+named,name,VERB,1,1,Rocky Raccoon,1.0,False,1114
+able,able,ADJ,1,1,Rocky Raccoon,1.0,False,1115
+doubt,doubt,ADV,1,1,Rocky Raccoon,1.0,False,1116
+revival,revival,NOUN,1,1,Rocky Raccoon,1.0,False,1117
+flew,flew,PROPN,1,1,Back in the U.S.S.R.,1.0,False,1118
+miami,miami,PROPN,1,1,Back in the U.S.S.R.,1.0,False,1119
+keeps,keep,VERB,1,1,Eleanor Rigby,1.0,False,1120
+jar,jar,NOUN,1,1,Eleanor Rigby,1.0,False,1121
+wedding,wedding,NOUN,1,1,Eleanor Rigby,1.0,False,1122
+lives,life,NOUN,1,1,Eleanor Rigby,1.0,False,1123
+flight,flight,NOUN,1,1,Back in the U.S.S.R.,1.0,False,1124
+hardly,hardly,ADV,1,1,Back in the U.S.S.R.,1.0,False,1125
+gee,gee,PROPN,1,1,Back in the U.S.S.R.,1.0,False,1126
+unpack,unpack,VERB,1,1,Back in the U.S.S.R.,1.0,False,1127
+disconnect,disconnect,VERB,1,1,Back in the U.S.S.R.,1.0,False,1128
+b.o.a.c,b.o.a.c,PROPN,1,1,Back in the U.S.S.R.,1.0,False,1129
+dreadful,dreadful,ADJ,1,1,Back in the U.S.S.R.,1.0,False,1130
+filter,filter,NOUN,1,1,Come Together,1.0,False,1131
+lookin,lookin,NOUN,1,1,Come Together,1.0,False,1132
+sermon,sermon,NOUN,1,1,Eleanor Rigby,1.0,False,1133
+darning,darn,VERB,1,1,Eleanor Rigby,1.0,False,1134
+socks,sock,NOUN,1,1,Eleanor Rigby,1.0,False,1135
+u.s.s.r,u.s.s.r.,PROPN,1,1,Back in the U.S.S.R.,1.0,False,1136
+misses,miss,VERB,1,1,Happiness Is a Warm Gun,1.0,False,1137
+acquainted,acquainted,ADJ,1,1,Happiness Is a Warm Gun,1.0,False,1138
+snow,snow,NOUN,1,1,Back in the U.S.S.R.,1.0,False,1139
+peaked,peak,VERB,1,1,Back in the U.S.S.R.,1.0,False,1140
+mountains,mountain,NOUN,1,1,Back in the U.S.S.R.,1.0,False,1141
+south,south,PROPN,1,1,Back in the U.S.S.R.,1.0,False,1142
+daddy,daddy,NOUN,1,1,Back in the U.S.S.R.,1.0,False,1143
+grinning,grin,VERB,1,1,Rocky Raccoon,1.0,False,1144
+grin,grin,NOUN,1,1,Rocky Raccoon,1.0,False,1145
+danny,danny,PROPN,1,1,Rocky Raccoon,1.0,False,1146
+showdown,showdown,NOUN,1,1,Rocky Raccoon,1.0,False,1147
+daniel,daniel,PROPN,1,1,Rocky Raccoon,1.0,False,1148
+farm,farm,NOUN,1,1,Back in the U.S.S.R.,1.0,False,1149
+balalaikas,balalaikas,NOUN,1,1,Back in the U.S.S.R.,1.0,False,1150
+comrade,comrade,NOUN,1,1,Back in the U.S.S.R.,1.0,False,1151
+ice,ice,NOUN,1,1,Here Comes the Sun,1.0,False,1152
+melting,melt,VERB,1,1,Here Comes the Sun,1.0,False,1153
+clear,clear,ADJ,1,1,Here Comes the Sun,1.0,False,1154
+cold,cold,ADJ,1,1,Here Comes the Sun,1.0,False,1155
+winter,winter,NOUN,1,1,Here Comes the Sun,1.0,False,1156
+water,water,NOUN,1,1,Come Together,1.0,False,1157
+mojo,mojo,PROPN,1,1,Come Together,1.0,False,1158
+pane,pane,NOUN,1,1,Happiness Is a Warm Gun,1.0,False,1159
+wear,wear,VERB,1,1,Come Together,1.0,False,1160
+shoeshine,shoeshine,NOUN,1,1,Come Together,1.0,False,1161
+toe,toe,NOUN,1,1,Come Together,1.0,False,1162
+jam,jam,NOUN,1,1,Come Together,1.0,False,1163
+football,football,NOUN,1,1,Come Together,1.0,False,1164
+monkey,monkey,NOUN,1,1,Come Together,1.0,False,1165
+returning,return,VERB,1,1,Here Comes the Sun,1.0,False,1166
+faces,face,NOUN,1,1,Here Comes the Sun,1.0,False,1167
+overtime,overtime,NOUN,1,1,Happiness Is a Warm Gun,1.0,False,1168
+soap,soap,NOUN,1,1,Happiness Is a Warm Gun,1.0,False,1169
+impression,impression,NOUN,1,1,Happiness Is a Warm Gun,1.0,False,1170
+ate,eat,VERB,1,1,Happiness Is a Warm Gun,1.0,False,1171
+donated,donate,VERB,1,1,Happiness Is a Warm Gun,1.0,False,1172
+national,national,PROPN,1,1,Happiness Is a Warm Gun,1.0,False,1173
+velvet,velvet,ADJ,1,1,Happiness Is a Warm Gun,1.0,False,1174
+lizard,lizard,NOUN,1,1,Happiness Is a Warm Gun,1.0,False,1175
+arms,arm,NOUN,1,1,Happiness Is a Warm Gun,1.0,False,1176
+trigger,trigger,NOUN,1,1,Happiness Is a Warm Gun,1.0,False,1177
+shoot)happiness,shoot)happiness,NOUN,1,1,Happiness Is a Warm Gun,1.0,False,1178
+taught,teach,VERB,1,1,Sgt. Pepper’s Lonely Hearts Club Band,1.0,False,1179
+trust,trust,PROPN,1,1,Happiness Is a Warm Gun,1.0,False,1180
+bits,bit,NOUN,1,1,Happiness Is a Warm Gun,1.0,False,1181
+uptown,uptown,ADJ,1,1,Happiness Is a Warm Gun,1.0,False,1182
+busy,busy,ADJ,1,1,Happiness Is a Warm Gun,1.0,False,1183
+coaster,coaster,NOUN,1,1,Come Together,1.0,False,1184
+early,early,ADV,1,1,Come Together,1.0,False,1185
+warnin,warnin,NOUN,1,1,Come Together,1.0,False,1186
+muddy,muddy,ADJ,1,1,Come Together,1.0,False,1187
+production,production,NOUN,1,1,Come Together,1.0,False,1188
+gumboot,gumboot,PROPN,1,1,Come Together,1.0,False,1189
+ono,ono,PROPN,1,1,Come Together,1.0,False,1190
+sideboard,sideboard,NOUN,1,1,Come Together,1.0,False,1191
+might,might,AUX,1,1,Sgt. Pepper’s Lonely Hearts Club Band,1.0,True,1192
+wants,want,VERB,1,1,Sgt. Pepper’s Lonely Hearts Club Band,1.0,False,1193
+beg,beg,VERB,1,1,Oh! Darling,1.0,False,1194
+guaranteed,guarantee,VERB,1,1,Sgt. Pepper’s Lonely Hearts Club Band,1.0,False,1195
+raise,raise,VERB,1,1,Sgt. Pepper’s Lonely Hearts Club Band,1.0,False,1196
+colder,cold,ADJ,1,1,Hey Jude,1.0,False,1197
+armchair,armchair,NOUN,1,1,Come Together,1.0,False,1198
+disease,disease,NOUN,1,1,Come Together,1.0,False,1199
+wears,wear,VERB,1,1,Penny Lane,1.0,False,1200
+mack,mack,NOUN,1,1,Penny Lane,1.0,False,1201
+showing,showing,NOUN,1,1,Penny Lane,1.0,False,1202
+wonderful,wonderful,ADJ,1,1,Sgt. Pepper’s Lonely Hearts Club Band,1.0,False,1203
+certainly,certainly,ADV,1,1,Sgt. Pepper’s Lonely Hearts Club Band,1.0,False,1204
+thrill,thrill,NOUN,1,1,Sgt. Pepper’s Lonely Hearts Club Band,1.0,False,1205
+lovely,lovely,ADJ,1,1,Sgt. Pepper’s Lonely Hearts Club Band,1.0,False,1206
+audience,audience,NOUN,1,1,Sgt. Pepper’s Lonely Hearts Club Band,1.0,False,1207
+multicoloured,multicoloure,VERB,1,1,Happiness Is a Warm Gun,1.0,False,1208
+mirrors,mirror,NOUN,1,1,Happiness Is a Warm Gun,1.0,False,1209
+hobnail,hobnail,NOUN,1,1,Happiness Is a Warm Gun,1.0,False,1210
+boots,boot,NOUN,1,1,Happiness Is a Warm Gun,1.0,False,1211
+lying,lie,VERB,1,1,Happiness Is a Warm Gun,1.0,False,1212
+photographs,photograph,NOUN,1,1,Penny Lane,1.0,False,1213
+pleasure,pleasure,NOUN,1,1,Penny Lane,1.0,False,1214
+motorcar,motorcar,NOUN,1,1,Penny Lane,1.0,False,1215
+machine,machine,NOUN,1,1,Penny Lane,1.0,False,1216
+shelter,shelter,NOUN,1,1,Penny Lane,1.0,False,1217
+eyeball,eyeball,PROPN,1,1,Come Together,1.0,False,1218
+holy,holy,ADJ,1,1,Come Together,1.0,False,1219
+old,old,ADJ,1,1,Come Together,1.0,False,1220
+grooving,groove,VERB,1,1,Come Together,1.0,False,1221
+perform,perform,VERB,1,1,Hey Jude,1.0,False,1222
+movement,movement,NOUN,1,1,Hey Jude,1.0,False,1223
+selling,sell,VERB,1,1,Penny Lane,1.0,False,1224
+poppies,poppy,NOUN,1,1,Penny Lane,1.0,False,1225
+tray,tray,NOUN,1,1,Penny Lane,1.0,False,1226
+shaves,shave,VERB,1,1,Penny Lane,1.0,False,1227
+customer,customer,NOUN,1,1,Penny Lane,1.0,False,1228
+queen,queen,PROPN,1,1,Penny Lane,1.0,False,1229
+likes,like,VERB,1,1,Penny Lane,1.0,False,1230
+engine,engine,NOUN,1,1,Penny Lane,1.0,False,1231
+aah,aah,PROPN,1,1,Revolution,1.0,False,1232
+revolution,revolution,NOUN,1,1,Revolution,1.0,False,1233
+evolution,evolution,NOUN,1,1,Revolution,1.0,False,1234
+talk,talk,VERB,1,1,Revolution,1.0,False,1235
+destruction,destruction,NOUN,1,1,Revolution,1.0,False,1236
+solution,solution,NOUN,1,1,Revolution,1.0,False,1237
+roundabout,roundabout,ADJ,1,1,Penny Lane,1.0,False,1238
+nurse,nurse,NOUN,1,1,Penny Lane,1.0,False,1239
+spinal,spinal,ADJ,1,1,Come Together,1.0,False,1240
+cracker,cracker,NOUN,1,1,Come Together,1.0,False,1241
+coca,coca,PROPN,1,1,Come Together,1.0,False,1242
+cola,cola,PROPN,1,1,Come Together,1.0,False,1243
+act,act,NOUN,1,1,Sgt. Pepper’s Lonely Hearts Club Band,1.0,False,1244
+enjoy,enjoy,VERB,1,1,Sgt. Pepper’s Lonely Hearts Club Band,1.0,False,1245
+trim,trim,NOUN,1,1,Penny Lane,1.0,False,1246
+rushes,rush,VERB,1,1,Penny Lane,1.0,False,1247
+hearted,hearted,ADJ,1,1,Let It Be,1.0,False,1248
+shoulders,shoulder,NOUN,1,1,Hey Jude,1.0,False,1249
+cool,cool,ADJ,1,1,Hey Jude,1.0,False,1250
+anytime,anytime,ADV,1,1,Hey Jude,1.0,False,1251
+pain,pain,NOUN,1,1,Hey Jude,1.0,False,1252
+refrain,refrain,VERB,1,1,Hey Jude,1.0,False,1253
+carry,carry,VERB,1,1,Hey Jude,1.0,False,1254
+afraid,afraid,ADJ,1,1,Hey Jude,1.0,False,1255
+carryin,carryin,PROPN,1,1,Revolution,1.0,False,1256
+chairman,chairman,PROPN,1,1,Revolution,1.0,False,1257
+mao,mao,PROPN,1,1,Revolution,1.0,False,1258
+anyone,anyone,PRON,1,1,Revolution,1.0,True,1259
+anyhow,anyhow,ADV,1,1,Revolution,1.0,True,1260
+plan,plan,NOUN,1,1,Revolution,1.0,False,1261
+contribution,contribution,NOUN,1,1,Revolution,1.0,False,1262
+front,front,NOUN,1,1,Let It Be,1.0,True,1263
+windy,windy,ADJ,1,1,The Long and Winding Road,1.0,False,1264
+washed,wash,VERB,1,1,The Long and Winding Road,1.0,False,1265
+pool,pool,NOUN,1,1,The Long and Winding Road,1.0,False,1266
+tears,tear,NOUN,1,1,The Long and Winding Road,1.0,False,1267
+crying,cry,VERB,1,1,The Long and Winding Road,1.0,False,1268
+sung,sing,VERB,1,1,All You Need Is Love,1.0,False,1269
+shown,show,VERB,1,1,All You Need Is Love,1.0,False,1270
+meant,mean,VERB,1,1,All You Need Is Love,1.0,False,1271
+woah,woah,INTJ,1,1,Hey Jude,1.0,False,1272
+fucking,fuck,VERB,1,1,Hey Jude,1.0,False,1273
+hell,hell,NOUN,1,1,Hey Jude,1.0,False,1274
+hourglass,hourglass,NOUN,1,1,Penny Lane,1.0,False,1275
+pocket,pocket,NOUN,1,1,Penny Lane,1.0,False,1276
+portrait,portrait,NOUN,1,1,Penny Lane,1.0,False,1277
+disappear,disappear,VERB,1,1,The Long and Winding Road,1.0,False,1278
+wild,wild,ADJ,1,1,The Long and Winding Road,1.0,False,1279
+meaning,meaning,NOUN,1,1,In My Life,1.0,False,1280
+new,new,ADJ,1,1,In My Life,1.0,False,1281
+wake,wake,VERB,1,1,Let It Be,1.0,False,1282
+sound,sound,NOUN,1,1,Let It Be,1.0,False,1283
+music,music,NOUN,1,1,Let It Be,1.0,False,1284
+cloudy,cloudy,ADJ,1,1,Let It Be,1.0,False,1285
+shine,shine,PROPN,1,1,Let It Be,1.0,False,1286
+parted,part,VERB,1,1,Let It Be,1.0,False,1287
+safe,safe,ADJ,1,1,Octopus’s Garden,1.0,False,1288
+kissing,kiss,VERB,1,1,All My Loving,1.0,False,1289
+missing,miss,VERB,1,1,All My Loving,1.0,False,1290
+storm,storm,NOUN,1,1,Octopus’s Garden,1.0,False,1291
+hideaway,hideaway,NOUN,1,1,Octopus’s Garden,1.0,False,1292
+tried,try,VERB,1,1,The Long and Winding Road,1.0,False,1293
+tonight,tonight,NOUN,1,1,The End,1.0,False,1294
+memories,memory,NOUN,1,1,In My Life,1.0,False,1295
+kind,kind,NOUN,1,1,She Loves You,1.0,False,1296
+fair,fair,ADJ,1,1,She Loves You,1.0,False,1297
+resting,rest,VERB,1,1,Octopus’s Garden,1.0,False,1298
+seabed,seabed,NOUN,1,1,Octopus’s Garden,1.0,False,1299
+cave,cave,NOUN,1,1,Octopus’s Garden,1.0,False,1300
+swim,swim,VERB,1,1,Octopus’s Garden,1.0,False,1301
+coral,coral,NOUN,1,1,Octopus’s Garden,1.0,False,1302
+lies,lie,VERB,1,1,Octopus’s Garden,1.0,False,1303
+minute,minute,NOUN,1,1,Hey Jude,1.0,False,1304
+doin,do,ADJ,1,1,Revolution,1.0,False,1305
+minds,mind,NOUN,1,1,Revolution,1.0,False,1306
+hate,hate,VERB,1,1,Revolution,1.0,False,1307
+constitution,constitution,NOUN,1,1,Revolution,1.0,False,1308
+institution,institution,NOUN,1,1,Revolution,1.0,False,1309
+almost,almost,ADV,1,1,She Loves You,1.0,True,1310
+hurting,hurt,VERB,1,1,She Loves You,1.0,False,1311
+pride,pride,PROPN,1,1,She Loves You,1.0,False,1312
+apologize,apologize,VERB,1,1,She Loves You,1.0,False,1313
+spoken,spoken,PROPN,1,1,Revolution 9,1.0,False,1314
+intro,intro,PROPN,1,1,Revolution 9,1.0,False,1315
+alistair,alistair,PROPN,1,1,Revolution 9,1.0,False,1316
+taylor,taylor,PROPN,1,1,Revolution 9,1.0,False,1317
+claret,claret,NOUN,1,1,Revolution 9,1.0,False,1318
+realised,realise,VERB,1,1,Revolution 9,1.0,False,1319
+slower,slow,ADJ,1,1,Revolution 9,1.0,False,1320
+forgotten,forget,VERB,1,1,Revolution 9,1.0,False,1321
+sorry,sorry,ADJ,1,1,Revolution 9,1.0,False,1322
+forgive,forgive,VERB,1,1,Revolution 9,1.0,False,1323
+mmmyes,mmmye,NOUN,1,1,Revolution 9,1.0,False,1324
+cheeky,cheeky,PROPN,1,1,Revolution 9,1.0,False,1325
+bitch,bitch,NOUN,1,1,Revolution 9,1.0,False,1326
+welsh,welsh,PROPN,1,1,Revolution 9,1.0,False,1327
+district,district,PROPN,1,1,Revolution 9,1.0,False,1328
+intended,intend,VERB,1,1,Revolution 9,1.0,False,1329
+rarebit,rarebit,PROPN,1,1,Revolution 9,1.0,False,1330
+brown,brown,ADJ,1,1,Revolution 9,1.0,False,1331
+underpants,underpant,NOUN,1,1,Revolution 9,1.0,False,1332
+shortage,shortage,NOUN,1,1,Revolution 9,1.0,False,1333
+grain,grain,NOUN,1,1,Revolution 9,1.0,False,1334
+hertfordshire,hertfordshire,PROPN,1,1,Revolution 9,1.0,False,1335
+darkness,darkness,NOUN,1,1,Let It Be,1.0,False,1336
+equal,equal,ADJ,1,1,The End,1.0,False,1337
+pretend,pretend,VERB,1,1,All My Loving,1.0,False,1338
+manufactured,manufacture,VERB,1,1,Revolution 9,1.0,False,1339
+umpteen,umpteen,ADJ,1,1,Revolution 9,1.0,False,1340
+giving,give,VERB,1,1,Revolution 9,1.0,False,1341
+diddly,diddly,ADV,1,1,Revolution 9,1.0,False,1342
+dee,dee,PROPN,1,1,Revolution 9,1.0,False,1343
+worse,bad,ADJ,1,1,Revolution 9,1.0,False,1344
+hour,hour,NOUN,1,1,Let It Be,1.0,False,1345
+myself,myself,PRON,1,1,Let It Be,1.0,True,1346
+trouble,trouble,NOUN,1,1,Let It Be,1.0,False,1347
+compares,compare,VERB,1,1,In My Life,1.0,False,1348
+also,also,ADV,1,1,Revolution 9,1.0,True,1349
+example,example,NOUN,1,1,Revolution 9,1.0,False,1350
+business,business,NOUN,1,1,Revolution 9,1.0,False,1351
+fortune,fortune,NOUN,1,1,Revolution 9,1.0,False,1352
+missed,miss,VERB,1,1,Revolution 9,1.0,False,1353
+makes,make,VERB,1,1,Revolution 9,1.0,False,1354
+few,few,ADJ,1,1,Revolution 9,1.0,True,1355
+compared,compare,VERB,1,1,Revolution 9,1.0,False,1356
+weird,weird,ADJ,1,1,Revolution 9,1.0,False,1357
+stuff,stuff,NOUN,1,1,Revolution 9,1.0,False,1358
+sustained,sustain,VERB,1,1,Revolution 9,1.0,False,1359
+sides,side,NOUN,1,1,Revolution 9,1.0,False,1360
+floral,floral,ADJ,1,1,Revolution 9,1.0,False,1361
+bark,bark,NOUN,1,1,Revolution 9,1.0,False,1362
+rogue,rogue,ADJ,1,1,Revolution 9,1.0,False,1363
+doctors,doctor,NOUN,1,1,Revolution 9,1.0,False,1364
+brought,bring,VERB,1,1,Revolution 9,1.0,False,1365
+specimen,speciman,NOUN,1,1,Revolution 9,1.0,False,1366
+informed,inform,VERB,1,1,Revolution 9,1.0,False,1367
+short,short,ADJ,1,1,Revolution 9,1.0,False,1368
+cuts,cut,NOUN,1,1,Revolution 9,1.0,False,1369
+aha,aha,INTJ,1,1,Revolution 9,1.0,False,1370
+telegram,telegram,NOUN,1,1,Revolution 9,1.0,False,1371
+without,without,ADP,1,1,Revolution 9,1.0,True,1372
+terrors,terror,NOUN,1,1,Revolution 9,1.0,False,1373
+beard,beard,PROPN,1,1,Revolution 9,1.0,False,1374
+taking,take,VERB,1,1,Revolution 9,1.0,False,1375
+college,college,NOUN,1,1,You Never Give Me Your Money,1.0,False,1376
+spent,spend,VERB,1,1,You Never Give Me Your Money,1.0,False,1377
+shadow,shadow,NOUN,1,1,Yesterday,1.0,False,1378
+hanging,hang,VERB,1,1,Yesterday,1.0,False,1379
+looks,look,VERB,1,1,Yesterday,1.0,False,1380
+far,far,ADV,1,1,Yesterday,1.0,False,1381
+seemed,seem,VERB,1,1,Yesterday,1.0,True,1382
+year,year,NOUN,1,1,"Here, There and Everywhere",1.0,False,1383
+jobber,jobber,NOUN,1,1,You Never Give Me Your Money,1.0,False,1384
+sack,sack,NOUN,1,1,You Never Give Me Your Money,1.0,False,1385
+monday,monday,PROPN,1,1,You Never Give Me Your Money,1.0,False,1386
+lorry,lorry,NOUN,1,1,You Never Give Me Your Money,1.0,False,1387
+slow,slow,ADJ,1,1,You Never Give Me Your Money,1.0,False,1388
+funny,funny,ADJ,1,1,You Never Give Me Your Money,1.0,False,1389
+negotiations,negotiation,NOUN,1,1,You Never Give Me Your Money,1.0,False,1390
+investigation,investigation,NOUN,1,1,You Never Give Me Your Money,1.0,False,1391
+pick,pick,VERB,1,1,You Never Give Me Your Money,1.0,False,1392
+bags,bag,NOUN,1,1,You Never Give Me Your Money,1.0,False,1393
+limousine,limousine,NOUN,1,1,You Never Give Me Your Money,1.0,False,1394
+step,step,NOUN,1,1,You Never Give Me Your Money,1.0,False,1395
+gas,gas,NOUN,1,1,You Never Give Me Your Money,1.0,False,1396
+wipe,wipe,VERB,1,1,You Never Give Me Your Money,1.0,False,1397
+tear,tear,VERB,1,1,You Never Give Me Your Money,1.0,False,1398
+future,future,NOUN,1,1,You Never Give Me Your Money,1.0,False,1399
+recall,recall,VERB,1,1,In My Life,1.0,False,1400
+remain,remain,VERB,1,1,In My Life,1.0,False,1401
+reported,report,VERB,1,1,Revolution 9,1.0,False,1402
+son,son,NOUN,1,1,Revolution 9,1.0,False,1403
+function,function,NOUN,1,1,Revolution 9,1.0,False,1404
+umpire,umpire,PROPN,1,1,Revolution 9,1.0,False,1405
+glasses,glass,NOUN,1,1,Revolution 9,1.0,False,1406
+insane,insane,VERB,1,1,Revolution 9,1.0,False,1407
+undying,undying,ADJ,1,1,Across the Universe,1.0,False,1408
+sir,sir,NOUN,1,1,Yellow Submarine,1.0,False,1409
+ease,ease,NOUN,1,1,Yellow Submarine,1.0,False,1410
+boatswain,boatswain,PROPN,1,1,Yellow Submarine,1.0,False,1411
+sergeant,sergeant,PROPN,1,1,Yellow Submarine,1.0,False,1412
+cut,cut,VERB,1,1,Yellow Submarine,1.0,False,1413
+submarines,submarine,NOUN,1,1,Yellow Submarine,1.0,False,1414
+aboard,aboard,ADP,1,1,Yellow Submarine,1.0,False,1415
+watusi,watusi,PROPN,1,1,Revolution 9,1.0,False,1416
+twist,twist,PROPN,1,1,Revolution 9,1.0,False,1417
+el,el,PROPN,1,1,Revolution 9,1.0,False,1418
+watchman,watchman,NOUN,1,1,Revolution 9,1.0,False,1419
+unaware,unaware,PROPN,1,1,Revolution 9,1.0,False,1420
+inciting,inciting,PROPN,1,1,Across the Universe,1.0,False,1421
+inviting,invite,VERB,1,1,Across the Universe,1.0,False,1422
+limitless,limitless,ADJ,1,1,Across the Universe,1.0,False,1423
+difficult,difficult,ADJ,1,1,Revolution 9,1.0,False,1424
+quick,quick,ADJ,1,1,Revolution 9,1.0,False,1425
+rush,rush,NOUN,1,1,Revolution 9,1.0,False,1426
+financial,financial,ADJ,1,1,Revolution 9,1.0,False,1427
+imbalance,imbalance,NOUN,1,1,Revolution 9,1.0,False,1428
+thrusting,thrust,VERB,1,1,Revolution 9,1.0,False,1429
+between,between,ADP,1,1,Revolution 9,1.0,True,1430
+blades,blade,VERB,1,1,Revolution 9,1.0,False,1431
+changing,change,VERB,1,1,"Here, There and Everywhere",1.0,False,1432
+wave,wave,NOUN,1,1,"Here, There and Everywhere",1.0,False,1433
+deny,deny,VERB,1,1,"Here, There and Everywhere",1.0,False,1434
+both,both,PRON,1,1,"Here, There and Everywhere",1.0,True,1435
+dorado,dorado,PROPN,1,1,Revolution 9,1.0,False,1436
+serve,serve,VERB,1,1,Revolution 9,1.0,False,1437
+even,even,ADV,1,1,Revolution 9,1.0,True,1438
+exposure,exposure,NOUN,1,1,Revolution 9,1.0,False,1439

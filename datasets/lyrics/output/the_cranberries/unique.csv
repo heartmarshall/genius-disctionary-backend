@@ -1,0 +1,937 @@
+word,lemma,pos,total_count,song_count,songs,avg_per_song,is_stopword,frequency_rank
+you,you,PRON,536,45,All Over Now; Analyse; Animal Instinct; Daffodil Lament; Desperate Andy; Disappointment; Dreaming My Dreams; Dreams; Electric Blue; Empty; Everything I Said; Fee Fi Fo; Free to Decide; Hollywood; How; I Can’t Be With You; I Still Do; I Will Always; In the End; I’m Still Remembering; Linger; Loud and Clear; No Need to Argue; Not Sorry; Ode to My Family; Pretty; Promises; Put Me Down; Ridiculous Thoughts; Schizophrenic Playboy; Stars; Still Can’t...; Sunday; The Icicle Melts; Tomorrow; Twenty One; Wake Me When It’s Over; Waltzing Back; Wanted; When You’re Gone; Why; Yeats’ Grave; You and Me; Zombie; Zombie (Acoustic Version),11.91,True,1
+i,i,PRON,412,43,All Over Now; Analyse; Animal Instinct; Bosnia; Daffodil Lament; Disappointment; Dreaming My Dreams; Dreams; Electric Blue; Empty; Everything I Said; Fee Fi Fo; Free to Decide; Hollywood; How; I Can’t Be With You; I Just Shot John Lennon; I Still Do; I Will Always; I’m Still Remembering; Just My Imagination; Linger; Loud and Clear; No Need to Argue; Not Sorry; Ode to My Family; Promises; Put Me Down; Ridiculous Thoughts; Schizophrenic Playboy; Stars; Still Can’t...; Sunday; The Icicle Melts; Tomorrow; Twenty One; Wake Up and Smell the Coffee; Waltzing Back; Wanted; When You’re Gone; Why; Yeats’ Grave; You and Me,9.58,True,2
+the,the,DET,305,46,All Over Now; Analyse; Animal Instinct; Bosnia; Daffodil Lament; Desperate Andy; Disappointment; Dreaming My Dreams; Dreams; Empty; Fee Fi Fo; Free to Decide; Hollywood; I Can’t Be With You; I Just Shot John Lennon; I Still Do; I Will Always; In the End; I’m Still Remembering; Just My Imagination; Linger; Loud and Clear; No Need to Argue; Not Sorry; Ode to My Family; Pretty; Promises; Put Me Down; Ridiculous Thoughts; Salvation; Schizophrenic Playboy; Stars; Still Can’t...; Sunday; The Icicle Melts; Tomorrow; Wake Me When It’s Over; Wake Up and Smell the Coffee; Waltzing Back; Wanted; When You’re Gone; Why; Yeats’ Grave; You and Me; Zombie; Zombie (Acoustic Version),6.63,True,3
+la,la,PROPN,297,9,Analyse; Desperate Andy; Dreams; Just My Imagination; Loud and Clear; Pretty; Put Me Down; The Icicle Melts; Waltzing Back,33.0,False,4
+do,do,AUX,266,28,All Over Now; Analyse; Animal Instinct; Bosnia; Daffodil Lament; Desperate Andy; Dreams; Empty; Everything I Said; Fee Fi Fo; Free to Decide; I Can’t Be With You; I Still Do; Linger; Loud and Clear; Not Sorry; Ode to My Family; Promises; Put Me Down; Salvation; Sunday; The Icicle Melts; Twenty One; Wake Up and Smell the Coffee; Waltzing Back; When You’re Gone; Why; You and Me,9.5,True,5
+it,it,PRON,244,37,All Over Now; Animal Instinct; Daffodil Lament; Desperate Andy; Disappointment; Dreaming My Dreams; Dreams; Empty; Everything I Said; Fee Fi Fo; Free to Decide; Hollywood; I Can’t Be With You; I Just Shot John Lennon; I Still Do; I Will Always; In the End; Just My Imagination; Linger; No Need to Argue; Ode to My Family; Pretty; Promises; Put Me Down; Ridiculous Thoughts; Salvation; Still Can’t...; Sunday; Twenty One; Wake Me When It’s Over; Wake Up and Smell the Coffee; Waltzing Back; Wanted; When You’re Gone; You and Me; Zombie; Zombie (Acoustic Version),6.59,True,6
+and,and,CCONJ,228,42,All Over Now; Animal Instinct; Bosnia; Daffodil Lament; Desperate Andy; Disappointment; Dreaming My Dreams; Dreams; Empty; Everything I Said; Fee Fi Fo; Free to Decide; Hollywood; I Can’t Be With You; I Just Shot John Lennon; I Will Always; I’m Still Remembering; Just My Imagination; Linger; Loud and Clear; No Need to Argue; Not Sorry; Ode to My Family; Pretty; Promises; Put Me Down; Ridiculous Thoughts; Schizophrenic Playboy; Stars; Still Can’t...; Sunday; The Icicle Melts; Twenty One; Wake Up and Smell the Coffee; Waltzing Back; Wanted; When You’re Gone; Why; Yeats’ Grave; You and Me; Zombie; Zombie (Acoustic Version),5.43,True,7
+to,to,ADP,209,39,All Over Now; Analyse; Animal Instinct; Bosnia; Daffodil Lament; Desperate Andy; Disappointment; Dreaming My Dreams; Dreams; Empty; Fee Fi Fo; Free to Decide; I Can’t Be With You; I Still Do; I Will Always; I’m Still Remembering; Just My Imagination; Linger; Loud and Clear; No Need to Argue; Not Sorry; Ode to My Family; Pretty; Promises; Put Me Down; Ridiculous Thoughts; Salvation; Schizophrenic Playboy; Still Can’t...; Sunday; The Icicle Melts; Tomorrow; Twenty One; Wake Me When It’s Over; Wake Up and Smell the Coffee; Wanted; When You’re Gone; Yeats’ Grave; You and Me,5.36,True,8
+me,i,PRON,200,32,Animal Instinct; Dreaming My Dreams; Dreams; Electric Blue; Empty; Everything I Said; Hollywood; How; I Can’t Be With You; I Will Always; I’m Still Remembering; Linger; Loud and Clear; No Need to Argue; Not Sorry; Ode to My Family; Pretty; Promises; Put Me Down; Ridiculous Thoughts; Schizophrenic Playboy; Still Can’t...; Sunday; Tomorrow; Twenty One; Wake Me When It’s Over; Wanted; Why; Yeats’ Grave; You and Me; Zombie; Zombie (Acoustic Version),6.25,True,9
+oh,oh,INTJ,192,16,Desperate Andy; Dreaming My Dreams; Dreams; Everything I Said; I Just Shot John Lennon; I Still Do; In the End; Linger; Promises; Put Me Down; Ridiculous Thoughts; Sunday; Waltzing Back; Wanted; You and Me; Zombie,12.0,False,10
+s,be,AUX,180,33,All Over Now; Animal Instinct; Daffodil Lament; Desperate Andy; Dreaming My Dreams; Dreams; Electric Blue; Empty; Fee Fi Fo; Free to Decide; Hollywood; I Can’t Be With You; I Just Shot John Lennon; I Will Always; Just My Imagination; Linger; Loud and Clear; No Need to Argue; Ode to My Family; Promises; Ridiculous Thoughts; Salvation; Schizophrenic Playboy; Still Can’t...; The Icicle Melts; Twenty One; Wake Me When It’s Over; Wake Up and Smell the Coffee; Waltzing Back; When You’re Gone; You and Me; Zombie; Zombie (Acoustic Version),5.45,True,11
+a,a,DET,155,26,All Over Now; Animal Instinct; Daffodil Lament; Desperate Andy; Disappointment; Dreams; Empty; Fee Fi Fo; Free to Decide; Hollywood; I Just Shot John Lennon; I Will Always; I’m Still Remembering; Just My Imagination; Linger; Loud and Clear; No Need to Argue; Ode to My Family; Ridiculous Thoughts; Schizophrenic Playboy; Stars; The Icicle Melts; Tomorrow; Twenty One; Wake Me When It’s Over; You and Me,5.96,True,12
+in,in,ADP,154,33,All Over Now; Animal Instinct; Bosnia; Disappointment; Dreaming My Dreams; Dreams; Everything I Said; Fee Fi Fo; Free to Decide; Hollywood; How; I Can’t Be With You; I Just Shot John Lennon; In the End; I’m Still Remembering; Just My Imagination; Linger; Loud and Clear; No Need to Argue; Promises; Put Me Down; Ridiculous Thoughts; Schizophrenic Playboy; The Icicle Melts; Tomorrow; Wake Me When It’s Over; Wanted; When You’re Gone; Why; Yeats’ Grave; You and Me; Zombie; Zombie (Acoustic Version),4.67,True,13
+na,na,VERB,145,7,Desperate Andy; I Can’t Be With You; I Still Do; Promises; Ridiculous Thoughts; Still Can’t...; Waltzing Back,20.71,False,14
+my,my,PRON,138,28,Analyse; Animal Instinct; Bosnia; Daffodil Lament; Dreaming My Dreams; Dreams; Empty; Everything I Said; Free to Decide; Hollywood; I Can’t Be With You; I Still Do; I Will Always; In the End; I’m Still Remembering; Just My Imagination; Loud and Clear; Ode to My Family; Stars; Sunday; Twenty One; Wake Up and Smell the Coffee; Waltzing Back; Wanted; When You’re Gone; Yeats’ Grave; Zombie; Zombie (Acoustic Version),4.93,True,15
+be,be,AUX,134,30,All Over Now; Analyse; Animal Instinct; Daffodil Lament; Desperate Andy; Disappointment; Dreaming My Dreams; Dreams; Electric Blue; Everything I Said; Hollywood; I Can’t Be With You; I Just Shot John Lennon; I Still Do; I Will Always; I’m Still Remembering; Just My Imagination; Linger; No Need to Argue; Not Sorry; Pretty; Put Me Down; Schizophrenic Playboy; Stars; Tomorrow; Wanted; When You’re Gone; You and Me; Zombie; Zombie (Acoustic Version),4.47,True,16
+all,all,DET,121,19,All Over Now; Analyse; Bosnia; Daffodil Lament; Disappointment; Dreaming My Dreams; Empty; Free to Decide; Hollywood; I Will Always; I’m Still Remembering; Linger; No Need to Argue; Promises; Salvation; Still Can’t...; Sunday; Twenty One; Wanted,6.37,True,17
+your,your,PRON,116,26,Analyse; Daffodil Lament; Desperate Andy; Disappointment; Dreaming My Dreams; Everything I Said; Free to Decide; How; I Can’t Be With You; I’m Still Remembering; Linger; Loud and Clear; No Need to Argue; Promises; Salvation; Still Can’t...; Sunday; The Icicle Melts; Tomorrow; Wake Me When It’s Over; Wake Up and Smell the Coffee; Waltzing Back; Wanted; You and Me; Zombie; Zombie (Acoustic Version),4.46,True,18
+n't,not,PART,114,33,Analyse; Animal Instinct; Bosnia; Daffodil Lament; Desperate Andy; Disappointment; Dreams; Empty; Everything I Said; Fee Fi Fo; I Can’t Be With You; I Just Shot John Lennon; I Still Do; In the End; I’m Still Remembering; Linger; Not Sorry; Ode to My Family; Pretty; Promises; Put Me Down; Ridiculous Thoughts; Salvation; Still Can’t...; Sunday; The Icicle Melts; Twenty One; Wake Me When It’s Over; Waltzing Back; Wanted; Why; Yeats’ Grave; You and Me,3.45,True,19
+not,not,PART,107,24,Daffodil Lament; Dreams; Empty; Free to Decide; Hollywood; I Can’t Be With You; I Still Do; I’m Still Remembering; Just My Imagination; Linger; Loud and Clear; Not Sorry; Ode to My Family; Promises; Ridiculous Thoughts; Salvation; Schizophrenic Playboy; The Icicle Melts; Wake Me When It’s Over; When You’re Gone; Why; You and Me; Zombie; Zombie (Acoustic Version),4.46,True,20
+ah,ah,INTJ,105,9,Analyse; Disappointment; Dreams; Empty; I Still Do; No Need to Argue; Pretty; Put Me Down; Waltzing Back,11.67,False,21
+there,there,PRON,96,20,Analyse; Bosnia; Daffodil Lament; Disappointment; Dreaming My Dreams; Electric Blue; Empty; Free to Decide; Hollywood; I Will Always; I’m Still Remembering; Just My Imagination; Loud and Clear; No Need to Argue; Ode to My Family; Still Can’t...; The Icicle Melts; Wanted; When You’re Gone; You and Me,4.8,True,22
+ee,ee,ADJ,92,2,Fee Fi Fo; You and Me,46.0,False,23
+ooh,ooh,NOUN,88,4,I Still Do; Linger; Promises; Put Me Down,22.0,False,24
+re,be,AUX,84,21,Daffodil Lament; Desperate Andy; Disappointment; Dreams; Fee Fi Fo; Free to Decide; How; I Can’t Be With You; Loud and Clear; Not Sorry; Pretty; Promises; Put Me Down; Ridiculous Thoughts; Sunday; Tomorrow; Wake Me When It’s Over; When You’re Gone; Why; Zombie; Zombie (Acoustic Version),4.0,True,25
+have,have,VERB,80,20,Animal Instinct; Daffodil Lament; Disappointment; Dreams; Everything I Said; Free to Decide; How; I Just Shot John Lennon; I Still Do; Just My Imagination; Linger; Pretty; Promises; Ridiculous Thoughts; Stars; Sunday; The Icicle Melts; Tomorrow; Wanted; Yeats’ Grave,4.0,True,26
+on,on,ADP,79,19,All Over Now; Daffodil Lament; Desperate Andy; Empty; Everything I Said; I Can’t Be With You; Just My Imagination; Loud and Clear; No Need to Argue; Not Sorry; Promises; Ridiculous Thoughts; Schizophrenic Playboy; Still Can’t...; Sunday; Tomorrow; Wake Up and Smell the Coffee; When You’re Gone; Yeats’ Grave,4.16,True,27
+with,with,ADP,73,18,Animal Instinct; Desperate Andy; Dreaming My Dreams; Free to Decide; I Can’t Be With You; I Just Shot John Lennon; I Still Do; Linger; Loud and Clear; Promises; Ridiculous Thoughts; Salvation; Schizophrenic Playboy; Tomorrow; Wanted; Yeats’ Grave; Zombie; Zombie (Acoustic Version),4.06,True,28
+so,so,ADV,72,25,Animal Instinct; Bosnia; Daffodil Lament; Desperate Andy; Dreaming My Dreams; Dreams; Fee Fi Fo; Free to Decide; Hollywood; I Can’t Be With You; I Will Always; Just My Imagination; Linger; No Need to Argue; Not Sorry; Pretty; Promises; Put Me Down; Ridiculous Thoughts; Stars; Sunday; Tomorrow; Twenty One; Wake Me When It’s Over; Wake Up and Smell the Coffee,2.88,True,29
+is,be,AUX,67,20,Animal Instinct; Bosnia; Desperate Andy; Dreams; Empty; Hollywood; Just My Imagination; Linger; No Need to Argue; Promises; Salvation; Schizophrenic Playboy; Stars; The Icicle Melts; Twenty One; Wake Up and Smell the Coffee; Wanted; When You’re Gone; Zombie; Zombie (Acoustic Version),3.35,True,30
+that,that,PRON,67,26,All Over Now; Analyse; Animal Instinct; Daffodil Lament; Desperate Andy; Dreaming My Dreams; Empty; I Can’t Be With You; I Just Shot John Lennon; In the End; I’m Still Remembering; Just My Imagination; Linger; Loud and Clear; No Need to Argue; Not Sorry; Promises; Schizophrenic Playboy; The Icicle Melts; Tomorrow; Wake Me When It’s Over; Waltzing Back; Wanted; When You’re Gone; Why; Yeats’ Grave,2.58,True,31
+we,we,PRON,62,17,Analyse; Animal Instinct; Bosnia; Disappointment; Hollywood; I Can’t Be With You; Just My Imagination; Linger; No Need to Argue; Ode to My Family; Promises; Put Me Down; Ridiculous Thoughts; Tomorrow; Wanted; Zombie; Zombie (Acoustic Version),3.65,True,32
+m,be,AUX,58,15,Daffodil Lament; Dreams; Electric Blue; Free to Decide; I Can’t Be With You; I Still Do; I’m Still Remembering; Linger; Loud and Clear; Not Sorry; Promises; Schizophrenic Playboy; When You’re Gone; Why; You and Me,3.87,True,33
+was,be,AUX,58,18,All Over Now; Animal Instinct; Bosnia; Disappointment; Empty; Fee Fi Fo; I Just Shot John Lennon; In the End; I’m Still Remembering; Just My Imagination; Linger; Loud and Clear; No Need to Argue; Ode to My Family; Still Can’t...; The Icicle Melts; Wake Up and Smell the Coffee; Wanted,3.22,True,34
+huh,huh,INTJ,56,1,Salvation,56.0,False,35
+are,be,AUX,55,15,All Over Now; Analyse; Bosnia; Daffodil Lament; Hollywood; I’m Still Remembering; Loud and Clear; Pretty; Put Me Down; Schizophrenic Playboy; Stars; Sunday; Yeats’ Grave; Zombie; Zombie (Acoustic Version),3.67,True,36
+way,way,NOUN,55,13,Analyse; Disappointment; Dreaming My Dreams; Dreams; Fee Fi Fo; I Still Do; I’m Still Remembering; Linger; Not Sorry; Pretty; Stars; Still Can’t...; Wanted,4.23,False,37
+when,when,SCONJ,55,14,Bosnia; Desperate Andy; Everything I Said; Hollywood; How; I Can’t Be With You; I Will Always; In the End; Ode to My Family; Sunday; The Icicle Melts; Wake Me When It’s Over; When You’re Gone; Zombie,3.93,True,38
+will,will,AUX,53,16,Analyse; Animal Instinct; Everything I Said; Free to Decide; Hollywood; How; I Will Always; I’m Still Remembering; Just My Imagination; No Need to Argue; Schizophrenic Playboy; Stars; The Icicle Melts; Wake Me When It’s Over; Why; You and Me,3.31,True,39
+ll,will,AUX,51,16,Animal Instinct; Disappointment; Dreaming My Dreams; Dreams; Everything I Said; Fee Fi Fo; Hollywood; I Can’t Be With You; Just My Imagination; No Need to Argue; Not Sorry; Promises; Schizophrenic Playboy; Stars; Wake Up and Smell the Coffee; Wanted,3.19,True,40
+what,what,PRON,48,19,Daffodil Lament; Disappointment; Dreams; Empty; Fee Fi Fo; Free to Decide; I Just Shot John Lennon; I’m Still Remembering; Not Sorry; Ode to My Family; Promises; Salvation; Still Can’t...; The Icicle Melts; Twenty One; Waltzing Back; When You’re Gone; Zombie; Zombie (Acoustic Version),2.53,True,41
+but,but,CCONJ,45,19,Disappointment; Dreams; Everything I Said; Free to Decide; I Can’t Be With You; In the End; Linger; No Need to Argue; Not Sorry; Pretty; Ridiculous Thoughts; Stars; Still Can’t...; Wake Me When It’s Over; Wanted; When You’re Gone; Yeats’ Grave; Zombie; Zombie (Acoustic Version),2.37,True,42
+for,for,ADP,44,15,Analyse; Bosnia; Daffodil Lament; Empty; Fee Fi Fo; I Still Do; I Will Always; Just My Imagination; Linger; Loud and Clear; Promises; Schizophrenic Playboy; The Icicle Melts; Wake Me When It’s Over; Why,2.93,True,43
+head,head,NOUN,44,8,Everything I Said; Hollywood; I Can’t Be With You; Schizophrenic Playboy; Tomorrow; Wanted; Zombie; Zombie (Acoustic Version),5.5,False,44
+out,out,ADV,44,14,Analyse; Animal Instinct; Bosnia; Desperate Andy; Disappointment; Dreaming My Dreams; Empty; No Need to Argue; Ode to My Family; Promises; Put Me Down; Schizophrenic Playboy; Sunday; You and Me,3.14,True,45
+now,now,ADV,41,16,All Over Now; Desperate Andy; Dreams; Fee Fi Fo; How; I Can’t Be With You; I Will Always; I’m Still Remembering; Loud and Clear; Ridiculous Thoughts; Schizophrenic Playboy; The Icicle Melts; Twenty One; Waltzing Back; When You’re Gone; Yeats’ Grave,2.56,True,46
+away,away,ADV,41,11,Animal Instinct; Hollywood; How; I’m Still Remembering; Ode to My Family; Promises; Put Me Down; The Icicle Melts; Tomorrow; Twenty One; Waltzing Back,3.73,False,47
+she,she,PRON,41,8,All Over Now; Fee Fi Fo; Ode to My Family; Promises; Schizophrenic Playboy; The Icicle Melts; Wake Up and Smell the Coffee; Yeats’ Grave,5.12,True,48
+like,like,ADP,40,9,Bosnia; Dreams; Hollywood; I Will Always; Just My Imagination; Not Sorry; Ode to My Family; Wake Me When It’s Over; Wanted,4.44,False,49
+hold,hold,VERB,40,7,Everything I Said; Ode to My Family; Promises; Ridiculous Thoughts; Sunday; The Icicle Melts; When You’re Gone,5.71,False,50
+if,if,SCONJ,39,13,Bosnia; Daffodil Lament; Dreaming My Dreams; Electric Blue; Everything I Said; Linger; Loud and Clear; Not Sorry; Ode to My Family; Pretty; Still Can’t...; Tomorrow; Wanted,3.0,True,51
+never,never,ADV,38,12,Animal Instinct; Dreams; How; I Just Shot John Lennon; I’m Still Remembering; Just My Imagination; Loud and Clear; Not Sorry; Put Me Down; Wake Me When It’s Over; Waltzing Back; You and Me,3.17,True,52
+this,this,PRON,38,14,Analyse; Dreams; Free to Decide; Hollywood; I Still Do; Just My Imagination; Not Sorry; Ode to My Family; Put Me Down; The Icicle Melts; Twenty One; Wake Up and Smell the Coffee; Wanted; You and Me,2.71,True,53
+of,of,ADP,38,21,Analyse; Animal Instinct; Bosnia; Desperate Andy; Everything I Said; Fee Fi Fo; Hollywood; I Can’t Be With You; I Just Shot John Lennon; In the End; I’m Still Remembering; Linger; No Need to Argue; Promises; Ridiculous Thoughts; Schizophrenic Playboy; Still Can’t...; Tomorrow; Why; Yeats’ Grave; You and Me,1.81,True,54
+just,just,ADV,37,10,How; I Can’t Be With You; I Just Shot John Lennon; Just My Imagination; Linger; Promises; Stars; Still Can’t...; Sunday; Twenty One,3.7,True,55
+would,would,AUX,36,16,All Over Now; Analyse; Bosnia; Daffodil Lament; Disappointment; Everything I Said; How; I Just Shot John Lennon; I Still Do; Just My Imagination; Linger; Ode to My Family; Sunday; Wanted; Yeats’ Grave; You and Me,2.25,True,56
+always,always,ADV,36,13,Animal Instinct; Desperate Andy; Electric Blue; Hollywood; How; I Will Always; I’m Still Remembering; Just My Imagination; Linger; No Need to Argue; Put Me Down; Stars; You and Me,2.77,True,57
+yeah,yeah,INTJ,36,1,Fee Fi Fo,36.0,False,58
+da,da,NOUN,36,2,I Can’t Be With You; When You’re Gone,18.0,False,59
+could,could,AUX,35,14,Disappointment; Dreams; Fee Fi Fo; I Still Do; Linger; Loud and Clear; No Need to Argue; Still Can’t...; Sunday; The Icicle Melts; Tomorrow; Twenty One; When You’re Gone; Yeats’ Grave,2.5,True,60
+cause,'cause,SCONJ,34,15,All Over Now; Daffodil Lament; Dreams; Free to Decide; I Can’t Be With You; No Need to Argue; Not Sorry; Ode to My Family; Promises; Put Me Down; Still Can’t...; The Icicle Melts; Twenty One; Waltzing Back; You and Me,2.27,False,61
+eh,eh,INTJ,34,4,Electric Blue; Promises; You and Me; Zombie,8.5,False,62
+he,he,PRON,34,8,Desperate Andy; Everything I Said; Fee Fi Fo; I Just Shot John Lennon; Ode to My Family; Still Can’t...; Sunday; The Icicle Melts,4.25,True,63
+here,here,ADV,33,11,Daffodil Lament; Dreaming My Dreams; Dreams; Electric Blue; Everything I Said; I Can’t Be With You; Promises; Put Me Down; Waltzing Back; Why; Yeats’ Grave,3.0,True,64
+over,over,ADP,33,6,All Over Now; Everything I Said; Promises; Wake Me When It’s Over; Zombie; Zombie (Acoustic Version),5.5,True,65
+take,take,VERB,33,9,Animal Instinct; I Will Always; In the End; Ode to My Family; Promises; Put Me Down; Schizophrenic Playboy; Stars; Twenty One,3.67,True,66
+they,they,PRON,33,13,All Over Now; Animal Instinct; Desperate Andy; Dreams; Empty; I’m Still Remembering; No Need to Argue; Stars; Waltzing Back; When You’re Gone; Yeats’ Grave; Zombie; Zombie (Acoustic Version),2.54,True,67
+go,go,VERB,33,15,Analyse; Bosnia; Desperate Andy; Electric Blue; I Still Do; I Will Always; I’m Still Remembering; Linger; Loud and Clear; Put Me Down; Ridiculous Thoughts; Still Can’t...; Sunday; Wake Me When It’s Over; You and Me,2.2,True,68
+up,up,ADP,33,2,Dreams; Wake Up and Smell the Coffee,16.5,True,69
+gon,go,VERB,33,3,Promises; Ridiculous Thoughts; Waltzing Back,11.0,False,70
+wake,wake,VERB,32,2,Wake Me When It’s Over; Wake Up and Smell the Coffee,16.0,False,71
+life,life,NOUN,32,10,Bosnia; Dreams; Empty; Free to Decide; I Just Shot John Lennon; I’m Still Remembering; Loud and Clear; Ode to My Family; Wake Up and Smell the Coffee; Waltzing Back,3.2,False,72
+too,too,ADV,31,6,Free to Decide; Schizophrenic Playboy; Still Can’t...; The Icicle Melts; Tomorrow; Wanted,5.17,True,73
+get,get,VERB,30,8,Desperate Andy; Disappointment; Everything I Said; Fee Fi Fo; Hollywood; Linger; Loud and Clear; Promises,3.75,True,74
+uh,uh,INTJ,30,1,Salvation,30.0,False,75
+love,love,NOUN,30,11,Analyse; Bosnia; Electric Blue; I Can’t Be With You; I Still Do; Just My Imagination; Promises; Put Me Down; Stars; Sunday; When You’re Gone,2.73,False,76
+who,who,PRON,30,11,Electric Blue; Fee Fi Fo; I Just Shot John Lennon; Loud and Clear; Schizophrenic Playboy; Still Can’t...; The Icicle Melts; Waltzing Back; You and Me; Zombie; Zombie (Acoustic Version),2.73,True,77
+their,their,PRON,30,6,Bosnia; Fee Fi Fo; Salvation; Schizophrenic Playboy; Zombie; Zombie (Acoustic Version),5.0,True,78
+did,do,VERB,30,12,Disappointment; Electric Blue; Empty; I Still Do; I’m Still Remembering; Linger; Ode to My Family; Ridiculous Thoughts; Sunday; Twenty One; Wanted; Yeats’ Grave,2.5,True,79
+at,at,ADV,30,8,All Over Now; Free to Decide; Hollywood; I Just Shot John Lennon; Still Can’t...; Wake Up and Smell the Coffee; Why; You and Me,3.75,True,80
+wanted,want,VERB,29,6,Bosnia; I Can’t Be With You; In the End; Loud and Clear; Still Can’t...; Wanted,4.83,False,81
+know,know,VERB,28,15,Animal Instinct; Dreams; Electric Blue; Empty; I Can’t Be With You; Linger; Ode to My Family; Put Me Down; Sunday; The Icicle Melts; Tomorrow; Wake Me When It’s Over; Wanted; Yeats’ Grave; You and Me,1.87,False,82
+can,can,AUX,28,10,Analyse; Daffodil Lament; Desperate Andy; I Still Do; Ode to My Family; Pretty; Put Me Down; Schizophrenic Playboy; Wake Me When It’s Over; Why,2.8,True,83
+du,du,ADJ,28,1,Ode to My Family,28.0,False,84
+see,see,VERB,27,14,Analyse; Animal Instinct; Daffodil Lament; Dreams; Empty; Everything I Said; I Can’t Be With You; I Still Do; Not Sorry; Ode to My Family; Ridiculous Thoughts; Still Can’t...; Zombie; Zombie (Acoustic Version),1.93,True,85
+no,no,PRON,27,12,Animal Instinct; Bosnia; Dreaming My Dreams; Electric Blue; Everything I Said; I Just Shot John Lennon; I Still Do; No Need to Argue; Not Sorry; Pretty; Salvation; Still Can’t...,2.25,True,86
+how,how,SCONJ,27,6,Fee Fi Fo; How; I Can’t Be With You; Ridiculous Thoughts; The Icicle Melts; Wake Me When It’s Over,4.5,True,87
+want,want,VERB,27,10,Desperate Andy; Dreaming My Dreams; Dreams; I Still Do; I Will Always; Pretty; Sunday; Twenty One; Wanted; You and Me,2.7,False,88
+say,say,VERB,26,12,Desperate Andy; Empty; Fee Fi Fo; I’m Still Remembering; Loud and Clear; No Need to Argue; Ode to My Family; Pretty; Promises; Sunday; Twenty One; Waltzing Back,2.17,True,89
+still,still,ADV,26,8,Everything I Said; I Can’t Be With You; I Still Do; I’m Still Remembering; Stars; Still Can’t...; Zombie; Zombie (Acoustic Version),3.25,True,90
+should,should,AUX,26,13,Disappointment; Electric Blue; Fee Fi Fo; Free to Decide; Hollywood; How; I Just Shot John Lennon; Promises; Ridiculous Thoughts; The Icicle Melts; Tomorrow; Wanted; Yeats’ Grave,2.0,True,91
+leave,leave,VERB,25,9,Daffodil Lament; Free to Decide; How; I Still Do; I Will Always; Promises; Put Me Down; Sunday; Twenty One,2.78,False,92
+nah,nah,PROPN,25,1,Daffodil Lament,25.0,False,93
+imagination,imagination,NOUN,24,1,Just My Imagination,24.0,False,94
+zombie,zombie,PROPN,24,2,Zombie; Zombie (Acoustic Version),12.0,False,95
+why,why,SCONJ,23,8,Empty; Linger; Loud and Clear; Promises; Put Me Down; Tomorrow; Why; Yeats’ Grave,2.88,True,96
+alone,alone,ADV,23,2,How; Twenty One,11.5,True,97
+does,do,AUX,22,8,Ode to My Family; Promises; Ridiculous Thoughts; Stars; Sunday; The Icicle Melts; Wake Me When It’s Over; Wanted,2.75,True,98
+ra,ra,PROPN,22,2,Desperate Andy; Loud and Clear,11.0,False,99
+lovely,lovely,ADJ,22,2,Animal Instinct; Daffodil Lament,11.0,False,100
+where,where,SCONJ,22,9,Desperate Andy; Electric Blue; Empty; Free to Decide; I’m Still Remembering; Ode to My Family; Put Me Down; Sunday; Why,2.44,True,101
+d,would,AUX,22,10,Dreaming My Dreams; I’m Still Remembering; Just My Imagination; No Need to Argue; Not Sorry; Ode to My Family; Promises; Schizophrenic Playboy; Waltzing Back; Wanted,2.2,True,102
+again,again,ADV,21,4,Disappointment; How; I Can’t Be With You; Not Sorry,5.25,True,103
+ca,can,AUX,21,8,Daffodil Lament; Fee Fi Fo; I Can’t Be With You; I Still Do; In the End; Promises; Put Me Down; Still Can’t...,2.62,True,104
+right,right,ADV,21,6,Disappointment; Promises; Stars; Sunday; Waltzing Back; Wanted,3.5,False,105
+free,free,ADJ,21,4,Analyse; Free to Decide; Just My Imagination; Salvation,5.25,False,106
+need,need,VERB,20,7,Bosnia; Electric Blue; I Still Do; I Will Always; I’m Still Remembering; No Need to Argue; Sunday,2.86,False,107
+anyone,anyone,PRON,20,5,Daffodil Lament; I Can’t Be With You; Ode to My Family; Ridiculous Thoughts; Stars,4.0,True,108
+animal,animal,NOUN,20,1,Animal Instinct,20.0,False,109
+said,say,VERB,19,8,Dreaming My Dreams; Everything I Said; How; I Just Shot John Lennon; I’m Still Remembering; Just My Imagination; No Need to Argue; Still Can’t...,2.38,False,110
+her,her,PRON,19,7,All Over Now; Fee Fi Fo; Linger; Promises; Schizophrenic Playboy; The Icicle Melts; Yeats’ Grave,2.71,True,111
+people,people,NOUN,19,8,Bosnia; Fee Fi Fo; I’m Still Remembering; Loud and Clear; Ode to My Family; Put Me Down; Salvation; The Icicle Melts,2.38,False,112
+time,time,NOUN,19,11,Free to Decide; I Still Do; I’m Still Remembering; Just My Imagination; Linger; No Need to Argue; Sunday; The Icicle Melts; Tomorrow; Wake Up and Smell the Coffee; Yeats’ Grave,1.73,False,113
+world,world,NOUN,18,5,Desperate Andy; How; I’m Still Remembering; Linger; You and Me,3.6,False,114
+from,from,ADP,18,13,Daffodil Lament; Dreams; Electric Blue; Fee Fi Fo; Free to Decide; I Just Shot John Lennon; Just My Imagination; Ode to My Family; Put Me Down; Twenty One; Waltzing Back; Wanted; When You’re Gone,1.38,True,115
+salvation,salvation,PROPN,18,1,Salvation,18.0,False,116
+come,come,VERB,18,10,Animal Instinct; Dreams; Electric Blue; Free to Decide; I Can’t Be With You; Schizophrenic Playboy; Sunday; Tomorrow; Wake Up and Smell the Coffee; Waltzing Back,1.8,False,117
+sorry,sorry,ADJ,17,3,I Just Shot John Lennon; Loud and Clear; Not Sorry,5.67,False,118
+feel,feel,VERB,17,8,Empty; Linger; Loud and Clear; Not Sorry; Ridiculous Thoughts; Still Can’t...; Waltzing Back; When You’re Gone,2.12,False,119
+care,care,VERB,17,2,Ode to My Family; Schizophrenic Playboy,8.5,False,120
+whoa,whoa,INTJ,17,2,In the End; Promises,8.5,False,121
+everything,everything,PRON,16,7,Dreams; Everything I Said; In the End; Linger; Wake Up and Smell the Coffee; When You’re Gone; Yeats’ Grave,2.29,True,122
+baby,baby,NOUN,16,5,Dreaming My Dreams; I Can’t Be With You; Schizophrenic Playboy; The Icicle Melts; When You’re Gone,3.2,False,123
+doo,doo,PROPN,16,1,Zombie,16.0,False,124
+child,child,NOUN,16,5,Fee Fi Fo; I Can’t Be With You; The Icicle Melts; Zombie; Zombie (Acoustic Version),3.2,False,125
+things,thing,NOUN,16,12,Bosnia; Daffodil Lament; Disappointment; Dreaming My Dreams; I Can’t Be With You; Linger; Loud and Clear; No Need to Argue; Not Sorry; Ode to My Family; Promises; Wake Me When It’s Over,1.33,False,126
+look,look,VERB,16,2,Daffodil Lament; How,8.0,False,127
+shut,shut,VERB,16,1,Wake Up and Smell the Coffee,16.0,False,128
+gimme,gimme,PROPN,15,1,Desperate Andy,15.0,False,129
+nothing,nothing,PRON,15,8,Free to Decide; I Will Always; In the End; Linger; Loud and Clear; Still Can’t...; Twenty One; When You’re Gone,1.88,True,130
+eyes,eye,NOUN,15,5,Analyse; Daffodil Lament; Electric Blue; Salvation; Schizophrenic Playboy,3.0,False,131
+as,as,SCONJ,15,8,Animal Instinct; Desperate Andy; Dreams; Free to Decide; Not Sorry; Ode to My Family; Stars; Wake Up and Smell the Coffee,1.88,True,132
+greatest,great,ADJ,15,4,Analyse; Hollywood; Just My Imagination; Schizophrenic Playboy,3.75,False,133
+ye,ye,NOUN,15,1,Fee Fi Fo,15.0,False,134
+tell,tell,VERB,15,3,Dreams; Loud and Clear; Why,5.0,False,135
+dudu,dudu,ADJ,14,1,Ode to My Family,14.0,False,136
+empty,empty,ADJ,14,3,Empty; Loud and Clear; Promises,4.67,True,137
+lied,lie,VERB,14,3,Everything I Said; Not Sorry; Ridiculous Thoughts,4.67,False,138
+cried,cry,VERB,14,3,Not Sorry; Ridiculous Thoughts; The Icicle Melts,4.67,False,139
+watch,watch,VERB,13,2,Schizophrenic Playboy; Wake Me When It’s Over,6.5,False,140
+thing,thing,NOUN,13,5,Animal Instinct; Disappointment; Free to Decide; Just My Imagination; No Need to Argue,2.6,False,141
+them,they,PRON,13,5,Analyse; Bosnia; Loud and Clear; Promises; Waltzing Back,2.6,True,142
+remember,remember,VERB,13,4,All Over Now; I’m Still Remembering; Loud and Clear; No Need to Argue,3.25,False,143
+find,find,VERB,13,9,Disappointment; Dreams; Everything I Said; I Can’t Be With You; I Still Do; Ode to My Family; Still Can’t...; Sunday; You and Me,1.44,False,144
+stay,stay,VERB,13,5,Analyse; How; Just My Imagination; Promises; Yeats’ Grave,2.6,False,145
+another,another,DET,13,8,Bosnia; I Can’t Be With You; Promises; Put Me Down; Wanted; Why; Zombie; Zombie (Acoustic Version),1.62,True,146
+let,let,VERB,13,3,Linger; Put Me Down; Wake Me When It’s Over,4.33,False,147
+night,night,NOUN,13,6,All Over Now; Daffodil Lament; Disappointment; I Just Shot John Lennon; Just My Imagination; When You’re Gone,2.17,False,148
+disappointment,disappointment,NOUN,13,1,Disappointment,13.0,False,149
+long,long,ADJ,13,3,Daffodil Lament; Schizophrenic Playboy; The Icicle Melts,4.33,False,150
+today,today,NOUN,13,4,Daffodil Lament; Dreaming My Dreams; The Icicle Melts; Twenty One,3.25,False,151
+sighed,sigh,VERB,12,1,Not Sorry,12.0,False,152
+down,down,ADP,12,6,Disappointment; Dreaming My Dreams; Loud and Clear; Promises; Put Me Down; Yeats’ Grave,2.0,True,153
+taylor,taylor,PROPN,12,1,You and Me,12.0,False,154
+has,have,AUX,12,8,Animal Instinct; Daffodil Lament; Empty; Fee Fi Fo; I’m Still Remembering; Schizophrenic Playboy; Still Can’t...; Wake Me When It’s Over,1.5,True,155
+cry,cry,VERB,12,4,Animal Instinct; I Can’t Be With You; Not Sorry; Why,3.0,False,156
+ve,have,AUX,12,9,Disappointment; Dreams; Free to Decide; Hollywood; I’m Still Remembering; Just My Imagination; Ode to My Family; Stars; When You’re Gone,1.33,True,157
+sad,sad,ADJ,12,4,I Can’t Be With You; I Just Shot John Lennon; Not Sorry; Yeats’ Grave,3.0,False,158
+got,get,VERB,12,4,Fee Fi Fo; Hollywood; Linger; Wake Up and Smell the Coffee,3.0,False,159
+dreams,dream,NOUN,12,3,Dreaming My Dreams; Dreams; Empty,4.0,False,160
+through,through,ADP,12,5,Daffodil Lament; Empty; Not Sorry; Put Me Down; Ridiculous Thoughts,2.4,True,161
+domine,domine,PROPN,12,1,Electric Blue,12.0,False,162
+lennon,lennon,PROPN,11,1,I Just Shot John Lennon,11.0,False,163
+day,day,NOUN,11,5,Analyse; Dreams; I’m Still Remembering; Wake Up and Smell the Coffee; When You’re Gone,2.2,False,164
+john,john,PROPN,11,1,I Just Shot John Lennon,11.0,False,165
+decide,decide,VERB,11,2,Disappointment; Free to Decide,5.5,False,166
+mind,mind,NOUN,11,9,Bosnia; Dreams; Fee Fi Fo; Free to Decide; I Will Always; I’m Still Remembering; No Need to Argue; Sunday; When You’re Gone,1.22,False,167
+alright,alright,ADJ,11,2,Ridiculous Thoughts; Stars,5.5,False,168
+change,change,VERB,11,5,Animal Instinct; Bosnia; Daffodil Lament; Pretty; Tomorrow,2.2,False,169
+wo,will,AUX,11,4,Animal Instinct; Daffodil Lament; Disappointment; Pretty,2.75,False,170
+understand,understand,VERB,11,4,Everything I Said; I Will Always; Ode to My Family; Wanted,2.75,False,171
+better,well,ADJ,11,4,Ode to My Family; Promises; Schizophrenic Playboy; Wanted,2.75,False,172
+hands,hand,NOUN,11,6,Animal Instinct; Empty; I Can’t Be With You; Tomorrow; Wanted; When You’re Gone,1.83,False,173
+his,his,PRON,11,5,Desperate Andy; Fee Fi Fo; I Just Shot John Lennon; I’m Still Remembering; Schizophrenic Playboy,2.2,True,174
+ie,ie,X,10,1,Zombie,10.0,False,175
+mother,mother,NOUN,10,5,I Can’t Be With You; Ode to My Family; The Icicle Melts; Zombie; Zombie (Acoustic Version),2.0,False,176
+well,well,INTJ,10,8,Everything I Said; Free to Decide; I Can’t Be With You; Ode to My Family; Promises; Ridiculous Thoughts; Wake Up and Smell the Coffee; Wanted,1.25,True,177
+hollywood,hollywood,PROPN,10,1,Hollywood,10.0,False,178
+move,move,VERB,10,1,Ridiculous Thoughts,10.0,True,179
+hey,hey,INTJ,10,2,Electric Blue; When You’re Gone,5.0,False,180
+sarajevo,sarajevo,PROPN,10,2,Bosnia; Free to Decide,5.0,False,181
+live,live,VERB,10,6,Analyse; Bosnia; Free to Decide; I Still Do; Put Me Down; Wake Up and Smell the Coffee,1.67,False,182
+died,die,VERB,10,3,Everything I Said; I Just Shot John Lennon; The Icicle Melts,3.33,False,183
+somewhere,somewhere,ADV,10,1,Why,10.0,True,184
+face,face,NOUN,10,4,All Over Now; Dreaming My Dreams; How; I Can’t Be With You,2.5,False,185
+seems,seem,VERB,10,4,Dreams; Empty; I Will Always; Salvation,2.5,True,186
+decided,decide,VERB,10,3,Daffodil Lament; Disappointment; Put Me Down,3.33,False,187
+dreaming,dream,VERB,9,1,Dreaming My Dreams,9.0,False,188
+spoke,speak,VERB,9,1,Promises,9.0,False,189
+because,because,SCONJ,9,8,Dreams; Free to Decide; I Can’t Be With You; I Just Shot John Lennon; I’m Still Remembering; Promises; Put Me Down; Salvation,1.12,True,190
+spirit,spirit,NOUN,9,1,In the End,9.0,False,191
+yours,yours,PRON,9,1,Desperate Andy,9.0,True,192
+prayed,pray,VERB,9,1,Promises,9.0,False,193
+grave,grave,NOUN,9,1,Yeats’ Grave,9.0,False,194
+tonight,tonight,NOUN,9,5,Everything I Said; Stars; Wake Up and Smell the Coffee; Waltzing Back; You and Me,1.8,False,195
+around,around,ADP,9,3,Linger; Sunday; When You’re Gone,3.0,True,196
+bed,bed,NOUN,9,5,Hollywood; I Can’t Be With You; Just My Imagination; Loud and Clear; Schizophrenic Playboy,1.8,False,197
+nothin,nothing,NOUN,9,1,Still Can’t...,9.0,False,198
+by,by,ADP,9,6,Disappointment; Linger; Put Me Down; Wake Up and Smell the Coffee; Wanted; Yeats’ Grave,1.5,True,199
+lalalala,lalalala,PROPN,9,1,Schizophrenic Playboy,9.0,False,200
+were,be,AUX,9,7,I Can’t Be With You; I’m Still Remembering; Just My Imagination; Linger; Ode to My Family; Wanted; Yeats’ Grave,1.29,True,201
+such,such,ADJ,9,6,Linger; Loud and Clear; Wanted; You and Me; Zombie; Zombie (Acoustic Version),1.5,True,202
+think,think,VERB,9,5,I Still Do; Ode to My Family; Put Me Down; Tomorrow; Twenty One,1.8,False,203
+run,run,VERB,9,1,Hollywood,9.0,False,204
+mystify,mystify,VERB,9,1,Sunday,9.0,False,205
+or,or,CCONJ,9,5,Free to Decide; I’m Still Remembering; Loud and Clear; Ridiculous Thoughts; Yeats’ Grave,1.8,True,206
+had,have,VERB,9,5,I Just Shot John Lennon; Just My Imagination; No Need to Argue; Tomorrow; Yeats’ Grave,1.8,True,207
+linger,linger,ADJ,8,1,Linger,8.0,False,208
+affection,affection,NOUN,8,1,I’m Still Remembering,8.0,False,209
+some,some,DET,8,4,Daffodil Lament; I Still Do; Tomorrow; Wake Me When It’s Over,2.0,True,210
+goes,go,VERB,8,1,Desperate Andy,8.0,False,211
+own,own,ADJ,8,4,Fee Fi Fo; I Still Do; I Will Always; You and Me,2.0,True,212
+butler,butler,PROPN,8,1,Yeats’ Grave,8.0,False,213
+william,william,PROPN,8,1,Yeats’ Grave,8.0,False,214
+coffee,coffee,NOUN,8,1,Wake Up and Smell the Coffee,8.0,False,215
+place,place,NOUN,8,4,All Over Now; Dreaming My Dreams; How; The Icicle Melts,2.0,False,216
+whatever,whatever,PRON,8,3,Desperate Andy; I Will Always; Wake Up and Smell the Coffee,2.67,True,217
+wait,wait,VERB,8,1,Why,8.0,False,218
+wanna,wanna,VERB,8,3,Linger; Sunday; Waltzing Back,2.67,False,219
+knew,know,VERB,8,4,Linger; No Need to Argue; Wanted; When You’re Gone,2.0,False,220
+wrong,wrong,ADJ,8,4,Daffodil Lament; Linger; Put Me Down; Sunday,2.0,False,221
+gave,give,VERB,8,3,I’m Still Remembering; No Need to Argue; Waltzing Back,2.67,False,222
+yes,yes,INTJ,8,1,Not Sorry,8.0,False,223
+only,only,ADV,8,3,Tomorrow; Wake Up and Smell the Coffee; Wanted,2.67,True,224
+drop,drop,NOUN,8,2,I’m Still Remembering; Wake Me When It’s Over,4.0,False,225
+protect,protect,VERB,8,1,Fee Fi Fo,8.0,False,226
+anymore,anymore,ADV,8,4,Bosnia; No Need to Argue; Put Me Down; Twenty One,2.0,False,227
+make,make,VERB,8,6,Animal Instinct; Everything I Said; Loud and Clear; Ridiculous Thoughts; The Icicle Melts; Tomorrow,1.33,True,228
+something,something,PRON,8,6,Animal Instinct; Empty; Fee Fi Fo; Ode to My Family; Sunday; Wake Me When It’s Over,1.33,True,229
+ma,ma,VERB,8,1,Desperate Andy,8.0,False,230
+bombs,bomb,NOUN,8,2,Zombie; Zombie (Acoustic Version),4.0,False,231
+sickening,sicken,VERB,8,1,I Just Shot John Lennon,8.0,False,232
+oyster,oyster,NOUN,7,1,Desperate Andy,7.0,False,233
+ya,ya,PROPN,7,2,Dreams; Zombie,3.5,False,234
+words,word,NOUN,7,2,Promises; Sunday,3.5,False,235
+going,go,VERB,7,4,Promises; Twenty One; When You’re Gone; You and Me,1.75,False,236
+rain,rain,NOUN,7,1,Wake Me When It’s Over,7.0,False,237
+wonder,wonder,VERB,7,2,Desperate Andy; Fee Fi Fo,3.5,False,238
+instinct,instinct,NOUN,7,1,Animal Instinct,7.0,False,239
+faith,faith,NOUN,7,3,Dreaming My Dreams; Just My Imagination; Tomorrow,2.33,False,240
+hope,hope,VERB,7,2,Disappointment; Loud and Clear,3.5,False,241
+before,before,ADP,7,3,Dreams; How; I’m Still Remembering,2.33,True,242
+ones,one,NOUN,7,2,Fee Fi Fo; You and Me,3.5,False,243
+lonely,lonely,ADJ,7,3,Everything I Said; When You’re Gone; Why,2.33,False,244
+ignore,ignore,VERB,7,2,Dreams; How,3.5,False,245
+keep,keep,VERB,7,2,Loud and Clear; Not Sorry,3.5,True,246
+promises,promise,NOUN,7,1,Promises,7.0,False,247
+between,between,ADP,7,3,Stars; Wanted; Why,2.33,True,248
+used,use,VERB,7,3,Desperate Andy; Just My Imagination; Linger,2.33,True,249
+taken,take,VERB,7,5,Empty; I Will Always; The Icicle Melts; Zombie; Zombie (Acoustic Version),1.4,False,250
+end,end,NOUN,7,3,I Can’t Be With You; In the End; The Icicle Melts,2.33,False,251
+lookin,lookin,NOUN,6,1,Not Sorry,6.0,False,252
+schizophrenic,schizophrenic,ADJ,6,1,Schizophrenic Playboy,6.0,False,253
+window,window,NOUN,6,1,Not Sorry,6.0,False,254
+try,try,VERB,6,3,I’m Still Remembering; Not Sorry; Wanted,2.0,False,255
+pretty,pretty,ADV,6,1,Pretty,6.0,False,256
+themselves,themselves,PRON,6,1,Fee Fi Fo,6.0,True,257
+young,young,ADJ,6,2,Ode to My Family; Tomorrow,3.0,False,258
+liked,like,VERB,6,1,Ode to My Family,6.0,False,259
+behind,behind,ADP,6,3,Free to Decide; I Will Always; Sunday,2.0,True,260
+give,give,VERB,6,2,Ode to My Family; Wake Up and Smell the Coffee,3.0,True,261
+tomorrow,tomorrow,NOUN,6,1,Tomorrow,6.0,False,262
+ohh,ohh,PROPN,6,1,Promises,6.0,False,263
+gorgeous,gorgeous,ADJ,6,1,Wake Up and Smell the Coffee,6.0,False,264
+ay,ay,NOUN,6,2,Daffodil Lament; Pretty,3.0,False,265
+makes,make,VERB,6,3,Everything I Said; Fee Fi Fo; No Need to Argue,2.0,False,266
+laa,laa,PROPN,6,1,Just My Imagination,6.0,False,267
+lies,lie,NOUN,6,2,Not Sorry; Still Can’t...,3.0,False,268
+hear,hear,VERB,6,2,Empty; Why,3.0,False,269
+true,true,ADJ,6,3,Dreams; Fee Fi Fo; Linger,2.0,False,270
+trying,try,VERB,6,3,I’m Still Remembering; Linger; Wake Me When It’s Over,2.0,False,271
+late,late,ADV,6,3,I Just Shot John Lennon; Tomorrow; Yeats’ Grave,2.0,False,272
+control,control,VERB,6,1,Schizophrenic Playboy,6.0,False,273
+meaningless,meaningless,ADJ,6,1,Promises,6.0,False,274
+hand,hand,NOUN,6,4,Everything I Said; Linger; Put Me Down; Sunday,1.5,False,275
+any,any,PRON,6,2,Disappointment; Wake Up and Smell the Coffee,3.0,True,276
+ha,ha,INTJ,5,1,Ridiculous Thoughts,5.0,False,277
+more,more,ADV,5,3,Dreams; Free to Decide; Twenty One,1.67,True,278
+fine,fine,ADJ,5,3,Daffodil Lament; No Need to Argue; Schizophrenic Playboy,1.67,False,279
+forever,forever,ADV,5,2,Daffodil Lament; You and Me,2.5,False,280
+suicidal,suicidal,ADJ,5,1,Free to Decide,5.0,False,281
+went,go,VERB,5,4,Empty; Not Sorry; Still Can’t...; Wake Up and Smell the Coffee,1.25,False,282
+told,tell,VERB,5,3,All Over Now; I’m Still Remembering; Not Sorry,1.67,False,283
+lose,lose,VERB,5,2,No Need to Argue; Wake Up and Smell the Coffee,2.5,False,284
+found,find,VERB,5,3,All Over Now; Twenty One; When You’re Gone,1.67,False,285
+playboys,playboy,NOUN,5,1,Schizophrenic Playboy,5.0,False,286
+special,special,ADJ,5,2,No Need to Argue; Wanted,2.5,False,287
+girls,girl,NOUN,5,1,Schizophrenic Playboy,5.0,False,288
+every,every,DET,5,2,Dreaming My Dreams; Dreams,2.5,True,289
+after,after,ADV,5,1,Free to Decide,5.0,True,290
+help,help,VERB,5,2,Empty; Fee Fi Fo,2.5,False,291
+strange,strange,ADJ,5,1,In the End,5.0,False,292
+ai,be,AUX,5,1,In the End,5.0,False,293
+toys,toy,NOUN,5,1,Schizophrenic Playboy,5.0,False,294
+picture,picture,NOUN,5,2,Hollywood; The Icicle Melts,2.5,False,295
+much,much,ADJ,5,4,Dreaming My Dreams; Fee Fi Fo; Promises; Tomorrow,1.25,True,296
+really,really,ADV,5,4,Animal Instinct; Bosnia; Linger; Sunday,1.25,True,297
+pretend,pretend,VERB,5,1,How,5.0,False,298
+pray,pray,VERB,5,4,Analyse; Animal Instinct; I Still Do; Just My Imagination,1.25,False,299
+happen,happen,VERB,5,2,Ridiculous Thoughts; Twenty One,2.5,False,300
+sanctity,sanctity,NOUN,5,1,Desperate Andy,5.0,False,301
+chastity,chastity,NOUN,5,1,Desperate Andy,5.0,False,302
+must,must,AUX,5,4,Everything I Said; Free to Decide; Zombie; Zombie (Acoustic Version),1.25,True,303
+into,into,ADP,5,4,Dreaming My Dreams; I Will Always; Sunday; Waltzing Back,1.25,True,304
+yo,yo,NOUN,5,1,Desperate Andy,5.0,False,305
+wit,wit,NOUN,5,1,Desperate Andy,5.0,False,306
+room,room,NOUN,5,4,Hollywood; Loud and Clear; No Need to Argue; Sunday,1.25,False,307
+heart,heart,PROPN,5,5,Dreams; Empty; Everything I Said; Zombie; Zombie (Acoustic Version),1.0,False,308
+fighting,fighting,NOUN,5,2,Wake Me When It’s Over; Zombie (Acoustic Version),2.5,False,309
+put,put,VERB,5,3,I Can’t Be With You; Just My Imagination; Loud and Clear,1.67,True,310
+miss,miss,VERB,5,3,Loud and Clear; Ode to My Family; When You’re Gone,1.67,False,311
+happy,happy,ADJ,5,3,Disappointment; Not Sorry; Ridiculous Thoughts,1.67,False,312
+made,make,VERB,5,2,Animal Instinct; Promises,2.5,True,313
+livin,livin,NOUN,4,1,Just My Imagination,4.0,False,314
+thoughts,thought,NOUN,4,2,Ridiculous Thoughts; Twenty One,2.0,False,315
+foolish,foolish,ADJ,4,1,Tomorrow,4.0,False,316
+fear,fear,NOUN,4,3,Bosnia; Electric Blue; Waltzing Back,1.33,False,317
+am,be,AUX,4,4,I Still Do; Ode to My Family; Stars; You and Me,1.0,True,318
+silence,silence,NOUN,4,2,Zombie; Zombie (Acoustic Version),2.0,False,319
+mistaken,mistaken,ADJ,4,2,Zombie; Zombie (Acoustic Version),2.0,False,320
+violence,violence,NOUN,4,2,Zombie; Zombie (Acoustic Version),2.0,False,321
+andy,andy,PROPN,4,1,Desperate Andy,4.0,False,322
+sight,sight,NOUN,4,1,I Just Shot John Lennon,4.0,False,323
+guns,gun,NOUN,4,2,Zombie; Zombie (Acoustic Version),2.0,False,324
+tanks,tank,NOUN,4,2,Zombie; Zombie (Acoustic Version),2.0,False,325
+ground,ground,NOUN,4,2,All Over Now; Sunday,2.0,False,326
+off,off,ADP,4,3,Schizophrenic Playboy; Sunday; Wanted,1.33,True,327
+desperate,desperate,PROPN,4,1,Desperate Andy,4.0,False,328
+daffodils,daffodil,NOUN,4,1,Daffodil Lament,4.0,False,329
+though,though,SCONJ,4,1,I Still Do,4.0,True,330
+fell,fall,VERB,4,2,All Over Now; Empty,2.0,False,331
+smell,smell,VERB,4,1,Wake Up and Smell the Coffee,4.0,False,332
+remembering,remember,VERB,4,1,I’m Still Remembering,4.0,False,333
+changed,change,VERB,4,2,Dreaming My Dreams; I’m Still Remembering,2.0,False,334
+anything,anything,PRON,4,2,Free to Decide; Wake Up and Smell the Coffee,2.0,True,335
+smile,smile,NOUN,4,1,Desperate Andy,4.0,False,336
+stranger,strange,ADJ,4,1,Loud and Clear,4.0,False,337
+sure,sure,ADJ,4,3,Bosnia; Linger; Wake Me When It’s Over,1.33,False,338
+return,return,VERB,4,3,Free to Decide; Hollywood; Linger,1.33,False,339
+thought,think,VERB,4,2,I Still Do; Linger,2.0,False,340
+fool,fool,NOUN,4,1,Linger,4.0,False,341
+wrapped,wrap,VERB,4,1,Linger,4.0,False,342
+hair,hair,NOUN,4,1,Schizophrenic Playboy,4.0,False,343
+him,he,PRON,4,2,Promises; The Icicle Melts,2.0,True,344
+impossible,impossible,ADJ,4,1,Dreams,4.0,False,345
+ogize,-ogize,VERB,4,1,Still Can’t...,4.0,False,346
+home,home,ADV,4,3,I Just Shot John Lennon; Salvation; You and Me,1.33,False,347
+dreamt,dreamt,VERB,4,1,In the End,4.0,False,348
+swore,swear,VERB,4,2,Linger; Not Sorry,2.0,False,349
+ever,ever,ADV,4,3,I’m Still Remembering; Loud and Clear; Stars,1.33,True,350
+saints,saint,NOUN,4,1,Bosnia,4.0,False,351
+answer,answer,NOUN,4,2,Fee Fi Fo; Wake Me When It’s Over,2.0,False,352
+hoo,hoo,PROPN,4,1,Waltzing Back,4.0,False,353
+standing,stand,VERB,4,3,Empty; How; Ode to My Family,1.33,False,354
+electric,electric,ADJ,4,1,Electric Blue,4.0,False,355
+deus,deus,PROPN,4,1,Electric Blue,4.0,False,356
+die,die,VERB,4,3,Animal Instinct; Bosnia; Not Sorry,1.33,False,357
+body,body,NOUN,4,1,Fee Fi Fo,4.0,False,358
+proud,proud,ADJ,4,1,Tomorrow,4.0,False,359
+twister,twister,PROPN,4,1,Ridiculous Thoughts,4.0,False,360
+anybody,anybody,PRON,4,1,Hollywood,4.0,False,361
+father,father,NOUN,4,1,Ode to My Family,4.0,False,362
+suddenly,suddenly,ADV,4,2,Animal Instinct; Empty,2.0,False,363
+insult,insult,NOUN,4,1,Not Sorry,4.0,False,364
+god,god,PROPN,4,1,Fee Fi Fo,4.0,False,365
+land,land,NOUN,4,1,Put Me Down,4.0,False,366
+understood,understand,VERB,4,1,Hollywood,4.0,False,367
+adiuva,adiuva,PROPN,4,1,Electric Blue,4.0,False,368
+marching,march,VERB,4,1,Bosnia,4.0,False,369
+blue,blue,ADJ,4,1,Electric Blue,4.0,False,370
+wish,wish,VERB,4,2,Tomorrow; Waltzing Back,2.0,False,371
+man,man,NOUN,4,3,All Over Now; I Just Shot John Lennon; Just My Imagination,1.33,False,372
+takin,takin,NOUN,4,2,Waltzing Back; Zombie,2.0,False,373
+shot,shot,PROPN,4,1,I Just Shot John Lennon,4.0,False,374
+same,same,ADJ,4,3,I Will Always; Zombie; Zombie (Acoustic Version),1.33,True,375
+fight,fight,NOUN,4,3,All Over Now; Disappointment; Promises,1.33,False,376
+even,even,ADV,4,3,Dreams; I Still Do; Loud and Clear,1.33,True,377
+eternally,eternally,ADV,4,1,You and Me,4.0,False,378
+open,open,VERB,4,2,Analyse; Dreams,2.0,False,379
+then,then,ADV,4,4,Disappointment; Dreams; Still Can’t...; Waltzing Back,1.0,True,380
+satisfied,satisfied,ADJ,4,2,Loud and Clear; The Icicle Melts,2.0,False,381
+reason,reason,NOUN,4,2,Pretty; Wake Up and Smell the Coffee,2.0,False,382
+awhile,awhile,ADV,4,1,Promises,4.0,False,383
+argue,argue,VERB,4,1,No Need to Argue,4.0,False,384
+analyse,analyse,VERB,4,1,Analyse,4.0,False,385
+moment,moment,NOUN,4,1,Analyse,4.0,False,386
+close,close,VERB,4,1,Analyse,4.0,False,387
+exactly,exactly,ADV,4,1,Disappointment,4.0,False,388
+without,without,ADP,4,1,When You’re Gone,4.0,True,389
+mad,mad,ADJ,4,3,I Can’t Be With You; No Need to Argue; Tomorrow,1.33,False,390
+left,leave,VERB,4,4,Daffodil Lament; Empty; I Will Always; No Need to Argue,1.0,False,391
+game,game,NOUN,4,2,Just My Imagination; Linger,2.0,False,392
+finger,finger,NOUN,4,1,Linger,4.0,False,393
+inside,inside,ADP,4,3,Everything I Said; I Can’t Be With You; Wake Me When It’s Over,1.33,False,394
+stand,stand,VERB,4,3,Linger; Sunday; Yeats’ Grave,1.33,False,395
+hell,hell,PROPN,4,3,Free to Decide; Tomorrow; Wake Up and Smell the Coffee,1.33,False,396
+ridiculous,ridiculous,ADJ,3,1,Ridiculous Thoughts,3.0,False,397
+gone,go,VERB,3,2,Schizophrenic Playboy; When You’re Gone,1.5,False,398
+hard,hard,ADV,3,1,Ridiculous Thoughts,3.0,False,399
+believe,believe,VERB,3,2,Everything I Said; Promises,1.5,False,400
+date,date,NOUN,3,1,Tomorrow,3.0,False,401
+play,play,VERB,3,1,Just My Imagination,3.0,False,402
+lot,lot,NOUN,3,1,Tomorrow,3.0,False,403
+gets,get,VERB,3,2,Animal Instinct; Stars,1.5,False,404
+known,know,VERB,3,2,How; I Just Shot John Lennon,1.5,False,405
+traboo,traboo,PROPN,3,1,Bosnia,3.0,False,406
+near,near,ADP,3,1,Electric Blue,3.0,False,407
+unkind,unkind,ADJ,3,1,Bosnia,3.0,False,408
+fightin,fightin,ADJ,3,2,Zombie; Zombie (Acoustic Version),1.5,False,409
+breakin,breakin,NOUN,3,3,Empty; Zombie; Zombie (Acoustic Version),1.0,False,410
+since,since,SCONJ,3,3,Daffodil Lament; Zombie; Zombie (Acoustic Version),1.0,True,411
+caused,cause,VERB,3,3,Empty; Zombie; Zombie (Acoustic Version),1.0,False,412
+happened,happen,VERB,3,3,Animal Instinct; Still Can’t...; Sunday,1.0,False,413
+soon,soon,ADV,3,3,Hollywood; Still Can’t...; Sunday,1.0,False,414
+call,call,VERB,3,2,Bosnia; Hollywood,1.5,True,415
+reality,reality,NOUN,3,2,Animal Instinct; Just My Imagination,1.5,False,416
+prove,prove,VERB,3,1,Put Me Down,3.0,False,417
+puttin,puttin,ADJ,3,1,Put Me Down,3.0,False,418
+bosnia,bosnia,PROPN,3,1,Bosnia,3.0,False,419
+hurt,hurt,VERB,3,2,Dreams; The Icicle Melts,1.5,False,420
+dream,dream,NOUN,3,2,Dreams; Wake Me When It’s Over,1.5,False,421
+house,house,NOUN,3,2,In the End; Promises,1.5,False,422
+nose,nose,NOUN,3,1,Still Can’t...,3.0,False,423
+quite,quite,ADV,3,1,Dreams,3.0,True,424
+months,month,NOUN,3,1,The Icicle Melts,3.0,False,425
+done,do,VERB,3,1,Disappointment,3.0,True,426
+broke,break,VERB,3,1,Promises,3.0,False,427
+nowhere,nowhere,ADV,3,2,Stars; Why,1.5,True,428
+asking,ask,VERB,3,1,Why,3.0,False,429
+air,air,NOUN,3,2,Analyse; You and Me,1.5,False,430
+dimension,dimension,NOUN,3,1,Why,3.0,False,431
+soul,soul,NOUN,3,2,I’m Still Remembering; Salvation,1.5,False,432
+meant,mean,VERB,3,2,Everything I Said; Put Me Down,1.5,False,433
+surely,surely,ADV,3,2,Everything I Said; Still Can’t...,1.5,False,434
+sleeping,sleep,VERB,3,2,Empty; When You’re Gone,1.5,False,435
+arms,arm,NOUN,3,1,The Icicle Melts,3.0,False,436
+sometime,sometime,ADV,3,1,The Icicle Melts,3.0,True,437
+stinking,stink,VERB,3,1,When You’re Gone,3.0,False,438
+car,car,NOUN,3,2,In the End; Schizophrenic Playboy,1.5,False,439
+other,other,ADJ,3,1,Dreaming My Dreams,3.0,True,440
+sit,sit,VERB,3,1,Yeats’ Grave,3.0,False,441
+lay,lay,VERB,3,1,Dreaming My Dreams,3.0,False,442
+desire,desire,VERB,3,2,Stars; Yeats’ Grave,1.5,False,443
+back,back,ADV,3,2,I Can’t Be With You; Waltzing Back,1.5,True,444
+icicle,icicle,NOUN,3,1,The Icicle Melts,3.0,False,445
+kids,kid,NOUN,3,1,Salvation,3.0,False,446
+great,great,ADJ,3,2,Tomorrow; Yeats’ Grave,1.5,False,447
+deep,deep,ADJ,3,1,Linger,3.0,False,448
+show,show,NOUN,3,1,The Icicle Melts,3.0,True,449
+strength,strength,NOUN,3,2,Empty; Still Can’t...,1.5,False,450
+remain,remain,VERB,3,1,I’m Still Remembering,3.0,False,451
+real,real,ADJ,3,2,Free to Decide; Still Can’t...,1.5,False,452
+been,be,AUX,3,3,Disappointment; Empty; I’m Still Remembering,1.0,True,453
+very,very,ADV,3,2,Everything I Said; Free to Decide,1.5,True,454
+myself,myself,PRON,3,2,Fee Fi Fo; I Still Do,1.5,True,455
+likes,like,VERB,2,1,Desperate Andy,2.0,False,456
+star,star,PROPN,2,1,Stars,2.0,False,457
+stars,star,NOUN,2,1,Stars,2.0,False,458
+bright,bright,ADJ,2,1,Stars,2.0,False,459
+plans,plan,NOUN,2,2,Empty; Tomorrow,1.0,False,460
+somebody,somebody,PRON,2,2,Empty; Loud and Clear,1.0,False,461
+seen,see,VERB,2,2,Daffodil Lament; Stars,1.0,False,462
+took,take,VERB,2,2,I Just Shot John Lennon; Twenty One,1.0,False,463
+happening,happen,VERB,2,2,The Icicle Melts; Twenty One,1.0,False,464
+these,these,DET,2,2,Daffodil Lament; Dreaming My Dreams,1.0,True,465
+start,start,VERB,2,2,Daffodil Lament; Wanted,1.0,False,466
+lightning,lightning,NOUN,2,1,Daffodil Lament,2.0,False,467
+sell,sell,VERB,2,1,I’m Still Remembering,2.0,False,468
+insane,insane,ADJ,2,1,I’m Still Remembering,2.0,False,469
+wife,wife,NOUN,2,2,I’m Still Remembering; Loud and Clear,1.0,False,470
+message,message,NOUN,2,1,Wake Up and Smell the Coffee,2.0,False,471
+clothes,clothe,NOUN,2,1,In the End,2.0,False,472
+yesterday,yesterday,NOUN,2,1,I’m Still Remembering,2.0,False,473
+cold,cold,ADJ,2,1,I’m Still Remembering,2.0,False,474
+came,come,VERB,2,2,Dreams; Sunday,1.0,False,475
+changin,changin,ADJ,2,1,Dreams,2.0,False,476
+possible,possible,ADJ,2,1,Dreams,2.0,False,477
+felt,feel,VERB,2,2,Dreams; Waltzing Back,1.0,False,478
+feelin,feelin,NOUN,2,2,Daffodil Lament; Dreams,1.0,False,479
+red,red,ADJ,2,1,Schizophrenic Playboy,2.0,False,480
+curls,curl,VERB,2,1,Schizophrenic Playboy,2.0,False,481
+above,above,ADP,2,2,Just My Imagination; When You’re Gone,1.0,True,482
+helpless,helpless,ADJ,2,1,When You’re Gone,2.0,False,483
+complex,complex,NOUN,2,1,When You’re Gone,2.0,False,484
+itude,-itude,NOUN,2,1,Still Can’t...,2.0,False,485
+knows,know,VERB,2,2,Schizophrenic Playboy; Still Can’t...,1.0,False,486
+totally,totally,ADV,2,2,Animal Instinct; Dreams,1.0,False,487
+onto,onto,ADP,2,1,When You’re Gone,2.0,True,488
+recognize,recognize,VERB,2,1,Still Can’t...,2.0,False,489
+apologize,apologize,VERB,2,1,Still Can’t...,2.0,False,490
+laughin,laughin,ADJ,2,1,Still Can’t...,2.0,False,491
+tellin,tellin,PROPN,2,1,Still Can’t...,2.0,False,492
+everyone,everyone,PRON,2,1,Still Can’t...,2.0,True,493
+beds,bed,NOUN,2,2,Bosnia; Salvation,1.0,False,494
+heads,head,NOUN,2,2,Bosnia; Salvation,1.0,False,495
+clear,clear,ADJ,2,2,I Can’t Be With You; Loud and Clear,1.0,False,496
+courage,courage,NOUN,2,1,Yeats’ Grave,2.0,False,497
+equal,equal,ADJ,2,1,Yeats’ Grave,2.0,False,498
+heroin,heroin,ADJ,2,1,Salvation,2.0,False,499
+doooo,doooo,VERB,2,1,Salvation,2.0,False,500
+sleepless,sleepless,ADJ,2,1,Salvation,2.0,False,501
+nights,night,NOUN,2,1,Salvation,2.0,False,502
+most,most,ADV,2,2,Hollywood; Yeats’ Grave,1.0,True,503
+blame,blame,VERB,2,1,Yeats’ Grave,2.0,False,504
+bout,'bout,ADP,2,1,Not Sorry,2.0,False,505
+forsaken,forsake,VERB,2,1,Not Sorry,2.0,False,506
+thee,thee,PRON,2,1,Not Sorry,2.0,False,507
+selfish,selfish,ADJ,2,1,Not Sorry,2.0,False,508
+doin,do,ADJ,2,1,Not Sorry,2.0,False,509
+realize,realize,VERB,2,1,Not Sorry,2.0,False,510
+detest,det,ADJ,2,1,Not Sorry,2.0,False,511
+walking,walk,VERB,2,2,How; Stars,1.0,False,512
+fodder,fodder,NOUN,2,1,Ode to My Family,2.0,False,513
+turn,turn,VERB,2,2,Empty; Ode to My Family,1.0,False,514
+notice,notice,VERB,2,2,Daffodil Lament; Ode to My Family,1.0,False,515
+unhappiness,unhappiness,PROPN,2,1,Ode to My Family,2.0,False,516
+damn,damn,NOUN,2,1,Ode to My Family,2.0,False,517
+raised,raise,VERB,2,1,Ode to My Family,2.0,False,518
+than,than,SCONJ,2,2,Free to Decide; Ode to My Family,1.0,True,519
+spinnin,spinnin,ADJ,2,1,Sunday,2.0,False,520
+feet,foot,NOUN,2,1,Sunday,2.0,False,521
+woah,woah,PROPN,2,1,Sunday,2.0,False,522
+simple,simple,ADJ,2,1,When You’re Gone,2.0,False,523
+carry,carry,VERB,2,1,When You’re Gone,2.0,False,524
+sinking,sink,VERB,2,1,When You’re Gone,2.0,False,525
+our,our,PRON,2,1,Bosnia,2.0,True,526
+everywhere,everywhere,ADV,2,2,Loud and Clear; Ode to My Family,1.0,True,527
+often,often,ADV,2,1,Fee Fi Fo,2.0,True,528
+which,which,PRON,2,1,Put Me Down,2.0,True,529
+forgive,forgive,VERB,2,1,Put Me Down,2.0,False,530
+heaven,heaven,PROPN,2,1,Why,2.0,False,531
+crossroads,crossroad,NOUN,2,1,Why,2.0,False,532
+insolent,insolent,ADJ,2,1,Pretty,2.0,False,533
+wherever,wherever,SCONJ,2,1,I Will Always,2.0,True,534
+dwelling,dwell,VERB,2,1,You and Me,2.0,False,535
+happiness,happiness,NOUN,2,1,You and Me,2.0,False,536
+gift,gift,NOUN,2,1,You and Me,2.0,False,537
+purity,purity,NOUN,2,1,You and Me,2.0,False,538
+aah,aah,PROPN,2,1,You and Me,2.0,False,539
+cared,care,VERB,2,2,I Just Shot John Lennon; You and Me,1.0,False,540
+writing,write,VERB,2,2,Desperate Andy; Yeats’ Grave,1.0,False,541
+paper,paper,NOUN,2,2,Desperate Andy; The Icicle Melts,1.0,False,542
+thinking,think,VERB,2,2,Free to Decide; I Can’t Be With You,1.0,False,543
+feeling,feel,VERB,2,2,Animal Instinct; Why,1.0,False,544
+freaks,freak,VERB,2,1,Animal Instinct,2.0,False,545
+doubt,doubt,NOUN,2,1,Animal Instinct,2.0,False,546
+obscure,obscure,PROPN,2,1,Fee Fi Fo,2.0,False,547
+satisfaction,satisfaction,NOUN,2,1,Fee Fi Fo,2.0,False,548
+vile,vile,ADJ,2,1,Fee Fi Fo,2.0,False,549
+yea,yea,PROPN,2,1,Fee Fi Fo,2.0,False,550
+bedroom,bedroom,NOUN,2,1,Fee Fi Fo,2.0,False,551
+smells,smell,VERB,2,1,Fee Fi Fo,2.0,False,552
+sick,sick,ADJ,2,1,Fee Fi Fo,2.0,False,553
+touch,touch,VERB,2,1,Fee Fi Fo,2.0,False,554
+innocent,innocent,ADJ,2,1,Fee Fi Fo,2.0,False,555
+pure,pure,ADJ,2,1,Fee Fi Fo,2.0,False,556
+boils,boil,VERB,2,1,Disappointment,2.0,False,557
+fled,flee,VERB,2,1,Disappointment,2.0,False,558
+waitin,waitin,PROPN,2,1,Everything I Said,2.0,False,559
+tired,tired,ADJ,2,1,Everything I Said,2.0,False,560
+maybe,maybe,ADV,2,2,Promises; Still Can’t...,1.0,False,561
+closet,closet,NOUN,2,2,Desperate Andy; Promises,1.0,False,562
+those,those,DET,2,1,Salvation,2.0,True,563
+higher,high,ADJ,2,1,Disappointment,2.0,False,564
+anyway,anyway,ADV,2,2,Promises; Yeats’ Grave,1.0,True,565
+taught,teach,VERB,2,2,Promises; Yeats’ Grave,1.0,False,566
+rest,rest,NOUN,2,2,Disappointment; I Will Always,1.0,False,567
+beside,beside,ADP,2,1,I Will Always,2.0,True,568
+tainted,taint,VERB,2,2,Disappointment; I’m Still Remembering,1.0,False,569
+harder,hard,ADJ,2,1,Disappointment,2.0,False,570
+hit,hit,VERB,2,1,Just My Imagination,2.0,False,571
+town,town,NOUN,2,1,Just My Imagination,2.0,False,572
+friday,friday,PROPN,2,1,Just My Imagination,2.0,False,573
+until,until,ADP,2,1,Just My Imagination,2.0,True,574
+sunday,sunday,PROPN,2,1,Just My Imagination,2.0,False,575
+cure,cure,NOUN,2,1,Wake Me When It’s Over,2.0,False,576
+eating,eat,VERB,2,1,Wake Me When It’s Over,2.0,False,577
+cancer,cancer,NOUN,2,1,Wake Me When It’s Over,2.0,False,578
+killing,kill,VERB,2,1,Wake Me When It’s Over,2.0,False,579
+forget,forget,VERB,2,2,No Need to Argue; Wake Me When It’s Over,1.0,False,580
+many,many,ADJ,2,2,Tomorrow; Wanted,1.0,True,581
+living,living,NOUN,2,2,No Need to Argue; Wake Me When It’s Over,1.0,False,582
+armchair,armchair,NOUN,2,2,No Need to Argue; Wanted,1.0,False,583
+work,work,VERB,2,2,No Need to Argue; Wanted,1.0,False,584
+recall,recall,VERB,2,1,All Over Now,2.0,False,585
+spend,spend,VERB,2,1,Tomorrow,2.0,False,586
+upon,upon,SCONJ,2,2,Just My Imagination; Yeats’ Grave,1.0,True,587
+evolution,evolution,NOUN,2,1,Analyse,2.0,False,588
+fantasise,fantasise,PROPN,2,1,Analyse,2.0,False,589
+hotel,hotel,NOUN,2,1,All Over Now,2.0,False,590
+london,london,PROPN,2,1,All Over Now,2.0,False,591
+afraid,afraid,ADJ,2,1,All Over Now,2.0,False,592
+truth,truth,NOUN,2,1,All Over Now,2.0,False,593
+breathe,breathe,VERB,2,1,Analyse,2.0,False,594
+wide,wide,ADV,2,1,Analyse,2.0,False,595
+opened,open,VERB,2,1,Analyse,2.0,False,596
+beauty,beauty,NOUN,2,1,Analyse,2.0,False,597
+paralyse,paralyse,VERB,2,1,Analyse,2.0,False,598
+ready,ready,ADJ,2,1,I Still Do,2.0,False,599
+future,future,NOUN,2,1,I Still Do,2.0,False,600
+holdin,holdin,PROPN,2,2,Daffodil Lament; Everything I Said,1.0,False,601
+laid,lay,VERB,2,2,Daffodil Lament; Desperate Andy,1.0,False,602
+deranged,derange,VERB,2,1,Loud and Clear,2.0,False,603
+yourself,yourself,PRON,2,1,Loud and Clear,2.0,True,604
+danger,danger,NOUN,2,1,Loud and Clear,2.0,False,605
+hangs,hang,VERB,2,2,Zombie; Zombie (Acoustic Version),1.0,False,606
+lowly,lowly,ADJ,2,2,Zombie; Zombie (Acoustic Version),1.0,False,607
+slowly,slowly,ADV,2,2,Zombie; Zombie (Acoustic Version),1.0,False,608
+family,family,NOUN,2,2,Zombie; Zombie (Acoustic Version),1.0,False,609
+high,high,ADJ,2,1,Desperate Andy,2.0,False,610
+cryin,cryin,ADJ,2,2,Zombie; Zombie (Acoustic Version),1.0,False,611
+causes,cause,VERB,2,2,Zombie; Zombie (Acoustic Version),1.0,False,612
+old,old,ADJ,2,2,Zombie; Zombie (Acoustic Version),1.0,False,613
+theme,theme,NOUN,2,2,Zombie; Zombie (Acoustic Version),1.0,False,614
+burn,burn,VERB,2,2,Linger; Promises,1.0,False,615
+attitude,attitude,NOUN,2,2,Linger; Still Can’t...,1.0,False,616
+tearing,tear,VERB,2,2,Linger; Promises,1.0,False,617
+apart,apart,ADV,2,2,Linger; Wanted,1.0,False,618
+us,we,PRON,2,1,Stars,2.0,True,619
+pillow,pillow,NOUN,1,1,Daffodil Lament,1.0,False,620
+presence,presence,NOUN,1,1,I’m Still Remembering,1.0,False,621
+j.f.k,j.f.k,PROPN,1,1,I’m Still Remembering,1.0,False,622
+saintly,saintly,ADV,1,1,I’m Still Remembering,1.0,False,623
+fearful,fearful,ADJ,1,1,I Just Shot John Lennon,1.0,False,624
+december,december,PROPN,1,1,I Just Shot John Lennon,1.0,False,625
+returning,return,VERB,1,1,I Just Shot John Lennon,1.0,False,626
+studio,studio,NOUN,1,1,I Just Shot John Lennon,1.0,False,627
+perceptively,perceptively,ADV,1,1,I Just Shot John Lennon,1.0,False,628
+nice,nice,ADJ,1,1,I Just Shot John Lennon,1.0,False,629
+paid,pay,VERB,1,1,I Just Shot John Lennon,1.0,False,630
+price,price,NOUN,1,1,I Just Shot John Lennon,1.0,False,631
+smith,smith,PROPN,1,1,I Just Shot John Lennon,1.0,False,632
+wesson,wesson,PROPN,1,1,I Just Shot John Lennon,1.0,False,633
+longer,long,ADV,1,1,I Just Shot John Lennon,1.0,False,634
+debate,debate,NOUN,1,1,I Just Shot John Lennon,1.0,False,635
+fade,fade,VERB,1,1,Linger,1.0,False,636
+being,be,AUX,1,1,Linger,1.0,True,637
+rude,rude,ADJ,1,1,Linger,1.0,False,638
+ruinin,ruinin,ADJ,1,1,Linger,1.0,False,639
+honey,honey,NOUN,1,1,Linger,1.0,False,640
+holding,hold,VERB,1,1,Linger,1.0,False,641
+dyin,dyin,ADJ,1,1,Zombie,1.0,False,642
+mm,mm,PROPN,1,1,Linger,1.0,False,643
+biker,biker,NOUN,1,1,Desperate Andy,1.0,False,644
+bsa,bsa,PROPN,1,1,Desperate Andy,1.0,False,645
+collect,collect,VERB,1,1,Desperate Andy,1.0,False,646
+alive,alive,ADJ,1,1,Loud and Clear,1.0,False,647
+word,word,NOUN,1,1,Desperate Andy,1.0,False,648
+narrow,narrow,ADJ,1,1,Free to Decide,1.0,False,649
+distracted,distracted,ADJ,1,1,Free to Decide,1.0,False,650
+strife,strife,NOUN,1,1,Empty,1.0,False,651
+seeking,seek,VERB,1,1,Empty,1.0,False,652
+lights,light,NOUN,1,1,Empty,1.0,False,653
+prayer,prayer,NOUN,1,1,Empty,1.0,False,654
+identity,identity,NOUN,1,1,Empty,1.0,False,655
+perspective,perspective,NOUN,1,1,Dreaming My Dreams,1.0,False,656
+looked,look,VERB,1,1,Daffodil Lament,1.0,False,657
+worth,worth,ADJ,1,1,Free to Decide,1.0,False,658
+choose,choose,VERB,1,1,Free to Decide,1.0,False,659
+dwell,dwell,VERB,1,1,Free to Decide,1.0,False,660
+harassment,harassment,NOUN,1,1,Free to Decide,1.0,False,661
+forte,forte,NOUN,1,1,Free to Decide,1.0,False,662
+war,war,NOUN,1,1,Free to Decide,1.0,False,663
+russia,russia,PROPN,1,1,Free to Decide,1.0,False,664
+top,top,NOUN,1,1,I’m Still Remembering,1.0,True,665
+good,good,ADJ,1,1,I’m Still Remembering,1.0,False,666
+kurt,kurt,PROPN,1,1,I’m Still Remembering,1.0,False,667
+dandy,dandy,ADJ,1,1,Desperate Andy,1.0,False,668
+sleep,sleep,VERB,1,1,Daffodil Lament,1.0,False,669
+thunder,thunder,NOUN,1,1,Daffodil Lament,1.0,False,670
+disguise,disguise,NOUN,1,1,Daffodil Lament,1.0,False,671
+dismay,dismay,NOUN,1,1,Daffodil Lament,1.0,False,672
+became,become,VERB,1,1,I’m Still Remembering,1.0,True,673
+pain,pain,NOUN,1,1,I’m Still Remembering,1.0,False,674
+games,game,NOUN,1,1,I’m Still Remembering,1.0,False,675
+reverse,reverse,ADJ,1,1,I’m Still Remembering,1.0,False,676
+psychology,psychology,NOUN,1,1,I’m Still Remembering,1.0,False,677
+changd,changd,NOUN,1,1,I’m Still Remembering,1.0,False,678
+cream,cream,NOUN,1,1,I’m Still Remembering,1.0,False,679
+rise,rise,VERB,1,1,I’m Still Remembering,1.0,False,680
+vows,vow,NOUN,1,1,Promises,1.0,False,681
+matter,matter,VERB,1,1,Promises,1.0,False,682
+prophetic,prophetic,ADJ,1,1,Promises,1.0,False,683
+preaching,preaching,NOUN,1,1,Promises,1.0,False,684
+throwing,throw,VERB,1,1,Promises,1.0,False,685
+ourselves,ourselves,PRON,1,1,Promises,1.0,True,686
+cobwebs,cobwebs,NOUN,1,1,Promises,1.0,False,687
+doing,do,VERB,1,1,Salvation,1.0,True,688
+trusted,trust,VERB,1,1,Ridiculous Thoughts,1.0,False,689
+fun,fun,NOUN,1,1,Ridiculous Thoughts,1.0,False,690
+sake,sake,NOUN,1,1,I Will Always,1.0,False,691
+needed,need,VERB,1,1,I Will Always,1.0,False,692
+piteous,piteous,ADJ,1,1,Disappointment,1.0,False,693
+hideous,hideous,ADJ,1,1,Disappointment,1.0,False,694
+deserve,deserve,VERB,1,1,Promises,1.0,False,695
+eternal,eternal,ADJ,1,1,Promises,1.0,False,696
+shine,shine,VERB,1,1,Waltzing Back,1.0,False,697
+killed,kill,VERB,1,1,Wake Me When It’s Over,1.0,False,698
+yet,yet,ADV,1,1,Wake Me When It’s Over,1.0,True,699
+exist,exist,VERB,1,1,Wake Me When It’s Over,1.0,False,700
+scream,scream,VERB,1,1,Wake Me When It’s Over,1.0,False,701
+persist,persist,VERB,1,1,Wake Me When It’s Over,1.0,False,702
+entrapped,entrap,VERB,1,1,Wake Me When It’s Over,1.0,False,703
+along,along,ADP,1,1,Ridiculous Thoughts,1.0,True,704
+ask,ask,VERB,1,1,Tomorrow,1.0,False,705
+questions,question,NOUN,1,1,Tomorrow,1.0,False,706
+conclusions,conclusion,NOUN,1,1,Tomorrow,1.0,False,707
+waltzin,waltzin,NOUN,1,1,Waltzing Back,1.0,False,708
+turnin,turnin,PROPN,1,1,Waltzing Back,1.0,False,709
+light,light,PROPN,1,1,Waltzing Back,1.0,False,710
+wished,wish,VERB,1,1,Waltzing Back,1.0,False,711
+line,line,NOUN,1,1,Waltzing Back,1.0,False,712
+loved,love,VERB,1,1,I Can’t Be With You,1.0,False,713
+farewell,farewell,ADJ,1,1,I Can’t Be With You,1.0,False,714
+shoulder,shoulder,NOUN,1,1,I Can’t Be With You,1.0,False,715
+maud,maud,PROPN,1,1,Yeats’ Grave,1.0,False,716
+gonne,gonne,PROPN,1,1,Yeats’ Grave,1.0,False,717
+macbride,macbride,PROPN,1,1,Yeats’ Grave,1.0,False,718
+isle,isle,NOUN,1,1,Yeats’ Grave,1.0,False,719
+innisfree,innisfree,PROPN,1,1,Yeats’ Grave,1.0,False,720
+insecurity,insecurity,NOUN,1,1,Fee Fi Fo,1.0,False,721
+having,have,VERB,1,1,Animal Instinct,1.0,False,722
+cup,cup,NOUN,1,1,Animal Instinct,1.0,False,723
+tea,tea,NOUN,1,1,Animal Instinct,1.0,False,724
+depressed,depressed,ADJ,1,1,Animal Instinct,1.0,False,725
+utterly,utterly,ADV,1,1,Animal Instinct,1.0,False,726
+stressed,stress,VERB,1,1,Animal Instinct,1.0,False,727
+making,make,VERB,1,1,I Can’t Be With You,1.0,False,728
+last,last,VERB,1,1,Wake Me When It’s Over,1.0,True,729
+swallowing,swallow,VERB,1,1,Wake Me When It’s Over,1.0,False,730
+pride,pride,NOUN,1,1,Wake Me When It’s Over,1.0,False,731
+fee,fee,ADP,1,1,Fee Fi Fo,1.0,False,732
+fi,fi,NOUN,1,1,Fee Fi Fo,1.0,False,733
+fo,fo,INTJ,1,1,Fee Fi Fo,1.0,False,734
+ruin,ruin,VERB,1,1,Fee Fi Fo,1.0,False,735
+sitting,sit,VERB,1,1,Fee Fi Fo,1.0,False,736
+lines,line,NOUN,1,1,Salvation,1.0,False,737
+inject,inject,VERB,1,1,Salvation,1.0,False,738
+threw,throw,VERB,1,1,Disappointment,1.0,False,739
+lingers,linger,VERB,1,1,Everything I Said,1.0,False,740
+kept,keep,VERB,1,1,Just My Imagination,1.0,False,741
+past,past,NOUN,1,1,Wake Me When It’s Over,1.0,False,742
+difficult,difficult,ADJ,1,1,Wake Me When It’s Over,1.0,False,743
+hide,hide,VERB,1,1,Wake Me When It’s Over,1.0,False,744
+surroundings,surrounding,NOUN,1,1,Bosnia,1.0,False,745
+despair,despair,NOUN,1,1,Bosnia,1.0,False,746
+sing,sing,VERB,1,1,Bosnia,1.0,False,747
+become,become,VERB,1,1,Ode to My Family,1.0,True,748
+design,design,NOUN,1,1,Ode to My Family,1.0,False,749
+walk,walk,VERB,1,1,Sunday,1.0,False,750
+spent,spend,VERB,1,1,Ode to My Family,1.0,False,751
+half,half,DET,1,1,Ode to My Family,1.0,False,752
+irony,irony,NOUN,1,1,Hollywood,1.0,False,753
+shoot,shoot,VERB,1,1,Hollywood,1.0,False,754
+wall,wall,NOUN,1,1,Hollywood,1.0,False,755
+glamorous,glamorous,ADJ,1,1,Hollywood,1.0,False,756
+state,state,VERB,1,1,Bosnia,1.0,False,757
+vision,vision,NOUN,1,1,Bosnia,1.0,False,758
+unfair,unfair,ADJ,1,1,Bosnia,1.0,False,759
+secure,secure,ADJ,1,1,Bosnia,1.0,False,760
+calling,call,VERB,1,1,Why,1.0,False,761
+mistake,mistake,NOUN,1,1,I Will Always,1.0,False,762
+impurity,impurity,NOUN,1,1,Fee Fi Fo,1.0,False,763
+gathering,gathering,NOUN,1,1,Fee Fi Fo,1.0,False,764
+gloom,gloom,NOUN,1,1,Fee Fi Fo,1.0,False,765
+walked,walk,VERB,1,1,Put Me Down,1.0,False,766
+door,door,NOUN,1,1,Put Me Down,1.0,False,767
+presume,presume,VERB,1,1,Hollywood,1.0,False,768
+melt,melt,VERB,1,1,The Icicle Melts,1.0,False,769
+read,read,VERB,1,1,The Icicle Melts,1.0,False,770
+staying,stay,VERB,1,1,You and Me,1.0,False,771
+revealed,reveal,VERB,1,1,You and Me,1.0,False,772
+pay,pay,VERB,1,1,You and Me,1.0,False,773
+attention,attention,NOUN,1,1,You and Me,1.0,False,774
+direction,direction,NOUN,1,1,You and Me,1.0,False,775
+sweetness,sweetness,NOUN,1,1,You and Me,1.0,False,776
+men,man,NOUN,1,1,Yeats’ Grave,1.0,False,777
+violent,violent,ADJ,1,1,Yeats’ Grave,1.0,False,778
+ways,way,NOUN,1,1,Yeats’ Grave,1.0,False,779
+hurled,hurl,VERB,1,1,Yeats’ Grave,1.0,False,780
+little,little,ADJ,1,1,Yeats’ Grave,1.0,False,781
+streets,street,NOUN,1,1,Yeats’ Grave,1.0,False,782
+liberty,liberty,NOUN,1,1,Salvation,1.0,False,783
+parents,parent,NOUN,1,1,Salvation,1.0,False,784
+death,death,NOUN,1,1,Yeats’ Grave,1.0,False,785
+yeats,yeats,PROPN,1,1,Yeats’ Grave,1.0,False,786
+save,save,VERB,1,1,Yeats’ Grave,1.0,False,787
+sickened,sicken,VERB,1,1,Yeats’ Grave,1.0,False,788
+filled,fill,VERB,1,1,Yeats’ Grave,1.0,False,789
+days,day,NOUN,1,1,Yeats’ Grave,1.0,False,790
+misery,misery,NOUN,1,1,Yeats’ Grave,1.0,False,791
+ignorant,ignorant,ADJ,1,1,Yeats’ Grave,1.0,False,792
+rummmpatitum,rummmpatitum,PROPN,1,1,Bosnia,1.0,False,793
+rummmpatilum,rummmpatilum,PROPN,1,1,Bosnia,1.0,False,794
+sent,send,VERB,1,1,Electric Blue,1.0,False,795
+guardian,guardian,ADJ,1,1,Electric Blue,1.0,False,796
+angel,angel,NOUN,1,1,Electric Blue,1.0,False,797
+however,however,ADV,1,1,How,1.0,True,798
+walkin,walkin,PROPN,1,1,How,1.0,False,799
+taking,take,VERB,1,1,Zombie (Acoustic Version),1.0,False,800
+disagree,disagree,VERB,1,1,Ode to My Family,1.0,False,801
+songs,song,NOUN,1,1,Bosnia,1.0,False,802
+rooms,room,NOUN,1,1,Bosnia,1.0,False,803
+erects,erect,VERB,1,1,Bosnia,1.0,False,804
+tomb,tomb,NOUN,1,1,Bosnia,1.0,False,805
+children,child,NOUN,1,1,Bosnia,1.0,False,806
+babies,baby,NOUN,1,1,Bosnia,1.0,False,807
+terror,terror,PROPN,1,1,Bosnia,1.0,False,808
+shoutin,shoutin,NOUN,1,1,Still Can’t...,1.0,False,809
+laughing,laugh,VERB,1,1,Still Can’t...,1.0,False,810
+meticulously,meticulously,ADV,1,1,Schizophrenic Playboy,1.0,False,811
+blond,blond,ADJ,1,1,Schizophrenic Playboy,1.0,False,812
+applies,apply,VERB,1,1,Schizophrenic Playboy,1.0,False,813
+mascara,mascara,NOUN,1,1,Schizophrenic Playboy,1.0,False,814
+utmost,utmost,ADJ,1,1,Schizophrenic Playboy,1.0,False,815
+puts,put,VERB,1,1,Schizophrenic Playboy,1.0,False,816
+beyond,beyond,ADP,1,1,Still Can’t...,1.0,True,817
+openly,openly,ADV,1,1,Dreams,1.0,False,818
+amazing,amazing,ADJ,1,1,Dreams,1.0,False,819
+understanding,understand,VERB,1,1,Dreams,1.0,False,820
+kind,kind,ADV,1,1,Dreams,1.0,False,821
+shows,show,VERB,1,1,Still Can’t...,1.0,False,822
+ego,ego,NOUN,1,1,Still Can’t...,1.0,False,823
+excelled,excel,VERB,1,1,Still Can’t...,1.0,False,824
+misunderstandings,misunderstanding,NOUN,1,1,Wanted,1.0,False,825
+causin,causin,VERB,1,1,Wanted,1.0,False,826
+delay,delay,NOUN,1,1,Wanted,1.0,False,827
+side,side,NOUN,1,1,Wanted,1.0,True,828
+denied,deny,VERB,1,1,Wanted,1.0,False,829
+someone,someone,PRON,1,1,Wanted,1.0,True,830
+treat,treat,VERB,1,1,Wanted,1.0,False,831
+badly,badly,ADV,1,1,Wanted,1.0,False,832
+tie,tie,VERB,1,1,Salvation,1.0,False,833
+clean,clean,VERB,1,1,Salvation,1.0,False,834
+lying,lie,VERB,1,1,I Can’t Be With You,1.0,False,835
+crying,cry,VERB,1,1,I Can’t Be With You,1.0,False,836
+bad,bad,ADJ,1,1,I Can’t Be With You,1.0,False,837
+dying,die,VERB,1,1,Zombie (Acoustic Version),1.0,False,838
+sittin,sittin,PROPN,1,1,Wanted,1.0,False,839
+an,an,DET,1,1,Wanted,1.0,True,840
+might,might,AUX,1,1,Wake Up and Smell the Coffee,1.0,True,841
+learn,learn,VERB,1,1,Wake Up and Smell the Coffee,1.0,False,842
+mistakes,mistake,NOUN,1,1,Wake Up and Smell the Coffee,1.0,False,843
+insecure,insecure,ADJ,1,1,Wake Up and Smell the Coffee,1.0,False,844
+takes,takes,AUX,1,1,Wake Up and Smell the Coffee,1.0,False,845
+mine,mine,PRON,1,1,I’m Still Remembering,1.0,True,846
+bare,bare,ADJ,1,1,I’m Still Remembering,1.0,False,847
+story,story,NOUN,1,1,I’m Still Remembering,1.0,False,848
+confused,confused,ADJ,1,1,Linger,1.0,False,849
+rather,rather,ADV,1,1,Schizophrenic Playboy,1.0,True,850
+driving,drive,VERB,1,1,Schizophrenic Playboy,1.0,False,851
+faster,fast,ADV,1,1,Schizophrenic Playboy,1.0,False,852
+far,far,ADV,1,1,Schizophrenic Playboy,1.0,False,853
+morning,morning,NOUN,1,1,Schizophrenic Playboy,1.0,False,854
+boys,boys,PROPN,1,1,Schizophrenic Playboy,1.0,False,855
+playgirls,playgirl,NOUN,1,1,Schizophrenic Playboy,1.0,False,856
+thinks,think,VERB,1,1,Schizophrenic Playboy,1.0,False,857
+please,please,INTJ,1,1,Schizophrenic Playboy,1.0,True,858
+places,place,NOUN,1,1,Schizophrenic Playboy,1.0,False,859
+person,person,NOUN,1,1,Dreams,1.0,False,860
+fallin,fallin,PROPN,1,1,Dreams,1.0,False,861
+different,different,ADJ,1,1,Dreams,1.0,False,862
+lyin,lyin,PROPN,1,1,Linger,1.0,False,863
+lie,lie,VERB,1,1,Linger,1.0,False,864
+lipstick,lipstick,NOUN,1,1,Schizophrenic Playboy,1.0,False,865
+scarlet,scarlet,ADJ,1,1,Schizophrenic Playboy,1.0,False,866
+already,already,ADV,1,1,Schizophrenic Playboy,1.0,True,867
+fairly,fairly,ADV,1,1,Schizophrenic Playboy,1.0,False,868
+fishnet,fishnet,PROPN,1,1,Schizophrenic Playboy,1.0,False,869
+stockings,stocking,NOUN,1,1,Schizophrenic Playboy,1.0,False,870
+bottle,bottle,NOUN,1,1,Schizophrenic Playboy,1.0,False,871
+wine,wine,NOUN,1,1,Schizophrenic Playboy,1.0,False,872
+spell,spell,NOUN,1,1,Loud and Clear,1.0,False,873
+complicate,complicate,VERB,1,1,Loud and Clear,1.0,False,874
+puncture,puncture,NOUN,1,1,Loud and Clear,1.0,False,875
+drive,drive,VERB,1,1,Loud and Clear,1.0,False,876
+sun,sun,NOUN,1,1,Loud and Clear,1.0,False,877
+beats,beat,VERB,1,1,Loud and Clear,1.0,False,878
+skin,skin,VERB,1,1,Loud and Clear,1.0,False,879
+history,history,NOUN,1,1,Loud and Clear,1.0,False,880
+girlfriend,girlfriend,NOUN,1,1,Desperate Andy,1.0,False,881
+wear,wear,VERB,1,1,Desperate Andy,1.0,False,882
+ball,ball,NOUN,1,1,Desperate Andy,1.0,False,883
+chain,chain,NOUN,1,1,Desperate Andy,1.0,False,884
+neck,neck,NOUN,1,1,Desperate Andy,1.0,False,885
+false,false,ADJ,1,1,Desperate Andy,1.0,False,886
+sense,sense,NOUN,1,1,Desperate Andy,1.0,False,887
+security,security,NOUN,1,1,Desperate Andy,1.0,False,888
+distance,distance,NOUN,1,1,Stars,1.0,False,889
+mmm,mmm,PROPN,1,1,Linger,1.0,False,890
+okay,okay,ADJ,1,1,Stars,1.0,False,891
+worst,bad,ADJ,1,1,Stars,1.0,False,892
+weaknesses,weakness,NOUN,1,1,Stars,1.0,False,893
+strengths,strength,NOUN,1,1,Stars,1.0,False,894
+ugliness,ugliness,NOUN,1,1,Stars,1.0,False,895
+holds,hold,VERB,1,1,Desperate Andy,1.0,False,896
+count,count,VERB,1,1,Dreaming My Dreams,1.0,False,897
+mean,mean,VERB,1,1,Dreaming My Dreams,1.0,False,898
+silenced,silence,VERB,1,1,Yeats’ Grave,1.0,False,899
+cobain,cobain,PROPN,1,1,I’m Still Remembering,1.0,False,900
+stayed,stay,VERB,1,1,I Just Shot John Lennon,1.0,False,901
+declared,declare,VERB,1,1,I Just Shot John Lennon,1.0,False,902
+guess,guess,VERB,1,1,Stars,1.0,False,903
+perfect,perfect,ADJ,1,1,Stars,1.0,False,904
+once,once,ADV,1,1,No Need to Argue,1.0,True,905
+shared,share,VERB,1,1,No Need to Argue,1.0,False,906
+watching,watching,PROPN,1,1,No Need to Argue,1.0,False,907
+tv,tv,NOUN,1,1,No Need to Argue,1.0,False,908
+movies,movie,NOUN,1,1,No Need to Argue,1.0,False,909
+waste,waste,NOUN,1,1,No Need to Argue,1.0,False,910
+comin,comin,NOUN,1,1,Promises,1.0,False,911
+bet,bet,VERB,1,1,Promises,1.0,False,912
+disappear,disappear,VERB,1,1,Everything I Said,1.0,False,913
+together,together,ADV,1,1,Analyse,1.0,True,914
+started,start,VERB,1,1,All Over Now,1.0,False,915
+scar,scar,NOUN,1,1,All Over Now,1.0,False,916
+cards,card,NOUN,1,1,Just My Imagination,1.0,False,917
+table,table,NOUN,1,1,Just My Imagination,1.0,False,918
+unstable,unstable,ADJ,1,1,Just My Imagination,1.0,False,919
+sore,sore,ADV,1,1,No Need to Argue,1.0,False,920
+prayers,prayer,NOUN,1,1,Loud and Clear,1.0,False,921
+loud,loud,PROPN,1,1,Loud and Clear,1.0,False,922
+point,point,NOUN,1,1,Loud and Clear,1.0,False,923
+dear,dear,ADJ,1,1,Loud and Clear,1.0,False,924
+cast,cast,VERB,1,1,Loud and Clear,1.0,False,925
+met,meet,VERB,1,1,Daffodil Lament,1.0,False,926
+cos,'cos,ADP,1,1,Everything I Said,1.0,False,927
+spite,spite,NOUN,1,1,Everything I Said,1.0,False,928
+reject,reject,NOUN,1,1,Loud and Clear,1.0,False,929
+accepting,accept,VERB,1,1,Loud and Clear,1.0,False,930
+adoring,adore,VERB,1,1,Loud and Clear,1.0,False,931
+impress,impress,VERB,1,1,Loud and Clear,1.0,False,932
+tried,try,VERB,1,1,Loud and Clear,1.0,False,933
+cares,care,VERB,1,1,Loud and Clear,1.0,False,934
+fill,fill,VERB,1,1,Loud and Clear,1.0,False,935
+stares,stare,NOUN,1,1,Loud and Clear,1.0,False,936
