@@ -1,0 +1,25 @@
+{
+  "happy": {
+    "a": {
+      "sense": [
+        {
+          "id": "happy%3:00:00::",
+          "synset": "01148283-a",
+          "antonym": ["sad%3:00:00::"],
+          "derivation": ["happiness%1:12:00::"]
+        }
+      ]
+    }
+  },
+  "happiness": {
+    "n": {
+      "sense": [
+        {
+          "id": "happiness%1:12:00::",
+          "synset": "03456789-n",
+          "derivation": ["happy%3:00:00::"]
+        }
+      ]
+    }
+  }
+}

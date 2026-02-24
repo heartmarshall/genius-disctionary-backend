@@ -19,44 +19,44 @@ func testdataPath(t *testing.T, name string) string {
 	return filepath.Join(filepath.Dir(file), "testdata", name)
 }
 
-// writeFile is a test helper that creates a file with given content.
-func writeFile(path, content string) error {
-	return os.WriteFile(path, []byte(content), 0o644)
+// writeOEWNDir creates a minimal OEWN 2025 directory with one entry file and one synset file.
+func writeOEWNDir(t *testing.T, dir string, entryFileName, entryContent, synsetFileName, synsetContent string) {
+	t.Helper()
+	if err := os.WriteFile(filepath.Join(dir, entryFileName), []byte(entryContent), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, synsetFileName), []byte(synsetContent), 0o644); err != nil {
+		t.Fatal(err)
+	}
 }
 
 // --- Parse: file handling ---
 
-func TestParse_FileNotFound(t *testing.T) {
-	_, err := Parse("/nonexistent/file.json", map[string]bool{"word": true})
+func TestParse_DirNotFound(t *testing.T) {
+	_, err := Parse("/nonexistent/dir", map[string]bool{"word": true})
 	if err == nil {
-		t.Error("Parse should return error for missing file")
+		t.Error("Parse should return error for missing directory")
 	}
 }
 
 func TestParse_InvalidJSON(t *testing.T) {
 	dir := t.TempDir()
-	path := filepath.Join(dir, "bad.json")
-	if err := writeFile(path, "not json at all"); err != nil {
+	if err := os.WriteFile(filepath.Join(dir, "entries-a.json"), []byte("not json"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 
-	_, err := Parse(path, map[string]bool{"word": true})
+	_, err := Parse(dir, map[string]bool{"word": true})
 	if err == nil {
 		t.Error("Parse should return error for invalid JSON")
 	}
 }
 
-func TestParse_EmptyGraph(t *testing.T) {
+func TestParse_EmptyDir(t *testing.T) {
 	dir := t.TempDir()
-	path := filepath.Join(dir, "empty.json")
-	content := `{"@context":"...","@graph":[]}`
-	if err := writeFile(path, content); err != nil {
-		t.Fatal(err)
-	}
 
-	result, err := Parse(path, map[string]bool{"word": true})
+	result, err := Parse(dir, map[string]bool{"word": true})
 	if err != nil {
-		t.Fatalf("Parse should not error on empty graph: %v", err)
+		t.Fatalf("Parse should not error on empty directory: %v", err)
 	}
 	if len(result.Relations) != 0 {
 		t.Errorf("expected 0 relations, got %d", len(result.Relations))
@@ -64,7 +64,7 @@ func TestParse_EmptyGraph(t *testing.T) {
 }
 
 func TestParse_NilKnownWords(t *testing.T) {
-	path := testdataPath(t, "sample.json")
+	path := testdataPath(t, "sample")
 
 	result, err := Parse(path, nil)
 	if err != nil {
@@ -76,7 +76,7 @@ func TestParse_NilKnownWords(t *testing.T) {
 }
 
 func TestParse_EmptyKnownWords(t *testing.T) {
-	path := testdataPath(t, "sample.json")
+	path := testdataPath(t, "sample")
 
 	result, err := Parse(path, map[string]bool{})
 	if err != nil {
@@ -90,9 +90,9 @@ func TestParse_EmptyKnownWords(t *testing.T) {
 // --- Parse: synonym extraction ---
 
 func TestParse_Synonyms(t *testing.T) {
-	path := testdataPath(t, "sample.json")
+	path := testdataPath(t, "sample")
 
-	// "happy", "glad", and "joyful" share synset ewn-01148283-a.
+	// "happy", "glad", and "joyful" share synset 01148283-a.
 	// "xylophone" is also in that synset but not in knownWords.
 	knownWords := map[string]bool{
 		"happy":  true,
@@ -134,7 +134,7 @@ func TestParse_Synonyms(t *testing.T) {
 }
 
 func TestParse_Synonyms_FilteredByKnownWords(t *testing.T) {
-	path := testdataPath(t, "sample.json")
+	path := testdataPath(t, "sample")
 
 	// Only "happy" known; "glad", "joyful", "xylophone" not known.
 	// No synonym pairs can be formed with just one known word.
@@ -156,7 +156,7 @@ func TestParse_Synonyms_FilteredByKnownWords(t *testing.T) {
 // --- Parse: antonym extraction ---
 
 func TestParse_Antonyms(t *testing.T) {
-	path := testdataPath(t, "sample.json")
+	path := testdataPath(t, "sample")
 
 	knownWords := map[string]bool{
 		"happy": true,
@@ -183,7 +183,7 @@ func TestParse_Antonyms(t *testing.T) {
 // --- Parse: hypernym extraction ---
 
 func TestParse_Hypernyms(t *testing.T) {
-	path := testdataPath(t, "sample.json")
+	path := testdataPath(t, "sample")
 
 	knownWords := map[string]bool{
 		"dog":    true,
@@ -210,7 +210,7 @@ func TestParse_Hypernyms(t *testing.T) {
 // --- Parse: derived form extraction ---
 
 func TestParse_DerivedForms(t *testing.T) {
-	path := testdataPath(t, "sample.json")
+	path := testdataPath(t, "sample")
 
 	knownWords := map[string]bool{
 		"happy":     true,
@@ -222,7 +222,7 @@ func TestParse_DerivedForms(t *testing.T) {
 		t.Fatalf("Parse returned error: %v", err)
 	}
 
-	// happy↔happiness derivation. Alphabetical ordering: happy < happiness.
+	// happy↔happiness derivation. Alphabetical ordering: happiness < happy.
 	// Both sides declare derivation, but dedup should give us one pair.
 	derived := filterRelations(result.Relations, "derived")
 	if len(derived) != 1 {
@@ -237,7 +237,7 @@ func TestParse_DerivedForms(t *testing.T) {
 // --- Parse: full parse with stats ---
 
 func TestParse_FullSample(t *testing.T) {
-	path := testdataPath(t, "sample.json")
+	path := testdataPath(t, "sample")
 
 	knownWords := map[string]bool{
 		"happy":     true,
@@ -302,42 +302,32 @@ func TestParse_FullSample(t *testing.T) {
 // --- Parse: self-referential filtering ---
 
 func TestParse_SelfReferential(t *testing.T) {
-	// Create a JSON with a sense that has a derivation pointing to itself.
 	dir := t.TempDir()
-	path := filepath.Join(dir, "self_ref.json")
-	content := `{
-		"@context": "...",
-		"@graph": [{
-			"@id": "ewn",
-			"entry": [
-				{
-					"@id": "ewn-run-v",
-					"lemma": {"writtenForm": "run"},
+	writeOEWNDir(t, dir,
+		"entries-r.json", `{
+			"run": {
+				"v": {
 					"sense": [
 						{
-							"@id": "ewn-run-v-01",
-							"synset": "ewn-99999999-v",
-							"relations": [
-								{"relType": "derivation", "target": "ewn-run-v-01"}
-							]
+							"id": "run%2:38:00::",
+							"synset": "99999999-v",
+							"derivation": ["run%2:38:00::"]
 						}
 					]
 				}
-			],
-			"synset": [
-				{
-					"@id": "ewn-99999999-v",
-					"relations": []
-				}
-			]
-		}]
-	}`
-	if err := writeFile(path, content); err != nil {
-		t.Fatal(err)
-	}
+			}
+		}`,
+		"verb.motion.json", `{
+			"99999999-v": {
+				"definition": ["move fast"],
+				"members": ["run"],
+				"partOfSpeech": "v"
+			}
+		}`,
+	)
 
 	knownWords := map[string]bool{"run": true}
-	result, err := Parse(path, knownWords)
+	result, err := Parse(dir, knownWords)
 	if err != nil {
 		t.Fatalf("Parse returned error: %v", err)
 	}
@@ -354,46 +344,42 @@ func TestParse_SelfReferential(t *testing.T) {
 // --- Parse: normalization ---
 
 func TestParse_Normalization(t *testing.T) {
-	// Words with different casing should be normalized.
 	dir := t.TempDir()
-	path := filepath.Join(dir, "casing.json")
-	content := `{
-		"@context": "...",
-		"@graph": [{
-			"@id": "ewn",
-			"entry": [
-				{
-					"@id": "ewn-Hello-n",
-					"lemma": {"writtenForm": "Hello"},
+	writeOEWNDir(t, dir,
+		"entries-h.json", `{
+			"Hello": {
+				"n": {
 					"sense": [
 						{
-							"@id": "ewn-Hello-n-01",
-							"synset": "ewn-88888888-n",
-							"relations": []
-						}
-					]
-				},
-				{
-					"@id": "ewn-World-n",
-					"lemma": {"writtenForm": "  World  "},
-					"sense": [
-						{
-							"@id": "ewn-World-n-01",
-							"synset": "ewn-88888888-n",
-							"relations": []
+							"id": "Hello%1:10:00::",
+							"synset": "88888888-n"
 						}
 					]
 				}
-			],
-			"synset": [
-				{
-					"@id": "ewn-88888888-n",
-					"relations": []
-				}
-			]
-		}]
-	}`
-	if err := writeFile(path, content); err != nil {
+			}
+		}`,
+		"noun.communication.json", `{
+			"88888888-n": {
+				"definition": ["a greeting"],
+				"members": ["Hello", "  World  "],
+				"partOfSpeech": "n"
+			}
+		}`,
+	)
+
+	// Also need entries for World.
+	if err := os.WriteFile(filepath.Join(dir, "entries-w.json"), []byte(`{
+		"  World  ": {
+			"n": {
+				"sense": [
+					{
+						"id": "World%1:10:00::",
+						"synset": "88888888-n"
+					}
+				]
+			}
+		}
+	}`), 0o644); err != nil {
 		t.Fatal(err)
 	}
 
@@ -402,7 +388,7 @@ func TestParse_Normalization(t *testing.T) {
 		"world": true,
 	}
 
-	result, err := Parse(path, knownWords)
+	result, err := Parse(dir, knownWords)
 	if err != nil {
 		t.Fatalf("Parse returned error: %v", err)
 	}
@@ -420,7 +406,7 @@ func TestParse_Normalization(t *testing.T) {
 // --- Parse: deduplication ---
 
 func TestParse_Deduplication(t *testing.T) {
-	path := testdataPath(t, "sample.json")
+	path := testdataPath(t, "sample")
 
 	// happy and sad both declare antonym to each other.
 	// After dedup, we should get exactly 1 antonym pair.
@@ -443,7 +429,7 @@ func TestParse_Deduplication(t *testing.T) {
 // --- ToDomainRelations ---
 
 func TestToDomainRelations(t *testing.T) {
-	path := testdataPath(t, "sample.json")
+	path := testdataPath(t, "sample")
 
 	knownWords := map[string]bool{
 		"happy":     true,

@@ -282,7 +282,34 @@ func (p *Pipeline) runCMU(ctx context.Context) PhaseResult {
 
 	pronunciations := parsed.ToDomainPronunciations(entryIDMap)
 
-	inserted, err := batchProcess(pronunciations, p.cfg.BatchSize, func(batch []domain.RefPronunciation) (int, error) {
+	// Filter out pronunciations that already exist from Wiktionary (same IPA for same entry).
+	entryIDs := make([]uuid.UUID, 0, len(entryIDMap))
+	for _, id := range entryIDMap {
+		entryIDs = append(entryIDs, id)
+	}
+	existingIPAs, err := p.repo.GetPronunciationIPAsByEntryIDs(ctx, entryIDs)
+	if err != nil {
+		return PhaseResult{Err: fmt.Errorf("get existing pronunciations: %w", err)}
+	}
+
+	var filtered []domain.RefPronunciation
+	skipped := 0
+	for _, pr := range pronunciations {
+		ipa := ""
+		if pr.Transcription != nil {
+			ipa = *pr.Transcription
+		}
+		if existing, ok := existingIPAs[pr.RefEntryID]; ok && existing[ipa] {
+			skipped++
+			continue
+		}
+		filtered = append(filtered, pr)
+	}
+	if skipped > 0 {
+		p.log.Info("cmu dedup: skipped pronunciations already present from wiktionary", slog.Int("skipped", skipped))
+	}
+
+	inserted, err := batchProcess(filtered, p.cfg.BatchSize, func(batch []domain.RefPronunciation) (int, error) {
 		return p.repo.BulkInsertPronunciations(ctx, batch)
 	})
 	if err != nil {

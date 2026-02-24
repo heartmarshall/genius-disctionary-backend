@@ -386,6 +386,7 @@ type RefSense struct {
 	SourceSlug   string
 	Position     int32
 	CreatedAt    time.Time
+	Notes        pgtype.Text
 }
 
 type RefTranslation struct {

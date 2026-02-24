@@ -16,8 +16,8 @@ const (
 	// to guarantee their inclusion in the top N.
 	coreWordBonus = 1000.0
 
-	// maxLineSize is the buffer size for bufio.Scanner (1 MB).
-	maxLineSize = 1 << 20
+	// maxLineSize is the buffer size for bufio.Scanner (16 MB).
+	maxLineSize = 16 << 20
 
 	// maxDefinitionLen is the maximum length for definitions.
 	maxDefinitionLen = 5000
@@ -249,10 +249,16 @@ func buildPOSGroup(entry *kaikkiEntry) POSGroup {
 }
 
 // buildSounds extracts IPA pronunciations from a Kaikki entry.
+// Only phonemic transcriptions (wrapped in /slashes/) are kept;
+// phonetic/allophonic variants in [brackets] are skipped.
 func buildSounds(entry *kaikkiEntry) []Sound {
 	var sounds []Sound
 	for _, ks := range entry.Sounds {
 		if ks.IPA == "" {
+			continue
+		}
+		// Keep only phonemic transcriptions in /slashes/.
+		if !strings.HasPrefix(ks.IPA, "/") {
 			continue
 		}
 		sounds = append(sounds, Sound{

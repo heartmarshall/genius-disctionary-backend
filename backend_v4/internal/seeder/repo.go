@@ -29,6 +29,7 @@ type RefEntryBulkRepo interface {
 	GetEntryIDsByNormalizedTexts(ctx context.Context, texts []string) (map[string]uuid.UUID, error)
 	GetAllNormalizedTexts(ctx context.Context) (map[string]bool, error)
 	GetFirstSenseIDsByEntryIDs(ctx context.Context, entryIDs []uuid.UUID) (map[uuid.UUID]uuid.UUID, error)
+	GetPronunciationIPAsByEntryIDs(ctx context.Context, entryIDs []uuid.UUID) (map[uuid.UUID]map[string]bool, error)
 
 	// Registry — data source versioning.
 	UpsertDataSources(ctx context.Context, sources []domain.RefDataSource) error

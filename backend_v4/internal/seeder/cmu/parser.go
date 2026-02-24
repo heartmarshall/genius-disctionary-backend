@@ -205,8 +205,9 @@ func parseLine(line string) (string, IPATranscription, error) {
 		return "", IPATranscription{}, errSkipLine
 	}
 
-	// CMU format: WORD  PHONEME1 PHONEME2 ... (two spaces between word and phonemes).
-	parts := strings.SplitN(line, "  ", 2)
+	// CMU format: WORD PHONEME1 PHONEME2 ...
+	// Supports both cmudict.dict (single space) and cmudict-0.7b (double space).
+	parts := strings.SplitN(line, " ", 2)
 	if len(parts) != 2 {
 		return "", IPATranscription{}, errSkipLine
 	}

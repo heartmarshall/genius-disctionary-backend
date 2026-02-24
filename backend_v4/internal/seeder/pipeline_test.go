@@ -186,6 +186,11 @@ func (m *mockRepo) GetFirstSenseIDsByEntryIDs(_ context.Context, entryIDs []uuid
 	return result, nil
 }
 
+func (m *mockRepo) GetPronunciationIPAsByEntryIDs(_ context.Context, _ []uuid.UUID) (map[uuid.UUID]map[string]bool, error) {
+	m.logCall("GetPronunciationIPAsByEntryIDs")
+	return map[uuid.UUID]map[string]bool{}, nil
+}
+
 func (m *mockRepo) UpsertDataSources(_ context.Context, _ []domain.RefDataSource) error {
 	m.logCall("UpsertDataSources")
 	if m.upsertDataSourcesErr != nil {

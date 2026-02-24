@@ -18,9 +18,24 @@ type DomainResult struct {
 	Pronunciations []domain.RefPronunciation
 }
 
+// senseKey is used for deduplicating senses within a single entry.
+type senseKey struct {
+	definition   string
+	partOfSpeech domain.PartOfSpeech
+}
+
+// mergedSense accumulates data from duplicate senses.
+type mergedSense struct {
+	id           uuid.UUID
+	definition   string
+	pos          domain.PartOfSpeech
+	translations []string
+	examples     []string
+}
+
 // ToDomainEntries converts parsed Wiktionary entries into flat domain slices
-// suitable for batch insertion. All entities within a single call share
-// the same CreatedAt timestamp.
+// suitable for batch insertion. Senses with identical (definition, partOfSpeech)
+// within the same entry are merged: their examples and translations are combined.
 func ToDomainEntries(entries []ParsedEntry) DomainResult {
 	if len(entries) == 0 {
 		return DomainResult{}
@@ -42,8 +57,9 @@ func ToDomainEntries(entries []ParsedEntry) DomainResult {
 			CreatedAt:      now,
 		})
 
-		// Position counter is sequential across all POS groups for this entry.
-		sensePos := 0
+		// Deduplicate senses by (definition, partOfSpeech).
+		seenSenses := make(map[senseKey]int) // key → index in merged slice
+		var merged []mergedSense
 
 		for pgIdx := range pe.POSGroups {
 			pg := &pe.POSGroups[pgIdx]
@@ -52,47 +68,64 @@ func ToDomainEntries(entries []ParsedEntry) DomainResult {
 			for sIdx := range pg.Senses {
 				ps := &pg.Senses[sIdx]
 
-				// Skip senses with empty glosses.
 				if len(ps.Glosses) == 0 {
 					continue
 				}
 
-				senseID := uuid.New()
 				def := TruncateDefinition(StripMarkup(ps.Glosses[0]), 5000)
+				key := senseKey{definition: def, partOfSpeech: pos}
 
-				result.Senses = append(result.Senses, domain.RefSense{
-					ID:           senseID,
-					RefEntryID:   entryID,
-					Definition:   def,
-					PartOfSpeech: &pos,
-					SourceSlug:   sourceSlug,
-					Position:     sensePos,
-					CreatedAt:    now,
+				if idx, exists := seenSenses[key]; exists {
+					// Merge examples and translations into existing sense.
+					merged[idx].examples = append(merged[idx].examples, ps.Examples...)
+					merged[idx].translations = append(merged[idx].translations, ps.Translations...)
+				} else {
+					seenSenses[key] = len(merged)
+					merged = append(merged, mergedSense{
+						id:           uuid.New(),
+						definition:   def,
+						pos:          pos,
+						translations: append([]string(nil), ps.Translations...),
+						examples:     append([]string(nil), ps.Examples...),
+					})
+				}
+			}
+		}
+
+		// Convert merged senses to domain structs.
+		for sensePos, ms := range merged {
+			pos := ms.pos //nolint:copyloopvar // need addressable copy for pointer
+			result.Senses = append(result.Senses, domain.RefSense{
+				ID:           ms.id,
+				RefEntryID:   entryID,
+				Definition:   ms.definition,
+				PartOfSpeech: &pos,
+				SourceSlug:   sourceSlug,
+				Position:     sensePos,
+				CreatedAt:    now,
+			})
+
+			// Deduplicated translations.
+			for trIdx, tr := range DeduplicateStrings(ms.translations) {
+				result.Translations = append(result.Translations, domain.RefTranslation{
+					ID:         uuid.New(),
+					RefSenseID: ms.id,
+					Text:       tr,
+					SourceSlug: sourceSlug,
+					Position:   trIdx,
 				})
-				sensePos++
+			}
 
-				// Translations.
-				for trIdx, tr := range ps.Translations {
-					result.Translations = append(result.Translations, domain.RefTranslation{
-						ID:         uuid.New(),
-						RefSenseID: senseID,
-						Text:       tr,
-						SourceSlug: sourceSlug,
-						Position:   trIdx,
-					})
-				}
-
-				// Examples.
-				for exIdx, ex := range ps.Examples {
-					result.Examples = append(result.Examples, domain.RefExample{
-						ID:          uuid.New(),
-						RefSenseID:  senseID,
-						Sentence:    StripMarkup(ex),
-						Translation: nil,
-						SourceSlug:  sourceSlug,
-						Position:    exIdx,
-					})
-				}
+			// Deduplicated examples.
+			for exIdx, ex := range DeduplicateStrings(ms.examples) {
+				result.Examples = append(result.Examples, domain.RefExample{
+					ID:          uuid.New(),
+					RefSenseID:  ms.id,
+					Sentence:    StripMarkup(ex),
+					Translation: nil,
+					SourceSlug:  sourceSlug,
+					Position:    exIdx,
+				})
 			}
 		}
 

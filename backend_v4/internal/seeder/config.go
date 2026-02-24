@@ -9,16 +9,16 @@ import (
 
 // Config holds seeder pipeline settings.
 type Config struct {
-	WiktionaryPath     string `env:"SEEDER_WIKTIONARY_PATH"`
-	NGSLPath           string `env:"SEEDER_NGSL_PATH"`
-	NAWLPath           string `env:"SEEDER_NAWL_PATH"`
-	CMUPath            string `env:"SEEDER_CMU_PATH"`
-	WordNetPath        string `env:"SEEDER_WORDNET_PATH"`
-	TatoebaPath        string `env:"SEEDER_TATOEBA_PATH"`
-	TopN               int    `env:"SEEDER_TOP_N"          env-default:"20000"`
-	BatchSize          int    `env:"SEEDER_BATCH_SIZE"      env-default:"500"`
-	MaxExamplesPerWord int    `env:"SEEDER_MAX_EXAMPLES"    env-default:"5"`
-	DryRun             bool   `env:"SEEDER_DRY_RUN"`
+	WiktionaryPath     string `yaml:"wiktionary_path"      env:"SEEDER_WIKTIONARY_PATH"`
+	NGSLPath           string `yaml:"ngsl_path"            env:"SEEDER_NGSL_PATH"`
+	NAWLPath           string `yaml:"nawl_path"            env:"SEEDER_NAWL_PATH"`
+	CMUPath            string `yaml:"cmu_path"             env:"SEEDER_CMU_PATH"`
+	WordNetPath        string `yaml:"wordnet_path"         env:"SEEDER_WORDNET_PATH"`
+	TatoebaPath        string `yaml:"tatoeba_path"         env:"SEEDER_TATOEBA_PATH"`
+	TopN               int    `yaml:"top_n"                env:"SEEDER_TOP_N"          env-default:"20000"`
+	BatchSize          int    `yaml:"batch_size"           env:"SEEDER_BATCH_SIZE"      env-default:"500"`
+	MaxExamplesPerWord int    `yaml:"max_examples_per_word" env:"SEEDER_MAX_EXAMPLES"   env-default:"5"`
+	DryRun             bool   `yaml:"dry_run"              env:"SEEDER_DRY_RUN"`
 }
 
 // LoadConfig reads seeder configuration from a YAML file and environment variables.
