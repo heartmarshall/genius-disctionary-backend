@@ -276,6 +276,17 @@ type Card struct {
 	UpdatedAt    time.Time
 }
 
+type EnrichmentQueue struct {
+	ID           uuid.UUID
+	RefEntryID   uuid.UUID
+	Status       string
+	Priority     int32
+	ErrorMessage pgtype.Text
+	RequestedAt  time.Time
+	ProcessedAt  *time.Time
+	CreatedAt    time.Time
+}
+
 type Entry struct {
 	ID             uuid.UUID
 	UserID         uuid.UUID

@@ -51,6 +51,11 @@ func (r *queryResolver) Me(ctx context.Context) (*domain.User, error) {
 	return user, nil
 }
 
+// Role is the resolver for the role field.
+func (r *userResolver) Role(ctx context.Context, obj *domain.User) (string, error) {
+	return string(obj.Role), nil
+}
+
 // Settings is the resolver for the settings field.
 func (r *userResolver) Settings(ctx context.Context, obj *domain.User) (*domain.UserSettings, error) {
 	return r.user.GetSettings(ctx)
