@@ -66,7 +66,7 @@ func main() {
 		logger.Info("dry-run mode: no DB writes")
 	}
 
-	if _, err := llm_importer.Run(ctx, importCfg, repo, logger); err != nil {
+	if _, err := llm_importer.Run(ctx, importCfg, repo, nil, logger); err != nil {
 		logger.Error("import failed", slog.String("error", err.Error()))
 		os.Exit(1)
 	}

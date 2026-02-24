@@ -3,6 +3,7 @@ package refentry
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -166,6 +167,105 @@ func (r *Repo) BulkInsertCoverage(ctx context.Context, coverage []domain.RefEntr
 	}
 
 	return r.sendBatchExec(ctx, batch)
+}
+
+// ---------------------------------------------------------------------------
+// Replace methods (for LLM enrichment)
+// ---------------------------------------------------------------------------
+
+// ReplaceEntryContent replaces all senses, translations, and examples for a ref entry.
+// Strategy: delete old child data, insert new. User senses with ref_sense_id pointing
+// to deleted senses get SET NULL (by FK constraint ON DELETE SET NULL).
+// This is acceptable because LLM data is strictly better quality.
+func (r *Repo) ReplaceEntryContent(ctx context.Context, entryID uuid.UUID, senses []domain.RefSense, translations []domain.RefTranslation, examples []domain.RefExample) error {
+	return r.txm.RunInTx(ctx, func(txCtx context.Context) error {
+		q := postgres.QuerierFromCtx(txCtx, r.pool)
+
+		// 1. Delete existing senses (cascades to ref_translations, ref_examples via FK).
+		if _, err := q.Exec(txCtx, `DELETE FROM ref_senses WHERE ref_entry_id = $1`, entryID); err != nil {
+			return fmt.Errorf("delete old senses: %w", err)
+		}
+
+		// 2. Insert new senses.
+		if len(senses) > 0 {
+			batch := &pgx.Batch{}
+			for _, s := range senses {
+				var pos *string
+				if s.PartOfSpeech != nil {
+					p := string(*s.PartOfSpeech)
+					pos = &p
+				}
+				batch.Queue(
+					`INSERT INTO ref_senses (id, ref_entry_id, definition, part_of_speech, cefr_level, notes, source_slug, position, created_at)
+					 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+					s.ID, s.RefEntryID, s.Definition, pos, s.CEFRLevel, s.Notes, s.SourceSlug, s.Position, s.CreatedAt,
+				)
+			}
+			results := q.SendBatch(txCtx, batch)
+			for range senses {
+				if _, err := results.Exec(); err != nil {
+					results.Close()
+					return fmt.Errorf("insert sense: %w", err)
+				}
+			}
+			results.Close()
+		}
+
+		// 3. Insert new translations.
+		if len(translations) > 0 {
+			batch := &pgx.Batch{}
+			for _, tr := range translations {
+				batch.Queue(
+					`INSERT INTO ref_translations (id, ref_sense_id, text, source_slug, position)
+					 VALUES ($1, $2, $3, $4, $5)`,
+					tr.ID, tr.RefSenseID, tr.Text, tr.SourceSlug, tr.Position,
+				)
+			}
+			results := q.SendBatch(txCtx, batch)
+			for range translations {
+				if _, err := results.Exec(); err != nil {
+					results.Close()
+					return fmt.Errorf("insert translation: %w", err)
+				}
+			}
+			results.Close()
+		}
+
+		// 4. Insert new examples.
+		if len(examples) > 0 {
+			batch := &pgx.Batch{}
+			for _, ex := range examples {
+				batch.Queue(
+					`INSERT INTO ref_examples (id, ref_sense_id, sentence, translation, source_slug, position)
+					 VALUES ($1, $2, $3, $4, $5, $6)`,
+					ex.ID, ex.RefSenseID, ex.Sentence, ex.Translation, ex.SourceSlug, ex.Position,
+				)
+			}
+			results := q.SendBatch(txCtx, batch)
+			for range examples {
+				if _, err := results.Exec(); err != nil {
+					results.Close()
+					return fmt.Errorf("insert example: %w", err)
+				}
+			}
+			results.Close()
+		}
+
+		// 5. Upsert source coverage for 'llm'.
+		now := time.Now()
+		_, err := q.Exec(txCtx,
+			`INSERT INTO ref_entry_source_coverage (ref_entry_id, source_slug, status, fetched_at)
+			 VALUES ($1, 'llm', 'fetched', $2)
+			 ON CONFLICT (ref_entry_id, source_slug) DO UPDATE
+			 SET status = 'fetched', fetched_at = EXCLUDED.fetched_at`,
+			entryID, now,
+		)
+		if err != nil {
+			return fmt.Errorf("upsert coverage: %w", err)
+		}
+
+		return nil
+	})
 }
 
 // ---------------------------------------------------------------------------

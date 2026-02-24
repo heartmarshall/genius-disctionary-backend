@@ -202,6 +202,11 @@ func (m *mockRepo) UpsertDataSources(_ context.Context, _ []domain.RefDataSource
 	return nil
 }
 
+func (m *mockRepo) ReplaceEntryContent(_ context.Context, _ uuid.UUID, _ []domain.RefSense, _ []domain.RefTranslation, _ []domain.RefExample) error {
+	m.logCall("ReplaceEntryContent")
+	return nil
+}
+
 func testLogger() *slog.Logger {
 	return slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelError}))
 }

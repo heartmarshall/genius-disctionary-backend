@@ -22,6 +22,9 @@ type RefEntryBulkRepo interface {
 	BulkInsertRelations(ctx context.Context, relations []domain.RefWordRelation) (int, error)
 	BulkInsertCoverage(ctx context.Context, coverage []domain.RefEntrySourceCoverage) (int, error)
 
+	// Replace — delete+insert for LLM enrichment.
+	ReplaceEntryContent(ctx context.Context, entryID uuid.UUID, senses []domain.RefSense, translations []domain.RefTranslation, examples []domain.RefExample) error
+
 	// Batch update — metadata enrichment via COALESCE.
 	BulkUpdateEntryMetadata(ctx context.Context, updates []domain.EntryMetadataUpdate) (int, error)
 
