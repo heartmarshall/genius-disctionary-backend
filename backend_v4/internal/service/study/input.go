@@ -29,7 +29,6 @@ type ReviewCardInput struct {
 	CardID     uuid.UUID
 	Grade      domain.ReviewGrade
 	DurationMs *int
-	SessionID  *uuid.UUID
 }
 
 // Validate checks all fields and collects all errors.
@@ -49,8 +48,6 @@ func (i *ReviewCardInput) Validate() error {
 	if i.DurationMs != nil && *i.DurationMs > 600_000 {
 		errs = append(errs, domain.FieldError{Field: "duration_ms", Message: "max 10 minutes"})
 	}
-	// No validation for SessionID - it's optional and can be nil
-
 	if len(errs) > 0 {
 		return domain.NewValidationErrors(errs)
 	}

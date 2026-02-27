@@ -53,7 +53,6 @@ func (r *mutationResolver) ReviewCard(ctx context.Context, input generated.Revie
 		CardID:     input.CardID,
 		Grade:      input.Grade,
 		DurationMs: input.DurationMs,
-		SessionID:  nil, // GraphQL doesn't have sessionID in ReviewCardInput
 	}
 
 	card, err := r.study.ReviewCard(ctx, serviceInput)
