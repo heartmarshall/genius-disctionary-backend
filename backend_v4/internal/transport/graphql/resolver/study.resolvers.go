@@ -7,7 +7,6 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
@@ -200,22 +199,7 @@ func (r *queryResolver) StudyQueue(ctx context.Context, limit *int) ([]*domain.E
 	}
 
 	serviceInput := study.GetQueueInput{Limit: l}
-	cards, err := r.study.GetStudyQueue(ctx, serviceInput)
-	if err != nil {
-		return nil, err
-	}
-
-	// Load entries for each card
-	entries := make([]*domain.Entry, len(cards))
-	for i, card := range cards {
-		entry, err := r.dictionary.GetEntry(ctx, card.EntryID)
-		if err != nil {
-			return nil, fmt.Errorf("failed to load entry for card %s: %w", card.ID, err)
-		}
-		entries[i] = entry
-	}
-
-	return entries, nil
+	return r.study.GetStudyQueueEntries(ctx, serviceInput)
 }
 
 // Dashboard is the resolver for the dashboard field.

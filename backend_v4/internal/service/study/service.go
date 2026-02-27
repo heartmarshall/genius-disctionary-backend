@@ -51,6 +51,7 @@ type sessionRepo interface {
 
 type entryRepo interface {
 	GetByID(ctx context.Context, userID, entryID uuid.UUID) (*domain.Entry, error)
+	GetByIDs(ctx context.Context, userID uuid.UUID, ids []uuid.UUID) ([]domain.Entry, error)
 	ExistByIDs(ctx context.Context, userID uuid.UUID, ids []uuid.UUID) (map[uuid.UUID]bool, error)
 }
 

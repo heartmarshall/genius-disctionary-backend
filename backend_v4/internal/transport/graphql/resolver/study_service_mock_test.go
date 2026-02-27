@@ -47,6 +47,9 @@ var _ studyService = &studyServiceMock{}
 //			GetStudyQueueFunc: func(ctx context.Context, input study.GetQueueInput) ([]*domain.Card, error) {
 //				panic("mock out the GetStudyQueue method")
 //			},
+//			GetStudyQueueEntriesFunc: func(ctx context.Context, input study.GetQueueInput) ([]*domain.Entry, error) {
+//				panic("mock out the GetStudyQueueEntries method")
+//			},
 //			ReviewCardFunc: func(ctx context.Context, input study.ReviewCardInput) (*domain.Card, error) {
 //				panic("mock out the ReviewCard method")
 //			},
@@ -92,6 +95,9 @@ type studyServiceMock struct {
 
 	// GetStudyQueueFunc mocks the GetStudyQueue method.
 	GetStudyQueueFunc func(ctx context.Context, input study.GetQueueInput) ([]*domain.Card, error)
+
+	// GetStudyQueueEntriesFunc mocks the GetStudyQueueEntries method.
+	GetStudyQueueEntriesFunc func(ctx context.Context, input study.GetQueueInput) ([]*domain.Entry, error)
 
 	// ReviewCardFunc mocks the ReviewCard method.
 	ReviewCardFunc func(ctx context.Context, input study.ReviewCardInput) (*domain.Card, error)
@@ -168,6 +174,13 @@ type studyServiceMock struct {
 			// Input is the input argument value.
 			Input study.GetQueueInput
 		}
+		// GetStudyQueueEntries holds details about calls to the GetStudyQueueEntries method.
+		GetStudyQueueEntries []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Input is the input argument value.
+			Input study.GetQueueInput
+		}
 		// ReviewCard holds details about calls to the ReviewCard method.
 		ReviewCard []struct {
 			// Ctx is the ctx argument value.
@@ -197,8 +210,9 @@ type studyServiceMock struct {
 	lockGetCardStats     sync.RWMutex
 	lockGetActiveSession sync.RWMutex
 	lockGetDashboard     sync.RWMutex
-	lockGetStudyQueue    sync.RWMutex
-	lockReviewCard       sync.RWMutex
+	lockGetStudyQueue        sync.RWMutex
+	lockGetStudyQueueEntries sync.RWMutex
+	lockReviewCard           sync.RWMutex
 	lockStartSession     sync.RWMutex
 	lockUndoReview       sync.RWMutex
 }
@@ -545,6 +559,42 @@ func (mock *studyServiceMock) GetStudyQueueCalls() []struct {
 	mock.lockGetStudyQueue.RLock()
 	calls = mock.calls.GetStudyQueue
 	mock.lockGetStudyQueue.RUnlock()
+	return calls
+}
+
+// GetStudyQueueEntries calls GetStudyQueueEntriesFunc.
+func (mock *studyServiceMock) GetStudyQueueEntries(ctx context.Context, input study.GetQueueInput) ([]*domain.Entry, error) {
+	if mock.GetStudyQueueEntriesFunc == nil {
+		panic("studyServiceMock.GetStudyQueueEntriesFunc: method is nil but studyService.GetStudyQueueEntries was just called")
+	}
+	callInfo := struct {
+		Ctx   context.Context
+		Input study.GetQueueInput
+	}{
+		Ctx:   ctx,
+		Input: input,
+	}
+	mock.lockGetStudyQueueEntries.Lock()
+	mock.calls.GetStudyQueueEntries = append(mock.calls.GetStudyQueueEntries, callInfo)
+	mock.lockGetStudyQueueEntries.Unlock()
+	return mock.GetStudyQueueEntriesFunc(ctx, input)
+}
+
+// GetStudyQueueEntriesCalls gets all the calls that were made to GetStudyQueueEntries.
+// Check the length with:
+//
+//	len(mockedstudyService.GetStudyQueueEntriesCalls())
+func (mock *studyServiceMock) GetStudyQueueEntriesCalls() []struct {
+	Ctx   context.Context
+	Input study.GetQueueInput
+} {
+	var calls []struct {
+		Ctx   context.Context
+		Input study.GetQueueInput
+	}
+	mock.lockGetStudyQueueEntries.RLock()
+	calls = mock.calls.GetStudyQueueEntries
+	mock.lockGetStudyQueueEntries.RUnlock()
 	return calls
 }
 

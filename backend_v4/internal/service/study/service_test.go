@@ -4628,6 +4628,250 @@ func TestService_GetStudyQueue_DefaultLimit_WhenZero(t *testing.T) {
 }
 
 // ---------------------------------------------------------------------------
+// GetStudyQueueEntries Tests
+// ---------------------------------------------------------------------------
+
+func TestService_GetStudyQueueEntries_BatchLoadsEntries(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+	now := time.Now()
+
+	card1 := &domain.Card{ID: uuid.New(), EntryID: uuid.New(), State: domain.CardStateReview, Due: now.Add(-1 * time.Hour)}
+	card2 := &domain.Card{ID: uuid.New(), EntryID: uuid.New(), State: domain.CardStateReview, Due: now.Add(-30 * time.Minute)}
+
+	entry1 := domain.Entry{ID: card1.EntryID, UserID: userID, Text: "hello"}
+	entry2 := domain.Entry{ID: card2.EntryID, UserID: userID, Text: "world"}
+
+	settings := &domain.UserSettings{
+		UserID:         userID,
+		NewCardsPerDay: 20,
+		Timezone:       "UTC",
+	}
+
+	mockSettings := &settingsRepoMock{
+		GetByUserIDFunc: func(ctx context.Context, uid uuid.UUID) (*domain.UserSettings, error) {
+			return settings, nil
+		},
+	}
+
+	mockReviews := &reviewLogRepoMock{
+		CountNewTodayFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
+			return 0, nil
+		},
+	}
+
+	mockCards := &cardRepoMock{
+		GetDueCardsFunc: func(ctx context.Context, uid uuid.UUID, nowTime time.Time, limit int) ([]*domain.Card, error) {
+			return []*domain.Card{card1, card2}, nil
+		},
+		GetNewCardsFunc: func(ctx context.Context, uid uuid.UUID, limit int) ([]*domain.Card, error) {
+			return []*domain.Card{}, nil
+		},
+	}
+
+	getByIDsCalled := false
+	mockEntries := &entryRepoMock{
+		GetByIDsFunc: func(ctx context.Context, uid uuid.UUID, ids []uuid.UUID) ([]domain.Entry, error) {
+			getByIDsCalled = true
+			if uid != userID {
+				t.Errorf("unexpected userID: got %v, want %v", uid, userID)
+			}
+			if len(ids) != 2 {
+				t.Errorf("expected 2 IDs, got %d", len(ids))
+			}
+			return []domain.Entry{entry1, entry2}, nil
+		},
+	}
+
+	svc := &Service{
+		cards:    mockCards,
+		reviews:  mockReviews,
+		entries:  mockEntries,
+		settings: mockSettings,
+		log:      slog.Default(),
+		srsConfig: domain.SRSConfig{
+			LearningSteps:     []time.Duration{1 * time.Minute, 10 * time.Minute},
+			DefaultRetention:  0.9,
+			MaxIntervalDays:   365,
+			UndoWindowMinutes: 15,
+		},
+	}
+
+	entries, err := svc.GetStudyQueueEntries(ctx, GetQueueInput{Limit: 50})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(entries) != 2 {
+		t.Errorf("entries length: got %d, want 2", len(entries))
+	}
+
+	if !getByIDsCalled {
+		t.Error("expected GetByIDs to be called (batch), but it was not")
+	}
+
+	// Verify batch was called exactly once
+	if len(mockEntries.GetByIDsCalls()) != 1 {
+		t.Errorf("GetByIDs calls: got %d, want 1", len(mockEntries.GetByIDsCalls()))
+	}
+
+	// Verify ordering is preserved (card1 entry first, card2 entry second)
+	if entries[0].ID != card1.EntryID {
+		t.Errorf("first entry ID: got %v, want %v", entries[0].ID, card1.EntryID)
+	}
+	if entries[1].ID != card2.EntryID {
+		t.Errorf("second entry ID: got %v, want %v", entries[1].ID, card2.EntryID)
+	}
+}
+
+func TestService_GetStudyQueueEntries_EmptyQueue(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	settings := &domain.UserSettings{
+		UserID:         userID,
+		NewCardsPerDay: 20,
+		Timezone:       "UTC",
+	}
+
+	mockSettings := &settingsRepoMock{
+		GetByUserIDFunc: func(ctx context.Context, uid uuid.UUID) (*domain.UserSettings, error) {
+			return settings, nil
+		},
+	}
+
+	mockReviews := &reviewLogRepoMock{
+		CountNewTodayFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
+			return 0, nil
+		},
+	}
+
+	mockCards := &cardRepoMock{
+		GetDueCardsFunc: func(ctx context.Context, uid uuid.UUID, nowTime time.Time, limit int) ([]*domain.Card, error) {
+			return []*domain.Card{}, nil
+		},
+		GetNewCardsFunc: func(ctx context.Context, uid uuid.UUID, limit int) ([]*domain.Card, error) {
+			return []*domain.Card{}, nil
+		},
+	}
+
+	mockEntries := &entryRepoMock{
+		// GetByIDs should NOT be called when queue is empty
+	}
+
+	svc := &Service{
+		cards:    mockCards,
+		reviews:  mockReviews,
+		entries:  mockEntries,
+		settings: mockSettings,
+		log:      slog.Default(),
+		srsConfig: domain.SRSConfig{
+			LearningSteps:     []time.Duration{1 * time.Minute, 10 * time.Minute},
+			DefaultRetention:  0.9,
+			MaxIntervalDays:   365,
+			UndoWindowMinutes: 15,
+		},
+	}
+
+	entries, err := svc.GetStudyQueueEntries(ctx, GetQueueInput{Limit: 50})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if entries != nil {
+		t.Errorf("expected nil entries for empty queue, got %v", entries)
+	}
+
+	// GetByIDs should not have been called
+	if len(mockEntries.GetByIDsCalls()) != 0 {
+		t.Errorf("GetByIDs calls: got %d, want 0", len(mockEntries.GetByIDsCalls()))
+	}
+}
+
+func TestService_GetStudyQueueEntries_NoUserID(t *testing.T) {
+	t.Parallel()
+
+	svc := &Service{
+		log: slog.Default(),
+	}
+
+	ctx := context.Background() // No user ID
+	_, err := svc.GetStudyQueueEntries(ctx, GetQueueInput{Limit: 50})
+	if !errors.Is(err, domain.ErrUnauthorized) {
+		t.Errorf("error: got %v, want ErrUnauthorized", err)
+	}
+}
+
+func TestService_GetStudyQueueEntries_GetByIDsError(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+	now := time.Now()
+
+	card := &domain.Card{ID: uuid.New(), EntryID: uuid.New(), State: domain.CardStateReview, Due: now.Add(-1 * time.Hour)}
+
+	settings := &domain.UserSettings{
+		UserID:         userID,
+		NewCardsPerDay: 20,
+		Timezone:       "UTC",
+	}
+
+	mockSettings := &settingsRepoMock{
+		GetByUserIDFunc: func(ctx context.Context, uid uuid.UUID) (*domain.UserSettings, error) {
+			return settings, nil
+		},
+	}
+
+	mockReviews := &reviewLogRepoMock{
+		CountNewTodayFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
+			return 0, nil
+		},
+	}
+
+	mockCards := &cardRepoMock{
+		GetDueCardsFunc: func(ctx context.Context, uid uuid.UUID, nowTime time.Time, limit int) ([]*domain.Card, error) {
+			return []*domain.Card{card}, nil
+		},
+		GetNewCardsFunc: func(ctx context.Context, uid uuid.UUID, limit int) ([]*domain.Card, error) {
+			return []*domain.Card{}, nil
+		},
+	}
+
+	mockEntries := &entryRepoMock{
+		GetByIDsFunc: func(ctx context.Context, uid uuid.UUID, ids []uuid.UUID) ([]domain.Entry, error) {
+			return nil, errors.New("db connection error")
+		},
+	}
+
+	svc := &Service{
+		cards:    mockCards,
+		reviews:  mockReviews,
+		entries:  mockEntries,
+		settings: mockSettings,
+		log:      slog.Default(),
+		srsConfig: domain.SRSConfig{
+			LearningSteps:     []time.Duration{1 * time.Minute, 10 * time.Minute},
+			DefaultRetention:  0.9,
+			MaxIntervalDays:   365,
+			UndoWindowMinutes: 15,
+		},
+	}
+
+	_, err := svc.GetStudyQueueEntries(ctx, GetQueueInput{Limit: 50})
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	if got := err.Error(); got == "" {
+		t.Error("expected non-empty error message")
+	}
+}
+
+// ---------------------------------------------------------------------------
 // Test Helpers
 // ---------------------------------------------------------------------------
 

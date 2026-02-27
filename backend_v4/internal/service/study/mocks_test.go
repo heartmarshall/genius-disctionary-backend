@@ -1599,6 +1599,9 @@ var _ entryRepo = &entryRepoMock{}
 //			GetByIDFunc: func(ctx context.Context, userID uuid.UUID, entryID uuid.UUID) (*domain.Entry, error) {
 //				panic("mock out the GetByID method")
 //			},
+//			GetByIDsFunc: func(ctx context.Context, userID uuid.UUID, ids []uuid.UUID) ([]domain.Entry, error) {
+//				panic("mock out the GetByIDs method")
+//			},
 //		}
 //
 //		// use mockedentryRepo in code that requires entryRepo
@@ -1611,6 +1614,9 @@ type entryRepoMock struct {
 
 	// GetByIDFunc mocks the GetByID method.
 	GetByIDFunc func(ctx context.Context, userID uuid.UUID, entryID uuid.UUID) (*domain.Entry, error)
+
+	// GetByIDsFunc mocks the GetByIDs method.
+	GetByIDsFunc func(ctx context.Context, userID uuid.UUID, ids []uuid.UUID) ([]domain.Entry, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -1632,9 +1638,19 @@ type entryRepoMock struct {
 			// EntryID is the entryID argument value.
 			EntryID uuid.UUID
 		}
+		// GetByIDs holds details about calls to the GetByIDs method.
+		GetByIDs []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// UserID is the userID argument value.
+			UserID uuid.UUID
+			// Ids is the ids argument value.
+			Ids []uuid.UUID
+		}
 	}
 	lockExistByIDs sync.RWMutex
 	lockGetByID    sync.RWMutex
+	lockGetByIDs   sync.RWMutex
 }
 
 // ExistByIDs calls ExistByIDsFunc.
@@ -1714,6 +1730,46 @@ func (mock *entryRepoMock) GetByIDCalls() []struct {
 	mock.lockGetByID.RLock()
 	calls = mock.calls.GetByID
 	mock.lockGetByID.RUnlock()
+	return calls
+}
+
+// GetByIDs calls GetByIDsFunc.
+func (mock *entryRepoMock) GetByIDs(ctx context.Context, userID uuid.UUID, ids []uuid.UUID) ([]domain.Entry, error) {
+	if mock.GetByIDsFunc == nil {
+		panic("entryRepoMock.GetByIDsFunc: method is nil but entryRepo.GetByIDs was just called")
+	}
+	callInfo := struct {
+		Ctx    context.Context
+		UserID uuid.UUID
+		Ids    []uuid.UUID
+	}{
+		Ctx:    ctx,
+		UserID: userID,
+		Ids:    ids,
+	}
+	mock.lockGetByIDs.Lock()
+	mock.calls.GetByIDs = append(mock.calls.GetByIDs, callInfo)
+	mock.lockGetByIDs.Unlock()
+	return mock.GetByIDsFunc(ctx, userID, ids)
+}
+
+// GetByIDsCalls gets all the calls that were made to GetByIDs.
+// Check the length with:
+//
+//	len(mockedentryRepo.GetByIDsCalls())
+func (mock *entryRepoMock) GetByIDsCalls() []struct {
+	Ctx    context.Context
+	UserID uuid.UUID
+	Ids    []uuid.UUID
+} {
+	var calls []struct {
+		Ctx    context.Context
+		UserID uuid.UUID
+		Ids    []uuid.UUID
+	}
+	mock.lockGetByIDs.RLock()
+	calls = mock.calls.GetByIDs
+	mock.lockGetByIDs.RUnlock()
 	return calls
 }
 

@@ -52,6 +52,7 @@ type contentService interface {
 // studyService defines what resolver needs from Study service.
 type studyService interface {
 	GetStudyQueue(ctx context.Context, input study.GetQueueInput) ([]*domain.Card, error)
+	GetStudyQueueEntries(ctx context.Context, input study.GetQueueInput) ([]*domain.Entry, error)
 	ReviewCard(ctx context.Context, input study.ReviewCardInput) (*domain.Card, error)
 	UndoReview(ctx context.Context, input study.UndoReviewInput) (*domain.Card, error)
 	StartSession(ctx context.Context) (*domain.StudySession, error)

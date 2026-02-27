@@ -24,24 +24,17 @@ func TestStudyQueue_Success(t *testing.T) {
 
 	userID := uuid.New()
 	entryID := uuid.New()
-	cardID := uuid.New()
 
 	studyMock := &studyServiceMock{
-		GetStudyQueueFunc: func(ctx context.Context, input study.GetQueueInput) ([]*domain.Card, error) {
+		GetStudyQueueEntriesFunc: func(ctx context.Context, input study.GetQueueInput) ([]*domain.Entry, error) {
 			assert.Equal(t, 20, input.Limit)
-			return []*domain.Card{
-				{ID: cardID, EntryID: entryID, UserID: userID},
+			return []*domain.Entry{
+				{ID: entryID, Text: "test"},
 			}, nil
 		},
 	}
 
-	dictMock := &dictionaryServiceMock{
-		GetEntryFunc: func(ctx context.Context, id uuid.UUID) (*domain.Entry, error) {
-			return &domain.Entry{ID: entryID, Text: "test"}, nil
-		},
-	}
-
-	resolver := &queryResolver{&Resolver{study: studyMock, dictionary: dictMock}}
+	resolver := &queryResolver{&Resolver{study: studyMock}}
 	ctx := ctxutil.WithUserID(context.Background(), userID)
 
 	result, err := resolver.StudyQueue(ctx, nil)
@@ -58,9 +51,9 @@ func TestStudyQueue_CustomLimit(t *testing.T) {
 	userID := uuid.New()
 
 	studyMock := &studyServiceMock{
-		GetStudyQueueFunc: func(ctx context.Context, input study.GetQueueInput) ([]*domain.Card, error) {
+		GetStudyQueueEntriesFunc: func(ctx context.Context, input study.GetQueueInput) ([]*domain.Entry, error) {
 			assert.Equal(t, 50, input.Limit)
-			return []*domain.Card{}, nil
+			return []*domain.Entry{}, nil
 		},
 	}
 
