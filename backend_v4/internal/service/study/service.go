@@ -37,6 +37,7 @@ type reviewLogRepo interface {
 	CountNewToday(ctx context.Context, userID uuid.UUID, dayStart time.Time) (int, error)
 	GetStreakDays(ctx context.Context, userID uuid.UUID, dayStart time.Time, lastNDays int) ([]domain.DayReviewCount, error)
 	GetByPeriod(ctx context.Context, userID uuid.UUID, from, to time.Time) ([]*domain.ReviewLog, error)
+	GetStatsByCardID(ctx context.Context, cardID uuid.UUID) (domain.ReviewLogAggregation, error)
 }
 
 type sessionRepo interface {

@@ -4040,18 +4040,21 @@ func TestService_GetCardStats_Success_WithStats(t *testing.T) {
 	cardID := uuid.New()
 
 	card := &domain.Card{
-		ID:           cardID,
-		UserID:       userID,
-		State:        domain.CardStateReview,
+		ID:            cardID,
+		UserID:        userID,
+		State:         domain.CardStateReview,
 		ScheduledDays: 14,
-		Stability:    2.6,
+		Stability:     2.6,
 	}
 
-	logs := []*domain.ReviewLog{
-		{ID: uuid.New(), CardID: cardID, Grade: domain.ReviewGradeGood, DurationMs: ptr(5000)},
-		{ID: uuid.New(), CardID: cardID, Grade: domain.ReviewGradeEasy, DurationMs: ptr(3000)},
-		{ID: uuid.New(), CardID: cardID, Grade: domain.ReviewGradeAgain, DurationMs: ptr(8000)},
-		{ID: uuid.New(), CardID: cardID, Grade: domain.ReviewGradeGood, DurationMs: nil}, // No duration
+	avgDur := 5333
+	agg := domain.ReviewLogAggregation{
+		TotalReviews:  4,
+		AgainCount:    1,
+		HardCount:     0,
+		GoodCount:     2,
+		EasyCount:     1,
+		AvgDurationMs: &avgDur,
 	}
 
 	mockCards := &cardRepoMock{
@@ -4061,11 +4064,8 @@ func TestService_GetCardStats_Success_WithStats(t *testing.T) {
 	}
 
 	mockReviews := &reviewLogRepoMock{
-		GetByCardIDFunc: func(ctx context.Context, cid uuid.UUID, limit, offset int) ([]*domain.ReviewLog, int, error) {
-			if limit != 0 || offset != 0 {
-				t.Errorf("limit/offset: got (%d, %d), want (0, 0)", limit, offset)
-			}
-			return logs, 4, nil
+		GetStatsByCardIDFunc: func(ctx context.Context, cid uuid.UUID) (domain.ReviewLogAggregation, error) {
+			return agg, nil
 		},
 	}
 
@@ -4078,7 +4078,7 @@ func TestService_GetCardStats_Success_WithStats(t *testing.T) {
 	ctx := ctxutil.WithUserID(context.Background(), userID)
 	input := GetCardHistoryInput{
 		CardID: cardID,
-		Limit:  0, // Get all
+		Limit:  0,
 		Offset: 0,
 	}
 
@@ -4094,7 +4094,7 @@ func TestService_GetCardStats_Success_WithStats(t *testing.T) {
 	if stats.AccuracyRate != 75.0 {
 		t.Errorf("AccuracyRate: got %.2f, want 75.00", stats.AccuracyRate)
 	}
-	// AverageTimeMs = (5000 + 3000 + 8000) / 3 = 5333
+	// AverageTimeMs = 5333 (from SQL aggregation)
 	if stats.AverageTimeMs == nil {
 		t.Error("AverageTimeMs should not be nil")
 	} else if *stats.AverageTimeMs != 5333 {
@@ -4118,11 +4118,11 @@ func TestService_GetCardStats_NoReviews_ZerosAndNil(t *testing.T) {
 	cardID := uuid.New()
 
 	card := &domain.Card{
-		ID:           cardID,
-		UserID:       userID,
-		State:        domain.CardStateNew,
+		ID:            cardID,
+		UserID:        userID,
+		State:         domain.CardStateNew,
 		ScheduledDays: 0,
-		Stability:    2.5,
+		Stability:     2.5,
 	}
 
 	mockCards := &cardRepoMock{
@@ -4132,8 +4132,8 @@ func TestService_GetCardStats_NoReviews_ZerosAndNil(t *testing.T) {
 	}
 
 	mockReviews := &reviewLogRepoMock{
-		GetByCardIDFunc: func(ctx context.Context, cid uuid.UUID, limit, offset int) ([]*domain.ReviewLog, int, error) {
-			return []*domain.ReviewLog{}, 0, nil
+		GetStatsByCardIDFunc: func(ctx context.Context, cid uuid.UUID) (domain.ReviewLogAggregation, error) {
+			return domain.ReviewLogAggregation{}, nil
 		},
 	}
 

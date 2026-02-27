@@ -152,68 +152,39 @@ func (s *Service) GetCardStats(ctx context.Context, input GetCardHistoryInput) (
 		return domain.CardStats{}, err
 	}
 
-	// Load card
 	card, err := s.cards.GetByID(ctx, userID, input.CardID)
 	if err != nil {
 		return domain.CardStats{}, fmt.Errorf("get card: %w", err)
 	}
 
-	// Load ALL review logs (limit=0 means no limit)
-	logs, total, err := s.reviews.GetByCardID(ctx, input.CardID, 0, 0)
+	agg, err := s.reviews.GetStatsByCardID(ctx, input.CardID)
 	if err != nil {
-		return domain.CardStats{}, fmt.Errorf("get review logs: %w", err)
+		return domain.CardStats{}, fmt.Errorf("get review stats: %w", err)
 	}
 
-	// Calculate stats
 	stats := domain.CardStats{
-		TotalReviews:  total,
-		AccuracyRate:  0.0,
-		AverageTimeMs: nil,
+		TotalReviews:  agg.TotalReviews,
 		CurrentState:  card.State,
 		Stability:     card.Stability,
 		Difficulty:    card.Difficulty,
 		ScheduledDays: card.ScheduledDays,
+		AverageTimeMs: agg.AvgDurationMs,
 	}
 
-	if total == 0 {
-		return stats, nil
-	}
-
-	// Calculate accuracy rate and grade distribution
-	dist := &domain.GradeCounts{}
-	for _, log := range logs {
-		switch log.Grade {
-		case domain.ReviewGradeAgain:
-			dist.Again++
-		case domain.ReviewGradeHard:
-			dist.Hard++
-		case domain.ReviewGradeGood:
-			dist.Good++
-		case domain.ReviewGradeEasy:
-			dist.Easy++
+	if agg.TotalReviews > 0 {
+		stats.AccuracyRate = float64(agg.GoodCount+agg.EasyCount) / float64(agg.TotalReviews) * 100
+		stats.GradeDistribution = &domain.GradeCounts{
+			Again: agg.AgainCount,
+			Hard:  agg.HardCount,
+			Good:  agg.GoodCount,
+			Easy:  agg.EasyCount,
 		}
-	}
-	stats.GradeDistribution = dist
-	stats.AccuracyRate = float64(dist.Good+dist.Easy) / float64(total) * 100
-
-	// Calculate average time
-	totalDuration := 0
-	durationCount := 0
-	for _, log := range logs {
-		if log.DurationMs != nil {
-			totalDuration += *log.DurationMs
-			durationCount++
-		}
-	}
-	if durationCount > 0 {
-		avgTime := totalDuration / durationCount
-		stats.AverageTimeMs = &avgTime
 	}
 
 	s.log.InfoContext(ctx, "card stats calculated",
 		slog.String("user_id", userID.String()),
 		slog.String("card_id", input.CardID.String()),
-		slog.Int("total_reviews", total),
+		slog.Int("total_reviews", agg.TotalReviews),
 		slog.Float64("accuracy_rate", stats.AccuracyRate),
 	)
 

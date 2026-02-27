@@ -70,7 +70,18 @@ SELECT count(*) FROM review_logs rl
 JOIN cards c ON rl.card_id = c.id
 WHERE c.user_id = $1 AND rl.reviewed_at >= $2
 AND rl.prev_state IS NOT NULL
-AND rl.prev_state->>'status' = 'NEW'`
+AND rl.prev_state->>'state' = 'NEW'`
+
+const getStatsByCardIDSQL = `
+SELECT
+    count(*) AS total,
+    count(*) FILTER (WHERE grade = 'AGAIN') AS again_count,
+    count(*) FILTER (WHERE grade = 'HARD') AS hard_count,
+    count(*) FILTER (WHERE grade = 'GOOD') AS good_count,
+    count(*) FILTER (WHERE grade = 'EASY') AS easy_count,
+    avg(duration_ms) FILTER (WHERE duration_ms IS NOT NULL) AS avg_duration_ms
+FROM review_logs
+WHERE card_id = $1`
 
 const getByPeriodSQL = `
 SELECT rl.id, rl.card_id, rl.grade, rl.prev_state, rl.duration_ms, rl.reviewed_at
@@ -318,6 +329,26 @@ func (r *Repo) CountNewToday(ctx context.Context, userID uuid.UUID, dayStart tim
 	return count, nil
 }
 
+// GetStatsByCardID returns aggregated review statistics for a card,
+// computed entirely in SQL (no loading of individual rows).
+func (r *Repo) GetStatsByCardID(ctx context.Context, cardID uuid.UUID) (domain.ReviewLogAggregation, error) {
+	querier := postgres.QuerierFromCtx(ctx, r.pool)
+	var stats domain.ReviewLogAggregation
+	var avgDur *float64
+	err := querier.QueryRow(ctx, getStatsByCardIDSQL, cardID).Scan(
+		&stats.TotalReviews, &stats.AgainCount, &stats.HardCount,
+		&stats.GoodCount, &stats.EasyCount, &avgDur,
+	)
+	if err != nil {
+		return domain.ReviewLogAggregation{}, fmt.Errorf("get stats by card_id: %w", err)
+	}
+	if avgDur != nil {
+		v := int(*avgDur)
+		stats.AvgDurationMs = &v
+	}
+	return stats, nil
+}
+
 // GetByPeriod returns review logs for a user within a time range,
 // ordered by reviewed_at DESC.
 func (r *Repo) GetByPeriod(ctx context.Context, userID uuid.UUID, from, to time.Time) ([]*domain.ReviewLog, error) {
@@ -382,11 +413,16 @@ func (r *Repo) GetByPeriod(ctx context.Context, userID uuid.UUID, from, to time.
 // cardSnapshotJSON is an intermediate struct for JSON marshaling of domain.CardSnapshot.
 // Domain CardSnapshot has no json tags, so the repo layer handles serialization.
 type cardSnapshotJSON struct {
-	Status       string  `json:"status"`
-	LearningStep int     `json:"learning_step"`
-	IntervalDays int     `json:"interval_days"`
-	EaseFactor   float64 `json:"ease_factor"`
-	NextReviewAt *string `json:"next_review_at,omitempty"`
+	State         string  `json:"state"`
+	Step          int     `json:"step"`
+	Stability     float64 `json:"stability"`
+	Difficulty    float64 `json:"difficulty"`
+	Due           string  `json:"due"`
+	LastReview    *string `json:"last_review,omitempty"`
+	Reps          int     `json:"reps"`
+	Lapses        int     `json:"lapses"`
+	ScheduledDays int     `json:"scheduled_days"`
+	ElapsedDays   int     `json:"elapsed_days"`
 }
 
 // marshalPrevState converts a *domain.CardSnapshot to JSON bytes for JSONB storage.
@@ -397,15 +433,20 @@ func marshalPrevState(cs *domain.CardSnapshot) ([]byte, error) {
 	}
 
 	j := cardSnapshotJSON{
-		Status:       string(cs.Status),
-		LearningStep: cs.LearningStep,
-		IntervalDays: cs.IntervalDays,
-		EaseFactor:   cs.EaseFactor,
+		State:         string(cs.State),
+		Step:          cs.Step,
+		Stability:     cs.Stability,
+		Difficulty:    cs.Difficulty,
+		Due:           cs.Due.UTC().Format(time.RFC3339Nano),
+		Reps:          cs.Reps,
+		Lapses:        cs.Lapses,
+		ScheduledDays: cs.ScheduledDays,
+		ElapsedDays:   cs.ElapsedDays,
 	}
 
-	if cs.NextReviewAt != nil {
-		s := cs.NextReviewAt.UTC().Format(time.RFC3339Nano)
-		j.NextReviewAt = &s
+	if cs.LastReview != nil {
+		s := cs.LastReview.UTC().Format(time.RFC3339Nano)
+		j.LastReview = &s
 	}
 
 	return json.Marshal(j)
@@ -423,19 +464,29 @@ func unmarshalPrevState(data []byte) (*domain.CardSnapshot, error) {
 		return nil, fmt.Errorf("unmarshal prev_state: %w", err)
 	}
 
-	cs := &domain.CardSnapshot{
-		Status:       domain.LearningStatus(j.Status),
-		LearningStep: j.LearningStep,
-		IntervalDays: j.IntervalDays,
-		EaseFactor:   j.EaseFactor,
+	due, err := time.Parse(time.RFC3339Nano, j.Due)
+	if err != nil {
+		return nil, fmt.Errorf("parse due: %w", err)
 	}
 
-	if j.NextReviewAt != nil {
-		t, err := time.Parse(time.RFC3339Nano, *j.NextReviewAt)
+	cs := &domain.CardSnapshot{
+		State:         domain.CardState(j.State),
+		Step:          j.Step,
+		Stability:     j.Stability,
+		Difficulty:    j.Difficulty,
+		Due:           due,
+		Reps:          j.Reps,
+		Lapses:        j.Lapses,
+		ScheduledDays: j.ScheduledDays,
+		ElapsedDays:   j.ElapsedDays,
+	}
+
+	if j.LastReview != nil {
+		t, err := time.Parse(time.RFC3339Nano, *j.LastReview)
 		if err != nil {
-			return nil, fmt.Errorf("parse next_review_at: %w", err)
+			return nil, fmt.Errorf("parse last_review: %w", err)
 		}
-		cs.NextReviewAt = &t
+		cs.LastReview = &t
 	}
 
 	return cs, nil

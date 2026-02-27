@@ -736,6 +736,9 @@ var _ reviewLogRepo = &reviewLogRepoMock{}
 //			GetLastByCardIDFunc: func(ctx context.Context, cardID uuid.UUID) (*domain.ReviewLog, error) {
 //				panic("mock out the GetLastByCardID method")
 //			},
+//			GetStatsByCardIDFunc: func(ctx context.Context, cardID uuid.UUID) (domain.ReviewLogAggregation, error) {
+//				panic("mock out the GetStatsByCardID method")
+//			},
 //			GetStreakDaysFunc: func(ctx context.Context, userID uuid.UUID, dayStart time.Time, lastNDays int) ([]domain.DayReviewCount, error) {
 //				panic("mock out the GetStreakDays method")
 //			},
@@ -766,6 +769,9 @@ type reviewLogRepoMock struct {
 
 	// GetLastByCardIDFunc mocks the GetLastByCardID method.
 	GetLastByCardIDFunc func(ctx context.Context, cardID uuid.UUID) (*domain.ReviewLog, error)
+
+	// GetStatsByCardIDFunc mocks the GetStatsByCardID method.
+	GetStatsByCardIDFunc func(ctx context.Context, cardID uuid.UUID) (domain.ReviewLogAggregation, error)
 
 	// GetStreakDaysFunc mocks the GetStreakDays method.
 	GetStreakDaysFunc func(ctx context.Context, userID uuid.UUID, dayStart time.Time, lastNDays int) ([]domain.DayReviewCount, error)
@@ -833,6 +839,13 @@ type reviewLogRepoMock struct {
 			// CardID is the cardID argument value.
 			CardID uuid.UUID
 		}
+		// GetStatsByCardID holds details about calls to the GetStatsByCardID method.
+		GetStatsByCardID []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// CardID is the cardID argument value.
+			CardID uuid.UUID
+		}
 		// GetStreakDays holds details about calls to the GetStreakDays method.
 		GetStreakDays []struct {
 			// Ctx is the ctx argument value.
@@ -845,14 +858,15 @@ type reviewLogRepoMock struct {
 			LastNDays int
 		}
 	}
-	lockCountNewToday   sync.RWMutex
-	lockCountToday      sync.RWMutex
-	lockCreate          sync.RWMutex
-	lockDelete          sync.RWMutex
-	lockGetByCardID     sync.RWMutex
-	lockGetByPeriod     sync.RWMutex
-	lockGetLastByCardID sync.RWMutex
-	lockGetStreakDays   sync.RWMutex
+	lockCountNewToday    sync.RWMutex
+	lockCountToday       sync.RWMutex
+	lockCreate           sync.RWMutex
+	lockDelete           sync.RWMutex
+	lockGetByCardID      sync.RWMutex
+	lockGetByPeriod      sync.RWMutex
+	lockGetLastByCardID  sync.RWMutex
+	lockGetStatsByCardID sync.RWMutex
+	lockGetStreakDays    sync.RWMutex
 }
 
 // CountNewToday calls CountNewTodayFunc.
@@ -1128,6 +1142,42 @@ func (mock *reviewLogRepoMock) GetLastByCardIDCalls() []struct {
 	mock.lockGetLastByCardID.RLock()
 	calls = mock.calls.GetLastByCardID
 	mock.lockGetLastByCardID.RUnlock()
+	return calls
+}
+
+// GetStatsByCardID calls GetStatsByCardIDFunc.
+func (mock *reviewLogRepoMock) GetStatsByCardID(ctx context.Context, cardID uuid.UUID) (domain.ReviewLogAggregation, error) {
+	if mock.GetStatsByCardIDFunc == nil {
+		panic("reviewLogRepoMock.GetStatsByCardIDFunc: method is nil but reviewLogRepo.GetStatsByCardID was just called")
+	}
+	callInfo := struct {
+		Ctx    context.Context
+		CardID uuid.UUID
+	}{
+		Ctx:    ctx,
+		CardID: cardID,
+	}
+	mock.lockGetStatsByCardID.Lock()
+	mock.calls.GetStatsByCardID = append(mock.calls.GetStatsByCardID, callInfo)
+	mock.lockGetStatsByCardID.Unlock()
+	return mock.GetStatsByCardIDFunc(ctx, cardID)
+}
+
+// GetStatsByCardIDCalls gets all the calls that were made to GetStatsByCardID.
+// Check the length with:
+//
+//	len(mockedreviewLogRepo.GetStatsByCardIDCalls())
+func (mock *reviewLogRepoMock) GetStatsByCardIDCalls() []struct {
+	Ctx    context.Context
+	CardID uuid.UUID
+} {
+	var calls []struct {
+		Ctx    context.Context
+		CardID uuid.UUID
+	}
+	mock.lockGetStatsByCardID.RLock()
+	calls = mock.calls.GetStatsByCardID
+	mock.lockGetStatsByCardID.RUnlock()
 	return calls
 }
 

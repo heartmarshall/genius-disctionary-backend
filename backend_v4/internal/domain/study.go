@@ -59,6 +59,16 @@ type DayReviewCount struct {
 	Count int
 }
 
+// ReviewLogAggregation holds aggregated review stats computed in SQL.
+type ReviewLogAggregation struct {
+	TotalReviews  int
+	AgainCount    int
+	HardCount     int
+	GoodCount     int
+	EasyCount     int
+	AvgDurationMs *int
+}
+
 // CardStats holds statistics for a single card.
 type CardStats struct {
 	TotalReviews      int
