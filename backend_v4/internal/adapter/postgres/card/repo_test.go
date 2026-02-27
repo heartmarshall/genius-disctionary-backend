@@ -3,6 +3,7 @@ package card_test
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -605,6 +606,133 @@ func TestRepo_Create_DifferentUsersCanShareEntry(t *testing.T) {
 	_, err = repo.Create(ctx, user2.ID, entry2.ID)
 	if err != nil {
 		t.Fatalf("Create user2: unexpected error (ux_cards_entry may be global): %v", err)
+	}
+}
+
+// ---------------------------------------------------------------------------
+// GetNewCards and ExistsByEntryIDs tests (Task 10b)
+// ---------------------------------------------------------------------------
+
+func TestRepo_GetNewCards_OrderedByCreatedAt(t *testing.T) {
+	t.Parallel()
+	repo, pool := newRepo(t)
+	ctx := context.Background()
+
+	user := testhelper.SeedUser(t, pool)
+
+	// Create 3 entries with cards in NEW state, with known creation order
+	var entryIDs []uuid.UUID
+	for i := 0; i < 3; i++ {
+		ref := testhelper.SeedRefEntry(t, pool, fmt.Sprintf("new-order-%d-%s", i, uuid.New().String()[:8]))
+		entry := testhelper.SeedEntryWithCard(t, pool, user.ID, ref.ID)
+		entryIDs = append(entryIDs, entry.ID)
+		time.Sleep(2 * time.Millisecond) // ensure different created_at
+	}
+
+	cards, err := repo.GetNewCards(ctx, user.ID, 10)
+	if err != nil {
+		t.Fatalf("GetNewCards: %v", err)
+	}
+
+	if len(cards) < 3 {
+		t.Fatalf("GetNewCards: got %d cards, want >= 3", len(cards))
+	}
+
+	// Verify FIFO ordering: first created should appear first
+	for i := 1; i < len(cards); i++ {
+		if cards[i].CreatedAt.Before(cards[i-1].CreatedAt) {
+			t.Errorf("card[%d].CreatedAt (%v) is before card[%d].CreatedAt (%v) — not FIFO",
+				i, cards[i].CreatedAt, i-1, cards[i-1].CreatedAt)
+		}
+	}
+}
+
+func TestRepo_ExistsByEntryIDs_ReturnsCorrectMap(t *testing.T) {
+	t.Parallel()
+	repo, pool := newRepo(t)
+	ctx := context.Background()
+
+	user := testhelper.SeedUser(t, pool)
+	ref1 := testhelper.SeedRefEntry(t, pool, "exists1-"+uuid.New().String()[:8])
+	ref2 := testhelper.SeedRefEntry(t, pool, "exists2-"+uuid.New().String()[:8])
+	ref3 := testhelper.SeedRefEntry(t, pool, "exists3-"+uuid.New().String()[:8])
+
+	// Entry 1 and 2 get cards, entry 3 does not
+	entry1 := testhelper.SeedEntryWithCard(t, pool, user.ID, ref1.ID)
+	entry2 := testhelper.SeedEntryWithCard(t, pool, user.ID, ref2.ID)
+	entry3 := testhelper.SeedEntry(t, pool, user.ID, ref3.ID)
+
+	result, err := repo.ExistsByEntryIDs(ctx, user.ID, []uuid.UUID{entry1.ID, entry2.ID, entry3.ID})
+	if err != nil {
+		t.Fatalf("ExistsByEntryIDs: %v", err)
+	}
+
+	if !result[entry1.ID] {
+		t.Errorf("entry1 should have card")
+	}
+	if !result[entry2.ID] {
+		t.Errorf("entry2 should have card")
+	}
+	if result[entry3.ID] {
+		t.Errorf("entry3 should NOT have card")
+	}
+}
+
+func TestRepo_GetDueCards_UserIsolation(t *testing.T) {
+	t.Parallel()
+	repo, pool := newRepo(t)
+	ctx := context.Background()
+
+	userA := testhelper.SeedUser(t, pool)
+	userB := testhelper.SeedUser(t, pool)
+
+	// Each user has a card set to due in the past (REVIEW state)
+	refA := testhelper.SeedRefEntry(t, pool, "isoA-"+uuid.New().String()[:8])
+	refB := testhelper.SeedRefEntry(t, pool, "isoB-"+uuid.New().String()[:8])
+	entryA := testhelper.SeedEntryWithCard(t, pool, userA.ID, refA.ID)
+	entryB := testhelper.SeedEntryWithCard(t, pool, userB.ID, refB.ID)
+
+	now := time.Now()
+	past := now.Add(-1 * time.Hour)
+
+	// Update both cards to REVIEW state with due in the past
+	for _, c := range []struct {
+		uid uuid.UUID
+		cid uuid.UUID
+	}{{userA.ID, entryA.Card.ID}, {userB.ID, entryB.Card.ID}} {
+		_, err := repo.UpdateSRS(ctx, c.uid, c.cid, domain.SRSUpdateParams{
+			State:      domain.CardStateReview,
+			Stability:  5.0,
+			Difficulty: 5.0,
+			Due:        past,
+			LastReview: &past,
+			Reps:       1,
+		})
+		if err != nil {
+			t.Fatalf("UpdateSRS: %v", err)
+		}
+	}
+
+	// User A should only see their card
+	cardsA, err := repo.GetDueCards(ctx, userA.ID, now, 10)
+	if err != nil {
+		t.Fatalf("GetDueCards userA: %v", err)
+	}
+	for _, c := range cardsA {
+		if c.EntryID != entryA.ID {
+			t.Errorf("userA got card with entryID %v, expected only %v", c.EntryID, entryA.ID)
+		}
+	}
+
+	// User B should only see their card
+	cardsB, err := repo.GetDueCards(ctx, userB.ID, now, 10)
+	if err != nil {
+		t.Fatalf("GetDueCards userB: %v", err)
+	}
+	for _, c := range cardsB {
+		if c.EntryID != entryB.ID {
+			t.Errorf("userB got card with entryID %v, expected only %v", c.EntryID, entryB.ID)
+		}
 	}
 }
 

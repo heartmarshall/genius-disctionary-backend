@@ -1246,6 +1246,204 @@ func TestService_ReviewCard_AuditError_TxRollback(t *testing.T) {
 }
 
 // ---------------------------------------------------------------------------
+// ReviewCard AGAIN/HARD Grade Tests
+// ---------------------------------------------------------------------------
+
+func TestService_ReviewCard_Again_NewToLearning(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	cardID := uuid.New()
+
+	card := &domain.Card{
+		ID:        cardID,
+		State:     domain.CardStateNew,
+		Step:      0,
+		Stability: 0,
+	}
+
+	var capturedParams domain.SRSUpdateParams
+	updatedCard := &domain.Card{
+		ID:    cardID,
+		State: domain.CardStateLearning,
+		Step:  0,
+	}
+
+	settings := &domain.UserSettings{
+		UserID:          userID,
+		MaxIntervalDays: 365,
+	}
+
+	mockCards := &cardRepoMock{
+		GetByIDFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
+			return card, nil
+		},
+		UpdateSRSFunc: func(ctx context.Context, uid, cid uuid.UUID, params domain.SRSUpdateParams) (*domain.Card, error) {
+			capturedParams = params
+			return updatedCard, nil
+		},
+	}
+
+	mockSettings := &settingsRepoMock{
+		GetByUserIDFunc: func(ctx context.Context, uid uuid.UUID) (*domain.UserSettings, error) {
+			return settings, nil
+		},
+	}
+
+	mockReviews := &reviewLogRepoMock{
+		CreateFunc: func(ctx context.Context, log *domain.ReviewLog) (*domain.ReviewLog, error) {
+			if log.Grade != domain.ReviewGradeAgain {
+				t.Errorf("log.Grade: got %v, want Again", log.Grade)
+			}
+			if log.PrevState == nil || log.PrevState.State != domain.CardStateNew {
+				t.Error("PrevState should capture NEW state")
+			}
+			return log, nil
+		},
+	}
+
+	mockAudit := &auditLoggerMock{
+		LogFunc: func(ctx context.Context, record domain.AuditRecord) error { return nil },
+	}
+	mockTx := &txManagerMock{
+		RunInTxFunc: func(ctx context.Context, fn func(context.Context) error) error { return fn(ctx) },
+	}
+
+	svc := &Service{
+		cards:    mockCards,
+		reviews:  mockReviews,
+		settings: mockSettings,
+		audit:    mockAudit,
+		tx:       mockTx,
+		log:      slog.Default(),
+		srsConfig: domain.SRSConfig{
+			LearningSteps:   []time.Duration{1 * time.Minute, 10 * time.Minute},
+			RelearningSteps: []time.Duration{10 * time.Minute},
+			MaxIntervalDays: 365,
+		},
+		fsrsWeights: fsrs.DefaultWeights,
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+	result, err := svc.ReviewCard(ctx, ReviewCardInput{
+		CardID: cardID,
+		Grade:  domain.ReviewGradeAgain,
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if result.State != domain.CardStateLearning {
+		t.Errorf("result.State: got %v, want Learning", result.State)
+	}
+	if capturedParams.State != domain.CardStateLearning {
+		t.Errorf("UpdateSRS state: got %v, want Learning", capturedParams.State)
+	}
+	// AGAIN on NEW resets step to 0
+	if capturedParams.Step != 0 {
+		t.Errorf("UpdateSRS step: got %d, want 0", capturedParams.Step)
+	}
+}
+
+func TestService_ReviewCard_Hard_ReviewStaysReview(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	cardID := uuid.New()
+	lastReview := time.Now().Add(-3 * 24 * time.Hour)
+
+	card := &domain.Card{
+		ID:            cardID,
+		State:         domain.CardStateReview,
+		Step:          0,
+		Stability:     10.0,
+		Difficulty:    5.0,
+		Reps:          5,
+		LastReview:    &lastReview,
+		ScheduledDays: 10,
+	}
+
+	var capturedParams domain.SRSUpdateParams
+	updatedCard := &domain.Card{
+		ID:    cardID,
+		State: domain.CardStateReview,
+	}
+
+	settings := &domain.UserSettings{
+		UserID:          userID,
+		MaxIntervalDays: 365,
+	}
+
+	mockCards := &cardRepoMock{
+		GetByIDFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
+			return card, nil
+		},
+		UpdateSRSFunc: func(ctx context.Context, uid, cid uuid.UUID, params domain.SRSUpdateParams) (*domain.Card, error) {
+			capturedParams = params
+			return updatedCard, nil
+		},
+	}
+
+	mockSettings := &settingsRepoMock{
+		GetByUserIDFunc: func(ctx context.Context, uid uuid.UUID) (*domain.UserSettings, error) {
+			return settings, nil
+		},
+	}
+
+	mockReviews := &reviewLogRepoMock{
+		CreateFunc: func(ctx context.Context, log *domain.ReviewLog) (*domain.ReviewLog, error) {
+			if log.Grade != domain.ReviewGradeHard {
+				t.Errorf("log.Grade: got %v, want Hard", log.Grade)
+			}
+			return log, nil
+		},
+	}
+
+	mockAudit := &auditLoggerMock{
+		LogFunc: func(ctx context.Context, record domain.AuditRecord) error { return nil },
+	}
+	mockTx := &txManagerMock{
+		RunInTxFunc: func(ctx context.Context, fn func(context.Context) error) error { return fn(ctx) },
+	}
+
+	svc := &Service{
+		cards:    mockCards,
+		reviews:  mockReviews,
+		settings: mockSettings,
+		audit:    mockAudit,
+		tx:       mockTx,
+		log:      slog.Default(),
+		srsConfig: domain.SRSConfig{
+			LearningSteps:   []time.Duration{1 * time.Minute, 10 * time.Minute},
+			RelearningSteps: []time.Duration{10 * time.Minute},
+			MaxIntervalDays: 365,
+		},
+		fsrsWeights: fsrs.DefaultWeights,
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+	result, err := svc.ReviewCard(ctx, ReviewCardInput{
+		CardID: cardID,
+		Grade:  domain.ReviewGradeHard,
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if result.State != domain.CardStateReview {
+		t.Errorf("result.State: got %v, want Review", result.State)
+	}
+	// HARD on REVIEW should stay REVIEW
+	if capturedParams.State != domain.CardStateReview {
+		t.Errorf("UpdateSRS state: got %v, want Review", capturedParams.State)
+	}
+	// Difficulty should increase for HARD
+	if capturedParams.Difficulty <= card.Difficulty {
+		t.Errorf("Difficulty should increase: got %.2f, was %.2f", capturedParams.Difficulty, card.Difficulty)
+	}
+}
+
+// ---------------------------------------------------------------------------
 // UndoReview Tests (10 tests)
 // ---------------------------------------------------------------------------
 

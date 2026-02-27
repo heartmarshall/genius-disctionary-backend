@@ -555,6 +555,95 @@ func TestRepo_PrevState_NewCard(t *testing.T) {
 }
 
 // ---------------------------------------------------------------------------
+// CountNewToday and GetByPeriod tests (Task 10c)
+// ---------------------------------------------------------------------------
+
+func TestRepo_CountNewToday_OnlyCountsNewState(t *testing.T) {
+	t.Parallel()
+	repo, pool := newRepo(t)
+	ctx := context.Background()
+
+	user, card := seedCard(t, pool)
+
+	// Review with PrevState.State = NEW (should be counted)
+	rl1 := buildReviewLog(card.ID, domain.ReviewGradeGood, &domain.CardSnapshot{
+		State: domain.CardStateNew,
+		Due:   time.Now().UTC(),
+	}, nil)
+	_, err := repo.Create(ctx, &rl1)
+	if err != nil {
+		t.Fatalf("Create rl1: %v", err)
+	}
+
+	// Review with PrevState.State = REVIEW (should NOT be counted)
+	rl2 := buildReviewLog(card.ID, domain.ReviewGradeGood, &domain.CardSnapshot{
+		State: domain.CardStateReview,
+		Due:   time.Now().UTC(),
+	}, nil)
+	_, err = repo.Create(ctx, &rl2)
+	if err != nil {
+		t.Fatalf("Create rl2: %v", err)
+	}
+
+	dayStart := time.Now().Add(-24 * time.Hour)
+	count, err := repo.CountNewToday(ctx, user.ID, dayStart)
+	if err != nil {
+		t.Fatalf("CountNewToday: %v", err)
+	}
+	if count != 1 {
+		t.Errorf("CountNewToday: got %d, want 1 (only NEW prev_state reviews)", count)
+	}
+}
+
+func TestRepo_GetByPeriod_FiltersByTimeRange(t *testing.T) {
+	t.Parallel()
+	repo, pool := newRepo(t)
+	ctx := context.Background()
+
+	user, card := seedCard(t, pool)
+	now := time.Now().UTC().Truncate(time.Microsecond)
+
+	// Review 3 days ago (outside range)
+	rl1 := domain.ReviewLog{
+		ID:         uuid.New(),
+		CardID:     card.ID,
+		Grade:      domain.ReviewGradeGood,
+		ReviewedAt: now.Add(-72 * time.Hour),
+	}
+	_, err := repo.Create(ctx, &rl1)
+	if err != nil {
+		t.Fatalf("Create rl1: %v", err)
+	}
+
+	// Review 1 hour ago (inside range)
+	rl2 := domain.ReviewLog{
+		ID:         uuid.New(),
+		CardID:     card.ID,
+		Grade:      domain.ReviewGradeEasy,
+		ReviewedAt: now.Add(-1 * time.Hour),
+	}
+	_, err = repo.Create(ctx, &rl2)
+	if err != nil {
+		t.Fatalf("Create rl2: %v", err)
+	}
+
+	// Query last 24 hours
+	from := now.Add(-24 * time.Hour)
+	to := now.Add(1 * time.Hour)
+	logs, err := repo.GetByPeriod(ctx, user.ID, from, to)
+	if err != nil {
+		t.Fatalf("GetByPeriod: %v", err)
+	}
+
+	if len(logs) != 1 {
+		t.Errorf("GetByPeriod: got %d logs, want 1 (only recent review)", len(logs))
+	}
+	if len(logs) == 1 && logs[0].ID != rl2.ID {
+		t.Errorf("GetByPeriod returned wrong log: got %v, want %v", logs[0].ID, rl2.ID)
+	}
+}
+
+// ---------------------------------------------------------------------------
 // JSONB key dependency guard (Task 9)
 // ---------------------------------------------------------------------------
 
