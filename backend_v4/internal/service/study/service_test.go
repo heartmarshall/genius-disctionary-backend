@@ -9,6 +9,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
+	"github.com/heartmarshall/myenglish-backend/internal/service/study/fsrs"
 	"github.com/heartmarshall/myenglish-backend/pkg/ctxutil"
 )
 
@@ -24,18 +25,18 @@ func TestService_GetStudyQueue_Success_MixOfDueAndNew(t *testing.T) {
 
 	dueCard1 := &domain.Card{
 		ID:           uuid.New(),
-		Status:       domain.LearningStatusReview,
-		NextReviewAt: ptr(now.Add(-1 * time.Hour)),
+		State:        domain.CardStateReview,
+		Due:          now.Add(-1 * time.Hour),
 	}
 	dueCard2 := &domain.Card{
 		ID:           uuid.New(),
-		Status:       domain.LearningStatusLearning,
-		NextReviewAt: ptr(now.Add(-30 * time.Minute)),
+		State:        domain.CardStateLearning,
+		Due:          now.Add(-30 * time.Minute),
 	}
 	newCard := &domain.Card{
 		ID:           uuid.New(),
-		Status:       domain.LearningStatusNew,
-		NextReviewAt: nil,
+		State:        domain.CardStateNew,
+		Due:          time.Time{},
 	}
 
 	settings := &domain.UserSettings{
@@ -92,11 +93,10 @@ func TestService_GetStudyQueue_Success_MixOfDueAndNew(t *testing.T) {
 		settings: mockSettings,
 		log:      slog.Default(),
 		srsConfig: domain.SRSConfig{
-			LearningSteps:      []time.Duration{1 * time.Minute, 10 * time.Minute},
-			GraduatingInterval: 1,
-			DefaultEaseFactor:  2.5,
-			MaxIntervalDays:    365,
-			UndoWindowMinutes:  15,
+			LearningSteps:    []time.Duration{1 * time.Minute, 10 * time.Minute},
+			DefaultRetention: 0.9,
+			MaxIntervalDays:  365,
+			UndoWindowMinutes: 15,
 		},
 	}
 
@@ -279,8 +279,8 @@ func TestService_GetStudyQueue_DailyLimitReached(t *testing.T) {
 
 	dueCard := &domain.Card{
 		ID:           uuid.New(),
-		Status:       domain.LearningStatusReview,
-		NextReviewAt: ptr(now.Add(-1 * time.Hour)),
+		State:        domain.CardStateReview,
+		Due:          now.Add(-1 * time.Hour),
 	}
 
 	settings := &domain.UserSettings{
@@ -348,8 +348,8 @@ func TestService_GetStudyQueue_OnlyDueCards(t *testing.T) {
 	for i := 0; i < 50; i++ {
 		dueCards[i] = &domain.Card{
 			ID:           uuid.New(),
-			Status:       domain.LearningStatusReview,
-			NextReviewAt: ptr(now.Add(-1 * time.Hour)),
+			State:        domain.CardStateReview,
+			Due:          now.Add(-1 * time.Hour),
 		}
 	}
 
@@ -420,20 +420,20 @@ func TestService_ReviewCard_Success_NewToLearning(t *testing.T) {
 
 	card := &domain.Card{
 		ID:           cardID,
-		Status:       domain.LearningStatusNew,
-		LearningStep: 0,
-		IntervalDays: 0,
-		EaseFactor:   2.5,
-		NextReviewAt: nil,
+		State:        domain.CardStateNew,
+		Step:         0,
+		ScheduledDays: 0,
+		Stability:    2.5,
+		Due:          time.Time{},
 	}
 
 	updatedCard := &domain.Card{
 		ID:           cardID,
-		Status:       domain.LearningStatusLearning,
-		LearningStep: 0,
-		IntervalDays: 0,
-		EaseFactor:   2.5,
-		NextReviewAt: ptr(now.Add(1 * time.Minute)),
+		State:        domain.CardStateLearning,
+		Step:         0,
+		ScheduledDays: 0,
+		Stability:    2.5,
+		Due:          now.Add(1 * time.Minute),
 	}
 
 	settings := &domain.UserSettings{
@@ -449,8 +449,8 @@ func TestService_ReviewCard_Success_NewToLearning(t *testing.T) {
 			return card, nil
 		},
 		UpdateSRSFunc: func(ctx context.Context, uid, cid uuid.UUID, params domain.SRSUpdateParams) (*domain.Card, error) {
-			if params.Status != domain.LearningStatusLearning {
-				t.Errorf("status: got %v, want Learning", params.Status)
+			if params.State != domain.CardStateLearning {
+				t.Errorf("status: got %v, want Learning", params.State)
 			}
 			return updatedCard, nil
 		},
@@ -473,8 +473,8 @@ func TestService_ReviewCard_Success_NewToLearning(t *testing.T) {
 			if log.PrevState == nil {
 				t.Error("PrevState is nil")
 			}
-			if log.PrevState.Status != domain.LearningStatusNew {
-				t.Errorf("PrevState.Status: got %v, want New", log.PrevState.Status)
+			if log.PrevState.State != domain.CardStateNew {
+				t.Errorf("PrevState.State: got %v, want New", log.PrevState.State)
 			}
 			return log, nil
 		},
@@ -506,11 +506,10 @@ func TestService_ReviewCard_Success_NewToLearning(t *testing.T) {
 		tx:       mockTx,
 		log:      slog.Default(),
 		srsConfig: domain.SRSConfig{
-			LearningSteps:      []time.Duration{1 * time.Minute, 10 * time.Minute},
-			GraduatingInterval: 1,
-			DefaultEaseFactor:  2.5,
-			MaxIntervalDays:    365,
-			UndoWindowMinutes:  15,
+			LearningSteps:    []time.Duration{1 * time.Minute, 10 * time.Minute},
+			DefaultRetention: 0.9,
+			MaxIntervalDays:  365,
+			UndoWindowMinutes: 15,
 		},
 	}
 
@@ -529,8 +528,8 @@ func TestService_ReviewCard_Success_NewToLearning(t *testing.T) {
 	if result.ID != cardID {
 		t.Errorf("result.ID: got %v, want %v", result.ID, cardID)
 	}
-	if result.Status != domain.LearningStatusLearning {
-		t.Errorf("result.Status: got %v, want Learning", result.Status)
+	if result.State != domain.CardStateLearning {
+		t.Errorf("result.State: got %v, want Learning", result.State)
 	}
 
 	// Verify calls
@@ -560,11 +559,11 @@ func TestService_ReviewCard_Success_LearningToReview(t *testing.T) {
 
 	card := &domain.Card{
 		ID:           cardID,
-		Status:       domain.LearningStatusLearning,
-		LearningStep: 1,
-		IntervalDays: 0,
-		EaseFactor:   2.5,
-		NextReviewAt: ptr(now.Add(-5 * time.Minute)),
+		State:        domain.CardStateLearning,
+		Step:         1,
+		ScheduledDays: 0,
+		Stability:    2.5,
+		Due:          now.Add(-5 * time.Minute),
 	}
 
 	settings := &domain.UserSettings{
@@ -577,20 +576,20 @@ func TestService_ReviewCard_Success_LearningToReview(t *testing.T) {
 			return card, nil
 		},
 		UpdateSRSFunc: func(ctx context.Context, uid, cid uuid.UUID, params domain.SRSUpdateParams) (*domain.Card, error) {
-			if params.Status != domain.LearningStatusReview {
-				t.Errorf("status: got %v, want Review", params.Status)
+			if params.State != domain.CardStateReview {
+				t.Errorf("status: got %v, want Review", params.State)
 			}
-			if params.IntervalDays != 1 {
-				t.Errorf("interval: got %d, want 1", params.IntervalDays)
+			if params.ScheduledDays != 1 {
+				t.Errorf("interval: got %d, want 1", params.ScheduledDays)
 			}
 			// Return card with params applied
 			return &domain.Card{
-				ID:           cardID,
-				Status:       params.Status,
-				LearningStep: params.LearningStep,
-				IntervalDays: params.IntervalDays,
-				EaseFactor:   params.EaseFactor,
-				NextReviewAt: params.NextReviewAt,
+				ID:            cardID,
+				State:         params.State,
+				Step:          params.Step,
+				ScheduledDays: params.ScheduledDays,
+				Stability:     params.Stability,
+				Due:           params.Due,
 			}, nil
 		},
 	}
@@ -627,11 +626,10 @@ func TestService_ReviewCard_Success_LearningToReview(t *testing.T) {
 		tx:       mockTx,
 		log:      slog.Default(),
 		srsConfig: domain.SRSConfig{
-			LearningSteps:      []time.Duration{1 * time.Minute, 10 * time.Minute},
-			GraduatingInterval: 1,
-			DefaultEaseFactor:  2.5,
-			MaxIntervalDays:    365,
-			UndoWindowMinutes:  15,
+			LearningSteps:    []time.Duration{1 * time.Minute, 10 * time.Minute},
+			DefaultRetention: 0.9,
+			MaxIntervalDays:  365,
+			UndoWindowMinutes: 15,
 		},
 	}
 
@@ -647,11 +645,11 @@ func TestService_ReviewCard_Success_LearningToReview(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if result.Status != domain.LearningStatusReview {
-		t.Errorf("result.Status: got %v, want Review", result.Status)
+	if result.State != domain.CardStateReview {
+		t.Errorf("result.State: got %v, want Review", result.State)
 	}
-	if result.IntervalDays != 1 {
-		t.Errorf("result.IntervalDays: got %d, want 1", result.IntervalDays)
+	if result.ScheduledDays != 1 {
+		t.Errorf("result.ScheduledDays: got %d, want 1", result.ScheduledDays)
 	}
 }
 
@@ -661,42 +659,48 @@ func TestService_ReviewCard_Success_ReviewIntervalIncrease(t *testing.T) {
 	userID := uuid.New()
 	cardID := uuid.New()
 	now := time.Now()
+	lastReview := now.Add(-15 * 24 * time.Hour)
 
 	card := &domain.Card{
-		ID:           cardID,
-		Status:       domain.LearningStatusReview,
-		LearningStep: 0,
-		IntervalDays: 7,
-		EaseFactor:   2.5,
-		NextReviewAt: ptr(now.Add(-1 * time.Hour)),
-	}
-
-	updatedCard := &domain.Card{
-		ID:           cardID,
-		Status:       domain.LearningStatusReview,
-		LearningStep: 0,
-		IntervalDays: 17, // 7 * 2.5 = 17.5 → 17
-		EaseFactor:   2.6,
-		NextReviewAt: ptr(now.Add(17 * 24 * time.Hour)),
+		ID:            cardID,
+		State:         domain.CardStateReview,
+		Step:          0,
+		ScheduledDays: 15,
+		ElapsedDays:   15,
+		Stability:     15.0,
+		Difficulty:    5.0,
+		Due:           now.Add(-1 * time.Hour),
+		LastReview:    &lastReview,
+		Reps:          5,
 	}
 
 	settings := &domain.UserSettings{
-		UserID:          userID,
-		MaxIntervalDays: 365,
+		UserID:           userID,
+		MaxIntervalDays:  365,
+		DesiredRetention: 0.9,
 	}
 
+	var capturedParams domain.SRSUpdateParams
 	mockCards := &cardRepoMock{
 		GetByIDFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
 			return card, nil
 		},
 		UpdateSRSFunc: func(ctx context.Context, uid, cid uuid.UUID, params domain.SRSUpdateParams) (*domain.Card, error) {
-			if params.Status != domain.LearningStatusReview {
-				t.Errorf("status: got %v, want Review", params.Status)
+			capturedParams = params
+			if params.State != domain.CardStateReview {
+				t.Errorf("state: got %v, want Review", params.State)
 			}
-			if params.IntervalDays < 7 {
-				t.Errorf("interval should increase: got %d", params.IntervalDays)
+			if params.ScheduledDays <= card.ScheduledDays {
+				t.Errorf("interval should increase: got %d, was %d", params.ScheduledDays, card.ScheduledDays)
 			}
-			return updatedCard, nil
+			return &domain.Card{
+				ID:            cardID,
+				State:         domain.CardState(params.State),
+				ScheduledDays: params.ScheduledDays,
+				Stability:     params.Stability,
+				Difficulty:    params.Difficulty,
+				Due:           params.Due,
+			}, nil
 		},
 	}
 
@@ -725,18 +729,18 @@ func TestService_ReviewCard_Success_ReviewIntervalIncrease(t *testing.T) {
 	}
 
 	svc := &Service{
-		cards:    mockCards,
-		reviews:  mockReviews,
-		settings: mockSettings,
-		audit:    mockAudit,
-		tx:       mockTx,
-		log:      slog.Default(),
+		cards:       mockCards,
+		reviews:     mockReviews,
+		settings:    mockSettings,
+		audit:       mockAudit,
+		tx:          mockTx,
+		log:         slog.Default(),
+		fsrsWeights: fsrs.DefaultWeights,
 		srsConfig: domain.SRSConfig{
-			LearningSteps:      []time.Duration{1 * time.Minute, 10 * time.Minute},
-			GraduatingInterval: 1,
-			DefaultEaseFactor:  2.5,
-			MaxIntervalDays:    365,
-			UndoWindowMinutes:  15,
+			LearningSteps:    []time.Duration{1 * time.Minute, 10 * time.Minute},
+			DefaultRetention: 0.9,
+			MaxIntervalDays:  365,
+			UndoWindowMinutes: 15,
 		},
 	}
 
@@ -752,8 +756,115 @@ func TestService_ReviewCard_Success_ReviewIntervalIncrease(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if result.IntervalDays <= 7 {
-		t.Errorf("interval should have increased: got %d", result.IntervalDays)
+	if result.ScheduledDays <= card.ScheduledDays {
+		t.Errorf("interval should have increased: got %d, was %d", result.ScheduledDays, card.ScheduledDays)
+	}
+	_ = capturedParams
+}
+
+func TestService_ReviewCard_ElapsedDaysComputedFromLastReview(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	cardID := uuid.New()
+	now := time.Now()
+	sevenDaysAgo := now.AddDate(0, 0, -7)
+
+	card := &domain.Card{
+		ID:            cardID,
+		UserID:        userID,
+		EntryID:       uuid.New(),
+		State:         domain.CardStateReview,
+		Stability:     10.0,
+		Difficulty:    5.0,
+		Due:           sevenDaysAgo,
+		LastReview:    &sevenDaysAgo,
+		Reps:          5,
+		ElapsedDays:   0, // DB stores 0 (the bug)
+		ScheduledDays: 10,
+	}
+
+	settings := &domain.UserSettings{
+		UserID:           userID,
+		MaxIntervalDays:  365,
+		DesiredRetention: 0.9,
+	}
+
+	var capturedParams domain.SRSUpdateParams
+	mockCards := &cardRepoMock{
+		GetByIDFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
+			return card, nil
+		},
+		UpdateSRSFunc: func(ctx context.Context, uid, cid uuid.UUID, params domain.SRSUpdateParams) (*domain.Card, error) {
+			capturedParams = params
+			return &domain.Card{
+				ID:            cardID,
+				State:         domain.CardState(params.State),
+				Stability:     params.Stability,
+				Difficulty:    params.Difficulty,
+				ScheduledDays: params.ScheduledDays,
+			}, nil
+		},
+	}
+	mockSettings := &settingsRepoMock{
+		GetByUserIDFunc: func(ctx context.Context, uid uuid.UUID) (*domain.UserSettings, error) {
+			return settings, nil
+		},
+	}
+	mockReviews := &reviewLogRepoMock{
+		CreateFunc: func(ctx context.Context, log *domain.ReviewLog) (*domain.ReviewLog, error) {
+			return log, nil
+		},
+	}
+	mockAudit := &auditLoggerMock{
+		LogFunc: func(ctx context.Context, record domain.AuditRecord) error { return nil },
+	}
+	mockTx := &txManagerMock{
+		RunInTxFunc: func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		},
+	}
+
+	svc := &Service{
+		cards:       mockCards,
+		reviews:     mockReviews,
+		settings:    mockSettings,
+		audit:       mockAudit,
+		tx:          mockTx,
+		log:         slog.Default(),
+		fsrsWeights: fsrs.DefaultWeights,
+		srsConfig: domain.SRSConfig{
+			LearningSteps:    []time.Duration{1 * time.Minute, 10 * time.Minute},
+			DefaultRetention: 0.9,
+			MaxIntervalDays:  365,
+		},
+	}
+
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+	_, err := svc.ReviewCard(ctx, ReviewCardInput{
+		CardID: cardID,
+		Grade:  domain.ReviewGradeGood,
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// With the fix, the scheduler should receive elapsed_days ≈ 7 (not 0).
+	// A stability computed with elapsed=7 differs from elapsed=1 (which max(1,0) produces).
+	// Compare against what the scheduler would return with ElapsedDays=1 (the bug):
+	buggyCard := fsrs.Card{
+		State: fsrs.StateReview, Stability: 10.0, Difficulty: 5.0,
+		ElapsedDays: 1, Reps: 5,
+	}
+	buggyResult := fsrs.ReviewCard(fsrs.Parameters{
+		W:                fsrs.DefaultWeights,
+		DesiredRetention: 0.9,
+		MaxIntervalDays:  365,
+	}, buggyCard, fsrs.Good, now)
+
+	if capturedParams.Stability == buggyResult.Stability {
+		t.Errorf("stability matches buggy value (%f), elapsed_days was likely not recomputed",
+			capturedParams.Stability)
 	}
 }
 
@@ -836,10 +947,10 @@ func TestService_ReviewCard_SettingsLoadError(t *testing.T) {
 
 	card := &domain.Card{
 		ID:           cardID,
-		Status:       domain.LearningStatusNew,
-		LearningStep: 0,
-		IntervalDays: 0,
-		EaseFactor:   2.5,
+		State:        domain.CardStateNew,
+		Step:         0,
+		ScheduledDays: 0,
+		Stability:    2.5,
 	}
 
 	mockCards := &cardRepoMock{
@@ -881,10 +992,10 @@ func TestService_ReviewCard_UpdateSRSError_TxRollback(t *testing.T) {
 
 	card := &domain.Card{
 		ID:           cardID,
-		Status:       domain.LearningStatusNew,
-		LearningStep: 0,
-		IntervalDays: 0,
-		EaseFactor:   2.5,
+		State:        domain.CardStateNew,
+		Step:         0,
+		ScheduledDays: 0,
+		Stability:    2.5,
 	}
 
 	settings := &domain.UserSettings{
@@ -927,11 +1038,10 @@ func TestService_ReviewCard_UpdateSRSError_TxRollback(t *testing.T) {
 		tx:       mockTx,
 		log:      slog.Default(),
 		srsConfig: domain.SRSConfig{
-			LearningSteps:      []time.Duration{1 * time.Minute, 10 * time.Minute},
-			GraduatingInterval: 1,
-			DefaultEaseFactor:  2.5,
-			MaxIntervalDays:    365,
-			UndoWindowMinutes:  15,
+			LearningSteps:    []time.Duration{1 * time.Minute, 10 * time.Minute},
+			DefaultRetention: 0.9,
+			MaxIntervalDays:  365,
+			UndoWindowMinutes: 15,
 		},
 	}
 
@@ -961,18 +1071,18 @@ func TestService_ReviewCard_CreateReviewLogError_TxRollback(t *testing.T) {
 
 	card := &domain.Card{
 		ID:           cardID,
-		Status:       domain.LearningStatusNew,
-		LearningStep: 0,
-		IntervalDays: 0,
-		EaseFactor:   2.5,
+		State:        domain.CardStateNew,
+		Step:         0,
+		ScheduledDays: 0,
+		Stability:    2.5,
 	}
 
 	updatedCard := &domain.Card{
 		ID:           cardID,
-		Status:       domain.LearningStatusLearning,
-		LearningStep: 0,
-		IntervalDays: 0,
-		EaseFactor:   2.5,
+		State:        domain.CardStateLearning,
+		Step:         0,
+		ScheduledDays: 0,
+		Stability:    2.5,
 	}
 
 	settings := &domain.UserSettings{
@@ -1022,11 +1132,10 @@ func TestService_ReviewCard_CreateReviewLogError_TxRollback(t *testing.T) {
 		tx:       mockTx,
 		log:      slog.Default(),
 		srsConfig: domain.SRSConfig{
-			LearningSteps:      []time.Duration{1 * time.Minute, 10 * time.Minute},
-			GraduatingInterval: 1,
-			DefaultEaseFactor:  2.5,
-			MaxIntervalDays:    365,
-			UndoWindowMinutes:  15,
+			LearningSteps:    []time.Duration{1 * time.Minute, 10 * time.Minute},
+			DefaultRetention: 0.9,
+			MaxIntervalDays:  365,
+			UndoWindowMinutes: 15,
 		},
 	}
 
@@ -1056,18 +1165,18 @@ func TestService_ReviewCard_AuditError_TxRollback(t *testing.T) {
 
 	card := &domain.Card{
 		ID:           cardID,
-		Status:       domain.LearningStatusNew,
-		LearningStep: 0,
-		IntervalDays: 0,
-		EaseFactor:   2.5,
+		State:        domain.CardStateNew,
+		Step:         0,
+		ScheduledDays: 0,
+		Stability:    2.5,
 	}
 
 	updatedCard := &domain.Card{
 		ID:           cardID,
-		Status:       domain.LearningStatusLearning,
-		LearningStep: 0,
-		IntervalDays: 0,
-		EaseFactor:   2.5,
+		State:        domain.CardStateLearning,
+		Step:         0,
+		ScheduledDays: 0,
+		Stability:    2.5,
 	}
 
 	settings := &domain.UserSettings{
@@ -1116,11 +1225,10 @@ func TestService_ReviewCard_AuditError_TxRollback(t *testing.T) {
 		tx:       mockTx,
 		log:      slog.Default(),
 		srsConfig: domain.SRSConfig{
-			LearningSteps:      []time.Duration{1 * time.Minute, 10 * time.Minute},
-			GraduatingInterval: 1,
-			DefaultEaseFactor:  2.5,
-			MaxIntervalDays:    365,
-			UndoWindowMinutes:  15,
+			LearningSteps:    []time.Duration{1 * time.Minute, 10 * time.Minute},
+			DefaultRetention: 0.9,
+			MaxIntervalDays:  365,
+			UndoWindowMinutes: 15,
 		},
 	}
 
@@ -1152,19 +1260,19 @@ func TestService_UndoReview_Success(t *testing.T) {
 
 	card := &domain.Card{
 		ID:           cardID,
-		Status:       domain.LearningStatusLearning,
-		LearningStep: 0,
-		IntervalDays: 0,
-		EaseFactor:   2.5,
-		NextReviewAt: ptr(now.Add(1 * time.Minute)),
+		State:        domain.CardStateLearning,
+		Step:         0,
+		ScheduledDays: 0,
+		Stability:    2.5,
+		Due:          now.Add(1 * time.Minute),
 	}
 
 	prevState := &domain.CardSnapshot{
-		Status:       domain.LearningStatusNew,
-		LearningStep: 0,
-		IntervalDays: 0,
-		EaseFactor:   2.5,
-		NextReviewAt: nil,
+		State:        domain.CardStateNew,
+		Step:         0,
+		ScheduledDays: 0,
+		Stability:    2.5,
+		Due:          time.Time{},
 	}
 
 	reviewLog := &domain.ReviewLog{
@@ -1178,11 +1286,11 @@ func TestService_UndoReview_Success(t *testing.T) {
 
 	restoredCard := &domain.Card{
 		ID:           cardID,
-		Status:       domain.LearningStatusNew,
-		LearningStep: 0,
-		IntervalDays: 0,
-		EaseFactor:   2.5,
-		NextReviewAt: nil,
+		State:        domain.CardStateNew,
+		Step:         0,
+		ScheduledDays: 0,
+		Stability:    2.5,
+		Due:          time.Time{},
 	}
 
 	mockCards := &cardRepoMock{
@@ -1193,8 +1301,8 @@ func TestService_UndoReview_Success(t *testing.T) {
 			return card, nil
 		},
 		UpdateSRSFunc: func(ctx context.Context, uid, cid uuid.UUID, params domain.SRSUpdateParams) (*domain.Card, error) {
-			if params.Status != domain.LearningStatusNew {
-				t.Errorf("restored status: got %v, want New", params.Status)
+			if params.State != domain.CardStateNew {
+				t.Errorf("restored status: got %v, want New", params.State)
 			}
 			return restoredCard, nil
 		},
@@ -1237,11 +1345,10 @@ func TestService_UndoReview_Success(t *testing.T) {
 		tx:      mockTx,
 		log:     slog.Default(),
 		srsConfig: domain.SRSConfig{
-			LearningSteps:      []time.Duration{1 * time.Minute, 10 * time.Minute},
-			GraduatingInterval: 1,
-			DefaultEaseFactor:  2.5,
-			MaxIntervalDays:    365,
-			UndoWindowMinutes:  15,
+			LearningSteps:    []time.Duration{1 * time.Minute, 10 * time.Minute},
+			DefaultRetention: 0.9,
+			MaxIntervalDays:  365,
+			UndoWindowMinutes: 15,
 		},
 	}
 
@@ -1256,8 +1363,8 @@ func TestService_UndoReview_Success(t *testing.T) {
 	if result.ID != cardID {
 		t.Errorf("result.ID: got %v, want %v", result.ID, cardID)
 	}
-	if result.Status != domain.LearningStatusNew {
-		t.Errorf("result.Status: got %v, want New", result.Status)
+	if result.State != domain.CardStateNew {
+		t.Errorf("result.State: got %v, want New", result.State)
 	}
 
 	// Verify calls
@@ -1345,10 +1452,10 @@ func TestService_UndoReview_NoReviewLog(t *testing.T) {
 
 	card := &domain.Card{
 		ID:           cardID,
-		Status:       domain.LearningStatusNew,
-		LearningStep: 0,
-		IntervalDays: 0,
-		EaseFactor:   2.5,
+		State:        domain.CardStateNew,
+		Step:         0,
+		ScheduledDays: 0,
+		Stability:    2.5,
 	}
 
 	mockCards := &cardRepoMock{
@@ -1387,10 +1494,10 @@ func TestService_UndoReview_PrevStateNil(t *testing.T) {
 
 	card := &domain.Card{
 		ID:           cardID,
-		Status:       domain.LearningStatusLearning,
-		LearningStep: 0,
-		IntervalDays: 0,
-		EaseFactor:   2.5,
+		State:        domain.CardStateLearning,
+		Step:         0,
+		ScheduledDays: 0,
+		Stability:    2.5,
 	}
 
 	reviewLog := &domain.ReviewLog{
@@ -1439,18 +1546,18 @@ func TestService_UndoReview_UndoWindowExpired(t *testing.T) {
 
 	card := &domain.Card{
 		ID:           cardID,
-		Status:       domain.LearningStatusLearning,
-		LearningStep: 0,
-		IntervalDays: 0,
-		EaseFactor:   2.5,
+		State:        domain.CardStateLearning,
+		Step:         0,
+		ScheduledDays: 0,
+		Stability:    2.5,
 	}
 
 	prevState := &domain.CardSnapshot{
-		Status:       domain.LearningStatusNew,
-		LearningStep: 0,
-		IntervalDays: 0,
-		EaseFactor:   2.5,
-		NextReviewAt: nil,
+		State:        domain.CardStateNew,
+		Step:         0,
+		ScheduledDays: 0,
+		Stability:    2.5,
+		Due:          time.Time{},
 	}
 
 	reviewLog := &domain.ReviewLog{
@@ -1479,11 +1586,10 @@ func TestService_UndoReview_UndoWindowExpired(t *testing.T) {
 		reviews: mockReviews,
 		log:     slog.Default(),
 		srsConfig: domain.SRSConfig{
-			LearningSteps:      []time.Duration{1 * time.Minute, 10 * time.Minute},
-			GraduatingInterval: 1,
-			DefaultEaseFactor:  2.5,
-			MaxIntervalDays:    365,
-			UndoWindowMinutes:  15,
+			LearningSteps:    []time.Duration{1 * time.Minute, 10 * time.Minute},
+			DefaultRetention: 0.9,
+			MaxIntervalDays:  365,
+			UndoWindowMinutes: 15,
 		},
 	}
 
@@ -1517,18 +1623,18 @@ func TestService_UndoReview_RestoreError_TxRollback(t *testing.T) {
 
 	card := &domain.Card{
 		ID:           cardID,
-		Status:       domain.LearningStatusLearning,
-		LearningStep: 0,
-		IntervalDays: 0,
-		EaseFactor:   2.5,
+		State:        domain.CardStateLearning,
+		Step:         0,
+		ScheduledDays: 0,
+		Stability:    2.5,
 	}
 
 	prevState := &domain.CardSnapshot{
-		Status:       domain.LearningStatusNew,
-		LearningStep: 0,
-		IntervalDays: 0,
-		EaseFactor:   2.5,
-		NextReviewAt: nil,
+		State:        domain.CardStateNew,
+		Step:         0,
+		ScheduledDays: 0,
+		Stability:    2.5,
+		Due:          time.Time{},
 	}
 
 	reviewLog := &domain.ReviewLog{
@@ -1571,11 +1677,10 @@ func TestService_UndoReview_RestoreError_TxRollback(t *testing.T) {
 		tx:      mockTx,
 		log:     slog.Default(),
 		srsConfig: domain.SRSConfig{
-			LearningSteps:      []time.Duration{1 * time.Minute, 10 * time.Minute},
-			GraduatingInterval: 1,
-			DefaultEaseFactor:  2.5,
-			MaxIntervalDays:    365,
-			UndoWindowMinutes:  15,
+			LearningSteps:    []time.Duration{1 * time.Minute, 10 * time.Minute},
+			DefaultRetention: 0.9,
+			MaxIntervalDays:  365,
+			UndoWindowMinutes: 15,
 		},
 	}
 
@@ -1603,18 +1708,18 @@ func TestService_UndoReview_DeleteLogError_TxRollback(t *testing.T) {
 
 	card := &domain.Card{
 		ID:           cardID,
-		Status:       domain.LearningStatusLearning,
-		LearningStep: 0,
-		IntervalDays: 0,
-		EaseFactor:   2.5,
+		State:        domain.CardStateLearning,
+		Step:         0,
+		ScheduledDays: 0,
+		Stability:    2.5,
 	}
 
 	prevState := &domain.CardSnapshot{
-		Status:       domain.LearningStatusNew,
-		LearningStep: 0,
-		IntervalDays: 0,
-		EaseFactor:   2.5,
-		NextReviewAt: nil,
+		State:        domain.CardStateNew,
+		Step:         0,
+		ScheduledDays: 0,
+		Stability:    2.5,
+		Due:          time.Time{},
 	}
 
 	reviewLog := &domain.ReviewLog{
@@ -1628,10 +1733,10 @@ func TestService_UndoReview_DeleteLogError_TxRollback(t *testing.T) {
 
 	restoredCard := &domain.Card{
 		ID:           cardID,
-		Status:       domain.LearningStatusNew,
-		LearningStep: 0,
-		IntervalDays: 0,
-		EaseFactor:   2.5,
+		State:        domain.CardStateNew,
+		Step:         0,
+		ScheduledDays: 0,
+		Stability:    2.5,
 	}
 
 	mockCards := &cardRepoMock{
@@ -1672,11 +1777,10 @@ func TestService_UndoReview_DeleteLogError_TxRollback(t *testing.T) {
 		tx:      mockTx,
 		log:     slog.Default(),
 		srsConfig: domain.SRSConfig{
-			LearningSteps:      []time.Duration{1 * time.Minute, 10 * time.Minute},
-			GraduatingInterval: 1,
-			DefaultEaseFactor:  2.5,
-			MaxIntervalDays:    365,
-			UndoWindowMinutes:  15,
+			LearningSteps:    []time.Duration{1 * time.Minute, 10 * time.Minute},
+			DefaultRetention: 0.9,
+			MaxIntervalDays:  365,
+			UndoWindowMinutes: 15,
 		},
 	}
 
@@ -1705,18 +1809,18 @@ func TestService_UndoReview_AuditError_TxRollback(t *testing.T) {
 
 	card := &domain.Card{
 		ID:           cardID,
-		Status:       domain.LearningStatusLearning,
-		LearningStep: 0,
-		IntervalDays: 0,
-		EaseFactor:   2.5,
+		State:        domain.CardStateLearning,
+		Step:         0,
+		ScheduledDays: 0,
+		Stability:    2.5,
 	}
 
 	prevState := &domain.CardSnapshot{
-		Status:       domain.LearningStatusNew,
-		LearningStep: 0,
-		IntervalDays: 0,
-		EaseFactor:   2.5,
-		NextReviewAt: nil,
+		State:        domain.CardStateNew,
+		Step:         0,
+		ScheduledDays: 0,
+		Stability:    2.5,
+		Due:          time.Time{},
 	}
 
 	reviewLog := &domain.ReviewLog{
@@ -1730,10 +1834,10 @@ func TestService_UndoReview_AuditError_TxRollback(t *testing.T) {
 
 	restoredCard := &domain.Card{
 		ID:           cardID,
-		Status:       domain.LearningStatusNew,
-		LearningStep: 0,
-		IntervalDays: 0,
-		EaseFactor:   2.5,
+		State:        domain.CardStateNew,
+		Step:         0,
+		ScheduledDays: 0,
+		Stability:    2.5,
 	}
 
 	mockCards := &cardRepoMock{
@@ -1773,11 +1877,10 @@ func TestService_UndoReview_AuditError_TxRollback(t *testing.T) {
 		tx:      mockTx,
 		log:     slog.Default(),
 		srsConfig: domain.SRSConfig{
-			LearningSteps:      []time.Duration{1 * time.Minute, 10 * time.Minute},
-			GraduatingInterval: 1,
-			DefaultEaseFactor:  2.5,
-			MaxIntervalDays:    365,
-			UndoWindowMinutes:  15,
+			LearningSteps:    []time.Duration{1 * time.Minute, 10 * time.Minute},
+			DefaultRetention: 0.9,
+			MaxIntervalDays:  365,
+			UndoWindowMinutes: 15,
 		},
 	}
 
@@ -1924,7 +2027,7 @@ func TestService_FinishSession_Success(t *testing.T) {
 			CardID: cardID1,
 			Grade:  domain.ReviewGradeGood,
 			PrevState: &domain.CardSnapshot{
-				Status: domain.LearningStatusNew,
+				State:  domain.CardStateNew,
 			},
 			ReviewedAt: now.Add(-20 * time.Minute),
 		},
@@ -1933,7 +2036,7 @@ func TestService_FinishSession_Success(t *testing.T) {
 			CardID: cardID2,
 			Grade:  domain.ReviewGradeEasy,
 			PrevState: &domain.CardSnapshot{
-				Status: domain.LearningStatusReview,
+				State:  domain.CardStateReview,
 			},
 			ReviewedAt: now.Add(-10 * time.Minute),
 		},
@@ -2289,11 +2392,11 @@ func TestService_CreateCard_Success(t *testing.T) {
 		ID:           cardID,
 		UserID:       userID,
 		EntryID:      entryID,
-		Status:       domain.LearningStatusNew,
-		LearningStep: 0,
-		IntervalDays: 0,
-		EaseFactor:   2.5,
-		NextReviewAt: nil,
+		State:        domain.CardStateNew,
+		Step:         0,
+		ScheduledDays: 0,
+		Stability:    2.5,
+		Due:          time.Time{},
 	}
 
 	mockEntries := &entryRepoMock{
@@ -2315,18 +2418,12 @@ func TestService_CreateCard_Success(t *testing.T) {
 	}
 
 	mockCards := &cardRepoMock{
-		CreateFunc: func(ctx context.Context, uid, eid uuid.UUID, status domain.LearningStatus, easeFactor float64) (*domain.Card, error) {
+		CreateFunc: func(ctx context.Context, uid, eid uuid.UUID) (*domain.Card, error) {
 			if uid != userID {
 				t.Errorf("userID: got %v, want %v", uid, userID)
 			}
 			if eid != entryID {
 				t.Errorf("entryID: got %v, want %v", eid, entryID)
-			}
-			if status != domain.LearningStatusNew {
-				t.Errorf("status: got %v, want New", status)
-			}
-			if easeFactor != 2.5 {
-				t.Errorf("easeFactor: got %v, want 2.5", easeFactor)
 			}
 			return createdCard, nil
 		},
@@ -2358,7 +2455,7 @@ func TestService_CreateCard_Success(t *testing.T) {
 		tx:      mockTx,
 		log:     slog.Default(),
 		srsConfig: domain.SRSConfig{
-			DefaultEaseFactor: 2.5,
+			DefaultRetention: 0.9,
 		},
 	}
 
@@ -2373,8 +2470,8 @@ func TestService_CreateCard_Success(t *testing.T) {
 	if result.ID != cardID {
 		t.Errorf("result.ID: got %v, want %v", result.ID, cardID)
 	}
-	if result.Status != domain.LearningStatusNew {
-		t.Errorf("result.Status: got %v, want New", result.Status)
+	if result.State != domain.CardStateNew {
+		t.Errorf("result.State: got %v, want New", result.State)
 	}
 
 	// Verify calls
@@ -2491,7 +2588,7 @@ func TestService_CreateCard_CardAlreadyExists(t *testing.T) {
 	}
 
 	mockCards := &cardRepoMock{
-		CreateFunc: func(ctx context.Context, uid, eid uuid.UUID, status domain.LearningStatus, easeFactor float64) (*domain.Card, error) {
+		CreateFunc: func(ctx context.Context, uid, eid uuid.UUID) (*domain.Card, error) {
 			return nil, domain.ErrAlreadyExists
 		},
 	}
@@ -2509,7 +2606,7 @@ func TestService_CreateCard_CardAlreadyExists(t *testing.T) {
 		tx:      mockTx,
 		log:     slog.Default(),
 		srsConfig: domain.SRSConfig{
-			DefaultEaseFactor: 2.5,
+			DefaultRetention: 0.9,
 		},
 	}
 
@@ -2538,10 +2635,10 @@ func TestService_CreateCard_TransactionRollback_AuditError(t *testing.T) {
 		ID:           uuid.New(),
 		UserID:       userID,
 		EntryID:      entryID,
-		Status:       domain.LearningStatusNew,
-		LearningStep: 0,
-		IntervalDays: 0,
-		EaseFactor:   2.5,
+		State:        domain.CardStateNew,
+		Step:         0,
+		ScheduledDays: 0,
+		Stability:    2.5,
 	}
 
 	mockEntries := &entryRepoMock{
@@ -2557,7 +2654,7 @@ func TestService_CreateCard_TransactionRollback_AuditError(t *testing.T) {
 	}
 
 	mockCards := &cardRepoMock{
-		CreateFunc: func(ctx context.Context, uid, eid uuid.UUID, status domain.LearningStatus, easeFactor float64) (*domain.Card, error) {
+		CreateFunc: func(ctx context.Context, uid, eid uuid.UUID) (*domain.Card, error) {
 			return createdCard, nil
 		},
 	}
@@ -2582,7 +2679,7 @@ func TestService_CreateCard_TransactionRollback_AuditError(t *testing.T) {
 		tx:      mockTx,
 		log:     slog.Default(),
 		srsConfig: domain.SRSConfig{
-			DefaultEaseFactor: 2.5,
+			DefaultRetention: 0.9,
 		},
 	}
 
@@ -2626,7 +2723,7 @@ func TestService_DeleteCard_Success(t *testing.T) {
 		ID:      cardID,
 		UserID:  userID,
 		EntryID: entryID,
-		Status:  domain.LearningStatusReview,
+		State:   domain.CardStateReview,
 	}
 
 	mockCards := &cardRepoMock{
@@ -2812,8 +2909,8 @@ func TestService_BatchCreateCards_Success_AllCreated(t *testing.T) {
 				entryID2: false,
 			}, nil
 		},
-		CreateFunc: func(ctx context.Context, uid, eid uuid.UUID, status domain.LearningStatus, easeFactor float64) (*domain.Card, error) {
-			return &domain.Card{UserID: uid, EntryID: eid, Status: status, EaseFactor: easeFactor}, nil
+		CreateFunc: func(ctx context.Context, uid, eid uuid.UUID) (*domain.Card, error) {
+			return &domain.Card{UserID: uid, EntryID: eid, State: domain.CardStateNew, Stability: 0}, nil
 		},
 	}
 
@@ -2843,7 +2940,7 @@ func TestService_BatchCreateCards_Success_AllCreated(t *testing.T) {
 		tx:      mockTx,
 		log:     slog.Default(),
 		srsConfig: domain.SRSConfig{
-			DefaultEaseFactor: 2.5,
+			DefaultRetention: 0.9,
 		},
 	}
 
@@ -2894,8 +2991,8 @@ func TestService_BatchCreateCards_SomeEntriesNotExist(t *testing.T) {
 				entryID3: false,
 			}, nil
 		},
-		CreateFunc: func(ctx context.Context, uid, eid uuid.UUID, status domain.LearningStatus, easeFactor float64) (*domain.Card, error) {
-			return &domain.Card{UserID: uid, EntryID: eid, Status: status, EaseFactor: easeFactor}, nil
+		CreateFunc: func(ctx context.Context, uid, eid uuid.UUID) (*domain.Card, error) {
+			return &domain.Card{UserID: uid, EntryID: eid, State: domain.CardStateNew, Stability: 0}, nil
 		},
 	}
 
@@ -2925,7 +3022,7 @@ func TestService_BatchCreateCards_SomeEntriesNotExist(t *testing.T) {
 		tx:      mockTx,
 		log:     slog.Default(),
 		srsConfig: domain.SRSConfig{
-			DefaultEaseFactor: 2.5,
+			DefaultRetention: 0.9,
 		},
 	}
 
@@ -2970,8 +3067,8 @@ func TestService_BatchCreateCards_SomeEntriesNoSenses(t *testing.T) {
 				entryID2: false,
 			}, nil
 		},
-		CreateFunc: func(ctx context.Context, uid, eid uuid.UUID, status domain.LearningStatus, easeFactor float64) (*domain.Card, error) {
-			return &domain.Card{UserID: uid, EntryID: eid, Status: status, EaseFactor: easeFactor}, nil
+		CreateFunc: func(ctx context.Context, uid, eid uuid.UUID) (*domain.Card, error) {
+			return &domain.Card{UserID: uid, EntryID: eid, State: domain.CardStateNew, Stability: 0}, nil
 		},
 	}
 
@@ -3004,7 +3101,7 @@ func TestService_BatchCreateCards_SomeEntriesNoSenses(t *testing.T) {
 		tx:      mockTx,
 		log:     slog.Default(),
 		srsConfig: domain.SRSConfig{
-			DefaultEaseFactor: 2.5,
+			DefaultRetention: 0.9,
 		},
 	}
 
@@ -3047,8 +3144,8 @@ func TestService_BatchCreateCards_SomeEntriesAlreadyHaveCards(t *testing.T) {
 				entryID2: false, // No card yet
 			}, nil
 		},
-		CreateFunc: func(ctx context.Context, uid, eid uuid.UUID, status domain.LearningStatus, easeFactor float64) (*domain.Card, error) {
-			return &domain.Card{UserID: uid, EntryID: eid, Status: status, EaseFactor: easeFactor}, nil
+		CreateFunc: func(ctx context.Context, uid, eid uuid.UUID) (*domain.Card, error) {
+			return &domain.Card{UserID: uid, EntryID: eid, State: domain.CardStateNew, Stability: 0}, nil
 		},
 	}
 
@@ -3078,7 +3175,7 @@ func TestService_BatchCreateCards_SomeEntriesAlreadyHaveCards(t *testing.T) {
 		tx:      mockTx,
 		log:     slog.Default(),
 		srsConfig: domain.SRSConfig{
-			DefaultEaseFactor: 2.5,
+			DefaultRetention: 0.9,
 		},
 	}
 
@@ -3126,8 +3223,8 @@ func TestService_BatchCreateCards_MixedScenario(t *testing.T) {
 				entryID4: false, // No card
 			}, nil
 		},
-		CreateFunc: func(ctx context.Context, uid, eid uuid.UUID, status domain.LearningStatus, easeFactor float64) (*domain.Card, error) {
-			return &domain.Card{UserID: uid, EntryID: eid, Status: status, EaseFactor: easeFactor}, nil
+		CreateFunc: func(ctx context.Context, uid, eid uuid.UUID) (*domain.Card, error) {
+			return &domain.Card{UserID: uid, EntryID: eid, State: domain.CardStateNew, Stability: 0}, nil
 		},
 	}
 
@@ -3160,7 +3257,7 @@ func TestService_BatchCreateCards_MixedScenario(t *testing.T) {
 		tx:      mockTx,
 		log:     slog.Default(),
 		srsConfig: domain.SRSConfig{
-			DefaultEaseFactor: 2.5,
+			DefaultRetention: 0.9,
 		},
 	}
 
@@ -3235,7 +3332,7 @@ func TestService_GetDashboard_Success_AllCountersCorrect(t *testing.T) {
 		New:      10,
 		Learning: 5,
 		Review:   20,
-		Mastered: 15,
+		Relearning: 15,
 		Total:    50,
 	}
 
@@ -3796,7 +3893,7 @@ func TestService_GetCardHistory_Success_WithPagination(t *testing.T) {
 	card := &domain.Card{
 		ID:     cardID,
 		UserID: userID,
-		Status: domain.LearningStatusReview,
+		State:  domain.CardStateReview,
 	}
 
 	logs := []*domain.ReviewLog{
@@ -3925,9 +4022,9 @@ func TestService_GetCardStats_Success_WithStats(t *testing.T) {
 	card := &domain.Card{
 		ID:           cardID,
 		UserID:       userID,
-		Status:       domain.LearningStatusReview,
-		IntervalDays: 14,
-		EaseFactor:   2.6,
+		State:        domain.CardStateReview,
+		ScheduledDays: 14,
+		Stability:    2.6,
 	}
 
 	logs := []*domain.ReviewLog{
@@ -3983,14 +4080,14 @@ func TestService_GetCardStats_Success_WithStats(t *testing.T) {
 	} else if *stats.AverageTimeMs != 5333 {
 		t.Errorf("AverageTimeMs: got %d, want 5333", *stats.AverageTimeMs)
 	}
-	if stats.CurrentStatus != domain.LearningStatusReview {
-		t.Errorf("CurrentStatus: got %v, want Review", stats.CurrentStatus)
+	if stats.CurrentState != domain.CardStateReview {
+		t.Errorf("CurrentState: got %v, want Review", stats.CurrentState)
 	}
-	if stats.IntervalDays != 14 {
-		t.Errorf("IntervalDays: got %d, want 14", stats.IntervalDays)
+	if stats.ScheduledDays != 14 {
+		t.Errorf("ScheduledDays: got %d, want 14", stats.ScheduledDays)
 	}
-	if stats.EaseFactor != 2.6 {
-		t.Errorf("EaseFactor: got %.1f, want 2.6", stats.EaseFactor)
+	if stats.Stability != 2.6 {
+		t.Errorf("Stability: got %.1f, want 2.6", stats.Stability)
 	}
 }
 
@@ -4003,9 +4100,9 @@ func TestService_GetCardStats_NoReviews_ZerosAndNil(t *testing.T) {
 	card := &domain.Card{
 		ID:           cardID,
 		UserID:       userID,
-		Status:       domain.LearningStatusNew,
-		IntervalDays: 0,
-		EaseFactor:   2.5,
+		State:        domain.CardStateNew,
+		ScheduledDays: 0,
+		Stability:    2.5,
 	}
 
 	mockCards := &cardRepoMock{
@@ -4047,8 +4144,8 @@ func TestService_GetCardStats_NoReviews_ZerosAndNil(t *testing.T) {
 	if stats.AverageTimeMs != nil {
 		t.Errorf("AverageTimeMs should be nil, got %d", *stats.AverageTimeMs)
 	}
-	if stats.CurrentStatus != domain.LearningStatusNew {
-		t.Errorf("CurrentStatus: got %v, want New", stats.CurrentStatus)
+	if stats.CurrentState != domain.CardStateNew {
+		t.Errorf("CurrentState: got %v, want New", stats.CurrentState)
 	}
 }
 
