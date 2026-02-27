@@ -22,10 +22,11 @@ func (r *mutationResolver) UpdateSettings(ctx context.Context, input generated.U
 	}
 
 	serviceInput := user.UpdateSettingsInput{
-		NewCardsPerDay:  input.NewCardsPerDay,
-		ReviewsPerDay:   input.ReviewsPerDay,
-		MaxIntervalDays: input.MaxIntervalDays,
-		Timezone:        input.Timezone,
+		NewCardsPerDay:   input.NewCardsPerDay,
+		ReviewsPerDay:    input.ReviewsPerDay,
+		MaxIntervalDays:  input.MaxIntervalDays,
+		DesiredRetention: input.DesiredRetention,
+		Timezone:         input.Timezone,
 	}
 
 	settings, err := r.user.UpdateSettings(ctx, serviceInput)

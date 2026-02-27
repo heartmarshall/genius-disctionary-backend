@@ -106,6 +106,9 @@ func applySettingsChanges(current domain.UserSettings, input UpdateSettingsInput
 	if input.MaxIntervalDays != nil {
 		result.MaxIntervalDays = *input.MaxIntervalDays
 	}
+	if input.DesiredRetention != nil {
+		result.DesiredRetention = *input.DesiredRetention
+	}
 	if input.Timezone != nil {
 		result.Timezone = *input.Timezone
 	}
@@ -133,6 +136,12 @@ func buildSettingsChanges(old, new domain.UserSettings) map[string]any {
 		changes["max_interval_days"] = map[string]any{
 			"old": old.MaxIntervalDays,
 			"new": new.MaxIntervalDays,
+		}
+	}
+	if old.DesiredRetention != new.DesiredRetention {
+		changes["desired_retention"] = map[string]any{
+			"old": old.DesiredRetention,
+			"new": new.DesiredRetention,
 		}
 	}
 	if old.Timezone != new.Timezone {

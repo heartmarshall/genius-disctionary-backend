@@ -619,6 +619,55 @@ func TestService_UpdateSettings_UpdateSettingsRepoError(t *testing.T) {
 	assert.Nil(t, result)
 }
 
+func TestService_UpdateSettings_DesiredRetention(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	ctx := ctxutil.WithUserID(context.Background(), userID)
+
+	current := domain.DefaultUserSettings(userID)
+	newRetention := 0.85
+
+	updated := current
+	updated.DesiredRetention = newRetention
+
+	settingsRepo := &settingsRepoMock{
+		GetSettingsFunc: func(ctx context.Context, uid uuid.UUID) (*domain.UserSettings, error) {
+			return &current, nil
+		},
+		UpdateSettingsFunc: func(ctx context.Context, uid uuid.UUID, s domain.UserSettings) (*domain.UserSettings, error) {
+			assert.Equal(t, newRetention, s.DesiredRetention)
+			return &updated, nil
+		},
+	}
+
+	auditRepo := &auditRepoMock{
+		CreateFunc: func(ctx context.Context, record domain.AuditRecord) (domain.AuditRecord, error) {
+			changes := record.Changes
+			dr, ok := changes["desired_retention"]
+			require.True(t, ok, "desired_retention should be in audit changes")
+			drMap := dr.(map[string]any)
+			assert.Equal(t, 0.9, drMap["old"])
+			assert.Equal(t, 0.85, drMap["new"])
+			return record, nil
+		},
+	}
+
+	txMgr := &txManagerMock{
+		RunInTxFunc: func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		},
+	}
+
+	svc := newTestService(nil, settingsRepo, auditRepo, txMgr)
+	result, err := svc.UpdateSettings(ctx, UpdateSettingsInput{
+		DesiredRetention: &newRetention,
+	})
+
+	require.NoError(t, err)
+	assert.Equal(t, newRetention, result.DesiredRetention)
+}
+
 // ---------------------------------------------------------------------------
 // Helper function tests
 // ---------------------------------------------------------------------------
