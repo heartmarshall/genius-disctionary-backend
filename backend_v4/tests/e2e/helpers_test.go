@@ -310,6 +310,20 @@ func setupTestServer(t *testing.T) *testServer {
 	mux.Handle("GET /admin/users", adminChain(http.HandlerFunc(adminHandler.ListUsers)))
 	mux.Handle("PUT /admin/users/{id}/role", adminChain(http.HandlerFunc(adminHandler.SetUserRole)))
 
+	// Auth endpoints (no auth middleware — matches production app.go).
+	authHandler := rest.NewAuthHandler(authService, logger)
+	authCORS := middleware.CORS(config.CORSConfig{
+		AllowedOrigins:   "*",
+		AllowedMethods:   "GET,POST,OPTIONS",
+		AllowedHeaders:   "Authorization,Content-Type",
+		AllowCredentials: true,
+		MaxAge:           86400,
+	})
+	mux.Handle("POST /auth/register", authCORS(http.HandlerFunc(authHandler.Register)))
+	mux.Handle("POST /auth/login/password", authCORS(http.HandlerFunc(authHandler.LoginWithPassword)))
+	mux.Handle("POST /auth/refresh", authCORS(http.HandlerFunc(authHandler.Refresh)))
+	mux.Handle("POST /auth/logout", authCORS(http.HandlerFunc(authHandler.Logout)))
+
 	// 12. httptest server.
 	srv := httptest.NewServer(mux)
 	t.Cleanup(func() { srv.Close() })
