@@ -18,7 +18,7 @@ import (
 // Returns ErrAlreadyExists if the email or username is already taken.
 func (s *Service) Register(ctx context.Context, input RegisterInput) (*AuthResult, error) {
 	// Normalize input before validation.
-	input.Email = strings.TrimSpace(input.Email)
+	input.Email = strings.ToLower(strings.TrimSpace(input.Email))
 	input.Username = strings.TrimSpace(input.Username)
 
 	// Step 1: Validate input

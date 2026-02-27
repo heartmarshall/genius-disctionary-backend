@@ -362,6 +362,7 @@ type ComplexityRoot struct {
 		UnlinkEntryFromTopic    func(childComplexity int, input UnlinkEntryInput) int
 		UpdateEntryNotes        func(childComplexity int, input UpdateEntryNotesInput) int
 		UpdateExample           func(childComplexity int, input UpdateExampleInput) int
+		UpdateProfile           func(childComplexity int, input UpdateProfileInput) int
 		UpdateSense             func(childComplexity int, input UpdateSenseInput) int
 		UpdateSettings          func(childComplexity int, input UpdateSettingsInput) int
 		UpdateTopic             func(childComplexity int, input UpdateTopicInput) int
@@ -561,6 +562,10 @@ type ComplexityRoot struct {
 		Example func(childComplexity int) int
 	}
 
+	UpdateProfilePayload struct {
+		User func(childComplexity int) int
+	}
+
 	UpdateSensePayload struct {
 		Sense func(childComplexity int) int
 	}
@@ -662,6 +667,7 @@ type MutationResolver interface {
 	FinishStudySession(ctx context.Context, input FinishSessionInput) (*FinishSessionPayload, error)
 	AbandonStudySession(ctx context.Context) (*AbandonSessionPayload, error)
 	UpdateSettings(ctx context.Context, input UpdateSettingsInput) (*UpdateSettingsPayload, error)
+	UpdateProfile(ctx context.Context, input UpdateProfileInput) (*UpdateProfilePayload, error)
 }
 type QueryResolver interface {
 	EnrichmentQueueStats(ctx context.Context) (*domain.EnrichmentQueueStats, error)
@@ -1907,6 +1913,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.UpdateExample(childComplexity, args["input"].(UpdateExampleInput)), true
+	case "Mutation.updateProfile":
+		if e.complexity.Mutation.UpdateProfile == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateProfile_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateProfile(childComplexity, args["input"].(UpdateProfileInput)), true
 	case "Mutation.updateSense":
 		if e.complexity.Mutation.UpdateSense == nil {
 			break
@@ -2733,6 +2750,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.UpdateExamplePayload.Example(childComplexity), true
 
+	case "UpdateProfilePayload.user":
+		if e.complexity.UpdateProfilePayload.User == nil {
+			break
+		}
+
+		return e.complexity.UpdateProfilePayload.User(childComplexity), true
+
 	case "UpdateSensePayload.sense":
 		if e.complexity.UpdateSensePayload.Sense == nil {
 			break
@@ -2893,6 +2917,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUnlinkEntryInput,
 		ec.unmarshalInputUpdateEntryNotesInput,
 		ec.unmarshalInputUpdateExampleInput,
+		ec.unmarshalInputUpdateProfileInput,
 		ec.unmarshalInputUpdateSenseInput,
 		ec.unmarshalInputUpdateSettingsInput,
 		ec.unmarshalInputUpdateTopicInput,
@@ -3936,12 +3961,21 @@ input UpdateSettingsInput {
   timezone: String
 }
 
+input UpdateProfileInput {
+  name: String!
+  avatarUrl: String
+}
+
 # ============================================================
 #  PAYLOAD TYPES — User
 # ============================================================
 
 type UpdateSettingsPayload {
   settings: UserSettings!
+}
+
+type UpdateProfilePayload {
+  user: User!
 }
 
 # ============================================================
@@ -3959,6 +3993,7 @@ extend type Query {
 
 extend type Mutation {
   updateSettings(input: UpdateSettingsInput!): UpdateSettingsPayload!
+  updateProfile(input: UpdateProfileInput!): UpdateProfilePayload!
 }
 `, BuiltIn: false},
 }
@@ -4329,6 +4364,17 @@ func (ec *executionContext) field_Mutation_updateExample_args(ctx context.Contex
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNUpdateExampleInput2githubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋtransportᚋgraphqlᚋgeneratedᚐUpdateExampleInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateProfile_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNUpdateProfileInput2githubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋtransportᚋgraphqlᚋgeneratedᚐUpdateProfileInput)
 	if err != nil {
 		return nil, err
 	}
@@ -10421,6 +10467,51 @@ func (ec *executionContext) fieldContext_Mutation_updateSettings(ctx context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_updateProfile(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_updateProfile,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().UpdateProfile(ctx, fc.Args["input"].(UpdateProfileInput))
+		},
+		nil,
+		ec.marshalNUpdateProfilePayload2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋtransportᚋgraphqlᚋgeneratedᚐUpdateProfilePayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateProfile(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "user":
+				return ec.fieldContext_UpdateProfilePayload_user(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UpdateProfilePayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateProfile_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _PageInfo_hasNextPage(ctx context.Context, field graphql.CollectedField, obj *PageInfo) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -14586,6 +14677,53 @@ func (ec *executionContext) fieldContext_UpdateExamplePayload_example(_ context.
 	return fc, nil
 }
 
+func (ec *executionContext) _UpdateProfilePayload_user(ctx context.Context, field graphql.CollectedField, obj *UpdateProfilePayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UpdateProfilePayload_user,
+		func(ctx context.Context) (any, error) {
+			return obj.User, nil
+		},
+		nil,
+		ec.marshalNUser2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐUser,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_UpdateProfilePayload_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UpdateProfilePayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "username":
+				return ec.fieldContext_User_username(ctx, field)
+			case "name":
+				return ec.fieldContext_User_name(ctx, field)
+			case "avatarUrl":
+				return ec.fieldContext_User_avatarUrl(ctx, field)
+			case "role":
+				return ec.fieldContext_User_role(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
+			case "settings":
+				return ec.fieldContext_User_settings(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _UpdateSensePayload_sense(ctx context.Context, field graphql.CollectedField, obj *UpdateSensePayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -17692,6 +17830,40 @@ func (ec *executionContext) unmarshalInputUpdateExampleInput(ctx context.Context
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputUpdateProfileInput(ctx context.Context, obj any) (UpdateProfileInput, error) {
+	var it UpdateProfileInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "avatarUrl"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "avatarUrl":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("avatarUrl"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AvatarURL = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUpdateSenseInput(ctx context.Context, obj any) (UpdateSenseInput, error) {
 	var it UpdateSenseInput
 	asMap := map[string]any{}
@@ -20655,6 +20827,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "updateProfile":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateProfile(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -22642,6 +22821,45 @@ func (ec *executionContext) _UpdateExamplePayload(ctx context.Context, sel ast.S
 			out.Values[i] = graphql.MarshalString("UpdateExamplePayload")
 		case "example":
 			out.Values[i] = ec._UpdateExamplePayload_example(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var updateProfilePayloadImplementors = []string{"UpdateProfilePayload"}
+
+func (ec *executionContext) _UpdateProfilePayload(ctx context.Context, sel ast.SelectionSet, obj *UpdateProfilePayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, updateProfilePayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UpdateProfilePayload")
+		case "user":
+			out.Values[i] = ec._UpdateProfilePayload_user(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -25749,6 +25967,25 @@ func (ec *executionContext) marshalNUpdateExamplePayload2ᚖgithubᚗcomᚋheart
 		return graphql.Null
 	}
 	return ec._UpdateExamplePayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNUpdateProfileInput2githubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋtransportᚋgraphqlᚋgeneratedᚐUpdateProfileInput(ctx context.Context, v any) (UpdateProfileInput, error) {
+	res, err := ec.unmarshalInputUpdateProfileInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUpdateProfilePayload2githubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋtransportᚋgraphqlᚋgeneratedᚐUpdateProfilePayload(ctx context.Context, sel ast.SelectionSet, v UpdateProfilePayload) graphql.Marshaler {
+	return ec._UpdateProfilePayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUpdateProfilePayload2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋtransportᚋgraphqlᚋgeneratedᚐUpdateProfilePayload(ctx context.Context, sel ast.SelectionSet, v *UpdateProfilePayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UpdateProfilePayload(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNUpdateSenseInput2githubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋtransportᚋgraphqlᚋgeneratedᚐUpdateSenseInput(ctx context.Context, v any) (UpdateSenseInput, error) {

@@ -36,6 +36,26 @@ func (r *mutationResolver) UpdateSettings(ctx context.Context, input generated.U
 	return &generated.UpdateSettingsPayload{Settings: settings}, nil
 }
 
+// UpdateProfile is the resolver for the updateProfile field.
+func (r *mutationResolver) UpdateProfile(ctx context.Context, input generated.UpdateProfileInput) (*generated.UpdateProfilePayload, error) {
+	_, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	serviceInput := user.UpdateProfileInput{
+		Name:      input.Name,
+		AvatarURL: input.AvatarURL,
+	}
+
+	u, err := r.user.UpdateProfile(ctx, serviceInput)
+	if err != nil {
+		return nil, err
+	}
+
+	return &generated.UpdateProfilePayload{User: u}, nil
+}
+
 // Me is the resolver for the me field.
 func (r *queryResolver) Me(ctx context.Context) (*domain.User, error) {
 	_, ok := ctxutil.UserIDFromCtx(ctx)

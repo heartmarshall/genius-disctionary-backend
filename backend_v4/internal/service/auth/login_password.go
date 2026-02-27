@@ -16,7 +16,7 @@ import (
 // Returns ErrUnauthorized if the email is not found or the password is wrong.
 func (s *Service) LoginWithPassword(ctx context.Context, input LoginPasswordInput) (*AuthResult, error) {
 	// Normalize input before validation.
-	input.Email = strings.TrimSpace(input.Email)
+	input.Email = strings.ToLower(strings.TrimSpace(input.Email))
 
 	// Step 1: Validate input
 	if err := input.Validate(); err != nil {

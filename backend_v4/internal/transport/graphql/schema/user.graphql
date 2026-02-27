@@ -32,12 +32,21 @@ input UpdateSettingsInput {
   timezone: String
 }
 
+input UpdateProfileInput {
+  name: String!
+  avatarUrl: String
+}
+
 # ============================================================
 #  PAYLOAD TYPES — User
 # ============================================================
 
 type UpdateSettingsPayload {
   settings: UserSettings!
+}
+
+type UpdateProfilePayload {
+  user: User!
 }
 
 # ============================================================
@@ -55,4 +64,5 @@ extend type Query {
 
 extend type Mutation {
   updateSettings(input: UpdateSettingsInput!): UpdateSettingsPayload!
+  updateProfile(input: UpdateProfileInput!): UpdateProfilePayload!
 }

@@ -355,6 +355,15 @@ type UpdateExamplePayload struct {
 	Example *domain.Example `json:"example"`
 }
 
+type UpdateProfileInput struct {
+	Name      string  `json:"name"`
+	AvatarURL *string `json:"avatarUrl,omitempty"`
+}
+
+type UpdateProfilePayload struct {
+	User *domain.User `json:"user"`
+}
+
 type UpdateSenseInput struct {
 	SenseID      uuid.UUID            `json:"senseId"`
 	Definition   *string              `json:"definition,omitempty"`

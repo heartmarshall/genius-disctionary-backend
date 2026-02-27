@@ -64,6 +64,7 @@ func (s *Service) Login(ctx context.Context, input LoginInput) (*AuthResult, err
 	}
 
 	// Step 4: No existing auth method — check if user with same email exists (account linking)
+	identity.Email = strings.ToLower(strings.TrimSpace(identity.Email))
 	user, err := s.users.GetByEmail(ctx, identity.Email)
 	if err != nil && !errors.Is(err, domain.ErrNotFound) {
 		return nil, fmt.Errorf("auth.Login get user by email: %w", err)
@@ -140,6 +141,7 @@ func (s *Service) registerOAuthUser(ctx context.Context, identity *auth.OAuthIde
 
 	err := s.tx.RunInTx(ctx, func(txCtx context.Context) error {
 		// Use email prefix as username for OAuth users
+		identity.Email = strings.ToLower(strings.TrimSpace(identity.Email))
 		username := emailPrefix(identity.Email)
 
 		now := time.Now()

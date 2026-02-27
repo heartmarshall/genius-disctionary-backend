@@ -46,6 +46,9 @@ type userServiceMock struct {
 	// GetProfileFunc mocks the GetProfile method.
 	GetProfileFunc func(ctx context.Context) (*domain.User, error)
 
+	// UpdateProfileFunc mocks the UpdateProfile method.
+	UpdateProfileFunc func(ctx context.Context, input user.UpdateProfileInput) (*domain.User, error)
+
 	// GetSettingsFunc mocks the GetSettings method.
 	GetSettingsFunc func(ctx context.Context) (*domain.UserSettings, error)
 
@@ -64,6 +67,13 @@ type userServiceMock struct {
 		GetProfile []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
+		}
+		// UpdateProfile holds details about calls to the UpdateProfile method.
+		UpdateProfile []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Input is the input argument value.
+			Input user.UpdateProfileInput
 		}
 		// GetSettings holds details about calls to the GetSettings method.
 		GetSettings []struct {
@@ -97,6 +107,7 @@ type userServiceMock struct {
 		}
 	}
 	lockGetProfile     sync.RWMutex
+	lockUpdateProfile  sync.RWMutex
 	lockGetSettings    sync.RWMutex
 	lockListUsers      sync.RWMutex
 	lockSetUserRole    sync.RWMutex
@@ -164,6 +175,39 @@ func (mock *userServiceMock) GetSettingsCalls() []struct {
 	mock.lockGetSettings.RLock()
 	calls = mock.calls.GetSettings
 	mock.lockGetSettings.RUnlock()
+	return calls
+}
+
+// UpdateProfile calls UpdateProfileFunc.
+func (mock *userServiceMock) UpdateProfile(ctx context.Context, input user.UpdateProfileInput) (*domain.User, error) {
+	if mock.UpdateProfileFunc == nil {
+		panic("userServiceMock.UpdateProfileFunc: method is nil but userService.UpdateProfile was just called")
+	}
+	callInfo := struct {
+		Ctx   context.Context
+		Input user.UpdateProfileInput
+	}{
+		Ctx:   ctx,
+		Input: input,
+	}
+	mock.lockUpdateProfile.Lock()
+	mock.calls.UpdateProfile = append(mock.calls.UpdateProfile, callInfo)
+	mock.lockUpdateProfile.Unlock()
+	return mock.UpdateProfileFunc(ctx, input)
+}
+
+// UpdateProfileCalls gets all the calls that were made to UpdateProfile.
+func (mock *userServiceMock) UpdateProfileCalls() []struct {
+	Ctx   context.Context
+	Input user.UpdateProfileInput
+} {
+	var calls []struct {
+		Ctx   context.Context
+		Input user.UpdateProfileInput
+	}
+	mock.lockUpdateProfile.RLock()
+	calls = mock.calls.UpdateProfile
+	mock.lockUpdateProfile.RUnlock()
 	return calls
 }
 

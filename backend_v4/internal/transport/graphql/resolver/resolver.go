@@ -89,6 +89,7 @@ type inboxService interface {
 // userService defines what resolver needs from User service.
 type userService interface {
 	GetProfile(ctx context.Context) (*domain.User, error)
+	UpdateProfile(ctx context.Context, input user.UpdateProfileInput) (*domain.User, error)
 	GetSettings(ctx context.Context) (*domain.UserSettings, error)
 	UpdateSettings(ctx context.Context, input user.UpdateSettingsInput) (*domain.UserSettings, error)
 	SetUserRole(ctx context.Context, targetUserID uuid.UUID, role domain.UserRole) (*domain.User, error)
