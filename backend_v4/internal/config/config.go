@@ -72,12 +72,11 @@ type AuthConfig struct {
 
 // DictionaryConfig holds dictionary service settings.
 type DictionaryConfig struct {
-	MaxEntriesPerUser       int     `yaml:"max_entries_per_user"        env:"DICT_MAX_ENTRIES_PER_USER"       env-default:"10000"`
-	DefaultEaseFactor       float64 `yaml:"default_ease_factor"         env:"DICT_DEFAULT_EASE_FACTOR"        env-default:"2.5"`
-	ImportChunkSize         int     `yaml:"import_chunk_size"           env:"DICT_IMPORT_CHUNK_SIZE"          env-default:"50"`
-	ExportMaxEntries        int     `yaml:"export_max_entries"          env:"DICT_EXPORT_MAX_ENTRIES"         env-default:"10000"`
-	HardDeleteRetentionDays int     `yaml:"hard_delete_retention_days"  env:"DICT_HARD_DELETE_RETENTION_DAYS" env-default:"30"`
-	AuditRetentionDays      int     `yaml:"audit_retention_days"        env:"AUDIT_RETENTION_DAYS"            env-default:"365"`
+	MaxEntriesPerUser       int `yaml:"max_entries_per_user"        env:"DICT_MAX_ENTRIES_PER_USER"       env-default:"10000"`
+	ImportChunkSize         int `yaml:"import_chunk_size"           env:"DICT_IMPORT_CHUNK_SIZE"          env-default:"50"`
+	ExportMaxEntries        int `yaml:"export_max_entries"          env:"DICT_EXPORT_MAX_ENTRIES"         env-default:"10000"`
+	HardDeleteRetentionDays int `yaml:"hard_delete_retention_days"  env:"DICT_HARD_DELETE_RETENTION_DAYS" env-default:"30"`
+	AuditRetentionDays      int `yaml:"audit_retention_days"        env:"AUDIT_RETENTION_DAYS"            env-default:"365"`
 }
 
 // GraphQLConfig holds GraphQL server settings.
@@ -93,22 +92,16 @@ type LogConfig struct {
 	Format string `yaml:"format" env:"LOG_FORMAT" env-default:"json"`
 }
 
-// SRSConfig holds spaced-repetition system parameters.
+// SRSConfig holds FSRS-5 spaced-repetition system parameters.
 type SRSConfig struct {
-	DefaultEaseFactor  float64       `yaml:"default_ease_factor"  env:"SRS_DEFAULT_EASE"          env-default:"2.5"`
-	MinEaseFactor      float64       `yaml:"min_ease_factor"      env:"SRS_MIN_EASE"              env-default:"1.3"`
-	MaxIntervalDays    int           `yaml:"max_interval_days"    env:"SRS_MAX_INTERVAL"          env-default:"365"`
-	GraduatingInterval int           `yaml:"graduating_interval"  env:"SRS_GRADUATING_INTERVAL"   env-default:"1"`
-	LearningStepsRaw   string        `yaml:"learning_steps"       env:"SRS_LEARNING_STEPS"        env-default:"1m,10m"`
-	NewCardsPerDay     int           `yaml:"new_cards_per_day"    env:"SRS_NEW_CARDS_DAY"         env-default:"20"`
-	ReviewsPerDay      int           `yaml:"reviews_per_day"      env:"SRS_REVIEWS_DAY"           env-default:"200"`
-	EasyInterval         int           `yaml:"easy_interval"          env:"SRS_EASY_INTERVAL"            env-default:"4"`
-	RelearningStepsRaw   string        `yaml:"relearning_steps"       env:"SRS_RELEARNING_STEPS"         env-default:"10m"`
-	IntervalModifier     float64       `yaml:"interval_modifier"      env:"SRS_INTERVAL_MODIFIER"        env-default:"1.0"`
-	HardIntervalModifier float64       `yaml:"hard_interval_modifier" env:"SRS_HARD_INTERVAL_MODIFIER"   env-default:"1.2"`
-	EasyBonus            float64       `yaml:"easy_bonus"             env:"SRS_EASY_BONUS"               env-default:"1.3"`
-	LapseNewInterval     float64       `yaml:"lapse_new_interval"     env:"SRS_LAPSE_NEW_INTERVAL"       env-default:"0.0"`
-	UndoWindowMinutes    int           `yaml:"undo_window_minutes"    env:"SRS_UNDO_WINDOW_MINUTES"      env-default:"10"`
+	DefaultRetention   float64 `yaml:"default_retention"    env:"SRS_DEFAULT_RETENTION"     env-default:"0.9"`
+	MaxIntervalDays    int     `yaml:"max_interval_days"    env:"SRS_MAX_INTERVAL"          env-default:"365"`
+	EnableFuzz         bool    `yaml:"enable_fuzz"          env:"SRS_ENABLE_FUZZ"           env-default:"true"`
+	LearningStepsRaw   string  `yaml:"learning_steps"       env:"SRS_LEARNING_STEPS"        env-default:"1m,10m"`
+	RelearningStepsRaw string  `yaml:"relearning_steps"     env:"SRS_RELEARNING_STEPS"      env-default:"10m"`
+	NewCardsPerDay     int     `yaml:"new_cards_per_day"    env:"SRS_NEW_CARDS_DAY"         env-default:"20"`
+	ReviewsPerDay      int     `yaml:"reviews_per_day"      env:"SRS_REVIEWS_DAY"           env-default:"200"` // Not enforced in queue
+	UndoWindowMinutes  int     `yaml:"undo_window_minutes"  env:"SRS_UNDO_WINDOW_MINUTES"   env-default:"10"`
 
 	// LearningSteps is parsed from LearningStepsRaw during validation.
 	LearningSteps []time.Duration `yaml:"-" env:"-"`

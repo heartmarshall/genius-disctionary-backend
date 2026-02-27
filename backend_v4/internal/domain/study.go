@@ -6,41 +6,39 @@ import (
 	"github.com/google/uuid"
 )
 
-// SRSConfig holds spaced-repetition algorithm parameters (pure domain type).
-// This is a clean copy of config.SRSConfig without external tags.
+// SRSConfig holds FSRS-5 spaced-repetition algorithm parameters (pure domain type).
 type SRSConfig struct {
-	DefaultEaseFactor    float64
-	MinEaseFactor        float64
-	MaxIntervalDays      int
-	GraduatingInterval   int
-	LearningSteps        []time.Duration
-	NewCardsPerDay       int
-	ReviewsPerDay        int
-	EasyInterval         int
-	RelearningSteps      []time.Duration
-	IntervalModifier     float64
-	HardIntervalModifier float64
-	EasyBonus            float64
-	LapseNewInterval     float64
-	UndoWindowMinutes    int
+	DefaultRetention  float64
+	MaxIntervalDays   int
+	EnableFuzz        bool
+	LearningSteps     []time.Duration
+	RelearningSteps   []time.Duration
+	NewCardsPerDay    int
+	ReviewsPerDay     int // Not enforced in study queue. Due cards are always shown regardless of this limit.
+	UndoWindowMinutes int
 }
 
-// SRSUpdateParams holds the fields to update on a card after SRS calculation.
+// SRSUpdateParams holds the fields to update on a card after FSRS calculation.
 type SRSUpdateParams struct {
-	Status       LearningStatus
-	NextReviewAt *time.Time // Pointer to properly represent NULL for NEW cards
-	IntervalDays int
-	EaseFactor   float64
-	LearningStep int
+	State         CardState
+	Step          int
+	Stability     float64
+	Difficulty    float64
+	Due           time.Time
+	LastReview    *time.Time
+	Reps          int
+	Lapses        int
+	ScheduledDays int
+	ElapsedDays   int
 }
 
-// CardStatusCounts holds the count of cards per learning status.
+// CardStatusCounts holds the count of cards per state.
 type CardStatusCounts struct {
-	New      int
-	Learning int
-	Review   int
-	Mastered int
-	Total    int
+	New        int
+	Learning   int
+	Review     int
+	Relearning int
+	Total      int
 }
 
 // Dashboard holds aggregated study statistics for the user.
@@ -66,8 +64,9 @@ type CardStats struct {
 	TotalReviews      int
 	AccuracyRate      float64
 	AverageTimeMs     *int
-	CurrentStatus     LearningStatus
-	IntervalDays      int
-	EaseFactor        float64
+	CurrentState      CardState
+	Stability         float64
+	Difficulty        float64
+	ScheduledDays     int
 	GradeDistribution *GradeCounts
 }
