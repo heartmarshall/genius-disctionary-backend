@@ -229,7 +229,7 @@ func Run(ctx context.Context) error {
 	// -----------------------------------------------------------------------
 	healthHandler := rest.NewHealthHandler(pool, BuildVersion())
 	authHandler := rest.NewAuthHandler(authService, logger)
-	adminHandler := rest.NewAdminHandler(enrichmentService, logger)
+	adminHandler := rest.NewAdminHandler(enrichmentService, userService, logger)
 
 	// -----------------------------------------------------------------------
 	// 12. Assemble middleware chain
@@ -274,6 +274,11 @@ func Run(ctx context.Context) error {
 	)
 	mux.Handle("GET /admin/enrichment/stats", adminChain(http.HandlerFunc(adminHandler.QueueStats)))
 	mux.Handle("GET /admin/enrichment/queue", adminChain(http.HandlerFunc(adminHandler.QueueList)))
+	mux.Handle("POST /admin/enrichment/retry", adminChain(http.HandlerFunc(adminHandler.RetryFailed)))
+	mux.Handle("POST /admin/enrichment/reset-processing", adminChain(http.HandlerFunc(adminHandler.ResetProcessing)))
+	mux.Handle("POST /admin/enrichment/enqueue", adminChain(http.HandlerFunc(adminHandler.EnqueueWord)))
+	mux.Handle("GET /admin/users", adminChain(http.HandlerFunc(adminHandler.ListUsers)))
+	mux.Handle("PUT /admin/users/{id}/role", adminChain(http.HandlerFunc(adminHandler.SetUserRole)))
 
 	// GraphQL - full middleware chain
 	mux.Handle("POST /query", graphqlHandler)
