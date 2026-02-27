@@ -34,7 +34,7 @@ func TestRepo_Create_AndGetByID(t *testing.T) {
 	refEntry := testhelper.SeedRefEntry(t, pool, "create-card-"+uuid.New().String()[:8])
 	entry := testhelper.SeedEntry(t, pool, user.ID, refEntry.ID)
 
-	created, err := repo.Create(ctx, user.ID, entry.ID, domain.LearningStatusNew, 2.5)
+	created, err := repo.Create(ctx, user.ID, entry.ID)
 	if err != nil {
 		t.Fatalf("Create: unexpected error: %v", err)
 	}
@@ -48,17 +48,14 @@ func TestRepo_Create_AndGetByID(t *testing.T) {
 	if created.EntryID != entry.ID {
 		t.Errorf("EntryID mismatch: got %s, want %s", created.EntryID, entry.ID)
 	}
-	if created.Status != domain.LearningStatusNew {
-		t.Errorf("Status mismatch: got %s, want %s", created.Status, domain.LearningStatusNew)
+	if created.State != domain.CardStateNew {
+		t.Errorf("State mismatch: got %s, want %s", created.State, domain.CardStateNew)
 	}
-	if created.EaseFactor != 2.5 {
-		t.Errorf("EaseFactor mismatch: got %f, want 2.5", created.EaseFactor)
+	if created.Stability != 0 {
+		t.Errorf("Stability mismatch: got %f, want 0", created.Stability)
 	}
-	if created.LearningStep != 0 {
-		t.Errorf("LearningStep mismatch: got %d, want 0", created.LearningStep)
-	}
-	if created.IntervalDays != 0 {
-		t.Errorf("IntervalDays mismatch: got %d, want 0", created.IntervalDays)
+	if created.Step != 0 {
+		t.Errorf("Step mismatch: got %d, want 0", created.Step)
 	}
 
 	// GetByID
@@ -72,8 +69,8 @@ func TestRepo_Create_AndGetByID(t *testing.T) {
 	if got.ID != created.ID {
 		t.Errorf("GetByID ID mismatch: got %s, want %s", got.ID, created.ID)
 	}
-	if got.Status != domain.LearningStatusNew {
-		t.Errorf("GetByID Status mismatch: got %s, want %s", got.Status, domain.LearningStatusNew)
+	if got.State != domain.CardStateNew {
+		t.Errorf("GetByID State mismatch: got %s, want %s", got.State, domain.CardStateNew)
 	}
 }
 
@@ -90,12 +87,12 @@ func TestRepo_Create_DuplicateEntry(t *testing.T) {
 	refEntry := testhelper.SeedRefEntry(t, pool, "dup-card-"+uuid.New().String()[:8])
 	entry := testhelper.SeedEntry(t, pool, user.ID, refEntry.ID)
 
-	_, err := repo.Create(ctx, user.ID, entry.ID, domain.LearningStatusNew, 2.5)
+	_, err := repo.Create(ctx, user.ID, entry.ID)
 	if err != nil {
 		t.Fatalf("Create[1]: unexpected error: %v", err)
 	}
 
-	_, err = repo.Create(ctx, user.ID, entry.ID, domain.LearningStatusNew, 2.5)
+	_, err = repo.Create(ctx, user.ID, entry.ID)
 	assertIsDomainError(t, err, domain.ErrAlreadyExists)
 }
 
@@ -151,26 +148,22 @@ func TestRepo_GetDueCards_OverdueFirst(t *testing.T) {
 	user := testhelper.SeedUser(t, pool)
 	now := time.Now().UTC()
 
-	// Card 1: NEW (no next_review_at)
+	// Card 1: LEARNING, due 1h ago
 	refEntry1 := testhelper.SeedRefEntry(t, pool, "due1-"+uuid.New().String()[:8])
 	entry1 := testhelper.SeedEntryWithCard(t, pool, user.ID, refEntry1.ID)
+	past1h := now.Add(-1 * time.Hour)
+	_, err := pool.Exec(ctx, `UPDATE cards SET state = 'LEARNING', due = $1, step = 1 WHERE id = $2`, past1h, entry1.Card.ID)
+	if err != nil {
+		t.Fatalf("update card1: %v", err)
+	}
 
 	// Card 2: REVIEW, overdue by 24h
 	refEntry2 := testhelper.SeedRefEntry(t, pool, "due2-"+uuid.New().String()[:8])
 	entry2 := testhelper.SeedEntryWithCard(t, pool, user.ID, refEntry2.ID)
-	past := now.Add(-24 * time.Hour)
-	_, err := pool.Exec(ctx, `UPDATE cards SET status = 'REVIEW', next_review_at = $1, learning_step = 1 WHERE id = $2`, past, entry2.Card.ID)
+	past24h := now.Add(-24 * time.Hour)
+	_, err = pool.Exec(ctx, `UPDATE cards SET state = 'REVIEW', due = $1, stability = 5.0, reps = 3 WHERE id = $2`, past24h, entry2.Card.ID)
 	if err != nil {
-		t.Fatalf("update card2 to overdue: %v", err)
-	}
-
-	// Card 3: LEARNING, overdue by 1h
-	refEntry3 := testhelper.SeedRefEntry(t, pool, "due3-"+uuid.New().String()[:8])
-	entry3 := testhelper.SeedEntryWithCard(t, pool, user.ID, refEntry3.ID)
-	pastRecent := now.Add(-1 * time.Hour)
-	_, err = pool.Exec(ctx, `UPDATE cards SET status = 'LEARNING', next_review_at = $1, learning_step = 1 WHERE id = $2`, pastRecent, entry3.Card.ID)
-	if err != nil {
-		t.Fatalf("update card3 to overdue: %v", err)
+		t.Fatalf("update card2: %v", err)
 	}
 
 	cards, err := repo.GetDueCards(ctx, user.ID, now, 10)
@@ -178,20 +171,16 @@ func TestRepo_GetDueCards_OverdueFirst(t *testing.T) {
 		t.Fatalf("GetDueCards: unexpected error: %v", err)
 	}
 
-	if len(cards) != 3 {
-		t.Fatalf("expected 3 due cards, got %d", len(cards))
+	if len(cards) != 2 {
+		t.Fatalf("expected 2 due cards, got %d", len(cards))
 	}
 
-	// Overdue cards should come first (sorted by next_review_at ASC), then NEW.
-	// card2 (overdue 24h, earliest next_review_at) -> card3 (overdue 1h) -> card1 (NEW)
+	// Most overdue first (sorted by due ASC)
 	if cards[0].ID != entry2.Card.ID {
 		t.Errorf("expected first card to be entry2 (most overdue), got %s", cards[0].ID)
 	}
-	if cards[1].ID != entry3.Card.ID {
-		t.Errorf("expected second card to be entry3 (less overdue), got %s", cards[1].ID)
-	}
-	if cards[2].ID != entry1.Card.ID {
-		t.Errorf("expected third card to be entry1 (NEW), got %s", cards[2].ID)
+	if cards[1].ID != entry1.Card.ID {
+		t.Errorf("expected second card to be entry1 (less overdue), got %s", cards[1].ID)
 	}
 }
 
@@ -203,11 +192,17 @@ func TestRepo_GetDueCards_ExcludesSoftDeleted(t *testing.T) {
 	user := testhelper.SeedUser(t, pool)
 	now := time.Now().UTC()
 
-	// Create entry with card, then soft-delete the entry.
+	// Create entry with card (state=LEARNING, due in past), then soft-delete the entry.
 	refEntry := testhelper.SeedRefEntry(t, pool, "softdel-"+uuid.New().String()[:8])
 	entry := testhelper.SeedEntryWithCard(t, pool, user.ID, refEntry.ID)
 
-	_, err := pool.Exec(ctx, `UPDATE entries SET deleted_at = now() WHERE id = $1`, entry.ID)
+	past := now.Add(-1 * time.Hour)
+	_, err := pool.Exec(ctx, `UPDATE cards SET state = 'LEARNING', due = $1 WHERE id = $2`, past, entry.Card.ID)
+	if err != nil {
+		t.Fatalf("update card: %v", err)
+	}
+
+	_, err = pool.Exec(ctx, `UPDATE entries SET deleted_at = now() WHERE id = $1`, entry.ID)
 	if err != nil {
 		t.Fatalf("soft-delete entry: %v", err)
 	}
@@ -217,7 +212,6 @@ func TestRepo_GetDueCards_ExcludesSoftDeleted(t *testing.T) {
 		t.Fatalf("GetDueCards: unexpected error: %v", err)
 	}
 
-	// Card for soft-deleted entry should not appear.
 	for _, c := range cards {
 		if c.EntryID == entry.ID {
 			t.Errorf("expected card for soft-deleted entry %s to be excluded", entry.ID)
@@ -225,7 +219,7 @@ func TestRepo_GetDueCards_ExcludesSoftDeleted(t *testing.T) {
 	}
 }
 
-func TestRepo_GetDueCards_ExcludesMastered(t *testing.T) {
+func TestRepo_GetDueCards_ExcludesNew(t *testing.T) {
 	t.Parallel()
 	repo, pool := newRepo(t)
 	ctx := context.Background()
@@ -233,14 +227,9 @@ func TestRepo_GetDueCards_ExcludesMastered(t *testing.T) {
 	user := testhelper.SeedUser(t, pool)
 	now := time.Now().UTC()
 
-	// Create entry with card, then set it to MASTERED.
-	refEntry := testhelper.SeedRefEntry(t, pool, "mastered-"+uuid.New().String()[:8])
+	// Create entry with card in state NEW — should not appear in due cards.
+	refEntry := testhelper.SeedRefEntry(t, pool, "new-"+uuid.New().String()[:8])
 	entry := testhelper.SeedEntryWithCard(t, pool, user.ID, refEntry.ID)
-
-	_, err := pool.Exec(ctx, `UPDATE cards SET status = 'MASTERED' WHERE id = $1`, entry.Card.ID)
-	if err != nil {
-		t.Fatalf("update card to mastered: %v", err)
-	}
 
 	cards, err := repo.GetDueCards(ctx, user.ID, now, 10)
 	if err != nil {
@@ -249,7 +238,7 @@ func TestRepo_GetDueCards_ExcludesMastered(t *testing.T) {
 
 	for _, c := range cards {
 		if c.ID == entry.Card.ID {
-			t.Errorf("expected MASTERED card %s to be excluded", entry.Card.ID)
+			t.Errorf("expected NEW card %s to be excluded from due cards", entry.Card.ID)
 		}
 	}
 }
@@ -262,10 +251,15 @@ func TestRepo_GetDueCards_RespectsLimit(t *testing.T) {
 	user := testhelper.SeedUser(t, pool)
 	now := time.Now().UTC()
 
-	// Create 3 NEW cards.
+	// Create 3 LEARNING cards with due in the past.
 	for range 3 {
 		refEntry := testhelper.SeedRefEntry(t, pool, "limit-"+uuid.New().String()[:8])
-		testhelper.SeedEntryWithCard(t, pool, user.ID, refEntry.ID)
+		e := testhelper.SeedEntryWithCard(t, pool, user.ID, refEntry.ID)
+		past := now.Add(-1 * time.Hour)
+		_, err := pool.Exec(ctx, `UPDATE cards SET state = 'LEARNING', due = $1 WHERE id = $2`, past, e.Card.ID)
+		if err != nil {
+			t.Fatalf("update card: %v", err)
+		}
 	}
 
 	cards, err := repo.GetDueCards(ctx, user.ID, now, 2)
@@ -290,26 +284,26 @@ func TestRepo_CountDue(t *testing.T) {
 	user := testhelper.SeedUser(t, pool)
 	now := time.Now().UTC()
 
-	// Card 1: NEW
+	// Card 1: REVIEW, overdue
 	refEntry1 := testhelper.SeedRefEntry(t, pool, "countdue1-"+uuid.New().String()[:8])
-	testhelper.SeedEntryWithCard(t, pool, user.ID, refEntry1.ID)
+	entry1 := testhelper.SeedEntryWithCard(t, pool, user.ID, refEntry1.ID)
+	past := now.Add(-24 * time.Hour)
+	_, err := pool.Exec(ctx, `UPDATE cards SET state = 'REVIEW', due = $1, stability = 5.0, reps = 3 WHERE id = $2`, past, entry1.Card.ID)
+	if err != nil {
+		t.Fatalf("update card1: %v", err)
+	}
 
-	// Card 2: REVIEW, overdue
+	// Card 2: LEARNING, overdue
 	refEntry2 := testhelper.SeedRefEntry(t, pool, "countdue2-"+uuid.New().String()[:8])
 	entry2 := testhelper.SeedEntryWithCard(t, pool, user.ID, refEntry2.ID)
-	past := now.Add(-24 * time.Hour)
-	_, err := pool.Exec(ctx, `UPDATE cards SET status = 'REVIEW', next_review_at = $1, learning_step = 1 WHERE id = $2`, past, entry2.Card.ID)
+	_, err = pool.Exec(ctx, `UPDATE cards SET state = 'LEARNING', due = $1 WHERE id = $2`, past, entry2.Card.ID)
 	if err != nil {
 		t.Fatalf("update card2: %v", err)
 	}
 
-	// Card 3: MASTERED (should not count)
+	// Card 3: NEW (should not count as due)
 	refEntry3 := testhelper.SeedRefEntry(t, pool, "countdue3-"+uuid.New().String()[:8])
-	entry3 := testhelper.SeedEntryWithCard(t, pool, user.ID, refEntry3.ID)
-	_, err = pool.Exec(ctx, `UPDATE cards SET status = 'MASTERED' WHERE id = $1`, entry3.Card.ID)
-	if err != nil {
-		t.Fatalf("update card3: %v", err)
-	}
+	testhelper.SeedEntryWithCard(t, pool, user.ID, refEntry3.ID)
 
 	count, err := repo.CountDue(ctx, user.ID, now)
 	if err != nil {
@@ -344,7 +338,7 @@ func TestRepo_CountNew(t *testing.T) {
 	refEntry3 := testhelper.SeedRefEntry(t, pool, "countnew3-"+uuid.New().String()[:8])
 	entry3 := testhelper.SeedEntryWithCard(t, pool, user.ID, refEntry3.ID)
 	past := time.Now().UTC().Add(-24 * time.Hour)
-	_, err := pool.Exec(ctx, `UPDATE cards SET status = 'REVIEW', next_review_at = $1, learning_step = 1 WHERE id = $2`, past, entry3.Card.ID)
+	_, err := pool.Exec(ctx, `UPDATE cards SET state = 'REVIEW', due = $1, stability = 5.0, reps = 3 WHERE id = $2`, past, entry3.Card.ID)
 	if err != nil {
 		t.Fatalf("update card3: %v", err)
 	}
@@ -378,7 +372,7 @@ func TestRepo_CountByStatus(t *testing.T) {
 	refEntry2 := testhelper.SeedRefEntry(t, pool, "countstat2-"+uuid.New().String()[:8])
 	entry2 := testhelper.SeedEntryWithCard(t, pool, user.ID, refEntry2.ID)
 	past := time.Now().UTC().Add(-24 * time.Hour)
-	_, err := pool.Exec(ctx, `UPDATE cards SET status = 'REVIEW', next_review_at = $1, learning_step = 1 WHERE id = $2`, past, entry2.Card.ID)
+	_, err := pool.Exec(ctx, `UPDATE cards SET state = 'REVIEW', due = $1, stability = 5.0, reps = 3 WHERE id = $2`, past, entry2.Card.ID)
 	if err != nil {
 		t.Fatalf("update card2: %v", err)
 	}
@@ -386,7 +380,7 @@ func TestRepo_CountByStatus(t *testing.T) {
 	// Card 3: REVIEW
 	refEntry3 := testhelper.SeedRefEntry(t, pool, "countstat3-"+uuid.New().String()[:8])
 	entry3 := testhelper.SeedEntryWithCard(t, pool, user.ID, refEntry3.ID)
-	_, err = pool.Exec(ctx, `UPDATE cards SET status = 'REVIEW', next_review_at = $1, learning_step = 1 WHERE id = $2`, past, entry3.Card.ID)
+	_, err = pool.Exec(ctx, `UPDATE cards SET state = 'REVIEW', due = $1, stability = 5.0, reps = 3 WHERE id = $2`, past, entry3.Card.ID)
 	if err != nil {
 		t.Fatalf("update card3: %v", err)
 	}
@@ -396,7 +390,6 @@ func TestRepo_CountByStatus(t *testing.T) {
 		t.Fatalf("CountByStatus: unexpected error: %v", err)
 	}
 
-	// Should have NEW=1, REVIEW=2, Total=3
 	if counts.New != 1 {
 		t.Errorf("expected 1 NEW card, got %d", counts.New)
 	}
@@ -406,8 +399,8 @@ func TestRepo_CountByStatus(t *testing.T) {
 	if counts.Learning != 0 {
 		t.Errorf("expected 0 LEARNING cards, got %d", counts.Learning)
 	}
-	if counts.Mastered != 0 {
-		t.Errorf("expected 0 MASTERED cards, got %d", counts.Mastered)
+	if counts.Relearning != 0 {
+		t.Errorf("expected 0 RELEARNING cards, got %d", counts.Relearning)
 	}
 	if counts.Total != 3 {
 		t.Errorf("expected 3 Total cards, got %d", counts.Total)
@@ -427,13 +420,19 @@ func TestRepo_UpdateSRS(t *testing.T) {
 	refEntry := testhelper.SeedRefEntry(t, pool, "updatesrs-"+uuid.New().String()[:8])
 	entry := testhelper.SeedEntryWithCard(t, pool, user.ID, refEntry.ID)
 
-	nextReview := time.Now().UTC().Add(24 * time.Hour).Truncate(time.Microsecond)
+	now := time.Now().UTC().Truncate(time.Microsecond)
+	due := now.Add(3 * 24 * time.Hour)
 	params := domain.SRSUpdateParams{
-		Status:       domain.LearningStatusReview,
-		NextReviewAt: &nextReview,
-		IntervalDays: 3,
-		EaseFactor:   2.1,
-		LearningStep: 2,
+		State:         domain.CardStateReview,
+		Step:          0,
+		Stability:     5.5,
+		Difficulty:    4.2,
+		Due:           due,
+		LastReview:    &now,
+		Reps:          1,
+		Lapses:        0,
+		ScheduledDays: 3,
+		ElapsedDays:   0,
 	}
 
 	got, err := repo.UpdateSRS(ctx, user.ID, entry.Card.ID, params)
@@ -444,23 +443,20 @@ func TestRepo_UpdateSRS(t *testing.T) {
 	if got == nil {
 		t.Fatal("UpdateSRS: expected non-nil result")
 	}
-	if got.Status != domain.LearningStatusReview {
-		t.Errorf("Status mismatch: got %s, want %s", got.Status, domain.LearningStatusReview)
+	if got.State != domain.CardStateReview {
+		t.Errorf("State mismatch: got %s, want %s", got.State, domain.CardStateReview)
 	}
-	if got.NextReviewAt == nil {
-		t.Fatal("expected NextReviewAt to be set, got nil")
+	if got.Stability != 5.5 {
+		t.Errorf("Stability mismatch: got %f, want 5.5", got.Stability)
 	}
-	if !got.NextReviewAt.Equal(nextReview) {
-		t.Errorf("NextReviewAt mismatch: got %v, want %v", got.NextReviewAt, nextReview)
+	if got.Difficulty != 4.2 {
+		t.Errorf("Difficulty mismatch: got %f, want 4.2", got.Difficulty)
 	}
-	if got.IntervalDays != 3 {
-		t.Errorf("IntervalDays mismatch: got %d, want 3", got.IntervalDays)
+	if got.ScheduledDays != 3 {
+		t.Errorf("ScheduledDays mismatch: got %d, want 3", got.ScheduledDays)
 	}
-	if got.EaseFactor != 2.1 {
-		t.Errorf("EaseFactor mismatch: got %f, want 2.1", got.EaseFactor)
-	}
-	if got.LearningStep != 2 {
-		t.Errorf("LearningStep mismatch: got %d, want 2", got.LearningStep)
+	if got.Reps != 1 {
+		t.Errorf("Reps mismatch: got %d, want 1", got.Reps)
 	}
 	if !got.UpdatedAt.After(entry.Card.UpdatedAt) {
 		t.Errorf("expected UpdatedAt to be updated after SRS change")
@@ -538,6 +534,33 @@ func TestRepo_GetByEntryIDs_Batch(t *testing.T) {
 	}
 	if len(byEntry[entry2.ID]) != 1 {
 		t.Errorf("expected 1 card for entry2, got %d", len(byEntry[entry2.ID]))
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Create — different users can have cards for entries sharing the same ref
+// ---------------------------------------------------------------------------
+
+func TestRepo_Create_DifferentUsersCanShareEntry(t *testing.T) {
+	t.Parallel()
+	repo, pool := newRepo(t)
+	ctx := context.Background()
+
+	user1 := testhelper.SeedUser(t, pool)
+	user2 := testhelper.SeedUser(t, pool)
+	ref := testhelper.SeedRefEntry(t, pool, "shared-"+uuid.New().String()[:8])
+	entry1 := testhelper.SeedEntry(t, pool, user1.ID, ref.ID)
+	entry2 := testhelper.SeedEntry(t, pool, user2.ID, ref.ID)
+
+	_, err := repo.Create(ctx, user1.ID, entry1.ID)
+	if err != nil {
+		t.Fatalf("Create user1: unexpected error: %v", err)
+	}
+
+	// This should succeed — different users, different entries.
+	_, err = repo.Create(ctx, user2.ID, entry2.ID)
+	if err != nil {
+		t.Fatalf("Create user2: unexpected error (ux_cards_entry may be global): %v", err)
 	}
 }
 
