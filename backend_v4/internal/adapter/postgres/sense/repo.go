@@ -175,6 +175,37 @@ func (r *Repo) CountByEntryID(ctx context.Context, entryID uuid.UUID) (int, erro
 	return r.CountByEntry(ctx, entryID)
 }
 
+const countByEntryIDsSQL = `
+SELECT entry_id, count(*) AS cnt
+FROM senses
+WHERE entry_id = ANY($1::uuid[])
+GROUP BY entry_id`
+
+// CountByEntryIDs returns sense counts per entry for a batch of entry IDs.
+// Entries with zero senses are absent from the result map.
+func (r *Repo) CountByEntryIDs(ctx context.Context, entryIDs []uuid.UUID) (map[uuid.UUID]int, error) {
+	if len(entryIDs) == 0 {
+		return map[uuid.UUID]int{}, nil
+	}
+	querier := postgres.QuerierFromCtx(ctx, r.pool)
+	rows, err := querier.Query(ctx, countByEntryIDsSQL, entryIDs)
+	if err != nil {
+		return nil, fmt.Errorf("count senses by entry_ids: %w", err)
+	}
+	defer rows.Close()
+
+	result := make(map[uuid.UUID]int, len(entryIDs))
+	for rows.Next() {
+		var entryID uuid.UUID
+		var cnt int
+		if err := rows.Scan(&entryID, &cnt); err != nil {
+			return nil, fmt.Errorf("scan sense count: %w", err)
+		}
+		result[entryID] = cnt
+	}
+	return result, rows.Err()
+}
+
 // ---------------------------------------------------------------------------
 // Write operations
 // ---------------------------------------------------------------------------

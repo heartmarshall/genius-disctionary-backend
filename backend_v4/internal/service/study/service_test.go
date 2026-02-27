@@ -2915,8 +2915,12 @@ func TestService_BatchCreateCards_Success_AllCreated(t *testing.T) {
 	}
 
 	mockSenses := &senseRepoMock{
-		CountByEntryIDFunc: func(ctx context.Context, eid uuid.UUID) (int, error) {
-			return 1, nil // All entries have senses
+		CountByEntryIDsFunc: func(ctx context.Context, eids []uuid.UUID) (map[uuid.UUID]int, error) {
+			result := make(map[uuid.UUID]int)
+			for _, eid := range eids {
+				result[eid] = 1 // All entries have senses
+			}
+			return result, nil
 		},
 	}
 
@@ -2997,8 +3001,12 @@ func TestService_BatchCreateCards_SomeEntriesNotExist(t *testing.T) {
 	}
 
 	mockSenses := &senseRepoMock{
-		CountByEntryIDFunc: func(ctx context.Context, eid uuid.UUID) (int, error) {
-			return 1, nil
+		CountByEntryIDsFunc: func(ctx context.Context, eids []uuid.UUID) (map[uuid.UUID]int, error) {
+			result := make(map[uuid.UUID]int)
+			for _, eid := range eids {
+				result[eid] = 1
+			}
+			return result, nil
 		},
 	}
 
@@ -3073,11 +3081,11 @@ func TestService_BatchCreateCards_SomeEntriesNoSenses(t *testing.T) {
 	}
 
 	mockSenses := &senseRepoMock{
-		CountByEntryIDFunc: func(ctx context.Context, eid uuid.UUID) (int, error) {
-			if eid == entryID1 {
-				return 1, nil
-			}
-			return 0, nil // entryID2 has no senses
+		CountByEntryIDsFunc: func(ctx context.Context, eids []uuid.UUID) (map[uuid.UUID]int, error) {
+			return map[uuid.UUID]int{
+				entryID1: 1,
+				// entryID2 absent = 0 senses
+			}, nil
 		},
 	}
 
@@ -3150,8 +3158,12 @@ func TestService_BatchCreateCards_SomeEntriesAlreadyHaveCards(t *testing.T) {
 	}
 
 	mockSenses := &senseRepoMock{
-		CountByEntryIDFunc: func(ctx context.Context, eid uuid.UUID) (int, error) {
-			return 1, nil
+		CountByEntryIDsFunc: func(ctx context.Context, eids []uuid.UUID) (map[uuid.UUID]int, error) {
+			result := make(map[uuid.UUID]int)
+			for _, eid := range eids {
+				result[eid] = 1
+			}
+			return result, nil
 		},
 	}
 
@@ -3229,11 +3241,11 @@ func TestService_BatchCreateCards_MixedScenario(t *testing.T) {
 	}
 
 	mockSenses := &senseRepoMock{
-		CountByEntryIDFunc: func(ctx context.Context, eid uuid.UUID) (int, error) {
-			if eid == entryID3 {
-				return 1, nil
-			}
-			return 0, nil // entryID4 has no senses
+		CountByEntryIDsFunc: func(ctx context.Context, eids []uuid.UUID) (map[uuid.UUID]int, error) {
+			return map[uuid.UUID]int{
+				entryID3: 1,
+				// entryID4 absent = 0 senses
+			}, nil
 		},
 	}
 

@@ -56,6 +56,7 @@ type entryRepo interface {
 
 type senseRepo interface {
 	CountByEntryID(ctx context.Context, entryID uuid.UUID) (int, error)
+	CountByEntryIDs(ctx context.Context, entryIDs []uuid.UUID) (map[uuid.UUID]int, error)
 }
 
 type settingsRepo interface {

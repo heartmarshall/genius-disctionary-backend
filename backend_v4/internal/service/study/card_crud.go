@@ -41,7 +41,7 @@ func (s *Service) CreateCard(ctx context.Context, input CreateCardInput) (*domai
 	// Transaction: create card + audit
 	err = s.tx.RunInTx(ctx, func(txCtx context.Context) error {
 		var createErr error
-		card, createErr = s.cards.Create(txCtx, userID, input.EntryID, domain.LearningStatusNew, s.srsConfig.DefaultEaseFactor)
+		card, createErr = s.cards.Create(txCtx, userID, input.EntryID)
 		if createErr != nil {
 			return fmt.Errorf("create card: %w", createErr)
 		}
@@ -190,21 +190,15 @@ func (s *Service) BatchCreateCards(ctx context.Context, input BatchCreateCardsIn
 		return result, nil
 	}
 
-	// Check sense counts for each entry
-	// TODO: Performance optimization - add CountByEntryIDs batch method to senseRepo interface
-	// to avoid N queries. For now, we accept the sequential queries as the interface doesn't
-	// support batching yet.
+	// Batch count senses for all entries at once (eliminates N+1)
+	senseCounts, err := s.senses.CountByEntryIDs(ctx, entriesToCreate)
+	if err != nil {
+		return result, fmt.Errorf("count senses batch: %w", err)
+	}
+
 	finalEntriesToCreate := []uuid.UUID{}
 	for _, entryID := range entriesToCreate {
-		senseCount, err := s.senses.CountByEntryID(ctx, entryID)
-		if err != nil {
-			result.Errors = append(result.Errors, BatchCreateError{
-				EntryID: entryID,
-				Reason:  "failed to count senses",
-			})
-			continue
-		}
-		if senseCount == 0 {
+		if cnt, ok := senseCounts[entryID]; !ok || cnt == 0 {
 			result.SkippedNoSenses++
 		} else {
 			finalEntriesToCreate = append(finalEntriesToCreate, entryID)
@@ -214,7 +208,7 @@ func (s *Service) BatchCreateCards(ctx context.Context, input BatchCreateCardsIn
 	// Create cards for valid entries
 	for _, entryID := range finalEntriesToCreate {
 		err := s.tx.RunInTx(ctx, func(txCtx context.Context) error {
-			createdCard, createErr := s.cards.Create(txCtx, userID, entryID, domain.LearningStatusNew, s.srsConfig.DefaultEaseFactor)
+			createdCard, createErr := s.cards.Create(txCtx, userID, entryID)
 			if createErr != nil {
 				return fmt.Errorf("create card: %w", createErr)
 			}

@@ -1730,6 +1730,9 @@ var _ senseRepo = &senseRepoMock{}
 //			CountByEntryIDFunc: func(ctx context.Context, entryID uuid.UUID) (int, error) {
 //				panic("mock out the CountByEntryID method")
 //			},
+//			CountByEntryIDsFunc: func(ctx context.Context, entryIDs []uuid.UUID) (map[uuid.UUID]int, error) {
+//				panic("mock out the CountByEntryIDs method")
+//			},
 //		}
 //
 //		// use mockedsenseRepo in code that requires senseRepo
@@ -1740,6 +1743,9 @@ type senseRepoMock struct {
 	// CountByEntryIDFunc mocks the CountByEntryID method.
 	CountByEntryIDFunc func(ctx context.Context, entryID uuid.UUID) (int, error)
 
+	// CountByEntryIDsFunc mocks the CountByEntryIDs method.
+	CountByEntryIDsFunc func(ctx context.Context, entryIDs []uuid.UUID) (map[uuid.UUID]int, error)
+
 	// calls tracks calls to the methods.
 	calls struct {
 		// CountByEntryID holds details about calls to the CountByEntryID method.
@@ -1749,8 +1755,16 @@ type senseRepoMock struct {
 			// EntryID is the entryID argument value.
 			EntryID uuid.UUID
 		}
+		// CountByEntryIDs holds details about calls to the CountByEntryIDs method.
+		CountByEntryIDs []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// EntryIDs is the entryIDs argument value.
+			EntryIDs []uuid.UUID
+		}
 	}
-	lockCountByEntryID sync.RWMutex
+	lockCountByEntryID  sync.RWMutex
+	lockCountByEntryIDs sync.RWMutex
 }
 
 // CountByEntryID calls CountByEntryIDFunc.
@@ -1786,6 +1800,42 @@ func (mock *senseRepoMock) CountByEntryIDCalls() []struct {
 	mock.lockCountByEntryID.RLock()
 	calls = mock.calls.CountByEntryID
 	mock.lockCountByEntryID.RUnlock()
+	return calls
+}
+
+// CountByEntryIDs calls CountByEntryIDsFunc.
+func (mock *senseRepoMock) CountByEntryIDs(ctx context.Context, entryIDs []uuid.UUID) (map[uuid.UUID]int, error) {
+	if mock.CountByEntryIDsFunc == nil {
+		panic("senseRepoMock.CountByEntryIDsFunc: method is nil but senseRepo.CountByEntryIDs was just called")
+	}
+	callInfo := struct {
+		Ctx      context.Context
+		EntryIDs []uuid.UUID
+	}{
+		Ctx:      ctx,
+		EntryIDs: entryIDs,
+	}
+	mock.lockCountByEntryIDs.Lock()
+	mock.calls.CountByEntryIDs = append(mock.calls.CountByEntryIDs, callInfo)
+	mock.lockCountByEntryIDs.Unlock()
+	return mock.CountByEntryIDsFunc(ctx, entryIDs)
+}
+
+// CountByEntryIDsCalls gets all the calls that were made to CountByEntryIDs.
+// Check the length with:
+//
+//	len(mockedsenseRepo.CountByEntryIDsCalls())
+func (mock *senseRepoMock) CountByEntryIDsCalls() []struct {
+	Ctx      context.Context
+	EntryIDs []uuid.UUID
+} {
+	var calls []struct {
+		Ctx      context.Context
+		EntryIDs []uuid.UUID
+	}
+	mock.lockCountByEntryIDs.RLock()
+	calls = mock.calls.CountByEntryIDs
+	mock.lockCountByEntryIDs.RUnlock()
 	return calls
 }
 
