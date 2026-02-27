@@ -231,6 +231,26 @@ func Run(ctx context.Context) error {
 	authHandler := rest.NewAuthHandler(authService, logger)
 	adminHandler := rest.NewAdminHandler(enrichmentService, userService, logger)
 
+	// Rate limiter for auth endpoints.
+	var authRateLimitRegister, authRateLimitLogin, authRateLimitRefresh middleware.Middleware
+	if cfg.RateLimit.Enabled {
+		rateLimiter := middleware.NewRateLimiter(cfg.RateLimit.CleanupInterval)
+		defer rateLimiter.Stop()
+		authRateLimitRegister = rateLimiter.Limit(cfg.RateLimit.Register)
+		authRateLimitLogin = rateLimiter.Limit(cfg.RateLimit.Login)
+		authRateLimitRefresh = rateLimiter.Limit(cfg.RateLimit.Refresh)
+		logger.Info("rate limiting enabled",
+			slog.Int("register", cfg.RateLimit.Register),
+			slog.Int("login", cfg.RateLimit.Login),
+			slog.Int("refresh", cfg.RateLimit.Refresh),
+		)
+	} else {
+		noop := func(next http.Handler) http.Handler { return next }
+		authRateLimitRegister = noop
+		authRateLimitLogin = noop
+		authRateLimitRefresh = noop
+	}
+
 	// -----------------------------------------------------------------------
 	// 12. Assemble middleware chain
 	// -----------------------------------------------------------------------
@@ -255,10 +275,10 @@ func Run(ctx context.Context) error {
 
 	// Auth endpoints - CORS only (no auth middleware)
 	authCORS := middleware.CORS(cfg.CORS)
-	mux.Handle("POST /auth/register", authCORS(http.HandlerFunc(authHandler.Register)))
-	mux.Handle("POST /auth/login", authCORS(http.HandlerFunc(authHandler.Login)))
-	mux.Handle("POST /auth/login/password", authCORS(http.HandlerFunc(authHandler.LoginWithPassword)))
-	mux.Handle("POST /auth/refresh", authCORS(http.HandlerFunc(authHandler.Refresh)))
+	mux.Handle("POST /auth/register", authCORS(authRateLimitRegister(http.HandlerFunc(authHandler.Register))))
+	mux.Handle("POST /auth/login", authCORS(authRateLimitLogin(http.HandlerFunc(authHandler.Login))))
+	mux.Handle("POST /auth/login/password", authCORS(authRateLimitLogin(http.HandlerFunc(authHandler.LoginWithPassword))))
+	mux.Handle("POST /auth/refresh", authCORS(authRateLimitRefresh(http.HandlerFunc(authHandler.Refresh))))
 	mux.Handle("POST /auth/logout", authCORS(http.HandlerFunc(authHandler.Logout)))
 	mux.Handle("OPTIONS /auth/{path...}", authCORS(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent)

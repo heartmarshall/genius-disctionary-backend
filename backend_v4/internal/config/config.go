@@ -15,6 +15,7 @@ type Config struct {
 	Log        LogConfig        `yaml:"log"`
 	SRS        SRSConfig        `yaml:"srs"`
 	CORS       CORSConfig       `yaml:"cors"`
+	RateLimit  RateLimitConfig  `yaml:"rate_limit"`
 }
 
 // CORSConfig holds CORS settings.
@@ -24,6 +25,15 @@ type CORSConfig struct {
 	AllowedHeaders   string `yaml:"allowed_headers"   env:"CORS_ALLOWED_HEADERS"   env-default:"Authorization,Content-Type"`
 	AllowCredentials bool   `yaml:"allow_credentials" env:"CORS_ALLOW_CREDENTIALS" env-default:"true"`
 	MaxAge           int    `yaml:"max_age"           env:"CORS_MAX_AGE"           env-default:"86400"`
+}
+
+// RateLimitConfig holds rate limiting settings for auth endpoints.
+type RateLimitConfig struct {
+	Enabled         bool          `yaml:"enabled"          env:"RATE_LIMIT_ENABLED"          env-default:"true"`
+	Register        int           `yaml:"register"         env:"RATE_LIMIT_REGISTER"         env-default:"5"`
+	Login           int           `yaml:"login"            env:"RATE_LIMIT_LOGIN"             env-default:"10"`
+	Refresh         int           `yaml:"refresh"          env:"RATE_LIMIT_REFRESH"           env-default:"20"`
+	CleanupInterval time.Duration `yaml:"cleanup_interval" env:"RATE_LIMIT_CLEANUP_INTERVAL"  env-default:"5m"`
 }
 
 // ServerConfig holds HTTP server settings.

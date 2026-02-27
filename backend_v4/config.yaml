@@ -31,3 +31,10 @@ srs:
   learning_steps: "1m,10m"
   new_cards_per_day: 20
   reviews_per_day: 200
+
+rate_limit:
+  enabled: true
+  register: 5
+  login: 10
+  refresh: 20
+  cleanup_interval: 5m
