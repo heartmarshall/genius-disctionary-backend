@@ -41,3 +41,13 @@ FROM enrichment_queue
 WHERE ($1::text = '' OR status = $1)
 ORDER BY priority DESC, requested_at
 LIMIT $2 OFFSET $3;
+
+-- name: RetryAllFailed :execrows
+UPDATE enrichment_queue
+SET status = 'pending', error_message = NULL, processed_at = NULL
+WHERE status = 'failed';
+
+-- name: ResetProcessing :execrows
+UPDATE enrichment_queue
+SET status = 'pending'
+WHERE status = 'processing';

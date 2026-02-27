@@ -171,3 +171,31 @@ func (q *Queries) MarkFailed(ctx context.Context, arg MarkFailedParams) error {
 	_, err := q.db.Exec(ctx, markFailed, arg.RefEntryID, arg.ErrorMessage)
 	return err
 }
+
+const resetProcessing = `-- name: ResetProcessing :execrows
+UPDATE enrichment_queue
+SET status = 'pending'
+WHERE status = 'processing'
+`
+
+func (q *Queries) ResetProcessing(ctx context.Context) (int64, error) {
+	result, err := q.db.Exec(ctx, resetProcessing)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const retryAllFailed = `-- name: RetryAllFailed :execrows
+UPDATE enrichment_queue
+SET status = 'pending', error_message = NULL, processed_at = NULL
+WHERE status = 'failed'
+`
+
+func (q *Queries) RetryAllFailed(ctx context.Context) (int64, error) {
+	result, err := q.db.Exec(ctx, retryAllFailed)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}

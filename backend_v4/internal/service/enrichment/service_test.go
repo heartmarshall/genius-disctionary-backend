@@ -11,12 +11,14 @@ import (
 )
 
 type mockQueueRepo struct {
-	enqueueFn    func(ctx context.Context, refEntryID uuid.UUID, priority int) error
-	claimBatchFn func(ctx context.Context, limit int) ([]domain.EnrichmentQueueItem, error)
-	markDoneFn   func(ctx context.Context, refEntryID uuid.UUID) error
-	markFailedFn func(ctx context.Context, refEntryID uuid.UUID, errMsg string) error
-	getStatsFn   func(ctx context.Context) (domain.EnrichmentQueueStats, error)
-	listFn       func(ctx context.Context, status string, limit, offset int) ([]domain.EnrichmentQueueItem, error)
+	enqueueFn         func(ctx context.Context, refEntryID uuid.UUID, priority int) error
+	claimBatchFn      func(ctx context.Context, limit int) ([]domain.EnrichmentQueueItem, error)
+	markDoneFn        func(ctx context.Context, refEntryID uuid.UUID) error
+	markFailedFn      func(ctx context.Context, refEntryID uuid.UUID, errMsg string) error
+	getStatsFn        func(ctx context.Context) (domain.EnrichmentQueueStats, error)
+	listFn            func(ctx context.Context, status string, limit, offset int) ([]domain.EnrichmentQueueItem, error)
+	retryAllFailedFn  func(ctx context.Context) (int, error)
+	resetProcessingFn func(ctx context.Context) (int, error)
 }
 
 func (m *mockQueueRepo) Enqueue(ctx context.Context, refEntryID uuid.UUID, priority int) error {
@@ -36,6 +38,12 @@ func (m *mockQueueRepo) GetStats(ctx context.Context) (domain.EnrichmentQueueSta
 }
 func (m *mockQueueRepo) List(ctx context.Context, status string, limit, offset int) ([]domain.EnrichmentQueueItem, error) {
 	return m.listFn(ctx, status, limit, offset)
+}
+func (m *mockQueueRepo) RetryAllFailed(ctx context.Context) (int, error) {
+	return m.retryAllFailedFn(ctx)
+}
+func (m *mockQueueRepo) ResetProcessing(ctx context.Context) (int, error) {
+	return m.resetProcessingFn(ctx)
 }
 
 func TestService_Enqueue(t *testing.T) {

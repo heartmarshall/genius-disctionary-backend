@@ -16,6 +16,8 @@ type queueRepo interface {
 	MarkFailed(ctx context.Context, refEntryID uuid.UUID, errMsg string) error
 	GetStats(ctx context.Context) (domain.EnrichmentQueueStats, error)
 	List(ctx context.Context, status string, limit, offset int) ([]domain.EnrichmentQueueItem, error)
+	RetryAllFailed(ctx context.Context) (int, error)
+	ResetProcessing(ctx context.Context) (int, error)
 }
 
 // Service wraps the enrichment queue repository with business logic.
@@ -71,4 +73,24 @@ func (s *Service) List(ctx context.Context, status string, limit, offset int) ([
 		limit = 50
 	}
 	return s.queue.List(ctx, status, limit, offset)
+}
+
+// RetryAllFailed resets all failed items to pending.
+func (s *Service) RetryAllFailed(ctx context.Context) (int, error) {
+	n, err := s.queue.RetryAllFailed(ctx)
+	if err != nil {
+		return 0, err
+	}
+	s.log.InfoContext(ctx, "retried all failed items", slog.Int("count", n))
+	return n, nil
+}
+
+// ResetProcessing resets stuck processing items back to pending.
+func (s *Service) ResetProcessing(ctx context.Context) (int, error) {
+	n, err := s.queue.ResetProcessing(ctx)
+	if err != nil {
+		return 0, err
+	}
+	s.log.InfoContext(ctx, "reset processing items", slog.Int("count", n))
+	return n, nil
 }

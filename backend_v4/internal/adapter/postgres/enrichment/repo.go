@@ -98,6 +98,26 @@ func (r *Repo) List(ctx context.Context, status string, limit, offset int) ([]do
 	return toDomainItems(rows), nil
 }
 
+// RetryAllFailed resets all failed items to pending.
+func (r *Repo) RetryAllFailed(ctx context.Context) (int, error) {
+	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
+	n, err := q.RetryAllFailed(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("enrichment.RetryAllFailed: %w", err)
+	}
+	return int(n), nil
+}
+
+// ResetProcessing resets all processing items back to pending (stuck items).
+func (r *Repo) ResetProcessing(ctx context.Context) (int, error) {
+	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
+	n, err := q.ResetProcessing(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("enrichment.ResetProcessing: %w", err)
+	}
+	return int(n), nil
+}
+
 // toDomainItems converts sqlc rows to domain items.
 func toDomainItems(rows []sqlc.EnrichmentQueue) []domain.EnrichmentQueueItem {
 	items := make([]domain.EnrichmentQueueItem, len(rows))
