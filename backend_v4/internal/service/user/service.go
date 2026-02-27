@@ -12,6 +12,9 @@ import (
 type userRepo interface {
 	GetByID(ctx context.Context, id uuid.UUID) (*domain.User, error)
 	Update(ctx context.Context, id uuid.UUID, name *string, avatarURL *string) (*domain.User, error)
+	UpdateRole(ctx context.Context, id uuid.UUID, role string) (*domain.User, error)
+	ListUsers(ctx context.Context, limit, offset int) ([]domain.User, error)
+	CountUsers(ctx context.Context) (int, error)
 }
 
 // settingsRepo defines the settings repository interface needed by user service.

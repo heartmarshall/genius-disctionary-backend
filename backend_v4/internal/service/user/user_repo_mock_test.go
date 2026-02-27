@@ -20,11 +20,20 @@ var _ userRepo = &userRepoMock{}
 //
 //		// make and configure a mocked userRepo
 //		mockeduserRepo := &userRepoMock{
+//			CountUsersFunc: func(ctx context.Context) (int, error) {
+//				panic("mock out the CountUsers method")
+//			},
 //			GetByIDFunc: func(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 //				panic("mock out the GetByID method")
 //			},
+//			ListUsersFunc: func(ctx context.Context, limit int, offset int) ([]domain.User, error) {
+//				panic("mock out the ListUsers method")
+//			},
 //			UpdateFunc: func(ctx context.Context, id uuid.UUID, name *string, avatarURL *string) (*domain.User, error) {
 //				panic("mock out the Update method")
+//			},
+//			UpdateRoleFunc: func(ctx context.Context, id uuid.UUID, role string) (*domain.User, error) {
+//				panic("mock out the UpdateRole method")
 //			},
 //		}
 //
@@ -33,20 +42,43 @@ var _ userRepo = &userRepoMock{}
 //
 //	}
 type userRepoMock struct {
+	// CountUsersFunc mocks the CountUsers method.
+	CountUsersFunc func(ctx context.Context) (int, error)
+
 	// GetByIDFunc mocks the GetByID method.
 	GetByIDFunc func(ctx context.Context, id uuid.UUID) (*domain.User, error)
+
+	// ListUsersFunc mocks the ListUsers method.
+	ListUsersFunc func(ctx context.Context, limit int, offset int) ([]domain.User, error)
 
 	// UpdateFunc mocks the Update method.
 	UpdateFunc func(ctx context.Context, id uuid.UUID, name *string, avatarURL *string) (*domain.User, error)
 
+	// UpdateRoleFunc mocks the UpdateRole method.
+	UpdateRoleFunc func(ctx context.Context, id uuid.UUID, role string) (*domain.User, error)
+
 	// calls tracks calls to the methods.
 	calls struct {
+		// CountUsers holds details about calls to the CountUsers method.
+		CountUsers []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+		}
 		// GetByID holds details about calls to the GetByID method.
 		GetByID []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// ID is the id argument value.
 			ID uuid.UUID
+		}
+		// ListUsers holds details about calls to the ListUsers method.
+		ListUsers []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Limit is the limit argument value.
+			Limit int
+			// Offset is the offset argument value.
+			Offset int
 		}
 		// Update holds details about calls to the Update method.
 		Update []struct {
@@ -59,9 +91,53 @@ type userRepoMock struct {
 			// AvatarURL is the avatarURL argument value.
 			AvatarURL *string
 		}
+		// UpdateRole holds details about calls to the UpdateRole method.
+		UpdateRole []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// ID is the id argument value.
+			ID uuid.UUID
+			// Role is the role argument value.
+			Role string
+		}
 	}
-	lockGetByID sync.RWMutex
-	lockUpdate  sync.RWMutex
+	lockCountUsers sync.RWMutex
+	lockGetByID    sync.RWMutex
+	lockListUsers  sync.RWMutex
+	lockUpdate     sync.RWMutex
+	lockUpdateRole sync.RWMutex
+}
+
+// CountUsers calls CountUsersFunc.
+func (mock *userRepoMock) CountUsers(ctx context.Context) (int, error) {
+	if mock.CountUsersFunc == nil {
+		panic("userRepoMock.CountUsersFunc: method is nil but userRepo.CountUsers was just called")
+	}
+	callInfo := struct {
+		Ctx context.Context
+	}{
+		Ctx: ctx,
+	}
+	mock.lockCountUsers.Lock()
+	mock.calls.CountUsers = append(mock.calls.CountUsers, callInfo)
+	mock.lockCountUsers.Unlock()
+	return mock.CountUsersFunc(ctx)
+}
+
+// CountUsersCalls gets all the calls that were made to CountUsers.
+// Check the length with:
+//
+//	len(mockeduserRepo.CountUsersCalls())
+func (mock *userRepoMock) CountUsersCalls() []struct {
+	Ctx context.Context
+} {
+	var calls []struct {
+		Ctx context.Context
+	}
+	mock.lockCountUsers.RLock()
+	calls = mock.calls.CountUsers
+	mock.lockCountUsers.RUnlock()
+	return calls
 }
 
 // GetByID calls GetByIDFunc.
@@ -97,6 +173,46 @@ func (mock *userRepoMock) GetByIDCalls() []struct {
 	mock.lockGetByID.RLock()
 	calls = mock.calls.GetByID
 	mock.lockGetByID.RUnlock()
+	return calls
+}
+
+// ListUsers calls ListUsersFunc.
+func (mock *userRepoMock) ListUsers(ctx context.Context, limit int, offset int) ([]domain.User, error) {
+	if mock.ListUsersFunc == nil {
+		panic("userRepoMock.ListUsersFunc: method is nil but userRepo.ListUsers was just called")
+	}
+	callInfo := struct {
+		Ctx    context.Context
+		Limit  int
+		Offset int
+	}{
+		Ctx:    ctx,
+		Limit:  limit,
+		Offset: offset,
+	}
+	mock.lockListUsers.Lock()
+	mock.calls.ListUsers = append(mock.calls.ListUsers, callInfo)
+	mock.lockListUsers.Unlock()
+	return mock.ListUsersFunc(ctx, limit, offset)
+}
+
+// ListUsersCalls gets all the calls that were made to ListUsers.
+// Check the length with:
+//
+//	len(mockeduserRepo.ListUsersCalls())
+func (mock *userRepoMock) ListUsersCalls() []struct {
+	Ctx    context.Context
+	Limit  int
+	Offset int
+} {
+	var calls []struct {
+		Ctx    context.Context
+		Limit  int
+		Offset int
+	}
+	mock.lockListUsers.RLock()
+	calls = mock.calls.ListUsers
+	mock.lockListUsers.RUnlock()
 	return calls
 }
 
@@ -141,5 +257,45 @@ func (mock *userRepoMock) UpdateCalls() []struct {
 	mock.lockUpdate.RLock()
 	calls = mock.calls.Update
 	mock.lockUpdate.RUnlock()
+	return calls
+}
+
+// UpdateRole calls UpdateRoleFunc.
+func (mock *userRepoMock) UpdateRole(ctx context.Context, id uuid.UUID, role string) (*domain.User, error) {
+	if mock.UpdateRoleFunc == nil {
+		panic("userRepoMock.UpdateRoleFunc: method is nil but userRepo.UpdateRole was just called")
+	}
+	callInfo := struct {
+		Ctx  context.Context
+		ID   uuid.UUID
+		Role string
+	}{
+		Ctx:  ctx,
+		ID:   id,
+		Role: role,
+	}
+	mock.lockUpdateRole.Lock()
+	mock.calls.UpdateRole = append(mock.calls.UpdateRole, callInfo)
+	mock.lockUpdateRole.Unlock()
+	return mock.UpdateRoleFunc(ctx, id, role)
+}
+
+// UpdateRoleCalls gets all the calls that were made to UpdateRole.
+// Check the length with:
+//
+//	len(mockeduserRepo.UpdateRoleCalls())
+func (mock *userRepoMock) UpdateRoleCalls() []struct {
+	Ctx  context.Context
+	ID   uuid.UUID
+	Role string
+} {
+	var calls []struct {
+		Ctx  context.Context
+		ID   uuid.UUID
+		Role string
+	}
+	mock.lockUpdateRole.RLock()
+	calls = mock.calls.UpdateRole
+	mock.lockUpdateRole.RUnlock()
 	return calls
 }
