@@ -45,7 +45,9 @@ func (s *Service) GetStudyQueue(ctx context.Context, input GetQueueInput) ([]*do
 
 	newRemaining := max(0, settings.NewCardsPerDay-newToday)
 
-	// Get due cards (overdue not limited by reviews_per_day)
+	// Due cards are always returned regardless of ReviewsPerDay setting.
+	// Design decision: hiding due cards degrades long-term retention (Anki behaviour).
+	// ReviewsPerDay is an informational goal shown in dashboard UI, not a hard limit.
 	dueCards, err := s.cards.GetDueCards(ctx, userID, now, limit)
 	if err != nil {
 		return nil, fmt.Errorf("get due cards: %w", err)
