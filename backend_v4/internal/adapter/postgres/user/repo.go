@@ -109,6 +109,51 @@ func (r *Repo) Update(ctx context.Context, id uuid.UUID, name *string, avatarURL
 	return &u, nil
 }
 
+// UpdateRole changes the role for the given user.
+func (r *Repo) UpdateRole(ctx context.Context, id uuid.UUID, role string) (*domain.User, error) {
+	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
+
+	row, err := q.UpdateUserRole(ctx, sqlc.UpdateUserRoleParams{
+		ID:   id,
+		Role: role,
+	})
+	if err != nil {
+		return nil, mapError(err, "user", id)
+	}
+
+	u := toDomainUser(userRow{row.ID, row.Email, row.Username, row.Name, row.AvatarUrl, row.Role, row.CreatedAt, row.UpdatedAt})
+	return &u, nil
+}
+
+// ListUsers returns a paginated list of all users.
+func (r *Repo) ListUsers(ctx context.Context, limit, offset int) ([]domain.User, error) {
+	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
+
+	rows, err := q.ListUsers(ctx, sqlc.ListUsersParams{
+		Limit:  int32(limit),
+		Offset: int32(offset),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("user.ListUsers: %w", err)
+	}
+
+	users := make([]domain.User, len(rows))
+	for i, row := range rows {
+		users[i] = toDomainUser(userRow{row.ID, row.Email, row.Username, row.Name, row.AvatarUrl, row.Role, row.CreatedAt, row.UpdatedAt})
+	}
+	return users, nil
+}
+
+// CountUsers returns the total number of users.
+func (r *Repo) CountUsers(ctx context.Context) (int, error) {
+	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
+	count, err := q.CountUsers(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("user.CountUsers: %w", err)
+	}
+	return int(count), nil
+}
+
 // ---------------------------------------------------------------------------
 // UserSettings operations
 // ---------------------------------------------------------------------------
