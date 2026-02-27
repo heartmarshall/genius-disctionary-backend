@@ -40,7 +40,7 @@
 
 ### Flashcards
 
-- When creating an entry (catalog or custom), the user can opt-in to also create a **flashcard** by setting `CreateCard: true`. The card is created with status `LearningStatusNew` and the configured `DefaultEaseFactor` (`create_from_catalog.go:134-138`, `create_custom.go:94-98`).
+- When creating an entry (catalog or custom), the user can opt-in to also create a **flashcard** by setting `CreateCard: true`. The card is created in `NEW` state with default FSRS-5 parameters (`create_from_catalog.go:134-137`, `create_custom.go:94-97`).
 
 ### Auditing
 
@@ -81,7 +81,7 @@
 | Parameter | Source | Default | Description |
 |---|---|---|---|
 | `MaxEntriesPerUser` | `DictionaryConfig` / `DICT_MAX_ENTRIES_PER_USER` | `10000` | Maximum dictionary entries a single user can have |
-| `DefaultEaseFactor` | `DictionaryConfig` / `DICT_DEFAULT_EASE_FACTOR` | `2.5` | Initial ease factor for new flashcards (SM-2 algorithm) |
+| `DefaultEaseFactor` | `DictionaryConfig` / `DICT_DEFAULT_EASE_FACTOR` | `2.5` | Legacy field, no longer used by FSRS-5 scheduler |
 | `ImportChunkSize` | `DictionaryConfig` / `DICT_IMPORT_CHUNK_SIZE` | `50` | Number of items per transaction chunk during import |
 | `ExportMaxEntries` | `DictionaryConfig` / `DICT_EXPORT_MAX_ENTRIES` | `10000` | Maximum entries returned in a single export |
 | `HardDeleteRetentionDays` | `DictionaryConfig` / `DICT_HARD_DELETE_RETENTION_DAYS` | `30` | Days before soft-deleted entries are permanently purged |

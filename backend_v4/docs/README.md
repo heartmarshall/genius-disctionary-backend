@@ -21,7 +21,7 @@ Topics intentionally omitted with pointers to source:
 
 - **Individual SQL migrations** -- see `migrations/*.sql` for full schema DDL
 - **Generated code** (gqlgen resolvers, sqlc queries, moq mocks) -- see `internal/transport/graphql/generated/` and `*_mock_test.go` files
-- **SRS algorithm internals** -- the SM-2 variant is implemented in `internal/service/study/`; tuning params live in `config.yaml` under `srs:`
+- **SRS algorithm internals** -- the FSRS-5 scheduler is implemented in `internal/service/study/fsrs/`; weights and params live in `config.yaml` under `srs:`
 - **DataLoader batch logic** -- see `internal/transport/graphql/dataloader/`
 - **Per-service `docs/` directories** -- some services have their own `docs/readme.md` with business-rule-level detail
 - **Frontend** -- a separate `frontend/` directory exists at the repo root; it is outside the scope of this backend documentation

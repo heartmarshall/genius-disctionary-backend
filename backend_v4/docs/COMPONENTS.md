@@ -137,7 +137,7 @@ graph LR
 **Dependencies**: cardRepo, reviewLogRepo, sessionRepo, entryRepo, senseRepo, settingsRepo, auditRepo, txManager, `domain.SRSConfig`
 
 **Important behaviors**:
-- SM-2 variant: cards progress NEW → LEARNING → REVIEW → MASTERED
+- FSRS-5 algorithm: cards progress NEW → LEARNING → REVIEW (see `fsrs/` subpackage)
 - Learning uses configurable step durations (default: 1m, 10m)
 - Undo stores a `CardSnapshot` (JSONB) with previous state
 - Dashboard respects per-user `NewCardsPerDay` and `ReviewsPerDay` limits

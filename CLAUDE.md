@@ -98,7 +98,7 @@ Config → DB Pool → TxManager → Repos (15) → Providers → JWT/OAuth → 
 
 Core entity chain: **Entry** → Senses → Translations/Examples. Entries link to **RefEntry** (reference catalog data), **Card** (SRS state), **Topics**, and **UserImages**.
 
-Card states: `NEW → LEARNING → REVIEW → MASTERED` with configurable SRS parameters (ease factor, intervals, learning steps).
+Card states: `NEW → LEARNING → REVIEW` with FSRS-5 scheduler (configurable weights, desired retention, learning steps).
 
 Sentinel errors in `domain/errors.go`: `ErrNotFound`, `ErrAlreadyExists`, `ErrValidation`, `ErrUnauthorized`, `ErrForbidden`, `ErrConflict`. Repos map pgx errors to these.
 

@@ -68,20 +68,20 @@
 
 ---
 
-## ADR-005: SM-2 Variant for Spaced Repetition
+## ADR-005: FSRS-5 for Spaced Repetition
 
-**Status**: Active
+**Status**: Active (updated from SM-2 to FSRS-5)
 
 **Context**: Need a proven SRS algorithm for vocabulary study. Users expect Anki-like behavior.
 
 **Options considered**:
-1. SM-2 (original SuperMemo) -- proven, well-documented
-2. FSRS (Free Spaced Repetition Scheduler) -- newer, more accurate, but complex
+1. SM-2 (original SuperMemo) -- proven, well-documented (originally chosen)
+2. FSRS-5 (Free Spaced Repetition Scheduler) -- newer, more accurate, adopted by Anki
 3. Simple fixed intervals -- easy but ineffective
 
-**Decision**: SM-2 variant with multiple learning steps, four grades (Again/Hard/Good/Easy), and configurable parameters. Cards progress through NEW → LEARNING → REVIEW → MASTERED states.
+**Decision**: Migrated from SM-2 to FSRS-5. Uses 19-parameter weight vector for stability/difficulty modeling, four grades (Again/Hard/Good/Easy), and configurable desired retention. Cards progress through NEW → LEARNING → REVIEW states. Implementation in `internal/service/study/fsrs/`.
 
-**Trade-offs**: SM-2 is less mathematically optimal than FSRS but simpler to implement and debug. All SRS parameters are exposed in `config.yaml` under `srs:` for tuning. Learning steps ("1m,10m") are parsed from comma-separated durations. Undo is supported by storing a `CardSnapshot` JSONB field in `review_log`.
+**Trade-offs**: FSRS-5 provides better scheduling accuracy via retrievability modeling. Weights are configurable in `config.yaml` under `srs.fsrs_weights`. Learning/relearning steps remain configurable. Undo is supported by storing a `CardSnapshot` JSONB field in `review_log`.
 
 ---
 
