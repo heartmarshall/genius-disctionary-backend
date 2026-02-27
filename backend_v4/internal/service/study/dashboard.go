@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
 	"github.com/heartmarshall/myenglish-backend/pkg/ctxutil"
+	"golang.org/x/sync/errgroup"
 )
 
 // GetDashboard returns aggregated study statistics for the user.
@@ -30,56 +31,75 @@ func (s *Service) GetDashboard(ctx context.Context) (domain.Dashboard, error) {
 	tz := ParseTimezone(settings.Timezone)
 	dayStart := DayStart(now, tz)
 
-	// Make 7 repo calls to gather all data
-	dueCount, err := s.cards.CountDue(ctx, userID, now)
-	if err != nil {
-		return domain.Dashboard{}, fmt.Errorf("count due cards: %w", err)
+	var (
+		dueCount      int
+		newCount      int
+		reviewedToday int
+		newToday      int
+		overdueCount  int
+		statusCounts  domain.CardStatusCounts
+		streakDays    []domain.DayReviewCount
+		activeSession *domain.StudySession
+	)
+
+	g, gctx := errgroup.WithContext(ctx)
+
+	g.Go(func() error {
+		var gErr error
+		dueCount, gErr = s.cards.CountDue(gctx, userID, now)
+		return gErr
+	})
+	g.Go(func() error {
+		var gErr error
+		newCount, gErr = s.cards.CountNew(gctx, userID)
+		return gErr
+	})
+	g.Go(func() error {
+		var gErr error
+		reviewedToday, gErr = s.reviews.CountToday(gctx, userID, dayStart)
+		return gErr
+	})
+	g.Go(func() error {
+		var gErr error
+		newToday, gErr = s.reviews.CountNewToday(gctx, userID, dayStart)
+		return gErr
+	})
+	g.Go(func() error {
+		var gErr error
+		overdueCount, gErr = s.cards.CountOverdue(gctx, userID, dayStart)
+		return gErr
+	})
+	g.Go(func() error {
+		var gErr error
+		statusCounts, gErr = s.cards.CountByStatus(gctx, userID)
+		return gErr
+	})
+	g.Go(func() error {
+		var gErr error
+		streakDays, gErr = s.reviews.GetStreakDays(gctx, userID, dayStart, 365)
+		return gErr
+	})
+	g.Go(func() error {
+		var gErr error
+		activeSession, gErr = s.sessions.GetActive(gctx, userID)
+		if gErr != nil && !errors.Is(gErr, domain.ErrNotFound) {
+			return gErr
+		}
+		return nil
+	})
+
+	if err := g.Wait(); err != nil {
+		return domain.Dashboard{}, fmt.Errorf("dashboard queries: %w", err)
 	}
 
-	newCount, err := s.cards.CountNew(ctx, userID)
-	if err != nil {
-		return domain.Dashboard{}, fmt.Errorf("count new cards: %w", err)
-	}
-
-	reviewedToday, err := s.reviews.CountToday(ctx, userID, dayStart)
-	if err != nil {
-		return domain.Dashboard{}, fmt.Errorf("count reviewed today: %w", err)
-	}
-
-	newToday, err := s.reviews.CountNewToday(ctx, userID, dayStart)
-	if err != nil {
-		return domain.Dashboard{}, fmt.Errorf("count new today: %w", err)
-	}
-
-	statusCounts, err := s.cards.CountByStatus(ctx, userID)
-	if err != nil {
-		return domain.Dashboard{}, fmt.Errorf("count by status: %w", err)
-	}
-
-	streakDays, err := s.reviews.GetStreakDays(ctx, userID, dayStart, 365)
-	if err != nil {
-		return domain.Dashboard{}, fmt.Errorf("get streak days: %w", err)
-	}
-
-	// Active session (may be nil)
-	var activeSessionID *uuid.UUID
-	activeSession, err := s.sessions.GetActive(ctx, userID)
-	if err == nil && activeSession != nil {
-		activeSessionID = &activeSession.ID
-	} else if err != nil && !errors.Is(err, domain.ErrNotFound) {
-		return domain.Dashboard{}, fmt.Errorf("get active session: %w", err)
-	}
-
-	// Calculate streak using helper function
-	// Convert now to user's timezone and get date at midnight
+	// Calculate streak
 	nowInTz := now.In(tz)
 	today := time.Date(nowInTz.Year(), nowInTz.Month(), nowInTz.Day(), 0, 0, 0, 0, tz)
 	streak := calculateStreak(streakDays, today)
 
-	// Cards that were due before today's start (overdue by at least one full day)
-	overdueCount, err := s.cards.CountOverdue(ctx, userID, dayStart)
-	if err != nil {
-		return domain.Dashboard{}, fmt.Errorf("count overdue cards: %w", err)
+	var activeSessionID *uuid.UUID
+	if activeSession != nil {
+		activeSessionID = &activeSession.ID
 	}
 
 	dashboard := domain.Dashboard{
