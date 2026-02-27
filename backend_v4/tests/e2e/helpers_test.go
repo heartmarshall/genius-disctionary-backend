@@ -288,6 +288,28 @@ func setupTestServer(t *testing.T) *testServer {
 	mux.Handle("POST /query", graphqlHandler)
 	mux.Handle("OPTIONS /query", graphqlHandler)
 
+	// Admin endpoints.
+	adminHandler := rest.NewAdminHandler(enrichmentService, userService, logger)
+	adminChain := middleware.Chain(
+		middleware.Recovery(logger),
+		middleware.RequestID(),
+		middleware.CORS(config.CORSConfig{
+			AllowedOrigins:   "*",
+			AllowedMethods:   "GET,POST,PUT,OPTIONS",
+			AllowedHeaders:   "Authorization,Content-Type",
+			AllowCredentials: true,
+			MaxAge:           86400,
+		}),
+		middleware.Auth(authService),
+	)
+	mux.Handle("GET /admin/enrichment/stats", adminChain(http.HandlerFunc(adminHandler.QueueStats)))
+	mux.Handle("GET /admin/enrichment/queue", adminChain(http.HandlerFunc(adminHandler.QueueList)))
+	mux.Handle("POST /admin/enrichment/retry", adminChain(http.HandlerFunc(adminHandler.RetryFailed)))
+	mux.Handle("POST /admin/enrichment/reset-processing", adminChain(http.HandlerFunc(adminHandler.ResetProcessing)))
+	mux.Handle("POST /admin/enrichment/enqueue", adminChain(http.HandlerFunc(adminHandler.EnqueueWord)))
+	mux.Handle("GET /admin/users", adminChain(http.HandlerFunc(adminHandler.ListUsers)))
+	mux.Handle("PUT /admin/users/{id}/role", adminChain(http.HandlerFunc(adminHandler.SetUserRole)))
+
 	// 12. httptest server.
 	srv := httptest.NewServer(mux)
 	t.Cleanup(func() { srv.Close() })
