@@ -1,6 +1,8 @@
 package user
 
 import (
+	"time"
+
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
 )
 
@@ -72,6 +74,8 @@ func (i UpdateSettingsInput) Validate() error {
 			errs = append(errs, domain.FieldError{Field: "timezone", Message: "cannot be empty"})
 		} else if len(*i.Timezone) > 64 {
 			errs = append(errs, domain.FieldError{Field: "timezone", Message: "too long"})
+		} else if _, err := time.LoadLocation(*i.Timezone); err != nil {
+			errs = append(errs, domain.FieldError{Field: "timezone", Message: "invalid IANA timezone"})
 		}
 	}
 

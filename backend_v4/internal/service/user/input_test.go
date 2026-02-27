@@ -154,9 +154,24 @@ func TestUpdateSettingsInput_Validate(t *testing.T) {
 		},
 		// Timezone boundaries
 		{
-			name:    "valid: timezone at max length (64)",
-			input:   UpdateSettingsInput{Timezone: ptr(strings.Repeat("z", 64))},
+			name:    "valid: timezone UTC",
+			input:   UpdateSettingsInput{Timezone: ptr("UTC")},
 			wantErr: false,
+		},
+		{
+			name:    "valid: timezone America/New_York",
+			input:   UpdateSettingsInput{Timezone: ptr("America/New_York")},
+			wantErr: false,
+		},
+		{
+			name:    "valid: timezone Europe/London",
+			input:   UpdateSettingsInput{Timezone: ptr("Europe/London")},
+			wantErr: false,
+		},
+		{
+			name:    "invalid: timezone garbage string",
+			input:   UpdateSettingsInput{Timezone: ptr("Not/A/Timezone")},
+			wantErr: true,
 		},
 		{
 			name:    "invalid: timezone at 65",
@@ -167,11 +182,6 @@ func TestUpdateSettingsInput_Validate(t *testing.T) {
 			name:    "invalid: timezone empty",
 			input:   UpdateSettingsInput{Timezone: ptr("")},
 			wantErr: true,
-		},
-		{
-			name:    "valid: timezone normal value",
-			input:   UpdateSettingsInput{Timezone: ptr("America/New_York")},
-			wantErr: false,
 		},
 		// All nil = no error
 		{
