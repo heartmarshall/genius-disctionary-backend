@@ -3368,6 +3368,9 @@ func TestService_GetDashboard_Success_AllCountersCorrect(t *testing.T) {
 		CountByStatusFunc: func(ctx context.Context, uid uuid.UUID) (domain.CardStatusCounts, error) {
 			return statusCounts, nil
 		},
+		CountOverdueFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
+			return 3, nil
+		},
 	}
 
 	mockReviews := &reviewLogRepoMock{
@@ -3453,6 +3456,9 @@ func TestService_GetDashboard_NoCards_AllZeros(t *testing.T) {
 		},
 		CountByStatusFunc: func(ctx context.Context, uid uuid.UUID) (domain.CardStatusCounts, error) {
 			return domain.CardStatusCounts{}, nil
+		},
+		CountOverdueFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
+			return 0, nil
 		},
 	}
 
@@ -3542,6 +3548,9 @@ func TestService_GetDashboard_StreakCalculation_FiveDays(t *testing.T) {
 		CountByStatusFunc: func(ctx context.Context, uid uuid.UUID) (domain.CardStatusCounts, error) {
 			return domain.CardStatusCounts{}, nil
 		},
+		CountOverdueFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
+			return 0, nil
+		},
 	}
 
 	mockReviews := &reviewLogRepoMock{
@@ -3618,6 +3627,9 @@ func TestService_GetDashboard_StreakBroken_Gap(t *testing.T) {
 		},
 		CountByStatusFunc: func(ctx context.Context, uid uuid.UUID) (domain.CardStatusCounts, error) {
 			return domain.CardStatusCounts{}, nil
+		},
+		CountOverdueFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
+			return 0, nil
 		},
 	}
 
@@ -3697,6 +3709,9 @@ func TestService_GetDashboard_StreakStartsFromYesterday(t *testing.T) {
 		CountByStatusFunc: func(ctx context.Context, uid uuid.UUID) (domain.CardStatusCounts, error) {
 			return domain.CardStatusCounts{}, nil
 		},
+		CountOverdueFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
+			return 0, nil
+		},
 	}
 
 	mockReviews := &reviewLogRepoMock{
@@ -3764,6 +3779,9 @@ func TestService_GetDashboard_OverdueCount(t *testing.T) {
 		CountByStatusFunc: func(ctx context.Context, uid uuid.UUID) (domain.CardStatusCounts, error) {
 			return domain.CardStatusCounts{}, nil
 		},
+		CountOverdueFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
+			return 12, nil // 12 overdue cards
+		},
 	}
 
 	mockReviews := &reviewLogRepoMock{
@@ -3799,9 +3817,8 @@ func TestService_GetDashboard_OverdueCount(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	// Overdue count should be 0 (placeholder until proper CountOverdue is implemented)
-	if dashboard.OverdueCount != 0 {
-		t.Errorf("OverdueCount: got %d, want 0 (placeholder)", dashboard.OverdueCount)
+	if dashboard.OverdueCount != 12 {
+		t.Errorf("OverdueCount: got %d, want 12", dashboard.OverdueCount)
 	}
 }
 
@@ -3837,6 +3854,9 @@ func TestService_GetDashboard_ActiveSessionPresent(t *testing.T) {
 		},
 		CountByStatusFunc: func(ctx context.Context, uid uuid.UUID) (domain.CardStatusCounts, error) {
 			return domain.CardStatusCounts{}, nil
+		},
+		CountOverdueFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
+			return 0, nil
 		},
 	}
 

@@ -76,10 +76,11 @@ func (s *Service) GetDashboard(ctx context.Context) (domain.Dashboard, error) {
 	today := time.Date(nowInTz.Year(), nowInTz.Month(), nowInTz.Day(), 0, 0, 0, 0, tz)
 	streak := calculateStreak(streakDays, today)
 
-	// Calculate overdue count
-	// TODO: Implement proper overdue calculation via cardRepo.CountOverdue(ctx, userID, dayStart)
-	// For now, we return 0 as placeholder since we cannot accurately calculate without a dedicated repo method
-	overdueCount := 0
+	// Cards that were due before today's start (overdue by at least one full day)
+	overdueCount, err := s.cards.CountOverdue(ctx, userID, dayStart)
+	if err != nil {
+		return domain.Dashboard{}, fmt.Errorf("count overdue cards: %w", err)
+	}
 
 	dashboard := domain.Dashboard{
 		DueCount:      dueCount,
@@ -168,9 +169,10 @@ func (s *Service) GetCardStats(ctx context.Context, input GetCardHistoryInput) (
 		TotalReviews:  total,
 		AccuracyRate:  0.0,
 		AverageTimeMs: nil,
-		CurrentStatus: card.Status,
-		IntervalDays:  card.IntervalDays,
-		EaseFactor:    card.EaseFactor,
+		CurrentState:  card.State,
+		Stability:     card.Stability,
+		Difficulty:    card.Difficulty,
+		ScheduledDays: card.ScheduledDays,
 	}
 
 	if total == 0 {

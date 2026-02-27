@@ -30,7 +30,10 @@ var _ cardRepo = &cardRepoMock{}
 //			CountNewFunc: func(ctx context.Context, userID uuid.UUID) (int, error) {
 //				panic("mock out the CountNew method")
 //			},
-//			CreateFunc: func(ctx context.Context, userID uuid.UUID, entryID uuid.UUID, status domain.LearningStatus, easeFactor float64) (*domain.Card, error) {
+//			CountOverdueFunc: func(ctx context.Context, userID uuid.UUID, dayStart time.Time) (int, error) {
+//				panic("mock out the CountOverdue method")
+//			},
+//			CreateFunc: func(ctx context.Context, userID uuid.UUID, entryID uuid.UUID) (*domain.Card, error) {
 //				panic("mock out the Create method")
 //			},
 //			DeleteFunc: func(ctx context.Context, userID uuid.UUID, cardID uuid.UUID) error {
@@ -70,8 +73,11 @@ type cardRepoMock struct {
 	// CountNewFunc mocks the CountNew method.
 	CountNewFunc func(ctx context.Context, userID uuid.UUID) (int, error)
 
+	// CountOverdueFunc mocks the CountOverdue method.
+	CountOverdueFunc func(ctx context.Context, userID uuid.UUID, dayStart time.Time) (int, error)
+
 	// CreateFunc mocks the Create method.
-	CreateFunc func(ctx context.Context, userID uuid.UUID, entryID uuid.UUID, status domain.LearningStatus, easeFactor float64) (*domain.Card, error)
+	CreateFunc func(ctx context.Context, userID uuid.UUID, entryID uuid.UUID) (*domain.Card, error)
 
 	// DeleteFunc mocks the Delete method.
 	DeleteFunc func(ctx context.Context, userID uuid.UUID, cardID uuid.UUID) error
@@ -119,6 +125,15 @@ type cardRepoMock struct {
 			// UserID is the userID argument value.
 			UserID uuid.UUID
 		}
+		// CountOverdue holds details about calls to the CountOverdue method.
+		CountOverdue []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// UserID is the userID argument value.
+			UserID uuid.UUID
+			// DayStart is the dayStart argument value.
+			DayStart time.Time
+		}
 		// Create holds details about calls to the Create method.
 		Create []struct {
 			// Ctx is the ctx argument value.
@@ -127,10 +142,6 @@ type cardRepoMock struct {
 			UserID uuid.UUID
 			// EntryID is the entryID argument value.
 			EntryID uuid.UUID
-			// Status is the status argument value.
-			Status domain.LearningStatus
-			// EaseFactor is the easeFactor argument value.
-			EaseFactor float64
 		}
 		// Delete holds details about calls to the Delete method.
 		Delete []struct {
@@ -203,6 +214,7 @@ type cardRepoMock struct {
 	lockCountByStatus    sync.RWMutex
 	lockCountDue         sync.RWMutex
 	lockCountNew         sync.RWMutex
+	lockCountOverdue     sync.RWMutex
 	lockCreate           sync.RWMutex
 	lockDelete           sync.RWMutex
 	lockExistsByEntryIDs sync.RWMutex
@@ -325,28 +337,64 @@ func (mock *cardRepoMock) CountNewCalls() []struct {
 	return calls
 }
 
+// CountOverdue calls CountOverdueFunc.
+func (mock *cardRepoMock) CountOverdue(ctx context.Context, userID uuid.UUID, dayStart time.Time) (int, error) {
+	if mock.CountOverdueFunc == nil {
+		panic("cardRepoMock.CountOverdueFunc: method is nil but cardRepo.CountOverdue was just called")
+	}
+	callInfo := struct {
+		Ctx      context.Context
+		UserID   uuid.UUID
+		DayStart time.Time
+	}{
+		Ctx:      ctx,
+		UserID:   userID,
+		DayStart: dayStart,
+	}
+	mock.lockCountOverdue.Lock()
+	mock.calls.CountOverdue = append(mock.calls.CountOverdue, callInfo)
+	mock.lockCountOverdue.Unlock()
+	return mock.CountOverdueFunc(ctx, userID, dayStart)
+}
+
+// CountOverdueCalls gets all the calls that were made to CountOverdue.
+// Check the length with:
+//
+//	len(mockedcardRepo.CountOverdueCalls())
+func (mock *cardRepoMock) CountOverdueCalls() []struct {
+	Ctx      context.Context
+	UserID   uuid.UUID
+	DayStart time.Time
+} {
+	var calls []struct {
+		Ctx      context.Context
+		UserID   uuid.UUID
+		DayStart time.Time
+	}
+	mock.lockCountOverdue.RLock()
+	calls = mock.calls.CountOverdue
+	mock.lockCountOverdue.RUnlock()
+	return calls
+}
+
 // Create calls CreateFunc.
-func (mock *cardRepoMock) Create(ctx context.Context, userID uuid.UUID, entryID uuid.UUID, status domain.LearningStatus, easeFactor float64) (*domain.Card, error) {
+func (mock *cardRepoMock) Create(ctx context.Context, userID uuid.UUID, entryID uuid.UUID) (*domain.Card, error) {
 	if mock.CreateFunc == nil {
 		panic("cardRepoMock.CreateFunc: method is nil but cardRepo.Create was just called")
 	}
 	callInfo := struct {
-		Ctx        context.Context
-		UserID     uuid.UUID
-		EntryID    uuid.UUID
-		Status     domain.LearningStatus
-		EaseFactor float64
+		Ctx     context.Context
+		UserID  uuid.UUID
+		EntryID uuid.UUID
 	}{
-		Ctx:        ctx,
-		UserID:     userID,
-		EntryID:    entryID,
-		Status:     status,
-		EaseFactor: easeFactor,
+		Ctx:     ctx,
+		UserID:  userID,
+		EntryID: entryID,
 	}
 	mock.lockCreate.Lock()
 	mock.calls.Create = append(mock.calls.Create, callInfo)
 	mock.lockCreate.Unlock()
-	return mock.CreateFunc(ctx, userID, entryID, status, easeFactor)
+	return mock.CreateFunc(ctx, userID, entryID)
 }
 
 // CreateCalls gets all the calls that were made to Create.
@@ -354,18 +402,14 @@ func (mock *cardRepoMock) Create(ctx context.Context, userID uuid.UUID, entryID 
 //
 //	len(mockedcardRepo.CreateCalls())
 func (mock *cardRepoMock) CreateCalls() []struct {
-	Ctx        context.Context
-	UserID     uuid.UUID
-	EntryID    uuid.UUID
-	Status     domain.LearningStatus
-	EaseFactor float64
+	Ctx     context.Context
+	UserID  uuid.UUID
+	EntryID uuid.UUID
 } {
 	var calls []struct {
-		Ctx        context.Context
-		UserID     uuid.UUID
-		EntryID    uuid.UUID
-		Status     domain.LearningStatus
-		EaseFactor float64
+		Ctx     context.Context
+		UserID  uuid.UUID
+		EntryID uuid.UUID
 	}
 	mock.lockCreate.RLock()
 	calls = mock.calls.Create

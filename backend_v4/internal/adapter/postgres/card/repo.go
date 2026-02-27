@@ -29,54 +29,64 @@ func New(pool *pgxpool.Pool) *Repo {
 }
 
 // ---------------------------------------------------------------------------
+// FSRS column list used in raw SQL queries
+// ---------------------------------------------------------------------------
+
+const cardColumns = `c.id, c.user_id, c.entry_id, c.state, c.step, c.stability, c.difficulty,
+       c.due, c.last_review, c.reps, c.lapses, c.scheduled_days, c.elapsed_days,
+       c.created_at, c.updated_at`
+
+// ---------------------------------------------------------------------------
 // Raw SQL for complex queries requiring JOINs
 // ---------------------------------------------------------------------------
 
-const getDueCardsSQL = `
-SELECT c.id, c.user_id, c.entry_id, c.status, c.learning_step,
-       c.next_review_at, c.interval_days, c.ease_factor, c.created_at, c.updated_at
+var getDueCardsSQL = `
+SELECT ` + cardColumns + `
 FROM cards c
 JOIN entries e ON c.entry_id = e.id
 WHERE c.user_id = $1
   AND e.deleted_at IS NULL
-  AND c.status != 'MASTERED'
-  AND (c.status = 'NEW' OR c.next_review_at <= $2)
-ORDER BY
-  CASE WHEN c.status = 'NEW' THEN 1 ELSE 0 END,
-  c.next_review_at ASC NULLS LAST
+  AND c.state IN ('LEARNING', 'RELEARNING', 'REVIEW')
+  AND c.due <= $2
+ORDER BY c.due ASC
 LIMIT $3`
 
-const getNewCardsSQL = `
-SELECT c.id, c.user_id, c.entry_id, c.status, c.learning_step,
-       c.next_review_at, c.interval_days, c.ease_factor, c.created_at, c.updated_at
+var getNewCardsSQL = `
+SELECT ` + cardColumns + `
 FROM cards c
 JOIN entries e ON c.entry_id = e.id
-WHERE c.user_id = $1 AND e.deleted_at IS NULL AND c.status = 'NEW'
+WHERE c.user_id = $1 AND e.deleted_at IS NULL AND c.state = 'NEW'
 ORDER BY c.created_at
 LIMIT $2`
 
-const countDueSQL = `
+var countDueSQL = `
 SELECT count(*) FROM cards c
 JOIN entries e ON c.entry_id = e.id
 WHERE c.user_id = $1 AND e.deleted_at IS NULL
-  AND c.status != 'MASTERED'
-  AND (c.status = 'NEW' OR c.next_review_at <= $2)`
+  AND c.state IN ('LEARNING', 'RELEARNING', 'REVIEW')
+  AND c.due <= $2`
 
-const countNewSQL = `
+var countNewSQL = `
 SELECT count(*) FROM cards c
 JOIN entries e ON c.entry_id = e.id
-WHERE c.user_id = $1 AND e.deleted_at IS NULL AND c.status = 'NEW'`
+WHERE c.user_id = $1 AND e.deleted_at IS NULL AND c.state = 'NEW'`
 
-const countByStatusSQL = `
-SELECT c.status, count(*) as count
+var countByStatusSQL = `
+SELECT c.state, count(*) as count
 FROM cards c
 JOIN entries e ON c.entry_id = e.id
 WHERE c.user_id = $1 AND e.deleted_at IS NULL
-GROUP BY c.status`
+GROUP BY c.state`
 
-const getByEntryIDsSQL = `
-SELECT c.id, c.user_id, c.entry_id, c.status, c.learning_step,
-       c.next_review_at, c.interval_days, c.ease_factor, c.created_at, c.updated_at
+var countOverdueSQL = `
+SELECT count(*) FROM cards c
+JOIN entries e ON c.entry_id = e.id
+WHERE c.user_id = $1 AND e.deleted_at IS NULL
+  AND c.state IN ('LEARNING', 'RELEARNING', 'REVIEW')
+  AND c.due < $2`
+
+var getByEntryIDsSQL = `
+SELECT ` + cardColumns + `
 FROM cards c
 WHERE c.entry_id = ANY($1::uuid[])`
 
@@ -99,7 +109,7 @@ func (r *Repo) GetByID(ctx context.Context, userID, cardID uuid.UUID) (*domain.C
 		return nil, mapError(err, "card", cardID)
 	}
 
-	c := toDomainCard(row)
+	c := toDomainCard(fromGetByIDRow(row))
 	return &c, nil
 }
 
@@ -115,12 +125,11 @@ func (r *Repo) GetByEntryID(ctx context.Context, userID, entryID uuid.UUID) (*do
 		return nil, mapError(err, "card", uuid.Nil)
 	}
 
-	c := toDomainCard(row)
+	c := toDomainCard(fromGetByEntryIDRow(row))
 	return &c, nil
 }
 
 // GetByEntryIDs returns cards for multiple entries (batch for DataLoader).
-// Results include EntryID in domain.Card for grouping by the caller.
 func (r *Repo) GetByEntryIDs(ctx context.Context, entryIDs []uuid.UUID) ([]domain.Card, error) {
 	if len(entryIDs) == 0 {
 		return []domain.Card{}, nil
@@ -143,8 +152,6 @@ func (r *Repo) GetByEntryIDs(ctx context.Context, entryIDs []uuid.UUID) ([]domai
 }
 
 // GetDueCards returns cards that are due for review.
-// Overdue cards come first (ordered by next_review_at ASC), then NEW cards.
-// Soft-deleted entries and MASTERED cards are excluded.
 func (r *Repo) GetDueCards(ctx context.Context, userID uuid.UUID, now time.Time, limit int) ([]*domain.Card, error) {
 	querier := postgres.QuerierFromCtx(ctx, r.pool)
 
@@ -163,7 +170,6 @@ func (r *Repo) GetDueCards(ctx context.Context, userID uuid.UUID, now time.Time,
 }
 
 // GetNewCards returns NEW cards ordered by creation time.
-// Soft-deleted entries are excluded.
 func (r *Repo) GetNewCards(ctx context.Context, userID uuid.UUID, limit int) ([]*domain.Card, error) {
 	querier := postgres.QuerierFromCtx(ctx, r.pool)
 
@@ -181,7 +187,7 @@ func (r *Repo) GetNewCards(ctx context.Context, userID uuid.UUID, limit int) ([]
 	return cards, nil
 }
 
-// CountDue returns the count of cards due for review (excluding mastered and soft-deleted).
+// CountDue returns the count of cards due for review.
 func (r *Repo) CountDue(ctx context.Context, userID uuid.UUID, now time.Time) (int, error) {
 	querier := postgres.QuerierFromCtx(ctx, r.pool)
 
@@ -193,7 +199,7 @@ func (r *Repo) CountDue(ctx context.Context, userID uuid.UUID, now time.Time) (i
 	return count, nil
 }
 
-// CountNew returns the count of NEW cards (excluding soft-deleted entries).
+// CountNew returns the count of NEW cards.
 func (r *Repo) CountNew(ctx context.Context, userID uuid.UUID) (int, error) {
 	querier := postgres.QuerierFromCtx(ctx, r.pool)
 
@@ -205,8 +211,7 @@ func (r *Repo) CountNew(ctx context.Context, userID uuid.UUID) (int, error) {
 	return count, nil
 }
 
-// CountByStatus returns card counts grouped by learning status.
-// Soft-deleted entries are excluded.
+// CountByStatus returns card counts grouped by state.
 func (r *Repo) CountByStatus(ctx context.Context, userID uuid.UUID) (domain.CardStatusCounts, error) {
 	querier := postgres.QuerierFromCtx(ctx, r.pool)
 
@@ -218,20 +223,20 @@ func (r *Repo) CountByStatus(ctx context.Context, userID uuid.UUID) (domain.Card
 
 	var counts domain.CardStatusCounts
 	for rows.Next() {
-		var status string
+		var state string
 		var count int
-		if err := rows.Scan(&status, &count); err != nil {
+		if err := rows.Scan(&state, &count); err != nil {
 			return domain.CardStatusCounts{}, fmt.Errorf("scan status count: %w", err)
 		}
-		switch domain.LearningStatus(status) {
-		case domain.LearningStatusNew:
+		switch domain.CardState(state) {
+		case domain.CardStateNew:
 			counts.New = count
-		case domain.LearningStatusLearning:
+		case domain.CardStateLearning:
 			counts.Learning = count
-		case domain.LearningStatusReview:
+		case domain.CardStateReview:
 			counts.Review = count
-		case domain.LearningStatusMastered:
-			counts.Mastered = count
+		case domain.CardStateRelearning:
+			counts.Relearning = count
 		}
 		counts.Total += count
 	}
@@ -240,6 +245,18 @@ func (r *Repo) CountByStatus(ctx context.Context, userID uuid.UUID) (domain.Card
 	}
 
 	return counts, nil
+}
+
+// CountOverdue returns the count of cards that were due before dayStart (overdue by at least one full day).
+func (r *Repo) CountOverdue(ctx context.Context, userID uuid.UUID, dayStart time.Time) (int, error) {
+	querier := postgres.QuerierFromCtx(ctx, r.pool)
+
+	var count int
+	if err := querier.QueryRow(ctx, countOverdueSQL, userID, dayStart).Scan(&count); err != nil {
+		return 0, fmt.Errorf("count overdue cards: %w", err)
+	}
+
+	return count, nil
 }
 
 // ExistsByEntryIDs returns a map of entry IDs to whether a card exists for that entry.
@@ -275,50 +292,45 @@ func (r *Repo) ExistsByEntryIDs(ctx context.Context, userID uuid.UUID, entryIDs 
 // Write operations
 // ---------------------------------------------------------------------------
 
-// Create inserts a new card and returns the persisted domain.Card.
-// Duplicate entry_id results in domain.ErrAlreadyExists.
-func (r *Repo) Create(ctx context.Context, userID, entryID uuid.UUID, status domain.LearningStatus, easeFactor float64) (*domain.Card, error) {
+// Create inserts a new card with default FSRS state (NEW) and returns it.
+func (r *Repo) Create(ctx context.Context, userID, entryID uuid.UUID) (*domain.Card, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	now := time.Now().UTC().Truncate(time.Microsecond)
 	id := uuid.New()
 
 	row, err := q.CreateCard(ctx, sqlc.CreateCardParams{
-		ID:         id,
-		UserID:     userID,
-		EntryID:    entryID,
-		Status:     sqlc.LearningStatus(status),
-		EaseFactor: easeFactor,
-		CreatedAt:  now,
-		UpdatedAt:  now,
+		ID:        id,
+		UserID:    userID,
+		EntryID:   entryID,
+		CreatedAt: now,
+		UpdatedAt: now,
 	})
 	if err != nil {
 		return nil, mapError(err, "card", id)
 	}
 
-	c := toDomainCard(row)
+	c := toDomainCard(fromCreateRow(row))
 	return &c, nil
 }
 
-// CreateFromCard inserts a new card from a domain.Card struct and returns the persisted card.
-// This is used by the study service which passes a pre-built Card.
-func (r *Repo) CreateFromCard(ctx context.Context, userID uuid.UUID, card *domain.Card) (*domain.Card, error) {
-	return r.Create(ctx, userID, card.EntryID, card.Status, card.EaseFactor)
-}
-
-// UpdateSRS updates all SRS fields on a card.
-// Returns the updated card or domain.ErrNotFound if the card does not exist or belongs to another user.
+// UpdateSRS updates all FSRS fields on a card.
 func (r *Repo) UpdateSRS(ctx context.Context, userID, cardID uuid.UUID, params domain.SRSUpdateParams) (*domain.Card, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	rowsAffected, err := q.UpdateCardSRS(ctx, sqlc.UpdateCardSRSParams{
-		ID:           cardID,
-		UserID:       userID,
-		Status:       sqlc.LearningStatus(params.Status),
-		NextReviewAt: params.NextReviewAt,
-		IntervalDays: int32(params.IntervalDays),
-		EaseFactor:   params.EaseFactor,
-		LearningStep: int32(params.LearningStep),
+		ID:            cardID,
+		UserID:        userID,
+		State:         sqlc.CardState(params.State),
+		Step:          int32(params.Step),
+		Stability:     params.Stability,
+		Difficulty:    params.Difficulty,
+		Due:           params.Due,
+		LastReview:    params.LastReview,
+		Reps:          int32(params.Reps),
+		Lapses:        int32(params.Lapses),
+		ScheduledDays: int32(params.ScheduledDays),
+		ElapsedDays:   int32(params.ElapsedDays),
 	})
 	if err != nil {
 		return nil, mapError(err, "card", cardID)
@@ -332,7 +344,6 @@ func (r *Repo) UpdateSRS(ctx context.Context, userID, cardID uuid.UUID, params d
 }
 
 // Delete removes a card by ID.
-// Returns domain.ErrNotFound if the card does not exist or belongs to another user.
 func (r *Repo) Delete(ctx context.Context, userID, cardID uuid.UUID) error {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
@@ -355,7 +366,6 @@ func (r *Repo) Delete(ctx context.Context, userID, cardID uuid.UUID) error {
 // Row scanning helpers
 // ---------------------------------------------------------------------------
 
-// scanCards scans multiple rows into a domain.Card slice.
 func scanCards(rows pgx.Rows) ([]domain.Card, error) {
 	var cards []domain.Card
 	for rows.Next() {
@@ -376,7 +386,6 @@ func scanCards(rows pgx.Rows) ([]domain.Card, error) {
 	return cards, nil
 }
 
-// scanCardPointers scans multiple rows into a []*domain.Card slice.
 func scanCardPointers(rows pgx.Rows) ([]*domain.Card, error) {
 	var cards []*domain.Card
 	for rows.Next() {
@@ -397,37 +406,47 @@ func scanCardPointers(rows pgx.Rows) ([]*domain.Card, error) {
 	return cards, nil
 }
 
-// scanCardFromRows scans a single card row from pgx.Rows.
 func scanCardFromRows(rows pgx.Rows) (domain.Card, error) {
 	var (
-		id           uuid.UUID
-		userID       uuid.UUID
-		entryID      uuid.UUID
-		status       string
-		learningStep int32
-		nextReviewAt *time.Time
-		intervalDays int32
-		easeFactor   float64
-		createdAt    time.Time
-		updatedAt    time.Time
+		id            uuid.UUID
+		userID        uuid.UUID
+		entryID       uuid.UUID
+		state         string
+		step          int32
+		stability     float64
+		difficulty    float64
+		due           time.Time
+		lastReview    *time.Time
+		reps          int32
+		lapses        int32
+		scheduledDays int32
+		elapsedDays   int32
+		createdAt     time.Time
+		updatedAt     time.Time
 	)
 
-	if err := rows.Scan(&id, &userID, &entryID, &status, &learningStep,
-		&nextReviewAt, &intervalDays, &easeFactor, &createdAt, &updatedAt); err != nil {
+	if err := rows.Scan(&id, &userID, &entryID, &state, &step, &stability, &difficulty,
+		&due, &lastReview, &reps, &lapses, &scheduledDays, &elapsedDays,
+		&createdAt, &updatedAt); err != nil {
 		return domain.Card{}, err
 	}
 
 	return domain.Card{
-		ID:           id,
-		UserID:       userID,
-		EntryID:      entryID,
-		Status:       domain.LearningStatus(status),
-		LearningStep: int(learningStep),
-		NextReviewAt: nextReviewAt,
-		IntervalDays: int(intervalDays),
-		EaseFactor:   easeFactor,
-		CreatedAt:    createdAt,
-		UpdatedAt:    updatedAt,
+		ID:            id,
+		UserID:        userID,
+		EntryID:       entryID,
+		State:         domain.CardState(state),
+		Step:          int(step),
+		Stability:     stability,
+		Difficulty:    difficulty,
+		Due:           due,
+		LastReview:    lastReview,
+		Reps:          int(reps),
+		Lapses:        int(lapses),
+		ScheduledDays: int(scheduledDays),
+		ElapsedDays:   int(elapsedDays),
+		CreatedAt:     createdAt,
+		UpdatedAt:     updatedAt,
 	}, nil
 }
 
@@ -435,19 +454,53 @@ func scanCardFromRows(rows pgx.Rows) (domain.Card, error) {
 // Mapping helpers: sqlc -> domain
 // ---------------------------------------------------------------------------
 
-// toDomainCard converts a sqlc.Card to a domain.Card.
+func fromGetByIDRow(r sqlc.GetCardByIDRow) sqlc.Card {
+	return sqlc.Card{
+		ID: r.ID, UserID: r.UserID, EntryID: r.EntryID,
+		State: r.State, Step: r.Step, Stability: r.Stability, Difficulty: r.Difficulty,
+		Due: r.Due, LastReview: r.LastReview, Reps: r.Reps, Lapses: r.Lapses,
+		ScheduledDays: r.ScheduledDays, ElapsedDays: r.ElapsedDays,
+		CreatedAt: r.CreatedAt, UpdatedAt: r.UpdatedAt,
+	}
+}
+
+func fromGetByEntryIDRow(r sqlc.GetCardByEntryIDRow) sqlc.Card {
+	return sqlc.Card{
+		ID: r.ID, UserID: r.UserID, EntryID: r.EntryID,
+		State: r.State, Step: r.Step, Stability: r.Stability, Difficulty: r.Difficulty,
+		Due: r.Due, LastReview: r.LastReview, Reps: r.Reps, Lapses: r.Lapses,
+		ScheduledDays: r.ScheduledDays, ElapsedDays: r.ElapsedDays,
+		CreatedAt: r.CreatedAt, UpdatedAt: r.UpdatedAt,
+	}
+}
+
+func fromCreateRow(r sqlc.CreateCardRow) sqlc.Card {
+	return sqlc.Card{
+		ID: r.ID, UserID: r.UserID, EntryID: r.EntryID,
+		State: r.State, Step: r.Step, Stability: r.Stability, Difficulty: r.Difficulty,
+		Due: r.Due, LastReview: r.LastReview, Reps: r.Reps, Lapses: r.Lapses,
+		ScheduledDays: r.ScheduledDays, ElapsedDays: r.ElapsedDays,
+		CreatedAt: r.CreatedAt, UpdatedAt: r.UpdatedAt,
+	}
+}
+
 func toDomainCard(row sqlc.Card) domain.Card {
 	return domain.Card{
-		ID:           row.ID,
-		UserID:       row.UserID,
-		EntryID:      row.EntryID,
-		Status:       domain.LearningStatus(row.Status),
-		LearningStep: int(row.LearningStep),
-		NextReviewAt: row.NextReviewAt,
-		IntervalDays: int(row.IntervalDays),
-		EaseFactor:   row.EaseFactor,
-		CreatedAt:    row.CreatedAt,
-		UpdatedAt:    row.UpdatedAt,
+		ID:            row.ID,
+		UserID:        row.UserID,
+		EntryID:       row.EntryID,
+		State:         domain.CardState(row.State),
+		Step:          int(row.Step),
+		Stability:     row.Stability,
+		Difficulty:    row.Difficulty,
+		Due:           row.Due,
+		LastReview:    row.LastReview,
+		Reps:          int(row.Reps),
+		Lapses:        int(row.Lapses),
+		ScheduledDays: int(row.ScheduledDays),
+		ElapsedDays:   int(row.ElapsedDays),
+		CreatedAt:     row.CreatedAt,
+		UpdatedAt:     row.UpdatedAt,
 	}
 }
 
@@ -455,7 +508,6 @@ func toDomainCard(row sqlc.Card) domain.Card {
 // Error mapping
 // ---------------------------------------------------------------------------
 
-// mapError converts pgx/pgconn errors into domain errors.
 func mapError(err error, entity string, id uuid.UUID) error {
 	if err == nil {
 		return nil

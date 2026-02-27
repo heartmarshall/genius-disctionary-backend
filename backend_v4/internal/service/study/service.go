@@ -16,7 +16,7 @@ import (
 type cardRepo interface {
 	GetByID(ctx context.Context, userID, cardID uuid.UUID) (*domain.Card, error)
 	GetByEntryID(ctx context.Context, userID, entryID uuid.UUID) (*domain.Card, error)
-	Create(ctx context.Context, userID, entryID uuid.UUID, status domain.LearningStatus, easeFactor float64) (*domain.Card, error)
+	Create(ctx context.Context, userID, entryID uuid.UUID) (*domain.Card, error)
 	UpdateSRS(ctx context.Context, userID, cardID uuid.UUID, params domain.SRSUpdateParams) (*domain.Card, error)
 	Delete(ctx context.Context, userID, cardID uuid.UUID) error
 	GetDueCards(ctx context.Context, userID uuid.UUID, now time.Time, limit int) ([]*domain.Card, error)
@@ -24,6 +24,7 @@ type cardRepo interface {
 	CountByStatus(ctx context.Context, userID uuid.UUID) (domain.CardStatusCounts, error)
 	CountDue(ctx context.Context, userID uuid.UUID, now time.Time) (int, error)
 	CountNew(ctx context.Context, userID uuid.UUID) (int, error)
+	CountOverdue(ctx context.Context, userID uuid.UUID, dayStart time.Time) (int, error)
 	ExistsByEntryIDs(ctx context.Context, userID uuid.UUID, entryIDs []uuid.UUID) (map[uuid.UUID]bool, error)
 }
 
@@ -74,16 +75,17 @@ type txManager interface {
 
 // Service implements the study business logic.
 type Service struct {
-	cards     cardRepo
-	reviews   reviewLogRepo
-	sessions  sessionRepo
-	entries   entryRepo
-	senses    senseRepo
-	settings  settingsRepo
-	audit     auditLogger
-	tx        txManager
-	log       *slog.Logger
-	srsConfig domain.SRSConfig
+	cards       cardRepo
+	reviews     reviewLogRepo
+	sessions    sessionRepo
+	entries     entryRepo
+	senses      senseRepo
+	settings    settingsRepo
+	audit       auditLogger
+	tx          txManager
+	log         *slog.Logger
+	srsConfig   domain.SRSConfig
+	fsrsWeights [19]float64
 }
 
 // NewService creates a new Study service.
@@ -98,17 +100,19 @@ func NewService(
 	audit auditLogger,
 	tx txManager,
 	srsConfig domain.SRSConfig,
+	fsrsWeights [19]float64,
 ) *Service {
 	return &Service{
-		cards:     cards,
-		reviews:   reviews,
-		sessions:  sessions,
-		entries:   entries,
-		senses:    senses,
-		settings:  settings,
-		audit:     audit,
-		tx:        tx,
-		log:       log.With("service", "study"),
-		srsConfig: srsConfig,
+		cards:       cards,
+		reviews:     reviews,
+		sessions:    sessions,
+		entries:     entries,
+		senses:      senses,
+		settings:    settings,
+		audit:       audit,
+		tx:          tx,
+		log:         log.With("service", "study"),
+		srsConfig:   srsConfig,
+		fsrsWeights: fsrsWeights,
 	}
 }

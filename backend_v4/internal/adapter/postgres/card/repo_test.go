@@ -273,6 +273,50 @@ func TestRepo_GetDueCards_RespectsLimit(t *testing.T) {
 }
 
 // ---------------------------------------------------------------------------
+// CountOverdue
+// ---------------------------------------------------------------------------
+
+func TestRepo_CountOverdue(t *testing.T) {
+	t.Parallel()
+	repo, pool := newRepo(t)
+	ctx := context.Background()
+
+	user := testhelper.SeedUser(t, pool)
+	now := time.Now().UTC()
+	dayStart := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+
+	// Card 1: REVIEW, due yesterday (overdue)
+	ref1 := testhelper.SeedRefEntry(t, pool, "overdue-"+uuid.New().String()[:8])
+	e1 := testhelper.SeedEntryWithCard(t, pool, user.ID, ref1.ID)
+	_, err := pool.Exec(ctx, `UPDATE cards SET state = 'REVIEW', due = $1, stability = 5.0, reps = 3 WHERE id = $2`,
+		dayStart.AddDate(0, 0, -1), e1.Card.ID)
+	if err != nil {
+		t.Fatalf("update card1: %v", err)
+	}
+
+	// Card 2: REVIEW, due in 1 hour (due but not overdue)
+	ref2 := testhelper.SeedRefEntry(t, pool, "duesoon-"+uuid.New().String()[:8])
+	e2 := testhelper.SeedEntryWithCard(t, pool, user.ID, ref2.ID)
+	_, err = pool.Exec(ctx, `UPDATE cards SET state = 'REVIEW', due = $1, stability = 5.0, reps = 3 WHERE id = $2`,
+		now.Add(time.Hour), e2.Card.ID)
+	if err != nil {
+		t.Fatalf("update card2: %v", err)
+	}
+
+	// Card 3: NEW (not overdue regardless of due)
+	ref3 := testhelper.SeedRefEntry(t, pool, "newcard-"+uuid.New().String()[:8])
+	testhelper.SeedEntryWithCard(t, pool, user.ID, ref3.ID)
+
+	count, err := repo.CountOverdue(ctx, user.ID, dayStart)
+	if err != nil {
+		t.Fatalf("CountOverdue: unexpected error: %v", err)
+	}
+	if count != 1 {
+		t.Errorf("expected 1 overdue card, got %d", count)
+	}
+}
+
+// ---------------------------------------------------------------------------
 // CountDue
 // ---------------------------------------------------------------------------
 
