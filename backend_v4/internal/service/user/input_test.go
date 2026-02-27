@@ -183,6 +183,42 @@ func TestUpdateSettingsInput_Validate(t *testing.T) {
 			input:   UpdateSettingsInput{Timezone: ptr("")},
 			wantErr: true,
 		},
+		// DesiredRetention boundaries
+		{
+			name:    "valid: desired_retention at min (0.70)",
+			input:   UpdateSettingsInput{DesiredRetention: ptr(0.70)},
+			wantErr: false,
+		},
+		{
+			name:    "valid: desired_retention at max (0.99)",
+			input:   UpdateSettingsInput{DesiredRetention: ptr(0.99)},
+			wantErr: false,
+		},
+		{
+			name:    "valid: desired_retention at 0.9 (default)",
+			input:   UpdateSettingsInput{DesiredRetention: ptr(0.9)},
+			wantErr: false,
+		},
+		{
+			name:    "invalid: desired_retention below min (0.69)",
+			input:   UpdateSettingsInput{DesiredRetention: ptr(0.69)},
+			wantErr: true,
+		},
+		{
+			name:    "invalid: desired_retention above max (1.0)",
+			input:   UpdateSettingsInput{DesiredRetention: ptr(1.0)},
+			wantErr: true,
+		},
+		{
+			name:    "invalid: desired_retention zero",
+			input:   UpdateSettingsInput{DesiredRetention: ptr(0.0)},
+			wantErr: true,
+		},
+		{
+			name:    "invalid: desired_retention negative",
+			input:   UpdateSettingsInput{DesiredRetention: ptr(-0.5)},
+			wantErr: true,
+		},
 		// All nil = no error
 		{
 			name:    "valid: all fields nil",
@@ -218,10 +254,11 @@ func TestUpdateSettingsInput_Validate_MultipleErrors(t *testing.T) {
 	t.Parallel()
 
 	input := UpdateSettingsInput{
-		NewCardsPerDay:  ptr(0),
-		ReviewsPerDay:   ptr(0),
-		MaxIntervalDays: ptr(0),
-		Timezone:        ptr(""),
+		NewCardsPerDay:   ptr(0),
+		ReviewsPerDay:    ptr(0),
+		MaxIntervalDays:  ptr(0),
+		Timezone:         ptr(""),
+		DesiredRetention: ptr(0.0),
 	}
 
 	err := input.Validate()
@@ -229,5 +266,5 @@ func TestUpdateSettingsInput_Validate_MultipleErrors(t *testing.T) {
 
 	var valErr *domain.ValidationError
 	require.ErrorAs(t, err, &valErr)
-	assert.Len(t, valErr.Errors, 4, "each invalid field should produce a separate error")
+	assert.Len(t, valErr.Errors, 5, "each invalid field should produce a separate error")
 }

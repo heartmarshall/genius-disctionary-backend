@@ -35,10 +35,11 @@ func (i UpdateProfileInput) Validate() error {
 // UpdateSettingsInput holds parameters for settings update operation.
 // All fields are optional (nil = don't change).
 type UpdateSettingsInput struct {
-	NewCardsPerDay  *int
-	ReviewsPerDay   *int
-	MaxIntervalDays *int
-	Timezone        *string
+	NewCardsPerDay   *int
+	ReviewsPerDay    *int
+	MaxIntervalDays  *int
+	Timezone         *string
+	DesiredRetention *float64
 }
 
 // Validate validates the update settings input.
@@ -66,6 +67,14 @@ func (i UpdateSettingsInput) Validate() error {
 			errs = append(errs, domain.FieldError{Field: "max_interval_days", Message: "must be at least 1"})
 		} else if *i.MaxIntervalDays > 36500 {
 			errs = append(errs, domain.FieldError{Field: "max_interval_days", Message: "must be at most 36500"})
+		}
+	}
+
+	if i.DesiredRetention != nil {
+		if *i.DesiredRetention < 0.70 {
+			errs = append(errs, domain.FieldError{Field: "desired_retention", Message: "must be at least 0.70"})
+		} else if *i.DesiredRetention > 0.99 {
+			errs = append(errs, domain.FieldError{Field: "desired_retention", Message: "must be at most 0.99"})
 		}
 	}
 
