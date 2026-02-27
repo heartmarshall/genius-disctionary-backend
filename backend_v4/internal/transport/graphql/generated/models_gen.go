@@ -57,6 +57,11 @@ type AddUserImagePayload struct {
 	Image *domain.UserImage `json:"image"`
 }
 
+type AdminUsersResult struct {
+	Users []*domain.User `json:"users"`
+	Total int            `json:"total"`
+}
+
 type BatchCreateCardError struct {
 	EntryID uuid.UUID `json:"entryId"`
 	Message string    `json:"message"`

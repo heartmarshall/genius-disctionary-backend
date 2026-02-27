@@ -91,6 +91,8 @@ type userService interface {
 	GetProfile(ctx context.Context) (*domain.User, error)
 	GetSettings(ctx context.Context) (*domain.UserSettings, error)
 	UpdateSettings(ctx context.Context, input user.UpdateSettingsInput) (*domain.UserSettings, error)
+	SetUserRole(ctx context.Context, targetUserID uuid.UUID, role domain.UserRole) (*domain.User, error)
+	ListUsers(ctx context.Context, limit, offset int) ([]domain.User, int, error)
 }
 
 // refCatalogService defines what resolver needs from RefCatalog service.

@@ -8,6 +8,7 @@ package resolver
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
 	"github.com/heartmarshall/myenglish-backend/internal/transport/graphql/generated"
 	"github.com/heartmarshall/myenglish-backend/internal/transport/middleware"
@@ -16,6 +17,11 @@ import (
 // Status is the resolver for the status field.
 func (r *enrichmentQueueItemResolver) Status(ctx context.Context, obj *domain.EnrichmentQueueItem) (string, error) {
 	return string(obj.Status), nil
+}
+
+// AdminSetUserRole is the resolver for the adminSetUserRole field.
+func (r *mutationResolver) AdminSetUserRole(ctx context.Context, userID uuid.UUID, role string) (*domain.User, error) {
+	return r.user.SetUserRole(ctx, userID, domain.UserRole(role))
 }
 
 // EnrichmentQueueStats is the resolver for the enrichmentQueueStats field.
@@ -59,6 +65,33 @@ func (r *queryResolver) EnrichmentQueue(ctx context.Context, status *string, lim
 		result[i] = &items[i]
 	}
 	return result, nil
+}
+
+// AdminUsers is the resolver for the adminUsers field.
+func (r *queryResolver) AdminUsers(ctx context.Context, limit *int, offset *int) (*generated.AdminUsersResult, error) {
+	if err := middleware.RequireAdmin(ctx); err != nil {
+		return nil, err
+	}
+
+	l, o := 50, 0
+	if limit != nil {
+		l = *limit
+	}
+	if offset != nil {
+		o = *offset
+	}
+
+	users, total, err := r.user.ListUsers(ctx, l, o)
+	if err != nil {
+		return nil, err
+	}
+
+	ptrs := make([]*domain.User, len(users))
+	for i := range users {
+		ptrs[i] = &users[i]
+	}
+
+	return &generated.AdminUsersResult{Users: ptrs, Total: total}, nil
 }
 
 // EnrichmentQueueItem returns generated.EnrichmentQueueItemResolver implementation.

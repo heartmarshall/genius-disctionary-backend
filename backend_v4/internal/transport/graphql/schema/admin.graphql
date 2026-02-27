@@ -20,10 +20,23 @@ type EnrichmentQueueStats {
   total: Int!
 }
 
+type AdminUsersResult {
+  users: [User!]!
+  total: Int!
+}
+
 extend type Query {
   """Enrichment queue statistics (admin only)."""
   enrichmentQueueStats: EnrichmentQueueStats!
 
   """Browse enrichment queue items (admin only)."""
   enrichmentQueue(status: String, limit: Int, offset: Int): [EnrichmentQueueItem!]!
+
+  """List all users with pagination (admin only)."""
+  adminUsers(limit: Int, offset: Int): AdminUsersResult!
+}
+
+extend type Mutation {
+  """Change user role (admin only)."""
+  adminSetUserRole(userId: UUID!, role: String!): User!
 }

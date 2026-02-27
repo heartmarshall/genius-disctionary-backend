@@ -5,6 +5,7 @@ package resolver
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
 	"github.com/heartmarshall/myenglish-backend/internal/service/user"
 	"sync"
@@ -26,6 +27,12 @@ var _ userService = &userServiceMock{}
 //			GetSettingsFunc: func(ctx context.Context) (*domain.UserSettings, error) {
 //				panic("mock out the GetSettings method")
 //			},
+//			ListUsersFunc: func(ctx context.Context, limit int, offset int) ([]domain.User, int, error) {
+//				panic("mock out the ListUsers method")
+//			},
+//			SetUserRoleFunc: func(ctx context.Context, targetUserID uuid.UUID, role domain.UserRole) (*domain.User, error) {
+//				panic("mock out the SetUserRole method")
+//			},
 //			UpdateSettingsFunc: func(ctx context.Context, input user.UpdateSettingsInput) (*domain.UserSettings, error) {
 //				panic("mock out the UpdateSettings method")
 //			},
@@ -42,6 +49,12 @@ type userServiceMock struct {
 	// GetSettingsFunc mocks the GetSettings method.
 	GetSettingsFunc func(ctx context.Context) (*domain.UserSettings, error)
 
+	// ListUsersFunc mocks the ListUsers method.
+	ListUsersFunc func(ctx context.Context, limit int, offset int) ([]domain.User, int, error)
+
+	// SetUserRoleFunc mocks the SetUserRole method.
+	SetUserRoleFunc func(ctx context.Context, targetUserID uuid.UUID, role domain.UserRole) (*domain.User, error)
+
 	// UpdateSettingsFunc mocks the UpdateSettings method.
 	UpdateSettingsFunc func(ctx context.Context, input user.UpdateSettingsInput) (*domain.UserSettings, error)
 
@@ -57,6 +70,24 @@ type userServiceMock struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 		}
+		// ListUsers holds details about calls to the ListUsers method.
+		ListUsers []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Limit is the limit argument value.
+			Limit int
+			// Offset is the offset argument value.
+			Offset int
+		}
+		// SetUserRole holds details about calls to the SetUserRole method.
+		SetUserRole []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// TargetUserID is the targetUserID argument value.
+			TargetUserID uuid.UUID
+			// Role is the role argument value.
+			Role domain.UserRole
+		}
 		// UpdateSettings holds details about calls to the UpdateSettings method.
 		UpdateSettings []struct {
 			// Ctx is the ctx argument value.
@@ -67,6 +98,8 @@ type userServiceMock struct {
 	}
 	lockGetProfile     sync.RWMutex
 	lockGetSettings    sync.RWMutex
+	lockListUsers      sync.RWMutex
+	lockSetUserRole    sync.RWMutex
 	lockUpdateSettings sync.RWMutex
 }
 
@@ -131,6 +164,86 @@ func (mock *userServiceMock) GetSettingsCalls() []struct {
 	mock.lockGetSettings.RLock()
 	calls = mock.calls.GetSettings
 	mock.lockGetSettings.RUnlock()
+	return calls
+}
+
+// ListUsers calls ListUsersFunc.
+func (mock *userServiceMock) ListUsers(ctx context.Context, limit int, offset int) ([]domain.User, int, error) {
+	if mock.ListUsersFunc == nil {
+		panic("userServiceMock.ListUsersFunc: method is nil but userService.ListUsers was just called")
+	}
+	callInfo := struct {
+		Ctx    context.Context
+		Limit  int
+		Offset int
+	}{
+		Ctx:    ctx,
+		Limit:  limit,
+		Offset: offset,
+	}
+	mock.lockListUsers.Lock()
+	mock.calls.ListUsers = append(mock.calls.ListUsers, callInfo)
+	mock.lockListUsers.Unlock()
+	return mock.ListUsersFunc(ctx, limit, offset)
+}
+
+// ListUsersCalls gets all the calls that were made to ListUsers.
+// Check the length with:
+//
+//	len(mockeduserService.ListUsersCalls())
+func (mock *userServiceMock) ListUsersCalls() []struct {
+	Ctx    context.Context
+	Limit  int
+	Offset int
+} {
+	var calls []struct {
+		Ctx    context.Context
+		Limit  int
+		Offset int
+	}
+	mock.lockListUsers.RLock()
+	calls = mock.calls.ListUsers
+	mock.lockListUsers.RUnlock()
+	return calls
+}
+
+// SetUserRole calls SetUserRoleFunc.
+func (mock *userServiceMock) SetUserRole(ctx context.Context, targetUserID uuid.UUID, role domain.UserRole) (*domain.User, error) {
+	if mock.SetUserRoleFunc == nil {
+		panic("userServiceMock.SetUserRoleFunc: method is nil but userService.SetUserRole was just called")
+	}
+	callInfo := struct {
+		Ctx          context.Context
+		TargetUserID uuid.UUID
+		Role         domain.UserRole
+	}{
+		Ctx:          ctx,
+		TargetUserID: targetUserID,
+		Role:         role,
+	}
+	mock.lockSetUserRole.Lock()
+	mock.calls.SetUserRole = append(mock.calls.SetUserRole, callInfo)
+	mock.lockSetUserRole.Unlock()
+	return mock.SetUserRoleFunc(ctx, targetUserID, role)
+}
+
+// SetUserRoleCalls gets all the calls that were made to SetUserRole.
+// Check the length with:
+//
+//	len(mockeduserService.SetUserRoleCalls())
+func (mock *userServiceMock) SetUserRoleCalls() []struct {
+	Ctx          context.Context
+	TargetUserID uuid.UUID
+	Role         domain.UserRole
+} {
+	var calls []struct {
+		Ctx          context.Context
+		TargetUserID uuid.UUID
+		Role         domain.UserRole
+	}
+	mock.lockSetUserRole.RLock()
+	calls = mock.calls.SetUserRole
+	mock.lockSetUserRole.RUnlock()
 	return calls
 }
 

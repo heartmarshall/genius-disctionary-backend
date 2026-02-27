@@ -79,6 +79,11 @@ type ComplexityRoot struct {
 		Image func(childComplexity int) int
 	}
 
+	AdminUsersResult struct {
+		Total func(childComplexity int) int
+		Users func(childComplexity int) int
+	}
+
 	BatchCreateCardError struct {
 		EntryID func(childComplexity int) int
 		Message func(childComplexity int) int
@@ -326,6 +331,7 @@ type ComplexityRoot struct {
 		AddSense                func(childComplexity int, input AddSenseInput) int
 		AddTranslation          func(childComplexity int, input AddTranslationInput) int
 		AddUserImage            func(childComplexity int, input AddUserImageInput) int
+		AdminSetUserRole        func(childComplexity int, userID uuid.UUID, role string) int
 		BatchCreateCards        func(childComplexity int, entryIds []uuid.UUID) int
 		BatchDeleteEntries      func(childComplexity int, ids []uuid.UUID) int
 		BatchLinkEntriesToTopic func(childComplexity int, input BatchLinkEntriesInput) int
@@ -377,6 +383,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		AdminUsers           func(childComplexity int, limit *int, offset *int) int
 		CardHistory          func(childComplexity int, input GetCardHistoryInput) int
 		CardStats            func(childComplexity int, cardID uuid.UUID) int
 		Dashboard            func(childComplexity int) int
@@ -615,6 +622,7 @@ type EnrichmentQueueItemResolver interface {
 	Status(ctx context.Context, obj *domain.EnrichmentQueueItem) (string, error)
 }
 type MutationResolver interface {
+	AdminSetUserRole(ctx context.Context, userID uuid.UUID, role string) (*domain.User, error)
 	AddSense(ctx context.Context, input AddSenseInput) (*AddSensePayload, error)
 	UpdateSense(ctx context.Context, input UpdateSenseInput) (*UpdateSensePayload, error)
 	DeleteSense(ctx context.Context, id uuid.UUID) (*DeleteSensePayload, error)
@@ -658,6 +666,7 @@ type MutationResolver interface {
 type QueryResolver interface {
 	EnrichmentQueueStats(ctx context.Context) (*domain.EnrichmentQueueStats, error)
 	EnrichmentQueue(ctx context.Context, status *string, limit *int, offset *int) ([]*domain.EnrichmentQueueItem, error)
+	AdminUsers(ctx context.Context, limit *int, offset *int) (*AdminUsersResult, error)
 	SearchCatalog(ctx context.Context, query string, limit *int) ([]*domain.RefEntry, error)
 	PreviewRefEntry(ctx context.Context, text string) (*domain.RefEntry, error)
 	Dictionary(ctx context.Context, input DictionaryFilterInput) (*DictionaryConnection, error)
@@ -754,6 +763,19 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AddUserImagePayload.Image(childComplexity), true
+
+	case "AdminUsersResult.total":
+		if e.complexity.AdminUsersResult.Total == nil {
+			break
+		}
+
+		return e.complexity.AdminUsersResult.Total(childComplexity), true
+	case "AdminUsersResult.users":
+		if e.complexity.AdminUsersResult.Users == nil {
+			break
+		}
+
+		return e.complexity.AdminUsersResult.Users(childComplexity), true
 
 	case "BatchCreateCardError.entryId":
 		if e.complexity.BatchCreateCardError.EntryID == nil {
@@ -1554,6 +1576,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.AddUserImage(childComplexity, args["input"].(AddUserImageInput)), true
+	case "Mutation.adminSetUserRole":
+		if e.complexity.Mutation.AdminSetUserRole == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_adminSetUserRole_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.AdminSetUserRole(childComplexity, args["userId"].(uuid.UUID), args["role"].(string)), true
 	case "Mutation.batchCreateCards":
 		if e.complexity.Mutation.BatchCreateCards == nil {
 			break
@@ -1969,6 +2002,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Pronunciation.Transcription(childComplexity), true
 
+	case "Query.adminUsers":
+		if e.complexity.Query.AdminUsers == nil {
+			break
+		}
+
+		args, err := ec.field_Query_adminUsers_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.AdminUsers(childComplexity, args["limit"].(*int), args["offset"].(*int)), true
 	case "Query.cardHistory":
 		if e.complexity.Query.CardHistory == nil {
 			break
@@ -2972,12 +3016,25 @@ type EnrichmentQueueStats {
   total: Int!
 }
 
+type AdminUsersResult {
+  users: [User!]!
+  total: Int!
+}
+
 extend type Query {
   """Enrichment queue statistics (admin only)."""
   enrichmentQueueStats: EnrichmentQueueStats!
 
   """Browse enrichment queue items (admin only)."""
   enrichmentQueue(status: String, limit: Int, offset: Int): [EnrichmentQueueItem!]!
+
+  """List all users with pagination (admin only)."""
+  adminUsers(limit: Int, offset: Int): AdminUsersResult!
+}
+
+extend type Mutation {
+  """Change user role (admin only)."""
+  adminSetUserRole(userId: UUID!, role: String!): User!
 }
 `, BuiltIn: false},
 	{Name: "../schema/content.graphql", Input: `# ============================================================
@@ -3955,6 +4012,22 @@ func (ec *executionContext) field_Mutation_addUserImage_args(ctx context.Context
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_adminSetUserRole_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "userId", ec.unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID)
+	if err != nil {
+		return nil, err
+	}
+	args["userId"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "role", ec.unmarshalNString2string)
+	if err != nil {
+		return nil, err
+	}
+	args["role"] = arg1
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_batchCreateCards_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -4315,6 +4388,22 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		return nil, err
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_adminUsers_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "limit", ec.unmarshalOInt2ᚖint)
+	if err != nil {
+		return nil, err
+	}
+	args["limit"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "offset", ec.unmarshalOInt2ᚖint)
+	if err != nil {
+		return nil, err
+	}
+	args["offset"] = arg1
 	return args, nil
 }
 
@@ -4717,6 +4806,82 @@ func (ec *executionContext) fieldContext_AddUserImagePayload_image(_ context.Con
 				return ec.fieldContext_UserImage_createdAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type UserImage", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminUsersResult_users(ctx context.Context, field graphql.CollectedField, obj *AdminUsersResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminUsersResult_users,
+		func(ctx context.Context) (any, error) {
+			return obj.Users, nil
+		},
+		nil,
+		ec.marshalNUser2ᚕᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐUserᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminUsersResult_users(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminUsersResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "username":
+				return ec.fieldContext_User_username(ctx, field)
+			case "name":
+				return ec.fieldContext_User_name(ctx, field)
+			case "avatarUrl":
+				return ec.fieldContext_User_avatarUrl(ctx, field)
+			case "role":
+				return ec.fieldContext_User_role(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
+			case "settings":
+				return ec.fieldContext_User_settings(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminUsersResult_total(ctx context.Context, field graphql.CollectedField, obj *AdminUsersResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminUsersResult_total,
+		func(ctx context.Context) (any, error) {
+			return obj.Total, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminUsersResult_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminUsersResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -8466,6 +8631,65 @@ func (ec *executionContext) fieldContext_LinkEntryPayload_success(_ context.Cont
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_adminSetUserRole(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_adminSetUserRole,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().AdminSetUserRole(ctx, fc.Args["userId"].(uuid.UUID), fc.Args["role"].(string))
+		},
+		nil,
+		ec.marshalNUser2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐUser,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_adminSetUserRole(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "username":
+				return ec.fieldContext_User_username(ctx, field)
+			case "name":
+				return ec.fieldContext_User_name(ctx, field)
+			case "avatarUrl":
+				return ec.fieldContext_User_avatarUrl(ctx, field)
+			case "role":
+				return ec.fieldContext_User_role(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
+			case "settings":
+				return ec.fieldContext_User_settings(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_adminSetUserRole_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_addSense(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -10521,6 +10745,53 @@ func (ec *executionContext) fieldContext_Query_enrichmentQueue(ctx context.Conte
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_enrichmentQueue_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_adminUsers(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Query_adminUsers,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Query().AdminUsers(ctx, fc.Args["limit"].(*int), fc.Args["offset"].(*int))
+		},
+		nil,
+		ec.marshalNAdminUsersResult2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋtransportᚋgraphqlᚋgeneratedᚐAdminUsersResult,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Query_adminUsers(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "users":
+				return ec.fieldContext_AdminUsersResult_users(ctx, field)
+			case "total":
+				return ec.fieldContext_AdminUsersResult_total(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminUsersResult", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_adminUsers_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -17795,6 +18066,50 @@ func (ec *executionContext) _AddUserImagePayload(ctx context.Context, sel ast.Se
 	return out
 }
 
+var adminUsersResultImplementors = []string{"AdminUsersResult"}
+
+func (ec *executionContext) _AdminUsersResult(ctx context.Context, sel ast.SelectionSet, obj *AdminUsersResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminUsersResultImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminUsersResult")
+		case "users":
+			out.Values[i] = ec._AdminUsersResult_users(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "total":
+			out.Values[i] = ec._AdminUsersResult_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var batchCreateCardErrorImplementors = []string{"BatchCreateCardError"}
 
 func (ec *executionContext) _BatchCreateCardError(ctx context.Context, sel ast.SelectionSet, obj *BatchCreateCardError) graphql.Marshaler {
@@ -20060,6 +20375,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
+		case "adminSetUserRole":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_adminSetUserRole(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "addSense":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_addSense(ctx, field)
@@ -20503,6 +20825,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_enrichmentQueue(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "adminUsers":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_adminUsers(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -23140,6 +23484,20 @@ func (ec *executionContext) marshalNAddUserImagePayload2ᚖgithubᚗcomᚋheartm
 	return ec._AddUserImagePayload(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNAdminUsersResult2githubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋtransportᚋgraphqlᚋgeneratedᚐAdminUsersResult(ctx context.Context, sel ast.SelectionSet, v AdminUsersResult) graphql.Marshaler {
+	return ec._AdminUsersResult(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAdminUsersResult2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋtransportᚋgraphqlᚋgeneratedᚐAdminUsersResult(ctx context.Context, sel ast.SelectionSet, v *AdminUsersResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminUsersResult(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNBatchCreateCardError2ᚕᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋtransportᚋgraphqlᚋgeneratedᚐBatchCreateCardErrorᚄ(ctx context.Context, sel ast.SelectionSet, v []*BatchCreateCardError) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -25471,6 +25829,50 @@ func (ec *executionContext) marshalNUpdateTranslationPayload2ᚖgithubᚗcomᚋh
 
 func (ec *executionContext) marshalNUser2githubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐUser(ctx context.Context, sel ast.SelectionSet, v domain.User) graphql.Marshaler {
 	return ec._User(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*domain.User) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNUser2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐUser(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐUser(ctx context.Context, sel ast.SelectionSet, v *domain.User) graphql.Marshaler {
