@@ -54,13 +54,19 @@ func TestRepo_Create_WithPrevState(t *testing.T) {
 
 	_, card := seedCard(t, pool)
 
-	nextReview := time.Now().UTC().Add(24 * time.Hour).Truncate(time.Microsecond)
+	dueTime := time.Now().UTC().Add(24 * time.Hour).Truncate(time.Microsecond)
+	lastReview := time.Now().UTC().Truncate(time.Microsecond)
 	prevState := &domain.CardSnapshot{
-		Status:       domain.LearningStatusLearning,
-		LearningStep: 2,
-		IntervalDays: 1,
-		EaseFactor:   2.3,
-		NextReviewAt: &nextReview,
+		State:         domain.CardStateLearning,
+		Step:          2,
+		Stability:     4.5,
+		Difficulty:    5.3,
+		Due:           dueTime,
+		LastReview:    &lastReview,
+		Reps:          3,
+		Lapses:        1,
+		ScheduledDays: 1,
+		ElapsedDays:   0,
 	}
 	durationMs := 3500
 	input := buildReviewLog(card.ID, domain.ReviewGradeGood, prevState, &durationMs)
@@ -90,23 +96,26 @@ func TestRepo_Create_WithPrevState(t *testing.T) {
 	if got.PrevState == nil {
 		t.Fatal("PrevState should not be nil")
 	}
-	if got.PrevState.Status != domain.LearningStatusLearning {
-		t.Errorf("PrevState.Status mismatch: got %s, want %s", got.PrevState.Status, domain.LearningStatusLearning)
+	if got.PrevState.State != domain.CardStateLearning {
+		t.Errorf("PrevState.State mismatch: got %s, want %s", got.PrevState.State, domain.CardStateLearning)
 	}
-	if got.PrevState.LearningStep != 2 {
-		t.Errorf("PrevState.LearningStep mismatch: got %d, want 2", got.PrevState.LearningStep)
+	if got.PrevState.Step != 2 {
+		t.Errorf("PrevState.Step mismatch: got %d, want 2", got.PrevState.Step)
 	}
-	if got.PrevState.IntervalDays != 1 {
-		t.Errorf("PrevState.IntervalDays mismatch: got %d, want 1", got.PrevState.IntervalDays)
+	if got.PrevState.Stability != 4.5 {
+		t.Errorf("PrevState.Stability mismatch: got %f, want 4.5", got.PrevState.Stability)
 	}
-	if got.PrevState.EaseFactor != 2.3 {
-		t.Errorf("PrevState.EaseFactor mismatch: got %f, want 2.3", got.PrevState.EaseFactor)
+	if got.PrevState.Difficulty != 5.3 {
+		t.Errorf("PrevState.Difficulty mismatch: got %f, want 5.3", got.PrevState.Difficulty)
 	}
-	if got.PrevState.NextReviewAt == nil {
-		t.Fatal("PrevState.NextReviewAt should not be nil")
+	if !got.PrevState.Due.Equal(dueTime) {
+		t.Errorf("PrevState.Due mismatch: got %v, want %v", got.PrevState.Due, dueTime)
 	}
-	if !got.PrevState.NextReviewAt.Equal(nextReview) {
-		t.Errorf("PrevState.NextReviewAt mismatch: got %v, want %v", got.PrevState.NextReviewAt, nextReview)
+	if got.PrevState.LastReview == nil {
+		t.Fatal("PrevState.LastReview should not be nil")
+	}
+	if !got.PrevState.LastReview.Equal(lastReview) {
+		t.Errorf("PrevState.LastReview mismatch: got %v, want %v", got.PrevState.LastReview, lastReview)
 	}
 }
 
@@ -442,20 +451,26 @@ func TestRepo_GetByCardIDs_Empty(t *testing.T) {
 // PrevState serialization edge cases
 // ---------------------------------------------------------------------------
 
-func TestRepo_PrevState_WithNextReviewAt(t *testing.T) {
+func TestRepo_PrevState_WithDue(t *testing.T) {
 	t.Parallel()
 	repo, pool := newRepo(t)
 	ctx := context.Background()
 
 	_, card := seedCard(t, pool)
 
-	nextReview := time.Date(2025, 6, 15, 10, 30, 0, 0, time.UTC)
+	dueTime := time.Date(2025, 6, 15, 10, 30, 0, 0, time.UTC)
+	lastReview := time.Date(2025, 6, 8, 10, 30, 0, 0, time.UTC)
 	prevState := &domain.CardSnapshot{
-		Status:       domain.LearningStatusReview,
-		LearningStep: 5,
-		IntervalDays: 7,
-		EaseFactor:   2.6,
-		NextReviewAt: &nextReview,
+		State:         domain.CardStateReview,
+		Step:          0,
+		Stability:     15.2,
+		Difficulty:    5.8,
+		Due:           dueTime,
+		LastReview:    &lastReview,
+		Reps:          5,
+		Lapses:        0,
+		ScheduledDays: 7,
+		ElapsedDays:   7,
 	}
 	input := buildReviewLog(card.ID, domain.ReviewGradeEasy, prevState, nil)
 
@@ -476,21 +491,21 @@ func TestRepo_PrevState_WithNextReviewAt(t *testing.T) {
 	if got.PrevState == nil {
 		t.Fatal("PrevState should not be nil")
 	}
-	if got.PrevState.NextReviewAt == nil {
-		t.Fatal("PrevState.NextReviewAt should not be nil")
+	if !got.PrevState.Due.Equal(dueTime) {
+		t.Errorf("PrevState.Due mismatch: got %v, want %v", got.PrevState.Due, dueTime)
 	}
-	if !got.PrevState.NextReviewAt.Equal(nextReview) {
-		t.Errorf("PrevState.NextReviewAt mismatch: got %v, want %v", got.PrevState.NextReviewAt, nextReview)
+	if got.PrevState.State != domain.CardStateReview {
+		t.Errorf("PrevState.State mismatch: got %s, want %s", got.PrevState.State, domain.CardStateReview)
 	}
-	if got.PrevState.Status != domain.LearningStatusReview {
-		t.Errorf("PrevState.Status mismatch: got %s, want %s", got.PrevState.Status, domain.LearningStatusReview)
+	if got.PrevState.ScheduledDays != 7 {
+		t.Errorf("PrevState.ScheduledDays mismatch: got %d, want 7", got.PrevState.ScheduledDays)
 	}
-	if got.PrevState.IntervalDays != 7 {
-		t.Errorf("PrevState.IntervalDays mismatch: got %d, want 7", got.PrevState.IntervalDays)
+	if got.PrevState.Stability != 15.2 {
+		t.Errorf("PrevState.Stability mismatch: got %f, want 15.2", got.PrevState.Stability)
 	}
 }
 
-func TestRepo_PrevState_WithNilNextReviewAt(t *testing.T) {
+func TestRepo_PrevState_NewCard(t *testing.T) {
 	t.Parallel()
 	repo, pool := newRepo(t)
 	ctx := context.Background()
@@ -498,11 +513,16 @@ func TestRepo_PrevState_WithNilNextReviewAt(t *testing.T) {
 	_, card := seedCard(t, pool)
 
 	prevState := &domain.CardSnapshot{
-		Status:       domain.LearningStatusNew,
-		LearningStep: 0,
-		IntervalDays: 0,
-		EaseFactor:   2.5,
-		NextReviewAt: nil, // NEW card, no next_review_at
+		State:         domain.CardStateNew,
+		Step:          0,
+		Stability:     0,
+		Difficulty:    0,
+		Due:           time.Time{},
+		LastReview:    nil,
+		Reps:          0,
+		Lapses:        0,
+		ScheduledDays: 0,
+		ElapsedDays:   0,
 	}
 	input := buildReviewLog(card.ID, domain.ReviewGradeAgain, prevState, nil)
 
@@ -523,14 +543,48 @@ func TestRepo_PrevState_WithNilNextReviewAt(t *testing.T) {
 	if got.PrevState == nil {
 		t.Fatal("PrevState should not be nil")
 	}
-	if got.PrevState.NextReviewAt != nil {
-		t.Errorf("PrevState.NextReviewAt should be nil, got %v", got.PrevState.NextReviewAt)
+	if got.PrevState.LastReview != nil {
+		t.Errorf("PrevState.LastReview should be nil, got %v", got.PrevState.LastReview)
 	}
-	if got.PrevState.Status != domain.LearningStatusNew {
-		t.Errorf("PrevState.Status mismatch: got %s, want %s", got.PrevState.Status, domain.LearningStatusNew)
+	if got.PrevState.State != domain.CardStateNew {
+		t.Errorf("PrevState.State mismatch: got %s, want %s", got.PrevState.State, domain.CardStateNew)
 	}
-	if got.PrevState.EaseFactor != 2.5 {
-		t.Errorf("PrevState.EaseFactor mismatch: got %f, want 2.5", got.PrevState.EaseFactor)
+	if got.PrevState.Stability != 0 {
+		t.Errorf("PrevState.Stability mismatch: got %f, want 0", got.PrevState.Stability)
+	}
+}
+
+// ---------------------------------------------------------------------------
+// JSONB key dependency guard (Task 9)
+// ---------------------------------------------------------------------------
+
+// TestRepo_CountNewToday_MatchesJSONBKey verifies that CountNewToday correctly
+// matches review logs where prev_state.state = 'NEW'. This guards the JSONB key
+// dependency between countNewTodaySQL and cardSnapshotJSON.State's json tag.
+func TestRepo_CountNewToday_MatchesJSONBKey(t *testing.T) {
+	t.Parallel()
+	repo, pool := newRepo(t)
+	ctx := context.Background()
+
+	user, card := seedCard(t, pool)
+
+	// Create a review log with PrevState.State = "NEW"
+	rl := buildReviewLog(card.ID, domain.ReviewGradeGood, &domain.CardSnapshot{
+		State: domain.CardStateNew,
+		Due:   time.Now().UTC(),
+	}, nil)
+	_, err := repo.Create(ctx, &rl)
+	if err != nil {
+		t.Fatalf("Create: %v", err)
+	}
+
+	dayStart := time.Now().Add(-24 * time.Hour)
+	count, err := repo.CountNewToday(ctx, user.ID, dayStart)
+	if err != nil {
+		t.Fatalf("CountNewToday: %v", err)
+	}
+	if count != 1 {
+		t.Errorf("CountNewToday: got %d, want 1 (should find review where prev_state.state = 'NEW')", count)
 	}
 }
 

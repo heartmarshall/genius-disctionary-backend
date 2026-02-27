@@ -65,6 +65,8 @@ ORDER BY rl.card_id, rl.reviewed_at DESC`
 
 const countByCardIDSQL = `SELECT count(*) FROM review_logs WHERE card_id = $1`
 
+// countNewTodaySQL depends on the JSON key "state" in cardSnapshotJSON.
+// If you rename cardSnapshotJSON.State's json tag, update this query too.
 const countNewTodaySQL = `
 SELECT count(*) FROM review_logs rl
 JOIN cards c ON rl.card_id = c.id
