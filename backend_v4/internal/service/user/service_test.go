@@ -760,3 +760,239 @@ func TestBuildSettingsChanges(t *testing.T) {
 		})
 	}
 }
+
+// ---------------------------------------------------------------------------
+// SetUserRole tests
+// ---------------------------------------------------------------------------
+
+func TestService_SetUserRole_Success(t *testing.T) {
+	t.Parallel()
+
+	callerID := uuid.New()
+	targetID := uuid.New()
+	ctx := ctxutil.WithUserRole(ctxutil.WithUserID(context.Background(), callerID), "admin")
+
+	expected := domain.User{
+		ID:    targetID,
+		Email: "target@example.com",
+		Name:  "Target User",
+		Role:  domain.UserRoleAdmin,
+	}
+
+	users := &userRepoMock{
+		UpdateRoleFunc: func(ctx context.Context, id uuid.UUID, role string) (*domain.User, error) {
+			assert.Equal(t, targetID, id)
+			assert.Equal(t, "admin", role)
+			return &expected, nil
+		},
+	}
+
+	svc := newTestService(users, nil, nil, nil)
+	user, err := svc.SetUserRole(ctx, targetID, domain.UserRoleAdmin)
+
+	require.NoError(t, err)
+	assert.Equal(t, &expected, user)
+	assert.Len(t, users.UpdateRoleCalls(), 1)
+}
+
+func TestService_SetUserRole_NotAdmin(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	ctx := ctxutil.WithUserRole(ctxutil.WithUserID(context.Background(), userID), "user")
+
+	svc := newTestService(nil, nil, nil, nil)
+	user, err := svc.SetUserRole(ctx, uuid.New(), domain.UserRoleAdmin)
+
+	require.ErrorIs(t, err, domain.ErrForbidden)
+	assert.Nil(t, user)
+}
+
+func TestService_SetUserRole_SelfDemotion(t *testing.T) {
+	t.Parallel()
+
+	callerID := uuid.New()
+	ctx := ctxutil.WithUserRole(ctxutil.WithUserID(context.Background(), callerID), "admin")
+
+	svc := newTestService(nil, nil, nil, nil)
+	user, err := svc.SetUserRole(ctx, callerID, domain.UserRoleUser)
+
+	require.ErrorIs(t, err, domain.ErrValidation)
+	assert.Nil(t, user)
+}
+
+func TestService_SetUserRole_InvalidRole(t *testing.T) {
+	t.Parallel()
+
+	callerID := uuid.New()
+	ctx := ctxutil.WithUserRole(ctxutil.WithUserID(context.Background(), callerID), "admin")
+
+	svc := newTestService(nil, nil, nil, nil)
+	user, err := svc.SetUserRole(ctx, uuid.New(), domain.UserRole("superadmin"))
+
+	require.ErrorIs(t, err, domain.ErrValidation)
+	assert.Nil(t, user)
+}
+
+func TestService_SetUserRole_RepoError(t *testing.T) {
+	t.Parallel()
+
+	callerID := uuid.New()
+	ctx := ctxutil.WithUserRole(ctxutil.WithUserID(context.Background(), callerID), "admin")
+
+	repoErr := errors.New("db connection lost")
+
+	users := &userRepoMock{
+		UpdateRoleFunc: func(ctx context.Context, id uuid.UUID, role string) (*domain.User, error) {
+			return nil, repoErr
+		},
+	}
+
+	svc := newTestService(users, nil, nil, nil)
+	user, err := svc.SetUserRole(ctx, uuid.New(), domain.UserRoleAdmin)
+
+	require.Error(t, err)
+	require.ErrorIs(t, err, repoErr)
+	assert.Nil(t, user)
+}
+
+func TestService_SetUserRole_TargetNotFound(t *testing.T) {
+	t.Parallel()
+
+	callerID := uuid.New()
+	ctx := ctxutil.WithUserRole(ctxutil.WithUserID(context.Background(), callerID), "admin")
+
+	users := &userRepoMock{
+		UpdateRoleFunc: func(ctx context.Context, id uuid.UUID, role string) (*domain.User, error) {
+			return nil, domain.ErrNotFound
+		},
+	}
+
+	svc := newTestService(users, nil, nil, nil)
+	user, err := svc.SetUserRole(ctx, uuid.New(), domain.UserRoleAdmin)
+
+	require.ErrorIs(t, err, domain.ErrNotFound)
+	assert.Nil(t, user)
+}
+
+// ---------------------------------------------------------------------------
+// ListUsers tests
+// ---------------------------------------------------------------------------
+
+func TestService_ListUsers_Success(t *testing.T) {
+	t.Parallel()
+
+	callerID := uuid.New()
+	ctx := ctxutil.WithUserRole(ctxutil.WithUserID(context.Background(), callerID), "admin")
+
+	expectedUsers := []domain.User{
+		{ID: uuid.New(), Email: "a@example.com", Name: "Alice", Role: domain.UserRoleUser},
+		{ID: uuid.New(), Email: "b@example.com", Name: "Bob", Role: domain.UserRoleAdmin},
+	}
+
+	users := &userRepoMock{
+		ListUsersFunc: func(ctx context.Context, limit int, offset int) ([]domain.User, error) {
+			assert.Equal(t, 10, limit)
+			assert.Equal(t, 5, offset)
+			return expectedUsers, nil
+		},
+		CountUsersFunc: func(ctx context.Context) (int, error) {
+			return 42, nil
+		},
+	}
+
+	svc := newTestService(users, nil, nil, nil)
+	result, total, err := svc.ListUsers(ctx, 10, 5)
+
+	require.NoError(t, err)
+	assert.Equal(t, expectedUsers, result)
+	assert.Equal(t, 42, total)
+	assert.Len(t, users.ListUsersCalls(), 1)
+	assert.Len(t, users.CountUsersCalls(), 1)
+}
+
+func TestService_ListUsers_NotAdmin(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	ctx := ctxutil.WithUserRole(ctxutil.WithUserID(context.Background(), userID), "user")
+
+	svc := newTestService(nil, nil, nil, nil)
+	result, total, err := svc.ListUsers(ctx, 10, 0)
+
+	require.ErrorIs(t, err, domain.ErrForbidden)
+	assert.Nil(t, result)
+	assert.Equal(t, 0, total)
+}
+
+func TestService_ListUsers_DefaultLimit(t *testing.T) {
+	t.Parallel()
+
+	callerID := uuid.New()
+	ctx := ctxutil.WithUserRole(ctxutil.WithUserID(context.Background(), callerID), "admin")
+
+	users := &userRepoMock{
+		ListUsersFunc: func(ctx context.Context, limit int, offset int) ([]domain.User, error) {
+			assert.Equal(t, 50, limit, "limit=0 should default to 50")
+			return nil, nil
+		},
+		CountUsersFunc: func(ctx context.Context) (int, error) {
+			return 0, nil
+		},
+	}
+
+	svc := newTestService(users, nil, nil, nil)
+	_, _, err := svc.ListUsers(ctx, 0, 0)
+
+	require.NoError(t, err)
+	assert.Len(t, users.ListUsersCalls(), 1)
+}
+
+func TestService_ListUsers_RepoError(t *testing.T) {
+	t.Parallel()
+
+	callerID := uuid.New()
+	ctx := ctxutil.WithUserRole(ctxutil.WithUserID(context.Background(), callerID), "admin")
+
+	repoErr := errors.New("db connection lost")
+
+	users := &userRepoMock{
+		ListUsersFunc: func(ctx context.Context, limit int, offset int) ([]domain.User, error) {
+			return nil, repoErr
+		},
+	}
+
+	svc := newTestService(users, nil, nil, nil)
+	result, total, err := svc.ListUsers(ctx, 10, 0)
+
+	require.Error(t, err)
+	require.ErrorIs(t, err, repoErr)
+	assert.Nil(t, result)
+	assert.Equal(t, 0, total)
+}
+
+func TestService_ListUsers_CountError(t *testing.T) {
+	t.Parallel()
+
+	callerID := uuid.New()
+	ctx := ctxutil.WithUserRole(ctxutil.WithUserID(context.Background(), callerID), "admin")
+
+	countErr := errors.New("count query failed")
+
+	users := &userRepoMock{
+		ListUsersFunc: func(ctx context.Context, limit int, offset int) ([]domain.User, error) {
+			return []domain.User{}, nil
+		},
+		CountUsersFunc: func(ctx context.Context) (int, error) {
+			return 0, countErr
+		},
+	}
+
+	svc := newTestService(users, nil, nil, nil)
+	result, total, err := svc.ListUsers(ctx, 10, 0)
+
+	require.Error(t, err)
+	require.ErrorIs(t, err, countErr)
+	assert.Nil(t, result)
+	assert.Equal(t, 0, total)
+}
