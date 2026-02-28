@@ -21,9 +21,14 @@ import NotFoundPage from '@/pages/NotFoundPage'
 
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
 
+function GoogleOAuthWrapper({ children }: { children: React.ReactNode }) {
+  if (!googleClientId) return <>{children}</>
+  return <GoogleOAuthProvider clientId={googleClientId}>{children}</GoogleOAuthProvider>
+}
+
 function App() {
   return (
-    <GoogleOAuthProvider clientId={googleClientId}>
+    <GoogleOAuthWrapper>
     <ApolloProvider>
       <AuthProvider>
         <BrowserRouter>
@@ -65,7 +70,7 @@ function App() {
         <Toaster position="bottom-right" />
       </AuthProvider>
     </ApolloProvider>
-    </GoogleOAuthProvider>
+    </GoogleOAuthWrapper>
   )
 }
 

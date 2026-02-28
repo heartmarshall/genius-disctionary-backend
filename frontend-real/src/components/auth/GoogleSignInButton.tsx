@@ -7,6 +7,8 @@ import { loginOAuth, parseAuthError } from '@/lib/api/auth'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
+
 export function GoogleSignInButton() {
   const navigate = useNavigate()
   const location = useLocation()
@@ -43,6 +45,9 @@ export function GoogleSignInButton() {
       }
     },
   })
+
+  // Don't render if Google OAuth is not configured
+  if (!googleClientId) return null
 
   return (
     <Button
