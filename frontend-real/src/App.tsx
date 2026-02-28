@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 import { ApolloProvider } from '@/providers/ApolloProvider'
 import { AuthProvider } from '@/providers/AuthProvider'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
@@ -17,8 +18,11 @@ import SettingsPage from '@/pages/SettingsPage'
 import AdminPage from '@/pages/AdminPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
+
 function App() {
   return (
+    <GoogleOAuthProvider clientId={googleClientId}>
     <ApolloProvider>
       <AuthProvider>
         <BrowserRouter>
@@ -54,6 +58,7 @@ function App() {
         <Toaster position="bottom-right" />
       </AuthProvider>
     </ApolloProvider>
+    </GoogleOAuthProvider>
   )
 }
 

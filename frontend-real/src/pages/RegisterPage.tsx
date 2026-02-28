@@ -8,6 +8,8 @@ import { parseAuthError } from '@/lib/api/auth'
 import { registerResolver, type RegisterFormValues } from '@/lib/validation/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton'
+import { OAuthDivider } from '@/components/auth/OAuthDivider'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
 
 function RegisterPage() {
@@ -159,6 +161,9 @@ function RegisterPage() {
           )}
         </Button>
       </form>
+
+      <OAuthDivider />
+      <GoogleSignInButton />
 
       <p className="text-center text-sm text-text-secondary mt-lg">
         Already have an account?{' '}
