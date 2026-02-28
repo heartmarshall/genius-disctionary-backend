@@ -171,15 +171,19 @@ func (s *Service) BatchCreateCards(ctx context.Context, input BatchCreateCardsIn
 		return result, nil
 	}
 
-	// Create cards for valid entries
-	for _, entryID := range toCreate {
-		err := s.tx.RunInTx(ctx, func(txCtx context.Context) error {
+	// Create all cards in a single transaction
+	err = s.tx.RunInTx(ctx, func(txCtx context.Context) error {
+		for _, entryID := range toCreate {
 			createdCard, createErr := s.cards.Create(txCtx, userID, entryID)
 			if createErr != nil {
-				return fmt.Errorf("create card: %w", createErr)
+				result.Errors = append(result.Errors, BatchCreateError{
+					EntryID: entryID,
+					Reason:  createErr.Error(),
+				})
+				continue
 			}
+			result.Created++
 
-			// Audit
 			auditErr := s.audit.Log(txCtx, domain.AuditRecord{
 				UserID:     userID,
 				EntityType: domain.EntityTypeCard,
@@ -192,18 +196,11 @@ func (s *Service) BatchCreateCards(ctx context.Context, input BatchCreateCardsIn
 			if auditErr != nil {
 				return fmt.Errorf("audit log: %w", auditErr)
 			}
-
-			return nil
-		})
-
-		if err != nil {
-			result.Errors = append(result.Errors, BatchCreateError{
-				EntryID: entryID,
-				Reason:  err.Error(),
-			})
-		} else {
-			result.Created++
 		}
+		return nil
+	})
+	if err != nil {
+		return result, fmt.Errorf("batch create cards: %w", err)
 	}
 
 	s.log.InfoContext(ctx, "batch card creation completed",
