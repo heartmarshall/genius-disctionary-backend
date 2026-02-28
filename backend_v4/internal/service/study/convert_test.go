@@ -301,3 +301,53 @@ func TestAggregateSessionResult_Empty(t *testing.T) {
 		t.Errorf("AccuracyRate: got %f, want 0", result.AccuracyRate)
 	}
 }
+
+func TestFilterBatchEntries(t *testing.T) {
+	t.Parallel()
+
+	id1 := uuid.New() // exists, no card, has senses → create
+	id2 := uuid.New() // exists, has card → skip existing
+	id3 := uuid.New() // doesn't exist → error
+	id4 := uuid.New() // exists, no card, no senses → skip no senses
+	id5 := uuid.New() // exists, no card, has senses → create
+
+	entryIDs := []uuid.UUID{id1, id2, id3, id4, id5}
+	existMap := map[uuid.UUID]bool{id1: true, id2: true, id4: true, id5: true}
+	cardExistsMap := map[uuid.UUID]bool{id2: true}
+	senseCounts := map[uuid.UUID]int{id1: 2, id4: 0, id5: 1}
+
+	toCreate, skippedExisting, skippedNoSenses, errs := filterBatchEntries(entryIDs, existMap, cardExistsMap, senseCounts)
+
+	if len(toCreate) != 2 {
+		t.Fatalf("toCreate: got %d, want 2", len(toCreate))
+	}
+	if toCreate[0] != id1 || toCreate[1] != id5 {
+		t.Errorf("toCreate: got %v, want [%v, %v]", toCreate, id1, id5)
+	}
+	if skippedExisting != 1 {
+		t.Errorf("skippedExisting: got %d, want 1", skippedExisting)
+	}
+	if skippedNoSenses != 1 {
+		t.Errorf("skippedNoSenses: got %d, want 1", skippedNoSenses)
+	}
+	if len(errs) != 1 {
+		t.Fatalf("errors: got %d, want 1", len(errs))
+	}
+	if errs[0].EntryID != id3 {
+		t.Errorf("error entry: got %v, want %v", errs[0].EntryID, id3)
+	}
+}
+
+func TestFilterBatchEntries_AllNotFound(t *testing.T) {
+	t.Parallel()
+
+	ids := []uuid.UUID{uuid.New(), uuid.New()}
+	toCreate, _, _, errs := filterBatchEntries(ids, map[uuid.UUID]bool{}, nil, nil)
+
+	if len(toCreate) != 0 {
+		t.Errorf("toCreate: got %d, want 0", len(toCreate))
+	}
+	if len(errs) != 2 {
+		t.Errorf("errors: got %d, want 2", len(errs))
+	}
+}

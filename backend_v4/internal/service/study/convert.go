@@ -118,6 +118,46 @@ func aggregateSessionResult(logs []*domain.ReviewLog, startedAt, now time.Time) 
 	}
 }
 
+// filterBatchEntries categorizes entry IDs for batch card creation.
+// Returns entries ready for creation, skip counts, and errors for not-found entries.
+func filterBatchEntries(
+	entryIDs []uuid.UUID,
+	existMap map[uuid.UUID]bool,
+	cardExistsMap map[uuid.UUID]bool,
+	senseCounts map[uuid.UUID]int,
+) (toCreate []uuid.UUID, skippedExisting int, skippedNoSenses int, errors []BatchCreateError) {
+	// Phase 1: filter to existing entries
+	var existing []uuid.UUID
+	for _, id := range entryIDs {
+		if exists, ok := existMap[id]; !ok || !exists {
+			errors = append(errors, BatchCreateError{EntryID: id, Reason: "entry not found"})
+		} else {
+			existing = append(existing, id)
+		}
+	}
+
+	// Phase 2: filter out entries that already have cards
+	var withoutCards []uuid.UUID
+	for _, id := range existing {
+		if has, ok := cardExistsMap[id]; ok && has {
+			skippedExisting++
+		} else {
+			withoutCards = append(withoutCards, id)
+		}
+	}
+
+	// Phase 3: filter out entries without senses
+	for _, id := range withoutCards {
+		if cnt, ok := senseCounts[id]; !ok || cnt == 0 {
+			skippedNoSenses++
+		} else {
+			toCreate = append(toCreate, id)
+		}
+	}
+
+	return toCreate, skippedExisting, skippedNoSenses, errors
+}
+
 // buildFSRSParams merges global SRS config with per-user settings into FSRS parameters.
 func (s *Service) buildFSRSParams(settings *domain.UserSettings) fsrs.Parameters {
 	return fsrs.Parameters{

@@ -151,62 +151,29 @@ func (s *Service) BatchCreateCards(ctx context.Context, input BatchCreateCardsIn
 		return result, fmt.Errorf("check entries exist: %w", err)
 	}
 
-	// Filter to existing entries only
-	existingEntryIDs := []uuid.UUID{}
-	for _, entryID := range input.EntryIDs {
-		if exists, ok := existMap[entryID]; !ok || !exists {
-			result.Errors = append(result.Errors, BatchCreateError{
-				EntryID: entryID,
-				Reason:  "entry not found",
-			})
-		} else {
-			existingEntryIDs = append(existingEntryIDs, entryID)
-		}
-	}
-
-	if len(existingEntryIDs) == 0 {
-		// All entries not found - return result with errors
-		return result, nil
-	}
-
 	// Check which entries already have cards
-	cardExistsMap, err := s.cards.ExistsByEntryIDs(ctx, userID, existingEntryIDs)
+	cardExistsMap, err := s.cards.ExistsByEntryIDs(ctx, userID, input.EntryIDs)
 	if err != nil {
 		return result, fmt.Errorf("check cards exist: %w", err)
 	}
 
-	// Filter to entries without cards
-	entriesToCreate := []uuid.UUID{}
-	for _, entryID := range existingEntryIDs {
-		if exists, ok := cardExistsMap[entryID]; ok && exists {
-			result.SkippedExisting++
-		} else {
-			entriesToCreate = append(entriesToCreate, entryID)
-		}
-	}
-
-	if len(entriesToCreate) == 0 {
-		// All entries already have cards
-		return result, nil
-	}
-
-	// Batch count senses for all entries at once (eliminates N+1)
-	senseCounts, err := s.senses.CountByEntryIDs(ctx, entriesToCreate)
+	// Batch count senses (eliminates N+1)
+	senseCounts, err := s.senses.CountByEntryIDs(ctx, input.EntryIDs)
 	if err != nil {
 		return result, fmt.Errorf("count senses batch: %w", err)
 	}
 
-	finalEntriesToCreate := []uuid.UUID{}
-	for _, entryID := range entriesToCreate {
-		if cnt, ok := senseCounts[entryID]; !ok || cnt == 0 {
-			result.SkippedNoSenses++
-		} else {
-			finalEntriesToCreate = append(finalEntriesToCreate, entryID)
-		}
+	var toCreate []uuid.UUID
+	toCreate, result.SkippedExisting, result.SkippedNoSenses, result.Errors = filterBatchEntries(
+		input.EntryIDs, existMap, cardExistsMap, senseCounts,
+	)
+
+	if len(toCreate) == 0 {
+		return result, nil
 	}
 
 	// Create cards for valid entries
-	for _, entryID := range finalEntriesToCreate {
+	for _, entryID := range toCreate {
 		err := s.tx.RunInTx(ctx, func(txCtx context.Context) error {
 			createdCard, createErr := s.cards.Create(txCtx, userID, entryID)
 			if createErr != nil {
