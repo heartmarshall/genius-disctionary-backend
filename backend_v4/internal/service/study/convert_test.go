@@ -240,3 +240,64 @@ func TestBuildFSRSParams(t *testing.T) {
 		t.Errorf("LearningSteps: got %d, want 2", len(params.LearningSteps))
 	}
 }
+
+func TestAggregateSessionResult(t *testing.T) {
+	t.Parallel()
+
+	startedAt := time.Date(2026, 2, 28, 10, 0, 0, 0, time.UTC)
+	now := time.Date(2026, 2, 28, 10, 15, 0, 0, time.UTC) // 15 min session
+
+	logs := []*domain.ReviewLog{
+		{Grade: domain.ReviewGradeGood, PrevState: &domain.CardSnapshot{State: domain.CardStateNew}},
+		{Grade: domain.ReviewGradeAgain, PrevState: &domain.CardSnapshot{State: domain.CardStateReview}},
+		{Grade: domain.ReviewGradeEasy, PrevState: &domain.CardSnapshot{State: domain.CardStateNew}},
+		{Grade: domain.ReviewGradeHard, PrevState: &domain.CardSnapshot{State: domain.CardStateLearning}},
+		{Grade: domain.ReviewGradeGood, PrevState: &domain.CardSnapshot{State: domain.CardStateReview}},
+	}
+
+	result := aggregateSessionResult(logs, startedAt, now)
+
+	if result.TotalReviewed != 5 {
+		t.Errorf("TotalReviewed: got %d, want 5", result.TotalReviewed)
+	}
+	if result.NewReviewed != 2 {
+		t.Errorf("NewReviewed: got %d, want 2", result.NewReviewed)
+	}
+	if result.DueReviewed != 3 {
+		t.Errorf("DueReviewed: got %d, want 3", result.DueReviewed)
+	}
+	if result.GradeCounts.Again != 1 {
+		t.Errorf("Again: got %d, want 1", result.GradeCounts.Again)
+	}
+	if result.GradeCounts.Hard != 1 {
+		t.Errorf("Hard: got %d, want 1", result.GradeCounts.Hard)
+	}
+	if result.GradeCounts.Good != 2 {
+		t.Errorf("Good: got %d, want 2", result.GradeCounts.Good)
+	}
+	if result.GradeCounts.Easy != 1 {
+		t.Errorf("Easy: got %d, want 1", result.GradeCounts.Easy)
+	}
+	// AccuracyRate = (2 Good + 1 Easy) / 5 * 100 = 60%
+	if result.AccuracyRate != 60.0 {
+		t.Errorf("AccuracyRate: got %f, want 60.0", result.AccuracyRate)
+	}
+	// DurationMs = 15 minutes = 900000ms
+	if result.DurationMs != 900000 {
+		t.Errorf("DurationMs: got %d, want 900000", result.DurationMs)
+	}
+}
+
+func TestAggregateSessionResult_Empty(t *testing.T) {
+	t.Parallel()
+
+	now := time.Now()
+	result := aggregateSessionResult(nil, now.Add(-10*time.Minute), now)
+
+	if result.TotalReviewed != 0 {
+		t.Errorf("TotalReviewed: got %d, want 0", result.TotalReviewed)
+	}
+	if result.AccuracyRate != 0 {
+		t.Errorf("AccuracyRate: got %f, want 0", result.AccuracyRate)
+	}
+}

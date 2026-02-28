@@ -81,6 +81,43 @@ func (s *Service) userID(ctx context.Context) (uuid.UUID, error) {
 	return uid, nil
 }
 
+// aggregateSessionResult computes session statistics from review logs.
+func aggregateSessionResult(logs []*domain.ReviewLog, startedAt, now time.Time) domain.SessionResult {
+	totalReviewed := len(logs)
+	newReviewed := 0
+	gradeCounts := domain.GradeCounts{}
+
+	for _, log := range logs {
+		if log.PrevState != nil && log.PrevState.State == domain.CardStateNew {
+			newReviewed++
+		}
+		switch log.Grade {
+		case domain.ReviewGradeAgain:
+			gradeCounts.Again++
+		case domain.ReviewGradeHard:
+			gradeCounts.Hard++
+		case domain.ReviewGradeGood:
+			gradeCounts.Good++
+		case domain.ReviewGradeEasy:
+			gradeCounts.Easy++
+		}
+	}
+
+	accuracyRate := 0.0
+	if totalReviewed > 0 {
+		accuracyRate = float64(gradeCounts.Good+gradeCounts.Easy) / float64(totalReviewed) * 100
+	}
+
+	return domain.SessionResult{
+		TotalReviewed: totalReviewed,
+		NewReviewed:   newReviewed,
+		DueReviewed:   totalReviewed - newReviewed,
+		GradeCounts:   gradeCounts,
+		DurationMs:    now.Sub(startedAt).Milliseconds(),
+		AccuracyRate:  accuracyRate,
+	}
+}
+
 // buildFSRSParams merges global SRS config with per-user settings into FSRS parameters.
 func (s *Service) buildFSRSParams(settings *domain.UserSettings) fsrs.Parameters {
 	return fsrs.Parameters{

@@ -132,42 +132,7 @@ func (s *Service) finishSession(ctx context.Context, userID uuid.UUID, session *
 			return fmt.Errorf("get review logs: %w", logErr)
 		}
 
-		totalReviewed := len(logs)
-		newReviewed := 0
-		gradeCounts := domain.GradeCounts{}
-
-		for _, log := range logs {
-			if log.PrevState != nil && log.PrevState.State == domain.CardStateNew {
-				newReviewed++
-			}
-			switch log.Grade {
-			case domain.ReviewGradeAgain:
-				gradeCounts.Again++
-			case domain.ReviewGradeHard:
-				gradeCounts.Hard++
-			case domain.ReviewGradeGood:
-				gradeCounts.Good++
-			case domain.ReviewGradeEasy:
-				gradeCounts.Easy++
-			}
-		}
-
-		dueReviewed := totalReviewed - newReviewed
-		durationMs := now.Sub(session.StartedAt).Milliseconds()
-
-		accuracyRate := 0.0
-		if totalReviewed > 0 {
-			accuracyRate = float64(gradeCounts.Good+gradeCounts.Easy) / float64(totalReviewed) * 100
-		}
-
-		result := domain.SessionResult{
-			TotalReviewed: totalReviewed,
-			NewReviewed:   newReviewed,
-			DueReviewed:   dueReviewed,
-			GradeCounts:   gradeCounts,
-			DurationMs:    durationMs,
-			AccuracyRate:  accuracyRate,
-		}
+		result := aggregateSessionResult(logs, session.StartedAt, now)
 
 		var finErr error
 		finishedSession, finErr = s.sessions.Finish(txCtx, userID, session.ID, result)
