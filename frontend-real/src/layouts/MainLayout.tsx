@@ -1,5 +1,24 @@
-import { Outlet, NavLink } from 'react-router'
-import { LayoutDashboard, BookOpen, GraduationCap, FolderOpen, Inbox, Settings } from 'lucide-react'
+import { Outlet, NavLink, useNavigate } from 'react-router'
+import { useAuth } from '@/providers/AuthProvider'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Button } from '@/components/ui/button'
+import {
+  LayoutDashboard,
+  BookOpen,
+  GraduationCap,
+  FolderOpen,
+  Inbox,
+  Settings,
+  LogOut,
+  User,
+} from 'lucide-react'
 
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -11,6 +30,14 @@ const navItems = [
 ]
 
 function MainLayout() {
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
+
+  const handleLogout = async () => {
+    await logout()
+    navigate('/login', { replace: true })
+  }
+
   return (
     <div className="min-h-screen bg-bg-page">
       {/* Desktop top navigation */}
@@ -19,7 +46,7 @@ function MainLayout() {
           <NavLink to="/dashboard" className="font-heading text-xl text-accent px-lg py-sm">
             MyEnglish
           </NavLink>
-          <div className="flex">
+          <div className="flex flex-1">
             {navItems.map(({ to, label, icon: Icon }) => (
               <NavLink
                 key={to}
@@ -36,6 +63,31 @@ function MainLayout() {
                 {label}
               </NavLink>
             ))}
+          </div>
+
+          {/* User dropdown */}
+          <div className="px-md">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="gap-xs text-text-secondary">
+                  <User className="size-4" />
+                  <span className="max-w-[120px] truncate text-xs">
+                    {user?.username || user?.email}
+                  </span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuLabel className="font-normal">
+                  <div className="text-sm font-medium">{user?.name || user?.username}</div>
+                  <div className="text-xs text-muted-foreground truncate">{user?.email}</div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="size-4" />
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </nav>

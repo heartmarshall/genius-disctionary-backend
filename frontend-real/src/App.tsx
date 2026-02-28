@@ -1,7 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 import { ApolloProvider } from '@/providers/ApolloProvider'
 import { AuthProvider } from '@/providers/AuthProvider'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
+import { GuestRoute } from '@/components/GuestRoute'
 import { Toaster } from '@/components/ui/sonner'
 import AuthLayout from '@/layouts/AuthLayout'
 import MainLayout from '@/layouts/MainLayout'
@@ -17,14 +19,23 @@ import SettingsPage from '@/pages/SettingsPage'
 import AdminPage from '@/pages/AdminPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
+
 function App() {
   return (
+    <GoogleOAuthProvider clientId={googleClientId}>
     <ApolloProvider>
       <AuthProvider>
         <BrowserRouter>
           <Routes>
-            {/* Auth routes — no protection */}
-            <Route element={<AuthLayout />}>
+            {/* Auth routes — redirect to dashboard if already logged in */}
+            <Route
+              element={
+                <GuestRoute>
+                  <AuthLayout />
+                </GuestRoute>
+              }
+            >
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
             </Route>
@@ -54,6 +65,7 @@ function App() {
         <Toaster position="bottom-right" />
       </AuthProvider>
     </ApolloProvider>
+    </GoogleOAuthProvider>
   )
 }
 

@@ -4,9 +4,11 @@ import {
   HttpLink,
   ApolloLink,
   Observable,
+  ServerError,
+  CombinedGraphQLErrors,
   type FetchResult,
 } from '@apollo/client/core'
-import { onError } from '@apollo/client/link/error'
+import { ErrorLink } from '@apollo/client/link/error'
 import {
   getAccessToken,
   getRefreshToken,
@@ -32,6 +34,8 @@ const authLink = new ApolloLink((operation, forward) => {
   return forward(operation)
 })
 
+// ── Token refresh with request queue ──
+
 let isRefreshing = false
 let pendingRequests: Array<() => void> = []
 
@@ -40,13 +44,18 @@ function resolvePendingRequests() {
   pendingRequests = []
 }
 
-const errorLink = onError(({ error, operation, forward }) => {
-  // Check for auth errors (401 / UNAUTHENTICATED)
-  const errorMessage = String(error)
-  const isAuthError = errorMessage.includes('401') || errorMessage.includes('UNAUTHENTICATED')
+function isAuthError(error: unknown): boolean {
+  if (ServerError.is(error) && error.statusCode === 401) return true
+  if (CombinedGraphQLErrors.is(error)) {
+    return error.errors.some((e) => e.extensions?.code === 'UNAUTHENTICATED')
+  }
+  return false
+}
 
-  if (!isAuthError) return
+const errorLink = new ErrorLink(({ error, operation, forward }) => {
+  if (!isAuthError(error)) return
 
+  // Queue concurrent requests while refresh is in progress
   if (isRefreshing) {
     return new Observable<FetchResult>((observer) => {
       pendingRequests.push(() => {
@@ -60,6 +69,7 @@ const errorLink = onError(({ error, operation, forward }) => {
   return new Observable<FetchResult>((observer) => {
     const refreshToken = getRefreshToken()
     if (!refreshToken) {
+      isRefreshing = false
       clearTokens()
       window.location.href = '/login'
       observer.error(new Error('No refresh token'))
@@ -80,6 +90,7 @@ const errorLink = onError(({ error, operation, forward }) => {
         setRefreshToken(data.refreshToken)
         isRefreshing = false
         resolvePendingRequests()
+        // Retry original operation with new token
         forward(operation).subscribe(observer)
       })
       .catch(() => {
