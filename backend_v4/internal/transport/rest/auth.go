@@ -176,7 +176,19 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 func (h *AuthHandler) handleError(w http.ResponseWriter, r *http.Request, err error) {
 	switch {
 	case errors.Is(err, domain.ErrValidation):
-		writeError(w, http.StatusBadRequest, err.Error())
+		var ve *domain.ValidationError
+		if errors.As(err, &ve) {
+			writeJSON(w, http.StatusBadRequest, validationErrorResponse{
+				Error:  "validation error",
+				Code:   "VALIDATION",
+				Fields: ve.Errors,
+			})
+		} else {
+			writeJSON(w, http.StatusBadRequest, validationErrorResponse{
+				Error: err.Error(),
+				Code:  "VALIDATION",
+			})
+		}
 	case errors.Is(err, domain.ErrUnauthorized):
 		writeError(w, http.StatusUnauthorized, "unauthorized")
 	case errors.Is(err, domain.ErrAlreadyExists):
@@ -185,6 +197,12 @@ func (h *AuthHandler) handleError(w http.ResponseWriter, r *http.Request, err er
 		h.log.ErrorContext(r.Context(), "internal error", slog.String("error", err.Error()))
 		writeError(w, http.StatusInternalServerError, "internal server error")
 	}
+}
+
+type validationErrorResponse struct {
+	Error  string              `json:"error"`
+	Code   string              `json:"code"`
+	Fields []domain.FieldError `json:"fields,omitempty"`
 }
 
 func writeError(w http.ResponseWriter, status int, message string) {

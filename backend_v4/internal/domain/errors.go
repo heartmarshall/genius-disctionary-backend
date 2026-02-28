@@ -17,8 +17,8 @@ var (
 
 // FieldError describes a validation error for a specific field.
 type FieldError struct {
-	Field   string
-	Message string
+	Field   string `json:"field"`
+	Message string `json:"message"`
 }
 
 // ValidationError contains a list of field-level validation errors.
