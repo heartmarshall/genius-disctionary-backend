@@ -118,6 +118,22 @@ func aggregateSessionResult(logs []*domain.ReviewLog, startedAt, now time.Time) 
 	}
 }
 
+// snapshotToUpdateParams converts a CardSnapshot back to SRSUpdateParams for restoration.
+func snapshotToUpdateParams(ps *domain.CardSnapshot) domain.SRSUpdateParams {
+	return domain.SRSUpdateParams{
+		State:         ps.State,
+		Step:          ps.Step,
+		Stability:     ps.Stability,
+		Difficulty:    ps.Difficulty,
+		Due:           ps.Due,
+		LastReview:    ps.LastReview,
+		Reps:          ps.Reps,
+		Lapses:        ps.Lapses,
+		ScheduledDays: ps.ScheduledDays,
+		ElapsedDays:   ps.ElapsedDays,
+	}
+}
+
 // filterBatchEntries categorizes entry IDs for batch card creation.
 // Returns entries ready for creation, skip counts, and errors for not-found entries.
 func filterBatchEntries(

@@ -8,14 +8,13 @@ import (
 	"time"
 
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
-	"github.com/heartmarshall/myenglish-backend/pkg/ctxutil"
 )
 
 // UndoReview reverts the last review of a card within the undo window.
 func (s *Service) UndoReview(ctx context.Context, input UndoReviewInput) (*domain.Card, error) {
-	userID, ok := ctxutil.UserIDFromCtx(ctx)
-	if !ok {
-		return nil, domain.ErrUnauthorized
+	userID, err := s.userID(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	if err := input.Validate(); err != nil {
@@ -28,7 +27,7 @@ func (s *Service) UndoReview(ctx context.Context, input UndoReviewInput) (*domai
 	var restoredState domain.CardState
 
 	// Transaction: lock card, validate, restore, delete log, audit
-	err := s.tx.RunInTx(ctx, func(txCtx context.Context) error {
+	err = s.tx.RunInTx(ctx, func(txCtx context.Context) error {
 		// Lock card row
 		card, cardErr := s.cards.GetByIDForUpdate(txCtx, userID, input.CardID)
 		if cardErr != nil {
@@ -56,22 +55,10 @@ func (s *Service) UndoReview(ctx context.Context, input UndoReviewInput) (*domai
 		}
 
 		undoneGrade = lastLog.Grade
-		ps := lastLog.PrevState
-		restoredState = ps.State
+		restoredState = lastLog.PrevState.State
 
 		var restoreErr error
-		restoredCard, restoreErr = s.cards.UpdateSRS(txCtx, userID, card.ID, domain.SRSUpdateParams{
-			State:         ps.State,
-			Step:          ps.Step,
-			Stability:     ps.Stability,
-			Difficulty:    ps.Difficulty,
-			Due:           ps.Due,
-			LastReview:    ps.LastReview,
-			Reps:          ps.Reps,
-			Lapses:        ps.Lapses,
-			ScheduledDays: ps.ScheduledDays,
-			ElapsedDays:   ps.ElapsedDays,
-		})
+		restoredCard, restoreErr = s.cards.UpdateSRS(txCtx, userID, card.ID, snapshotToUpdateParams(lastLog.PrevState))
 		if restoreErr != nil {
 			return fmt.Errorf("restore card: %w", restoreErr)
 		}
@@ -91,7 +78,7 @@ func (s *Service) UndoReview(ctx context.Context, input UndoReviewInput) (*domai
 				"undo": map[string]any{"old": lastLog.Grade},
 				"state": map[string]any{
 					"old": card.State,
-					"new": ps.State,
+					"new": lastLog.PrevState.State,
 				},
 			},
 		})

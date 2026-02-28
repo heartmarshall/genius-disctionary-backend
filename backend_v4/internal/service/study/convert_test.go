@@ -351,3 +351,39 @@ func TestFilterBatchEntries_AllNotFound(t *testing.T) {
 		t.Errorf("errors: got %d, want 2", len(errs))
 	}
 }
+
+func TestSnapshotToUpdateParams(t *testing.T) {
+	t.Parallel()
+
+	now := time.Now()
+	lastReview := now.Add(-24 * time.Hour)
+
+	snap := &domain.CardSnapshot{
+		State: domain.CardStateLearning, Step: 1,
+		Stability: 3.0, Difficulty: 6.0,
+		Due: now, LastReview: &lastReview,
+		Reps: 5, Lapses: 1,
+		ScheduledDays: 2, ElapsedDays: 1,
+	}
+
+	params := snapshotToUpdateParams(snap)
+
+	if params.State != snap.State {
+		t.Errorf("State: got %v, want %v", params.State, snap.State)
+	}
+	if params.Stability != snap.Stability {
+		t.Errorf("Stability: got %f, want %f", params.Stability, snap.Stability)
+	}
+	if params.Due != snap.Due {
+		t.Errorf("Due: got %v, want %v", params.Due, snap.Due)
+	}
+	if params.LastReview == nil || !params.LastReview.Equal(*snap.LastReview) {
+		t.Errorf("LastReview mismatch")
+	}
+	if params.Step != snap.Step {
+		t.Errorf("Step: got %d, want %d", params.Step, snap.Step)
+	}
+	if params.Reps != snap.Reps {
+		t.Errorf("Reps: got %d, want %d", params.Reps, snap.Reps)
+	}
+}
