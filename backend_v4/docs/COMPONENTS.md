@@ -4,235 +4,209 @@
 
 ```mermaid
 graph LR
-    Auth[Auth Service]
-    User[User Service]
-    Dict[Dictionary Service]
-    Content[Content Service]
-    Study[Study Service]
-    Topic[Topic Service]
-    Inbox[Inbox Service]
-    RefCat[RefCatalog Service]
-
-    Dict -->|looks up catalog entries| RefCat
-    RefCat -->|fetches from| FreeDictAPI{{FreeDictionary}}
-    Dict -->|creates cards| Study
-    Content -->|edits entry children| Dict
-
-    subgraph Shared Repos
-        EntryRepo[Entry Repo]
-        AuditRepo[Audit Repo]
+    subgraph Transport
+        GQL[GraphQL Resolvers]
+        REST[REST Handlers]
     end
 
-    Dict --> EntryRepo
-    Content --> EntryRepo
-    Study --> EntryRepo
-    Topic --> EntryRepo
+    subgraph Services
+        AuthS[Auth]
+        DictS[Dictionary]
+        ContentS[Content]
+        StudyS[Study + FSRS]
+        TopicS[Topic]
+        InboxS[Inbox]
+        UserS[User]
+        RefCatS[RefCatalog]
+    end
 
-    Dict --> AuditRepo
-    Content --> AuditRepo
-    Study --> AuditRepo
-    Topic --> AuditRepo
-    User --> AuditRepo
+    subgraph Adapters
+        Repos[15+ Repos]
+        FD[FreeDictionary]
+        GOAuth[Google OAuth]
+        JWT[JWT Manager]
+    end
+
+    GQL --> DictS & ContentS & StudyS & TopicS & InboxS & UserS & RefCatS
+    REST --> AuthS
+
+    DictS -->|uses| RefCatS
+    AuthS --> JWT & GOAuth
+    AuthS & DictS & ContentS & StudyS & TopicS --> Repos
+    RefCatS --> FD & Repos
 ```
 
 ---
 
 ## Auth Service
 
-**Purpose**: Handles user registration, OAuth login (Google/Apple), password-based login, JWT issuance, token refresh, and logout. Sits behind REST endpoints, not GraphQL.
+**Purpose**: Handles user registration, password/OAuth login, JWT token issuance, refresh token rotation, and logout.
 
 **Key interfaces**:
-- `Login(ctx, LoginInput) → *AuthResult` -- OAuth code exchange, find-or-create user
-- `LoginWithPassword(ctx, LoginPasswordInput) → *AuthResult` -- email/password auth
-- `Register(ctx, RegisterInput) → *AuthResult` -- create user + password auth method
-- `Refresh(ctx, RefreshInput) → *AuthResult` -- validate refresh token, issue new pair
-- `Logout(ctx) → error` -- revoke current refresh token
-- `ValidateToken(ctx, token) → uuid.UUID` -- verify JWT, return userID (used by middleware)
+- `Register(ctx, RegisterInput) → *AuthResult` — create user + issue tokens
+- `Login(ctx, LoginInput) → *AuthResult` — OAuth login (Google)
+- `LoginWithPassword(ctx, LoginPasswordInput) → *AuthResult` — email/password login
+- `Refresh(ctx, RefreshInput) → *AuthResult` — rotate refresh token, issue new access token
+- `Logout(ctx) → error` — revoke all user refresh tokens
+- `ValidateToken(ctx, token) → (userID, role, error)` — used by auth middleware
 
-**Dependencies**: userRepo, tokenRepo, authMethodRepo, txManager, oauthVerifier, jwtManager
-
-**Important behaviors**:
-- Refresh tokens are stored as SHA-256 hashes, never raw
-- OAuth login auto-creates users on first sign-in and updates profile if provider data changes
-- A user can have multiple auth methods (e.g., Google + password)
-
-**Path**: `internal/service/auth/`
-
----
-
-## User Service
-
-**Purpose**: Read and update the authenticated user's profile (name, avatar) and SRS study preferences (cards/day, reviews/day, max interval, timezone).
-
-**Key interfaces**:
-- `GetProfile(ctx) → *User` -- returns current user
-- `UpdateProfile(ctx, UpdateProfileInput) → *User` -- name + optional avatar
-- `GetSettings(ctx) → *UserSettings` -- SRS preferences
-- `UpdateSettings(ctx, UpdateSettingsInput) → *UserSettings` -- partial update in tx + audit
+**Dependencies**: userRepo, settingsRepo, tokenRepo, authMethodRepo, txManager, oauthVerifier, jwtManager
 
 **Important behaviors**:
-- Settings updates are transactional and audit-logged (old/new diff); profile updates are not
-- All fields in `UpdateSettingsInput` are optional (nil = don't change)
-
-**Path**: `internal/service/user/` -- see `user/docs/readme.md` for detailed business rules
+- Password hashing uses bcrypt (cost 12). Refresh tokens stored as SHA-256 hashes — raw token only returned once.
+- OAuth login creates a new user if the OAuth identity is new, or links to an existing user by email match.
+- Token refresh revokes the old token before issuing a new pair (rotation prevents replay).
+- Registration creates user, auth method, and default SRS settings atomically in a transaction.
+- Field-level validation errors returned for email/username/password constraints.
 
 ---
 
 ## Dictionary Service
 
-**Purpose**: Core dictionary operations -- creating entries (from catalog or custom), searching, soft-deleting, restoring, bulk import/export. The largest service by method count (~30 operations).
+**Purpose**: Core entry CRUD — creating entries from the reference catalog or from scratch, searching/filtering/paginating the user's dictionary, soft-delete/restore, import/export, and notes.
 
 **Key interfaces**:
-- `SearchCatalog(ctx, query, limit)` -- search reference catalog (no auth required)
-- `PreviewRefEntry(ctx, text)` -- full catalog entry preview
-- `CreateEntryFromCatalog(ctx, input)` / `CreateEntryCustom(ctx, input)` -- two creation paths
-- `FindEntries(ctx, input)` -- filtered, paginated user dictionary (cursor + offset)
-- `GetEntry(ctx, id)` -- single entry with all nested data
-- `DeleteEntry` / `RestoreEntry` / `BatchDeleteEntries` -- soft delete lifecycle
-- `ImportEntries(ctx, input)` / `ExportEntries(ctx)` -- bulk operations
+- `CreateEntryFromCatalog(ctx, input) → *Entry` — link to reference catalog entry, optionally filter senses
+- `CreateCustomEntry(ctx, input) → *Entry` — fully user-defined entry with nested senses
+- `FindEntries(ctx, FindInput) → *FindResult` — filtered, sorted, cursor-paginated list
+- `GetEntry(ctx, entryID) → *Entry` — single entry with all nested data
+- `DeleteEntry(ctx, entryID)` / `RestoreEntry(ctx, entryID)` — soft delete + restore
+- `ImportEntries(ctx, ImportInput) → ImportResult` — bulk import with chunked transactions
+- `SearchCatalog(ctx, query, limit) → []RefEntry` — delegates to RefCatalog service
 
 **Dependencies**: entryRepo, senseRepo, translationRepo, exampleRepo, pronunciationRepo, imageRepo, cardRepo, auditRepo, txManager, refCatalogService
 
 **Important behaviors**:
-- Catalog entries are linked via `RefEntryID`; senses/translations/examples inherit from the catalog and can be overridden
-- Import deduplicates by normalized text and processes in configurable chunk sizes
-- Soft-deleted entries are hard-deleted by the `cmd/cleanup` cron job after a retention period
-
-**Path**: `internal/service/dictionary/`
+- Enforces `MaxEntriesPerUser` (default 10,000) with TOCTOU-safe check inside transaction.
+- Duplicate detection via `text_normalized` (lowercase, trimmed, single-spaced).
+- Soft delete sets `deleted_at` — entry excluded from queries but restorable. Hard deletion of old soft-deleted entries after configurable retention (default 30 days).
+- Import processes items in chunks (default 50) within separate transactions for partial success.
+- Optionally creates an SRS card on entry creation (`CreateCard` flag).
 
 ---
 
 ## Content Service
 
-**Purpose**: Fine-grained CRUD for entry children: senses, translations, examples, and user images. Separated from Dictionary service to keep single-responsibility.
+**Purpose**: Manages nested content editing — senses, translations, examples, and user images within an entry. Supports reordering by position.
 
 **Key interfaces**:
-- `AddSense / UpdateSense / DeleteSense / ReorderSenses`
-- `AddTranslation / UpdateTranslation / DeleteTranslation / ReorderTranslations`
-- `AddExample / UpdateExample / DeleteExample / ReorderExamples`
-- `AddUserImage / DeleteUserImage`
+- `AddSense/UpdateSense/DeleteSense/ReorderSenses` — definition + part of speech + CEFR level
+- `AddTranslation/UpdateTranslation/DeleteTranslation/ReorderTranslations` — per-sense translations
+- `AddExample/UpdateExample/DeleteExample/ReorderExamples` — per-sense usage examples
+- `AddUserImage/DeleteUserImage` — user-uploaded images per entry
+
+**Dependencies**: entryRepo, senseRepo, translationRepo, exampleRepo, imageRepo, auditRepo, txManager
 
 **Important behaviors**:
-- Enforces per-entity limits: 20 senses/entry, 20 translations/sense, 50 examples/sense, 20 user images/entry
-- CEFR levels validated against A1--C2 set
-- Reorder operations accept a full list of `{id, position}` pairs and update atomically
-- All mutations are ownership-checked (user must own the parent entry)
-
-**Path**: `internal/service/content/`
+- Enforces per-entity limits: 20 senses/entry, 20 translations/sense, 50 examples/sense, 20 images/entry.
+- Reordering uses position-based updates: client sends `[{id, position}]`, service updates all positions in a transaction.
+- All mutations verify entry ownership via `JOIN entries WHERE user_id = ?` — no cross-user access.
+- Audit logs capture before/after state for every mutation.
 
 ---
 
 ## Study Service
 
-**Purpose**: Spaced-repetition engine. Manages flashcard lifecycle (create/delete), the review queue, SRS calculations, study sessions, and the user dashboard.
+**Purpose**: FSRS-5 spaced repetition engine — manages study queues, card reviews, undo, sessions, and dashboard statistics.
 
 **Key interfaces**:
-- `GetStudyQueue(ctx, input)` -- combines due cards + new cards up to daily limits
-- `ReviewCard(ctx, input)` -- apply grade (Again/Hard/Good/Easy), compute next review
-- `UndoReview(ctx, input)` -- restore previous card state within undo window
-- `StartSession / FinishSession / AbandonSession` -- session lifecycle
-- `GetDashboard(ctx)` -- due count, new count, streak, status distribution
-- `CreateCard / DeleteCard / BatchCreateCards` -- manual card management
+- `GetStudyQueue(ctx, GetQueueInput) → []*Card` — due cards + new cards (respects daily limits)
+- `ReviewCard(ctx, ReviewCardInput) → *Card` — grade card (AGAIN/HARD/GOOD/EASY), update FSRS state
+- `UndoReview(ctx, UndoReviewInput) → *Card` — revert last review within 10-minute window
+- `GetDashboard(ctx) → Dashboard` — due count, new count, streak, reviewed today, status counts
+- `StartSession(ctx) / FinishSession(ctx) / AbandonSession(ctx)` — study session lifecycle
+- `CreateCard(ctx, entryID) / BatchCreateCards(ctx, entryIDs)` — add entries to SRS
 
-**Dependencies**: cardRepo, reviewLogRepo, sessionRepo, entryRepo, senseRepo, settingsRepo, auditRepo, txManager, `domain.SRSConfig`
+**Internal structure**:
+```
+study/
+├── service.go          # Main service with all public methods
+├── fsrs/
+│   ├── algorithm.go    # FSRS-5 math: stability, difficulty, intervals
+│   └── scheduler.go    # Scheduler interface: Schedule(card, grade, now)
+└── service_test.go     # Comprehensive unit tests
+```
 
-**Important behaviors**:
-- FSRS-5 algorithm: cards progress NEW → LEARNING → REVIEW (see `fsrs/` subpackage)
-- Learning uses configurable step durations (default: 1m, 10m)
-- Undo stores a `CardSnapshot` (JSONB) with previous state
-- Dashboard respects per-user `NewCardsPerDay` and `ReviewsPerDay` limits
-- Study queue prioritizes due cards over new cards
-
-**Path**: `internal/service/study/`
-
----
-
-## Topic Service
-
-**Purpose**: User-defined collections for organizing dictionary entries. Supports create/update/delete topics and linking/unlinking entries (including batch).
-
-**Key interfaces**:
-- `CreateTopic / UpdateTopic / DeleteTopic / ListTopics`
-- `LinkEntry / UnlinkEntry / BatchLinkEntries`
+**Dependencies**: cardRepo, reviewLogRepo, sessionRepo, entryRepo, senseRepo, settingsRepo, auditLogger, txManager, clock (injectable)
 
 **Important behaviors**:
-- Maximum 100 topics per user
-- `BatchLinkEntries` returns linked + skipped counts (already-linked entries are skipped, not errored)
-
-**Path**: `internal/service/topic/`
-
----
-
-## Inbox Service
-
-**Purpose**: Lightweight quick-capture for text notes the user wants to process later (e.g., words heard in conversation).
-
-**Key interfaces**:
-- `CreateItem / ListItems / GetItem / DeleteItem / DeleteAll`
-
-**Important behaviors**:
-- Maximum 500 items per user
-- No audit logging (low-risk, ephemeral data)
-
-**Path**: `internal/service/inbox/`
+- **FSRS-5 algorithm**: 19 pre-calibrated weights control stability/difficulty calculations. Card states: `NEW → LEARNING → REVIEW → RELEARNING`. Learning steps (default: 1m, 10m) and relearning steps (default: 10m) are configurable.
+- **Review flow**: Locks card with `SELECT FOR UPDATE`, creates `ReviewLog` with `CardSnapshot` (for undo), applies FSRS scheduling, commits atomically.
+- **Undo**: Restores card from snapshot stored in `ReviewLog.PrevState`. Only works within `UndoWindowMinutes` (default 10).
+- **Dashboard**: Uses `errgroup` to parallelize 7 queries (due count, new count, reviewed today, streak, status counts, overdue, active session).
+- **Clock injection**: `clock` interface (real or test mock) enables deterministic time-based testing.
+- **Queue**: Always returns all due cards (no ReviewsPerDay cap). NewCardsPerDay limits new cards only. Uses user's timezone for "today" calculations.
 
 ---
 
 ## RefCatalog Service
 
-**Purpose**: Bridges the Dictionary service and external dictionary APIs. Fetches, caches, and serves reference entries.
+**Purpose**: Manages the reference dictionary — a read-only catalog of English words seeded from Wiktionary, NGSL, CMU, WordNet, and Tatoeba. Fetches missing entries from the FreeDictionary API on demand.
 
 **Key interfaces**:
-- `GetOrFetchEntry(ctx, text)` -- returns cached entry or fetches from FreeDictionary
-- `GetRefEntry(ctx, refEntryID)` -- by ID
-- `Search(ctx, query, limit)` -- search cached catalog
+- `GetOrFetchEntry(ctx, text) → *RefEntry` — returns cached entry or fetches from API
+- `Search(ctx, query, limit) → []RefEntry` — fuzzy search via pg_trgm
+- `GetRelationsByEntryID(ctx, entryID) → []RefWordRelation` — synonyms, antonyms, hypernyms
 
-**Dependencies**: refEntryRepo, txManager, dictionaryProvider (freedict), translationProvider (stub)
+**Dependencies**: refEntryRepo, txManager, dictionaryProvider (FreeDictionary), translationProvider
 
 **Important behaviors**:
-- Fetched entries are stored as immutable reference data shared across all users
-- Translation provider is currently a stub (returns empty); ready for future integration
-
-**Path**: `internal/service/refcatalog/`
-
----
-
-## Adapter Layer: Postgres Repositories
-
-**Purpose**: 15 repository packages implement data access for all domain entities using pgx connection pool + Squirrel query builder (some with sqlc-generated queries).
-
-**Shared patterns**:
-- All repos accept `*pgxpool.Pool` (or pool + txManager for repos that need in-tx writes)
-- `QuerierFromCtx(ctx)` returns the active transaction or falls back to pool -- this is how services run multiple repo calls in one transaction
-- Soft delete via `deleted_at` column (entries only); hard delete in cleanup job
-
-**Packages**: audit, authmethod, card, entry, example, image, inbox, pronunciation, refentry, reviewlog, sense, session, token, topic, translation, user
-
-**Path**: `internal/adapter/postgres/`
+- RefEntries are immutable from the service perspective — only created/updated by the seeder pipeline or API fetch.
+- Aggregate root: loading a RefEntry hydrates all 5 child tables (senses, translations, examples, pronunciations, images) in a single transaction.
+- FreeDictionary API has retry (1x, 500ms backoff) and returns `nil, nil` for unknown words.
 
 ---
 
-## Adapter Layer: External Providers
+## PostgreSQL Repositories
 
-| Provider | Path | Purpose |
+**Purpose**: 15+ repository packages implementing data access with sqlc (static queries) and Squirrel (dynamic queries).
+
+**Repository packages**: entry, sense, translation, example, pronunciation, image, card, reviewlog, session, user, token, authmethod, topic, inbox, refentry, audit, enrichment
+
+**Important behaviors**:
+- **Querier pattern**: All repos call `postgres.QuerierFromCtx(ctx, pool)` which returns the active `pgx.Tx` if in a transaction, or the connection pool otherwise. Repos never know about transactions explicitly.
+- **Error mapping**: pgx `ErrNoRows` → `domain.ErrNotFound`, duplicate key → `domain.ErrAlreadyExists`, constraint violation → `domain.ErrConflict`.
+- **Cursor pagination** (entry repo): Base64-encoded `sortValue|entryID` cursors for keyset pagination. Fetches `limit+1` rows to detect `hasNextPage`.
+- **COALESCE inheritance** (sense repo): User senses fall back to reference catalog values via `COALESCE(s.definition, rs.definition)` in read queries.
+- **Authorization**: Content repos JOIN against `entries` table to verify `user_id` ownership.
+
+> Simplified: Each repo has its own `sqlc.yaml` + `query/*.sql` for code generation — see `internal/adapter/postgres/*/` for individual query details.
+
+---
+
+## Middleware Chain
+
+**Purpose**: Composable HTTP middleware applied in specific order per route group.
+
+**Execution order** (GraphQL route):
+
+| # | Middleware | Purpose |
 |---|---|---|
-| FreeDictionary | `adapter/provider/freedict/` | Fetches word definitions from FreeDictionary API |
-| Google OAuth | `adapter/provider/google/` | Verifies Google OAuth authorization codes |
-| Translation (stub) | `adapter/provider/translate/` | Placeholder for future translation API |
+| 1 | Recovery | Catch panics, log stack trace, return 500 |
+| 2 | RequestID | Generate/propagate `X-Request-Id` header |
+| 3 | Logger | Structured logging: method, path, status, duration, user_id |
+| 4 | CORS | Origin validation, preflight handling, credential support |
+| 5 | Auth | Extract Bearer JWT → validate → store userID + role in context |
+| 6 | DataLoader | Create per-request batch loaders (see below) |
+
+**Route-specific stacks**:
+- **Auth endpoints** (`/auth/*`): CORS + RateLimit (no auth middleware — these create tokens)
+- **Admin endpoints** (`/admin/*`): Recovery + RequestID + Logger + CORS + Auth (no DataLoader)
+- **Health endpoints** (`/live`, `/ready`, `/health`): No middleware
+
+**Rate limiting**: Token bucket per IP, configurable limits (register: 5/min, login: 10/min, refresh: 20/min). Background goroutine cleans stale buckets.
 
 ---
 
-## Transport Layer: Middleware
+## DataLoaders
 
-Applied in order on GraphQL requests: Recovery → RequestID → Logger → CORS → Auth → DataLoader.
+**Purpose**: Prevent N+1 queries in GraphQL field resolvers by batching database lookups.
 
-| Middleware | Behavior |
-|---|---|
-| **Recovery** | Catches panics, logs stack trace, returns 500 |
-| **RequestID** | Generates UUID or reads `X-Request-ID`, stores in context |
-| **Logger** | Logs method, path, status, duration, request_id, user_id |
-| **CORS** | Handles preflight + response headers (configurable origins) |
-| **Auth** | Extracts Bearer token, validates JWT, stores userID in context. Anonymous = OK; invalid token = 401 |
-| **DataLoader** | Injects per-request batch loaders to prevent N+1 queries |
+**9 loaders** (all per-request, 2ms wait, 100-item max batch):
+- `SensesByEntryID`, `TranslationsBySenseID`, `ExamplesBySenseID`
+- `PronunciationsByEntryID`, `CatalogImagesByEntryID`, `UserImagesByEntryID`
+- `CardByEntryID`, `TopicsByEntryID`, `ReviewLogsByCardID`
 
-**Path**: `internal/transport/middleware/`
+**How it works**: When a GraphQL query requests `dictionaryEntries { senses { translations } }`, the resolver for `senses` calls `loaders.SensesByEntryID.Load(entryID)`. The DataLoader collects all entry IDs across the response within a 2ms window, then issues a single `GetByEntryIDs(ids)` batch query. Result is cached within the request.
+
+**Key detail**: DataLoaders bypass services and call repos directly for read performance. They're created fresh per request via middleware — no cross-request caching.

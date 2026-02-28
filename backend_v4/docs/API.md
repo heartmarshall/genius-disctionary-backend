@@ -2,194 +2,207 @@
 
 ## REST Endpoints
 
-### Health
+### Health Probes
 
-| Method | Path | Auth | Description |
+| Method | Path | Auth | Response |
 |---|---|---|---|
-| GET | `/live` | No | Liveness probe -- always 200 |
-| GET | `/ready` | No | Readiness probe -- pings DB, 200 or 503 |
-| GET | `/health` | No | Full health: DB latency, version, status |
+| GET | `/live` | No | `200 OK` — server is running |
+| GET | `/ready` | No | `200` if DB connected, `503` if not |
+| GET | `/health` | No | `{ status, version, components: { database: { status, latency } } }` |
 
 ### Authentication
 
-All auth endpoints are public (CORS only, no JWT required).
+All auth endpoints return: `{ accessToken, refreshToken, user: { id, email, username, name, avatarUrl, role } }`
 
-| Method | Path | Description |
-|---|---|---|
-| POST | `/auth/register` | Create account with email + password |
-| POST | `/auth/login` | OAuth login (Google/Apple) |
-| POST | `/auth/login/password` | Email + password login |
-| POST | `/auth/refresh` | Exchange refresh token for new token pair |
-| POST | `/auth/logout` | Revoke refresh token |
+| Method | Path | Body | Notes |
+|---|---|---|---|
+| POST | `/auth/register` | `{ email, username, password }` | Rate limit: 5/min per IP |
+| POST | `/auth/login` | `{ provider, code }` | OAuth login (Google). Rate limit: 10/min |
+| POST | `/auth/login/password` | `{ email, password }` | Rate limit: 10/min |
+| POST | `/auth/refresh` | `{ refreshToken }` | Rotates token. Rate limit: 20/min |
+| POST | `/auth/logout` | — | Requires Bearer token. Revokes all sessions |
 
-**Register request:**
-```json
-{ "email": "user@example.com", "username": "jdoe", "password": "secret123" }
-```
-
-**Auth response (all login/register/refresh):**
+**Validation error format** (400):
 ```json
 {
-  "accessToken": "eyJhbG...",
-  "refreshToken": "base64-encoded-token",
-  "user": { "id": "uuid", "email": "...", "username": "...", "name": "...", "avatarUrl": "..." }
+  "error": "validation error",
+  "code": "VALIDATION",
+  "fields": [
+    { "field": "email", "message": "invalid email format" },
+    { "field": "password", "message": "must be 8-72 characters" }
+  ]
 }
+```
+
+### Admin (requires `admin` role)
+
+| Method | Path | Params/Body | Response |
+|---|---|---|---|
+| GET | `/admin/users` | `?limit=&offset=` | `{ users: [], total }` |
+| PUT | `/admin/users/{id}/role` | `{ role: "admin"\|"user" }` | Updated `User` |
+| GET | `/admin/enrichment/stats` | — | `{ pending, processing, done, failed, total }` |
+| GET | `/admin/enrichment/queue` | `?status=&limit=&offset=` | `[EnrichmentQueueItem]` |
+| POST | `/admin/enrichment/enqueue` | `{ refEntryId }` | `{ status, refEntryId }` |
+| POST | `/admin/enrichment/retry` | — | `{ retried: int }` |
+| POST | `/admin/enrichment/reset-processing` | — | `{ reset: int }` |
+
+---
+
+## GraphQL API
+
+**Endpoint**: `POST /query`
+**Auth**: Bearer token in `Authorization` header (required for all operations)
+
+### Dictionary
+
+```graphql
+# Search reference catalog (autocomplete)
+query { searchCatalog(query: "exam", limit: 10) { id, text, senses { definition } } }
+
+# Preview full catalog entry (fetches from API if missing)
+query { previewRefEntry(text: "ephemeral") { id, text, senses { ... }, pronunciations { ... } } }
+
+# List user's entries (cursor pagination)
+query {
+  dictionary(input: {
+    search: "run"
+    sortField: CREATED_AT
+    sortDirection: DESC
+    first: 20
+    after: "cursor..."
+    hasCard: true
+    partOfSpeech: VERB
+    topicId: "uuid"
+    status: REVIEW
+  }) {
+    edges { node { id, text, senses { definition }, card { state, due } }, cursor }
+    pageInfo { hasNextPage, endCursor }
+    totalCount
+  }
+}
+
+# Single entry with all nested data
+query { dictionaryEntry(id: "uuid") { id, text, notes, senses { ... }, card { ... }, topics { ... } } }
+
+# Trash
+query { deletedEntries(limit: 20, offset: 0) { entries { id, text, deletedAt }, totalCount } }
+```
+
+```graphql
+# Create from catalog
+mutation { createEntryFromCatalog(input: {
+  refEntryId: "uuid", senseIds: ["uuid"], createCard: true, notes: "..."
+}) { entry { id } } }
+
+# Create custom
+mutation { createEntryCustom(input: {
+  text: "serendipity",
+  senses: [{ definition: "...", partOfSpeech: NOUN, translations: ["..."], examples: [{ sentence: "..." }] }],
+  createCard: true
+}) { entry { id } } }
+
+# Soft delete / restore
+mutation { deleteEntry(id: "uuid") { success } }
+mutation { restoreEntry(id: "uuid") { entry { id } } }
+
+# Import
+mutation { importEntries(input: { items: [{ text: "word", translations: ["..."] }] }) { created, skipped, errors } }
+```
+
+### Content Editing
+
+```graphql
+# Senses
+mutation { addSense(input: { entryId: "uuid", definition: "...", partOfSpeech: NOUN }) { sense { id } } }
+mutation { updateSense(input: { senseId: "uuid", definition: "..." }) { sense { id } } }
+mutation { deleteSense(id: "uuid") { success } }
+mutation { reorderSenses(input: { entryId: "uuid", items: [{ id: "uuid", position: 0 }] }) { success } }
+
+# Translations (same pattern: add, update, delete, reorder)
+mutation { addTranslation(input: { senseId: "uuid", text: "..." }) { translation { id } } }
+
+# Examples
+mutation { addExample(input: { senseId: "uuid", sentence: "...", translation: "..." }) { example { id } } }
+
+# User images
+mutation { addUserImage(input: { entryId: "uuid", url: "https://...", caption: "..." }) { image { id } } }
+```
+
+### Study (SRS)
+
+```graphql
+# Study queue (due + new cards)
+query { studyQueue(limit: 50) { id, text, senses { definition, translations { text } }, card { state, due } } }
+
+# Dashboard
+query { dashboard {
+  dueCount, newCount, reviewedToday, newToday, streak, overdueCount
+  statusCounts { new, learning, review, relearning, total }
+  activeSession { id, status }
+} }
+
+# Review a card
+mutation { reviewCard(input: { cardId: "uuid", grade: GOOD, durationMs: 5000 }) {
+  card { id, state, stability, difficulty, due, reps, lapses }
+} }
+
+# Undo last review (within 10 min)
+mutation { undoReview(cardId: "uuid") { card { id, state, due } } }
+
+# Session lifecycle
+mutation { startStudySession { session { id, status } } }
+mutation { finishStudySession { session { id, result { totalReviews, accuracyRate, gradeCounts { again, hard, good, easy } } } } }
+
+# Card management
+mutation { createCard(entryId: "uuid") { card { id } } }
+mutation { batchCreateCards(entryIds: ["uuid1", "uuid2"]) { created } }
+mutation { deleteCard(id: "uuid") { success } }
+
+# Card history & stats
+query { cardHistory(input: { cardId: "uuid", limit: 20 }) { logs { grade, reviewedAt, durationMs }, total } }
+query { cardStats(cardId: "uuid") { totalReviews, accuracyRate, averageDurationMs, gradeDistribution { again, hard, good, easy } } }
+```
+
+### Organization
+
+```graphql
+# Topics
+query { topics { id, name, description, entryCount } }
+mutation { createTopic(input: { name: "Travel", description: "..." }) { topic { id } } }
+mutation { updateTopic(input: { topicId: "uuid", name: "..." }) { topic { id } } }
+mutation { deleteTopic(id: "uuid") { success } }
+mutation { linkEntryToTopic(input: { topicId: "uuid", entryId: "uuid" }) { success } }
+mutation { batchLinkEntriesToTopic(input: { topicId: "uuid", entryIds: ["uuid1", "uuid2"] }) { linked } }
+
+# Inbox
+query { inboxItems(limit: 20, offset: 0) { items { id, text, context, createdAt }, totalCount } }
+mutation { createInboxItem(input: { text: "ephemeral", context: "Heard in podcast" }) { item { id } } }
+mutation { deleteInboxItem(id: "uuid") { success } }
+mutation { clearInbox { deleted } }
+```
+
+### User
+
+```graphql
+query { me { id, email, username, name, role } }
+query { userSettings { newCardsPerDay, reviewsPerDay, maxIntervalDays, desiredRetention, timezone } }
+
+mutation { updateProfile(input: { name: "John" }) { user { id, name } } }
+mutation { updateSettings(input: { newCardsPerDay: 30, desiredRetention: 0.85, timezone: "Europe/London" }) { settings { ... } } }
 ```
 
 ---
 
-## GraphQL Endpoint
+## Key Types
 
-**URL**: `POST /query`
-**Auth**: Bearer token in `Authorization` header (some queries work anonymously)
-**Playground**: `GET /` (when `GRAPHQL_PLAYGROUND_ENABLED=true`)
-
-### Queries
-
-#### Dictionary
-
-| Query | Auth | Description |
-|---|---|---|
-| `searchCatalog(query, limit)` | No | Search reference catalog |
-| `previewRefEntry(text)` | No | Full preview of a catalog entry |
-| `dictionary(input: DictionaryFilterInput)` | Yes | User's entries with filtering, sorting, cursor/offset pagination |
-| `dictionaryEntry(id: UUID!)` | Yes | Single entry with all nested data |
-| `deletedEntries(limit, offset)` | Yes | Soft-deleted entries (trash bin) |
-| `exportEntries` | Yes | Full dictionary export |
-
-#### Study
-
-| Query | Auth | Description |
-|---|---|---|
-| `studyQueue(limit)` | Yes | Due + new cards for review |
-| `dashboard` | Yes | Due count, new count, streak, status distribution |
-| `cardHistory(input)` | Yes | Paginated review log for a card |
-| `cardStats(cardId)` | Yes | Accuracy, grade distribution, interval |
-
-#### Organization
-
-| Query | Auth | Description |
-|---|---|---|
-| `topics` | Yes | All user topics |
-| `inboxItems(limit, offset)` | Yes | Paginated inbox items |
-| `inboxItem(id)` | Yes | Single inbox item |
-
-#### User
-
-| Query | Auth | Description |
-|---|---|---|
-| `me` | Yes | Current user profile + settings |
-
-### Mutations
-
-#### Dictionary
-
-| Mutation | Description |
-|---|---|
-| `createEntryFromCatalog(input)` | Create entry linked to reference catalog |
-| `createEntryCustom(input)` | Create fully custom entry |
-| `updateEntryNotes(input)` | Edit entry notes |
-| `deleteEntry(id)` | Soft-delete entry |
-| `restoreEntry(id)` | Restore soft-deleted entry |
-| `batchDeleteEntries(ids)` | Bulk soft-delete |
-| `importEntries(input)` | Bulk import with deduplication |
-
-#### Content Editing
-
-| Mutation | Description |
-|---|---|
-| `addSense(input)` | Add sense to entry |
-| `updateSense(input)` | Edit sense definition/POS/CEFR |
-| `deleteSense(id)` | Remove sense |
-| `reorderSenses(input)` | Reorder senses by position |
-| `addTranslation(input)` | Add translation to sense |
-| `updateTranslation(input)` | Edit translation text |
-| `deleteTranslation(id)` | Remove translation |
-| `reorderTranslations(input)` | Reorder translations |
-| `addExample(input)` | Add usage example to sense |
-| `updateExample(input)` | Edit example |
-| `deleteExample(id)` | Remove example |
-| `reorderExamples(input)` | Reorder examples |
-| `addUserImage(input)` | Upload image to entry |
-| `deleteUserImage(id)` | Remove user image |
-
-#### Study
-
-| Mutation | Description |
-|---|---|
-| `reviewCard(input)` | Grade a card (AGAIN/HARD/GOOD/EASY) |
-| `undoReview(cardId)` | Revert last review |
-| `createCard(entryId)` | Create flashcard for entry |
-| `deleteCard(id)` | Remove flashcard |
-| `batchCreateCards(entryIds)` | Bulk create cards |
-| `startStudySession` | Begin new session |
-| `finishStudySession(input)` | End session with results |
-| `abandonStudySession` | Abandon current session |
-
-#### Organization
-
-| Mutation | Description |
-|---|---|
-| `createTopic(input)` | Create entry group |
-| `updateTopic(input)` | Edit topic name/description |
-| `deleteTopic(id)` | Remove topic |
-| `linkEntryToTopic(input)` | Add entry to topic |
-| `unlinkEntryFromTopic(input)` | Remove entry from topic |
-| `batchLinkEntries(input)` | Bulk link entries to topic |
-
-#### Inbox
-
-| Mutation | Description |
-|---|---|
-| `createInboxItem(input)` | Add quick note |
-| `deleteInboxItem(id)` | Remove note |
-| `deleteAllInboxItems` | Clear inbox |
-
-#### User
-
-| Mutation | Description |
-|---|---|
-| `updateSettings(input)` | Update SRS preferences |
-
-### Key Input Types
-
-**DictionaryFilterInput** (used by `dictionary` query):
 ```graphql
-input DictionaryFilterInput {
-  search: String           # text search
-  hasCard: Boolean         # filter by card existence
-  partOfSpeech: PartOfSpeech
-  topicId: UUID
-  status: LearningStatus
-  sortBy: EntrySortField   # TEXT, CREATED_AT, UPDATED_AT
-  sortOrder: SortDirection  # ASC, DESC
-  limit: Int
-  cursor: String           # cursor-based pagination
-  offset: Int              # offset-based pagination
-}
+enum CardState     { NEW, LEARNING, REVIEW, RELEARNING }
+enum ReviewGrade   { AGAIN, HARD, GOOD, EASY }
+enum PartOfSpeech  { NOUN, VERB, ADJECTIVE, ADVERB, PRONOUN, PREPOSITION, CONJUNCTION, INTERJECTION, PHRASE, IDIOM, OTHER }
+enum SessionStatus { ACTIVE, FINISHED, ABANDONED }
+
+scalar UUID        # google/uuid format
+scalar DateTime    # RFC 3339
 ```
 
-**ReviewCardInput**:
-```graphql
-input ReviewCardInput {
-  cardId: UUID!
-  grade: ReviewGrade!      # AGAIN, HARD, GOOD, EASY
-  durationMs: Int          # time spent reviewing
-}
-```
-
-### Error Codes
-
-GraphQL errors use extension codes:
-
-| Code | Domain Error | HTTP Analogy |
-|---|---|---|
-| `NOT_FOUND` | `ErrNotFound` | 404 |
-| `ALREADY_EXISTS` | `ErrAlreadyExists` | 409 |
-| `VALIDATION` | `ErrValidation` | 422 (includes field details) |
-| `UNAUTHENTICATED` | `ErrUnauthorized` | 401 |
-| `FORBIDDEN` | `ErrForbidden` | 403 |
-| `CONFLICT` | `ErrConflict` | 409 |
-| `INTERNAL` | Unexpected error | 500 (generic message to client) |
-
-> For the complete GraphQL schema, see `internal/transport/graphql/schema/*.graphql`.
+> For the complete GraphQL schema, see `internal/transport/graphql/schema/*.graphql`

@@ -4,45 +4,47 @@
 
 - Go 1.24+
 - Docker & Docker Compose
-- `make`
+- Make
 
 ## Setup
 
 ```bash
-# 1. Clone and enter the backend directory
+# 1. Clone and navigate
 cd backend_v4
 
-# 2. Copy environment file and fill in secrets
-cp .env.example .env   # then edit: AUTH_JWT_SECRET (>=32 chars), DB creds, OAuth keys
+# 2. Copy env template and fill in secrets
+cp .env.example .env
+# Edit .env: set DATABASE_DSN, AUTH_JWT_SECRET (min 32 chars)
 
-# 3. Start PostgreSQL + run migrations + start backend
+# 3. Start PostgreSQL + run migrations
 make docker-up
+make migrate-up
 
-# 4. (Alternative) Run locally against Dockerized DB
-docker compose up -d postgres migrate
+# 4. Run the server
 make run
 ```
 
 ## Verify
 
-- **Health check**: `curl http://localhost:8080/health`
-- **GraphQL Playground**: open `http://localhost:8080/` in a browser (enabled by default)
-- **Readiness probe**: `curl http://localhost:8080/ready` -- returns 200 when DB is reachable
+- **Liveness**: `curl http://localhost:8080/live` — should return `200 OK`
+- **Readiness**: `curl http://localhost:8080/ready` — should return `200` if DB is connected
+- **GraphQL Playground** (if enabled in config): open `http://localhost:8080/query` in browser
 
-## Common Issues
-
-| Problem | Fix |
-|---|---|
-| `connect to database: ...` | Ensure Postgres is running and `DATABASE_DSN` matches your `.env` |
-| `jwt_secret must be at least 32 characters` | Set `AUTH_JWT_SECRET` in `.env` to a 32+ char string |
-| Port 8080 in use | Change `SERVER_PORT` in `.env` or stop the conflicting process |
-| Migrations fail | Run `make migrate-status` to see which migration is stuck |
-
-## Useful Commands
+## Common Commands
 
 ```bash
-make test              # unit tests with race detector
-make test-e2e          # E2E tests (needs Docker for testcontainers)
-make generate          # regenerate sqlc queries + go generate mocks
-make migrate-create name=add_foo  # create a new migration
+make test               # Unit tests (race detector, no cache)
+make test-e2e           # E2E tests (requires Docker)
+make generate           # Regenerate sqlc + gqlgen code
+make lint               # Run golangci-lint
+make seed               # Populate reference catalog from datasets
 ```
+
+## Troubleshooting
+
+| Problem | Fix |
+|---------|-----|
+| `connection refused` on DB | Check `make docker-up` ran and container is healthy |
+| `JWT secret too short` | Set `AUTH_JWT_SECRET` to 32+ characters in `.env` |
+| `migration failed` | Run `make migrate-down` then `make migrate-up` |
+| Code gen errors after schema change | Run `make generate` |

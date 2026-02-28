@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyEnglish Design System v3.0 — Herbarium</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Orelega+One&family=Lisu+Bosa:ital,wght@0,400;0,500;1,400&family=Courier+Prime&family=Caveat:wght@400;700&family=EB+Garamond:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* ═══════════════════════════════════════════
+       HERBARIUM DESIGN SYSTEM v3.0 — Засушенный гербарий
+       Muted nature-inspired semantic color palette (chroma 0.06–0.10)
+       ═══════════════════════════════════════════ */
+
+    /* ── Flowers: Semantic Axis (hot → calm) ── */
+    /* Засушенный гербарий: chroma 0.06–0.10 */
+    --poppy:             oklch(0.52 0.10 35);
+    --poppy-hover:       oklch(0.46 0.10 35);
+    --poppy-active:      oklch(0.42 0.10 35);
+    --poppy-light:       oklch(0.95 0.02 35);
+    --poppy-fg:          oklch(0.44 0.08 35);
+
+    --goldenrod:         oklch(0.56 0.08 85);
+    --goldenrod-hover:   oklch(0.50 0.08 85);
+    --goldenrod-light:   oklch(0.95 0.02 85);
+    --goldenrod-fg:      oklch(0.44 0.06 85);
+
+    --cornflower:        oklch(0.50 0.06 250);
+    --cornflower-hover:  oklch(0.44 0.06 250);
+    --cornflower-light:  oklch(0.95 0.015 250);
+    --cornflower-fg:     oklch(0.40 0.05 250);
+
+    --thyme:             oklch(0.48 0.06 140);
+    --thyme-hover:       oklch(0.42 0.06 140);
+    --thyme-light:       oklch(0.97 0.008 140);
+    --thyme-fg:          oklch(0.40 0.05 140);
+
+    /* ── Earth & Wood ── */
+    --umber:             oklch(0.35 0.03 50);
+    --bark:              oklch(0.42 0.04 55);
+    --clay:              oklch(0.55 0.07 50);
+    --bark-light:        oklch(0.92 0.01 55);
+    --clay-light:        oklch(0.94 0.015 50);
+
+    /* ── Greens ── */
+    --moss:              oklch(0.38 0.04 148);
+    --fern:              oklch(0.55 0.05 145);
+    --sage:              oklch(0.78 0.02 145);
+    --sage-light:        oklch(0.95 0.008 145);
+
+    /* ── Petals & Berry ── */
+    --dried-rose:        oklch(0.62 0.04 12);
+    --dried-rose-light:  oklch(0.95 0.01 12);
+    --lavender:          oklch(0.52 0.06 290);
+    --lavender-light:    oklch(0.95 0.015 290);
+    --heather:           oklch(0.52 0.05 320);
+    --heather-light:     oklch(0.95 0.01 320);
+
+    /* ── Warm Neutrals ── */
+    --parchment:         oklch(0.97 0.008 80);
+    --linen:             oklch(0.95 0.006 80);
+    --honey:             oklch(0.72 0.05 80);
+    --honey-light:       oklch(0.94 0.015 80);
+    --straw:             oklch(0.88 0.02 85);
+
+    /* ── Cool Neutrals ── */
+    --mist:              oklch(0.92 0.008 200);
+    --slate:             oklch(0.55 0.015 230);
+    --storm:             oklch(0.42 0.03 250);
+
+    /* ═══ Semantic Aliases ═══ */
+    --bg-page:           #ffffff;
+    --bg-card:           #ffffff;
+    --bg-surface:        var(--parchment);
+    --bg-srs:            var(--linen);
+    --bg-overlay:        oklch(0 0 0 / 0.4);
+
+    --text-primary:      var(--umber);
+    --text-secondary:    oklch(0.48 0.02 50);
+    --text-tertiary:     oklch(0.62 0.015 50);
+    --text-disabled:     oklch(0.75 0.01 50);
+
+    --border:            oklch(0.86 0.015 80);
+    --border-light:      oklch(0.92 0.008 80);
+    --border-botanical:  oklch(0.82 0.025 145);
+
+    --accent:            var(--poppy);
+    --accent-hover:      var(--poppy-hover);
+    --accent-active:     var(--poppy-active);
+    --accent-light:      var(--poppy-light);
+    --focus-ring:        var(--poppy);
+    --word-accent:       var(--poppy);
+
+    /* SRS */
+    --srs-again:    var(--poppy);
+    --srs-hard:     var(--goldenrod);
+    --srs-good:     var(--cornflower);
+    --srs-easy:     var(--thyme);
+    --srs-again-bg: var(--poppy-light);
+    --srs-hard-bg:  var(--goldenrod-light);
+    --srs-good-bg:  var(--cornflower-light);
+    --srs-easy-bg:  var(--thyme-light);
+
+    /* Status */
+    --status-new:        var(--poppy-light);
+    --status-new-fg:     var(--poppy-fg);
+    --status-learning:   var(--goldenrod-light);
+    --status-learning-fg:var(--goldenrod-fg);
+    --status-review:     var(--cornflower-light);
+    --status-review-fg:  var(--cornflower-fg);
+    --status-mastered:   var(--thyme-light);
+    --status-mastered-fg:var(--thyme-fg);
+
+    /* Utility */
+    --danger:    var(--poppy);
+    --danger-bg: var(--poppy-light);
+    --warning:   var(--goldenrod);
+    --warning-bg:var(--goldenrod-light);
+    --success:   var(--thyme);
+    --success-bg:var(--thyme-light);
+
+    /* Sources (categorical) */
+    --source-book:         var(--lavender);
+    --source-book-light:   var(--lavender-light);
+    --source-screen:       oklch(0.50 0.06 200);
+    --source-screen-light: oklch(0.95 0.015 200);
+    --source-lyrics:       var(--heather);
+    --source-lyrics-light: var(--heather-light);
+
+    /* ═══ Spacing ═══ */
+    --space-2xs: 2px; --space-xs: 4px; --space-sm: 8px;
+    --space-md: 16px; --space-lg: 24px; --space-xl: 40px; --space-2xl: 64px;
+
+    /* ═══ Radius ═══ */
+    --radius-sm: 6px; --radius-md: 10px; --radius-lg: 16px; --radius-full: 9999px;
+
+    /* ═══ Type Scale ═══ */
+    --type-2xl: 36px; --type-xl: 28px; --type-lg: 22px;
+    --type-md: 17px; --type-base: 15px; --type-sm: 13px; --type-xs: 11px;
+    --leading-tight: 1.3; --leading-normal: 1.6; --leading-loose: 1.8;
+
+    /* ═══ Motion ═══ */
+    --duration-fast: 100ms; --duration-normal: 200ms; --duration-slow: 350ms;
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-standard: cubic-bezier(0.25, 0.1, 0.25, 1);
+
+    /* ═══ Elevation ═══ */
+    --elevation-0: none;
+    --elevation-1: 0 1px 2px oklch(0 0 0 / 0.06), 0 1px 3px oklch(0 0 0 / 0.04);
+    --elevation-2: 0 2px 4px oklch(0 0 0 / 0.04), 0 4px 8px oklch(0 0 0 / 0.03), 0 8px 16px oklch(0 0 0 / 0.02);
+    --elevation-3: 0 4px 8px oklch(0 0 0 / 0.06), 0 8px 16px oklch(0 0 0 / 0.04), 0 16px 32px oklch(0 0 0 / 0.03);
+
+    /* ═══ Layout ═══ */
+    --container-max: 720px;
+    --container-narrow: 480px;
+    --sidebar-width: 240px;
+    --tab-bar-height: 56px;
+
+    /* ═══ Z-Index ═══ */
+    --z-base: 0; --z-card: 10; --z-dropdown: 50; --z-navigation: 100;
+    --z-overlay: 150; --z-modal: 200; --z-tooltip: 300; --z-toast: 400;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    font-size: var(--type-base);
+    line-height: var(--leading-normal);
+  }
+
+  /* ═══ Sidebar ═══ */
+  .doc-sidebar {
+    position: fixed; left: 0; top: 0; bottom: 0;
+    width: var(--sidebar-width);
+    background: var(--linen);
+    border-right: 1px solid var(--border);
+    padding: 32px 20px;
+    overflow-y: auto;
+    z-index: var(--z-navigation);
+  }
+  .doc-sidebar .logo {
+    font-family: 'Orelega One', serif;
+    font-size: 20px;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .doc-sidebar .version {
+    display: inline-block;
+    font-size: var(--type-xs);
+    background: var(--accent-light);
+    color: var(--poppy-fg);
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    margin-bottom: 28px;
+  }
+  .doc-sidebar nav { counter-reset: section; }
+  .doc-sidebar nav a {
+    display: block;
+    font-size: var(--type-sm);
+    color: var(--text-secondary);
+    text-decoration: none;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border-light);
+    transition: color var(--duration-normal);
+  }
+  .doc-sidebar nav a:hover { color: var(--accent); }
+  .doc-sidebar nav a::before {
+    counter-increment: section;
+    content: counter(section) ". ";
+    color: var(--text-tertiary);
+    font-weight: 500;
+  }
+
+  @media (max-width: 900px) { .doc-sidebar { display: none; } .doc-content { margin-left: 0 !important; } }
+
+  /* ═══ Content ═══ */
+  .doc-content {
+    margin-left: var(--sidebar-width);
+    padding: 40px 20px 80px;
+  }
+  .container { max-width: var(--container-max); margin: 0 auto; }
+
+  /* ═══ Sections ═══ */
+  .ds-section { margin-bottom: var(--space-2xl); }
+  .ds-section h1 {
+    font-family: 'Orelega One', serif;
+    font-size: var(--type-2xl);
+    line-height: var(--leading-tight);
+    margin-bottom: var(--space-xs);
+  }
+  .ds-section h2 {
+    font-family: 'Orelega One', serif;
+    font-size: var(--type-lg);
+    line-height: var(--leading-tight);
+    margin-bottom: var(--space-md);
+    padding-top: var(--space-xl);
+  }
+  .ds-section h3 {
+    font-size: var(--type-xs);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-tertiary);
+    margin-bottom: var(--space-sm);
+    padding-top: var(--space-lg);
+  }
+  .ds-section p {
+    color: var(--text-secondary);
+    margin-bottom: var(--space-md);
+    max-width: 600px;
+  }
+
+  /* ═══ Swatches ═══ */
+  .swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; margin-bottom: var(--space-lg); }
+  .swatch { border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border-light); }
+  .swatch-color { height: 56px; display: flex; align-items: flex-end; padding: 6px 8px; }
+  .swatch-color span { font-size: 10px; font-weight: 600; letter-spacing: 0.2px; }
+  .swatch-info { padding: 6px 8px; background: white; }
+  .swatch-info .name { font-size: 11px; font-weight: 600; color: var(--text-primary); }
+  .swatch-info .val { font-size: 9px; font-family: monospace; color: var(--text-tertiary); margin-top: 1px; }
+
+  /* ═══ Botanical divider ═══ */
+  .divider {
+    height: 1px; margin: var(--space-xl) 0;
+    background: linear-gradient(90deg, transparent, var(--sage) 20%, var(--dried-rose) 50%, var(--sage) 80%, transparent);
+    opacity: 0.5;
+  }
+
+  /* ═══ Demo components ═══ */
+  .demo-box {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-md);
+  }
+
+  /* ═══ Flashcard ═══ */
+  .flashcard {
+    max-width: var(--container-narrow);
+    margin: 0 auto;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    box-shadow: var(--elevation-2);
+    overflow: hidden;
+    position: relative;
+  }
+  .flashcard-head { padding: 28px 24px 0; }
+  .flashcard-head .word {
+    font-family: 'Lisu Bosa', serif;
+    font-size: var(--type-xl);
+    line-height: var(--leading-tight);
+  }
+  .flashcard-head .phonetic {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: var(--type-sm);
+    color: var(--text-tertiary);
+    margin-top: 4px;
+  }
+  .flashcard-body { padding: 16px 24px 24px; }
+  .flashcard-body .definition {
+    font-size: var(--type-base);
+    line-height: var(--leading-normal);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-md);
+  }
+  .flashcard-body .translation {
+    font-size: var(--type-sm);
+    color: var(--text-tertiary);
+    font-style: italic;
+    margin-bottom: var(--space-md);
+    padding-left: var(--space-sm);
+    border-left: 2px solid var(--border);
+  }
+  .flashcard-example {
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--space-md);
+    border-left: 3px solid var(--fern);
+    background: var(--sage-light);
+  }
+  .flashcard-example q {
+    font-family: 'EB Garamond', serif;
+    font-size: var(--type-base);
+    color: var(--moss);
+    line-height: var(--leading-normal);
+  }
+  .flashcard-meta {
+    display: flex; gap: var(--space-md); align-items: center;
+    padding-top: var(--space-sm);
+    border-top: 1px solid var(--border-light);
+    font-size: var(--type-xs);
+    color: var(--text-tertiary);
+  }
+  .flashcard-meta .progress-bar {
+    flex: 1; height: 4px; border-radius: 2px;
+    background: var(--border-light);
+    overflow: hidden;
+  }
+  .flashcard-meta .progress-fill { height: 100%; border-radius: 2px; background: var(--thyme); }
+
+  /* ═══ SRS Buttons ═══ */
+  .srs-buttons { display: flex; gap: 6px; margin-top: var(--space-md); }
+  .srs-btn {
+    flex: 1;
+    padding: 10px 4px;
+    border: none;
+    border-radius: var(--radius-md);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: var(--type-sm);
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    text-align: center;
+    transition: transform var(--duration-fast), box-shadow var(--duration-normal);
+  }
+  .srs-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px oklch(0 0 0 / 0.15); }
+  .srs-btn:active { transform: scale(0.97); }
+  .srs-btn small { display: block; font-weight: 400; font-size: var(--type-xs); opacity: 0.8; margin-top: 2px; }
+
+  /* ═══ Buttons ═══ */
+  .btn {
+    display: inline-flex; align-items: center; gap: var(--space-xs);
+    padding: 10px 20px;
+    border: none; border-radius: var(--radius-md);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: var(--type-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--duration-normal) var(--ease-standard);
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+  .btn-secondary { background: transparent; color: var(--bark); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--bark); transform: translateY(-1px); box-shadow: var(--elevation-1); }
+  .btn-ghost { background: transparent; color: var(--accent); padding: 10px 12px; }
+  .btn-ghost:hover { text-decoration: underline; }
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-danger:hover { background: var(--poppy-hover); }
+  .btn-calm { background: var(--thyme); color: white; }
+  .btn-calm:hover { background: var(--thyme-hover); }
+  .btn:disabled, .btn[disabled] { background: var(--bark-light); color: var(--text-disabled); cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* ═══ Navigation ═══ */
+  .tab-nav { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: var(--space-lg); }
+  .tab-nav-item {
+    padding: 12px 20px;
+    font-size: var(--type-sm);
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: all var(--duration-normal);
+    cursor: pointer;
+  }
+  .tab-nav-item:hover { color: var(--text-primary); }
+  .tab-nav-item.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ═══ Input ═══ */
+  .input-demo { margin-bottom: var(--space-md); }
+  .input-field {
+    width: 100%;
+    padding: 10px 0;
+    border: none;
+    border-bottom: 2px solid var(--border);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: var(--type-base);
+    color: var(--text-primary);
+    background: transparent;
+    outline: none;
+    transition: border-color var(--duration-normal);
+  }
+  .input-field::placeholder { color: var(--text-tertiary); }
+  .input-field:focus { border-bottom-color: var(--accent); }
+  .input-field.error { border-bottom-color: var(--danger); }
+  .input-label { font-size: var(--type-xs); color: var(--text-tertiary); margin-bottom: 4px; display: block; }
+  .input-error-text { font-size: var(--type-xs); color: var(--poppy-fg); margin-top: 4px; }
+
+  /* ═══ Pills ═══ */
+  .pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: var(--type-xs); font-weight: 500;
+    padding: 4px 12px; border-radius: var(--radius-full);
+  }
+  .pill .dot { width: 7px; height: 7px; border-radius: 50%; }
+
+  /* ═══ Tags ═══ */
+  .tag {
+    display: inline-block;
+    font-size: 10px; font-weight: 500;
+    padding: 3px 9px; border-radius: var(--radius-full);
+  }
+
+  /* ═══ Toast ═══ */
+  .toast {
+    display: flex; align-items: flex-start; gap: var(--space-sm);
+    max-width: 380px;
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    background: var(--bg-card);
+    box-shadow: var(--elevation-1);
+    border-left: 3px solid;
+    font-size: var(--type-sm);
+    margin-bottom: var(--space-sm);
+  }
+
+  /* ═══ Modal ═══ */
+  .modal-demo {
+    position: relative;
+    background: oklch(0 0 0 / 0.35);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    display: flex; align-items: center; justify-content: center;
+    min-height: 320px;
+  }
+  .modal-box {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--elevation-3);
+    width: 380px;
+    overflow: hidden;
+  }
+  .modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .modal-header h3 { font-family: 'Orelega One', serif; font-size: var(--type-md); }
+  .modal-close {
+    width: 28px; height: 28px; border-radius: var(--radius-sm);
+    border: none; background: transparent; cursor: pointer;
+    font-size: 16px; color: var(--text-tertiary);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .modal-close:hover { background: var(--bg-surface); }
+  .modal-body { padding: 16px 20px; font-size: var(--type-sm); color: var(--text-secondary); }
+  .modal-footer { padding: 12px 20px; border-top: 1px solid var(--border-light); display: flex; gap: 8px; justify-content: flex-end; }
+
+  /* ═══ Example block ═══ */
+  .example-block {
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    margin-bottom: var(--space-md);
+    border-left: 3px solid;
+  }
+  .example-badge {
+    display: inline-block; font-size: 9px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 2px 8px; border-radius: var(--radius-full);
+    margin-bottom: 8px;
+  }
+  .example-text { font-size: var(--type-base); line-height: var(--leading-normal); margin-bottom: 6px; }
+  .example-translation { font-size: var(--type-sm); color: var(--text-secondary); font-style: italic; margin-bottom: 4px; }
+  .example-source { font-size: var(--type-xs); color: var(--text-tertiary); }
+
+  /* ═══ Vocab card ═══ */
+  .vocab-card {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-sm);
+  }
+  .vocab-word { font-family: 'Lisu Bosa', serif; font-size: var(--type-lg); }
+  .vocab-meta { display: flex; gap: 6px; align-items: center; margin-top: 4px; }
+  .vocab-def { font-size: var(--type-sm); color: var(--text-secondary); margin-top: 4px; max-width: 400px; }
+  .status-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ═══ Skeleton ═══ */
+  @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+  .skeleton { animation: pulse 1.8s ease infinite; border-radius: var(--radius-sm); }
+  .skeleton-line { height: 12px; background: var(--straw); margin-bottom: 8px; }
+  .skeleton-pill { height: 24px; width: 80px; background: var(--straw); border-radius: var(--radius-full); }
+  .skeleton-dot { width: 10px; height: 10px; background: var(--straw); border-radius: 50%; }
+
+  /* ═══ Font demo ═══ */
+  .font-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); margin-bottom: var(--space-lg); }
+  @media (max-width: 768px) { .font-grid { grid-template-columns: 1fr; } }
+  .font-card { padding: var(--space-md); border: 1px solid var(--border); border-radius: var(--radius-md); background: white; }
+  .font-card .sample { margin-bottom: 8px; }
+  .font-card .meta { font-size: var(--type-xs); color: var(--text-tertiary); }
+
+  /* ═══ Elevation demo ═══ */
+  .elevation-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-md); margin-bottom: var(--space-lg); }
+  @media (max-width: 768px) { .elevation-grid { grid-template-columns: repeat(2, 1fr); } }
+  .elevation-card {
+    height: 80px; border-radius: var(--radius-md); background: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: var(--type-xs); color: var(--text-tertiary);
+  }
+
+  /* ═══ Two-col layout ═══ */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg); }
+  @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="doc-sidebar">
+  <div class="logo">MyEnglish</div>
+  <span class="version">v3.0 Herbarium</span>
+  <nav>
+    <a href="#principles">Principles</a>
+    <a href="#colors">Color System</a>
+    <a href="#typography">Typography</a>
+    <a href="#components">Components</a>
+    <a href="#patterns">Patterns</a>
+    <a href="#motion">Motion & Elevation</a>
+    <a href="#accessibility">Accessibility</a>
+  </nav>
+</aside>
+
+<main class="doc-content">
+<div class="container">
+
+<!-- ═══════════════════════════════════════════
+     1. TITLE & PRINCIPLES
+     ═══════════════════════════════════════════ -->
+<section class="ds-section" id="principles">
+  <h1><span style="color: var(--accent);">H</span>erbarium Design System</h1>
+  <p style="font-size: var(--type-md); margin-bottom: var(--space-xl);">
+    Nature-inspired design language for MyEnglish. 24 botanical colors,
+    two semantic layers, warm earth tones. Like a field guide pressed between pages.
+  </p>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-md); margin-bottom: var(--space-lg);">
+    <div style="padding: 16px; border-radius: var(--radius-md); background: var(--parchment); border: 1px solid var(--border);">
+      <div style="font-size: var(--type-sm); font-weight: 600; color: var(--bark); margin-bottom: 6px;">Two-layer semantics</div>
+      <div style="font-size: var(--type-xs); color: var(--text-secondary); line-height: 1.5;">Temperature axis (poppy→thyme) for evaluation. Categorical tones (lavender/teal/heather) for media types.</div>
+    </div>
+    <div style="padding: 16px; border-radius: var(--radius-md); background: var(--sage-light); border: 1px solid var(--border-botanical);">
+      <div style="font-size: var(--type-sm); font-weight: 600; color: var(--moss); margin-bottom: 6px;">Botanical warmth</div>
+      <div style="font-size: var(--type-xs); color: var(--text-secondary); line-height: 1.5;">Umber text, parchment surfaces, bark borders. No cold grays. Every neutral comes from nature.</div>
+    </div>
+    <div style="padding: 16px; border-radius: var(--radius-md); background: var(--poppy-light); border: 1px solid oklch(0.90 0.02 35);">
+      <div style="font-size: var(--type-sm); font-weight: 600; color: var(--poppy-fg); margin-bottom: 6px;">White + accent</div>
+      <div style="font-size: var(--type-xs); color: var(--text-secondary); line-height: 1.5;">White page, white cards. Poppy vermillion as the unforgettable accent. Green in borders and quotes.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════
+     2. COLOR SYSTEM
+     ═══════════════════════════════════════════ -->
+<section class="ds-section" id="colors">
+  <h2>Color System</h2>
+
+  <h3>Semantic axis — Flowers (hot → calm)</h3>
+  <div style="display: flex; gap: 3px; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: var(--space-sm);">
+    <div style="flex:1; background: var(--poppy);"></div>
+    <div style="flex:1; background: var(--goldenrod);"></div>
+    <div style="flex:1; background: var(--cornflower);"></div>
+    <div style="flex:1; background: var(--thyme);"></div>
+  </div>
+  <div class="swatch-grid">
+    <div class="swatch"><div class="swatch-color" style="background:var(--poppy);"><span style="color:white;">Poppy</span></div><div class="swatch-info"><div class="name">Poppy</div><div class="val">oklch(0.52 0.10 35)</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:var(--poppy-light);"><span style="color:var(--poppy-fg);">Light</span></div><div class="swatch-info"><div class="name">Poppy Light</div><div class="val">oklch(0.95 0.02 35)</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:var(--goldenrod);"><span style="color:white;">Goldenrod</span></div><div class="swatch-info"><div class="name">Goldenrod</div><div class="val">oklch(0.56 0.08 85)</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:var(--goldenrod-light);"><span style="color:var(--goldenrod-fg);">Light</span></div><div class="swatch-info"><div class="name">Goldenrod Light</div><div class="val">oklch(0.95 0.02 85)</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:var(--cornflower);"><span style="color:white;">Cornflower</span></div><div class="swatch-info"><div class="name">Cornflower</div><div class="val">oklch(0.50 0.06 250)</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:var(--cornflower-light);"><span style="color:var(--cornflower-fg);">Light</span></div><div class="swatch-info"><div class="name">Cornflower Light</div><div class="val">oklch(0.95 0.015 250)</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:var(--thyme);"><span style="color:white;">Thyme</span></div><div class="swatch-info"><div class="name">Thyme</div><div class="val">oklch(0.48 0.06 140)</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:var(--thyme-light);"><span style="color:var(--thyme-fg);">Light</span></div><div class="swatch-info"><div class="name">Thyme Light</div><div class="val">oklch(0.97 0.008 140)</div></div></div>
+  </div>
+
+  <h3>Earth & Wood</h3>
+  <div class="swatch-grid">
+    <div class="swatch"><div class="swatch-color" style="background:var(--umber);"><span style="color:white;">Umber</span></div><div class="swatch-info"><div class="name">Umber</div><div class="val">oklch(0.35 0.03 50)</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:var(--bark);"><span style="color:white;">Bark</span></div><div class="swatch-info"><div class="name">Bark</div><div class="val">oklch(0.42 0.04 55)</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:var(--clay);"><span style="color:white;">Clay</span></div><div class="swatch-info"><div class="name">Clay</div><div class="val">oklch(0.55 0.07 50)</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:var(--bark-light);"><span style="color:var(--bark);">Light</span></div><div class="swatch-info"><div class="name">Bark Light</div><div class="val">oklch(0.92 0.01 55)</div></div></div>
+  </div>
+
+  <h3>Greens</h3>
+  <div class="swatch-grid">
+    <div class="swatch"><div class="swatch-color" style="background:var(--moss);"><span style="color:white;">Moss</span></div><div class="swatch-info"><div class="name">Moss</div><div class="val">oklch(0.38 0.04 148)</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:var(--fern);"><span style="color:white;">Fern</span></div><div class="swatch-info"><div class="name">Fern</div><div class="val">oklch(0.55 0.05 145)</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:var(--sage);"><span style="color:var(--moss);">Sage</span></div><div class="swatch-info"><div class="name">Sage</div><div class="val">oklch(0.78 0.02 145)</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:var(--sage-light);"><span style="color:var(--fern);">Light</span></div><div class="swatch-info"><div class="name">Sage Light</div><div class="val">oklch(0.95 0.008 145)</div></div></div>
+  </div>
+
+  <h3>Petals & Berry</h3>
+  <div class="swatch-grid">
+    <div class="swatch"><div class="swatch-color" style="background:var(--dried-rose);"><span style="color:white;">Dried Rose</span></div><div class="swatch-info"><div class="name">Dried Rose</div><div class="val">oklch(0.62 0.04 12)</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:var(--lavender);"><span style="color:white;">Lavender</span></div><div class="swatch-info"><div class="name">Lavender</div><div class="val">oklch(0.52 0.06 290)</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:var(--heather);"><span style="color:white;">Heather</span></div><div class="swatch-info"><div class="name">Heather</div><div class="val">oklch(0.52 0.05 320)</div></div></div>
+  </div>
+
+  <h3>Warm Neutrals</h3>
+  <div class="swatch-grid">
+    <div class="swatch"><div class="swatch-color" style="background:var(--honey);"><span style="color:var(--umber);">Honey</span></div><div class="swatch-info"><div class="name">Honey</div><div class="val">oklch(0.72 0.05 80)</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:var(--straw);"><span style="color:var(--bark);">Straw</span></div><div class="swatch-info"><div class="name">Straw</div><div class="val">oklch(0.88 0.02 85)</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:var(--parchment);"><span style="color:var(--bark);">Parchment</span></div><div class="swatch-info"><div class="name">Parchment</div><div class="val">oklch(0.97 0.008 80)</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:var(--linen);"><span style="color:var(--bark);">Linen</span></div><div class="swatch-info"><div class="name">Linen</div><div class="val">oklch(0.95 0.006 80)</div></div></div>
+  </div>
+
+  <h3>Cool Neutrals</h3>
+  <div class="swatch-grid" style="max-width: 420px;">
+    <div class="swatch"><div class="swatch-color" style="background:var(--storm);"><span style="color:white;">Storm</span></div><div class="swatch-info"><div class="name">Storm</div><div class="val">oklch(0.42 0.03 250)</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:var(--slate);"><span style="color:white;">Slate</span></div><div class="swatch-info"><div class="name">Slate</div><div class="val">oklch(0.55 0.015 230)</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:var(--mist);"><span style="color:var(--storm);">Mist</span></div><div class="swatch-info"><div class="name">Mist</div><div class="val">oklch(0.92 0.008 200)</div></div></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════
+     3. TYPOGRAPHY
+     ═══════════════════════════════════════════ -->
+<section class="ds-section" id="typography">
+  <h2>Typography</h2>
+
+  <div class="font-grid">
+    <div class="font-card">
+      <div class="sample" style="font-family: 'Orelega One', serif; font-size: var(--type-xl); color: var(--text-primary);">Ephemeral Aa</div>
+      <div class="meta"><strong>Orelega One</strong> — Headings, titles</div>
+    </div>
+    <div class="font-card">
+      <div class="sample" style="font-family: 'Lisu Bosa', serif; font-size: var(--type-xl); color: var(--text-primary);">Ephemeral Aa</div>
+      <div class="meta"><strong>Lisu Bosa</strong> — Word/lemma on cards</div>
+    </div>
+    <div class="font-card">
+      <div class="sample" style="font-family: 'Space Grotesk', sans-serif; font-size: var(--type-md); color: var(--text-primary);">The quick brown fox jumps 123</div>
+      <div class="meta"><strong>Space Grotesk</strong> — Body, UI text</div>
+    </div>
+    <div class="font-card">
+      <div class="sample" style="font-family: 'EB Garamond', serif; font-size: var(--type-md); color: var(--text-secondary);">"A fortunate stroke of serendipity"</div>
+      <div class="meta"><strong>EB Garamond</strong> — Book examples</div>
+    </div>
+    <div class="font-card">
+      <div class="sample" style="font-family: 'Courier Prime', monospace; font-size: var(--type-base); color: var(--text-secondary);">› You can't handle the truth!</div>
+      <div class="meta"><strong>Courier Prime</strong> — Screen/subtitle examples</div>
+    </div>
+    <div class="font-card">
+      <div class="sample" style="font-family: 'Caveat', cursive; font-size: 22px; color: var(--text-secondary);">I'm walking on sunshine</div>
+      <div class="meta"><strong>Caveat</strong> — Lyrics examples</div>
+    </div>
+  </div>
+
+  <h3>Type Scale</h3>
+  <div style="margin-bottom: var(--space-lg);">
+    <div style="font-family:'Orelega One',serif; font-size:var(--type-2xl); margin-bottom:8px;">36px — Page Heading</div>
+    <div style="font-family:'Orelega One',serif; font-size:var(--type-xl); margin-bottom:8px;">28px — Section Heading</div>
+    <div style="font-family:'Orelega One',serif; font-size:var(--type-lg); margin-bottom:8px;">22px — Subsection / Lemma</div>
+    <div style="font-size:var(--type-md); margin-bottom:8px;">17px — Body Large</div>
+    <div style="font-size:var(--type-base); margin-bottom:8px;">15px — Body Default</div>
+    <div style="font-size:var(--type-sm); margin-bottom:8px; color:var(--text-secondary);">13px — Buttons, Meta</div>
+    <div style="font-size:var(--type-xs); color:var(--text-tertiary);">11px — Badges, Captions</div>
+  </div>
+
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════
+     4. COMPONENTS
+     ═══════════════════════════════════════════ -->
+<section class="ds-section" id="components">
+  <h2>Components</h2>
+
+  <!-- Flashcard -->
+  <h3>SRS Flashcard</h3>
+  <div class="demo-box" style="background: var(--linen);">
+    <div class="flashcard">
+      <div class="flashcard-head">
+        <div class="word"><span style="color: var(--accent); font-size: 32px;">e</span>phemeral</div>
+        <div class="phonetic">/ɪˈfɛm.ər.əl/ <span style="margin-left: 8px;">adjective</span></div>
+      </div>
+      <div class="flashcard-body">
+        <div class="definition">Lasting for a very short time. Transient, fleeting.</div>
+        <div class="translation">мимолётный, недолговечный, эфемерный</div>
+        <div class="flashcard-example">
+          <q>"The ephemeral beauty of the cherry blossoms drew crowds every spring."</q>
+        </div>
+        <div class="flashcard-meta">
+          <span>Reviews: 12</span>
+          <span>Streak: 4</span>
+          <div class="progress-bar"><div class="progress-fill" style="width: 68%;"></div></div>
+          <span>68%</span>
+        </div>
+        <div class="srs-buttons">
+          <div class="srs-btn" style="background: var(--srs-again);">Again<small>&lt; 1m</small></div>
+          <div class="srs-btn" style="background: var(--srs-hard);">Hard<small>6m</small></div>
+          <div class="srs-btn" style="background: var(--srs-good);">Good<small>10m</small></div>
+          <div class="srs-btn" style="background: var(--srs-easy);">Easy<small>4d</small></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SRS Disabled state -->
+  <h3>SRS Buttons — Disabled</h3>
+  <div style="display: flex; gap: 6px; max-width: var(--container-narrow); margin-bottom: var(--space-lg);">
+    <div class="srs-btn" style="flex:1; background: var(--bark-light); color: var(--text-disabled); cursor: not-allowed;">Again<small>&lt; 1m</small></div>
+    <div class="srs-btn" style="flex:1; background: var(--bark-light); color: var(--text-disabled); cursor: not-allowed;">Hard<small>6m</small></div>
+    <div class="srs-btn" style="flex:1; background: var(--bark-light); color: var(--text-disabled); cursor: not-allowed;">Good<small>10m</small></div>
+    <div class="srs-btn" style="flex:1; background: var(--bark-light); color: var(--text-disabled); cursor: not-allowed;">Easy<small>4d</small></div>
+  </div>
+
+  <!-- Navigation -->
+  <h3>Tab Navigation</h3>
+  <div class="tab-nav">
+    <div class="tab-nav-item active">Dictionary</div>
+    <div class="tab-nav-item">Study</div>
+    <div class="tab-nav-item">Topics</div>
+    <div class="tab-nav-item">Inbox</div>
+  </div>
+
+  <!-- Buttons -->
+  <h3>Buttons</h3>
+  <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: var(--space-md);">
+    <button class="btn btn-primary">Add Word</button>
+    <button class="btn btn-calm">Start Study</button>
+    <button class="btn btn-secondary">Export</button>
+    <button class="btn btn-ghost">Learn more</button>
+    <button class="btn btn-danger">Delete</button>
+  </div>
+  <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: var(--space-lg);">
+    <button class="btn btn-primary" disabled>Disabled Primary</button>
+    <button class="btn btn-secondary" disabled>Disabled Secondary</button>
+  </div>
+
+  <!-- Inputs -->
+  <h3>Input Fields</h3>
+  <div class="two-col" style="margin-bottom: var(--space-lg);">
+    <div class="input-demo">
+      <label class="input-label">Search word</label>
+      <input type="text" class="input-field" placeholder="Type a word...">
+    </div>
+    <div class="input-demo">
+      <label class="input-label">Email (error state)</label>
+      <input type="text" class="input-field error" value="invalid-email">
+      <div class="input-error-text">Please enter a valid email address</div>
+    </div>
+  </div>
+
+  <!-- Status Pills -->
+  <h3>Status Pills — Semantic Axis</h3>
+  <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: var(--space-lg);">
+    <div class="pill" style="background: var(--status-new); color: var(--status-new-fg);"><div class="dot" style="background: var(--poppy);"></div>New</div>
+    <div class="pill" style="background: var(--status-learning); color: var(--status-learning-fg);"><div class="dot" style="background: var(--goldenrod);"></div>Learning</div>
+    <div class="pill" style="background: var(--status-review); color: var(--status-review-fg);"><div class="dot" style="background: var(--cornflower);"></div>Review</div>
+    <div class="pill" style="background: var(--status-mastered); color: var(--status-mastered-fg);"><div class="dot" style="background: var(--thyme);"></div>Mastered</div>
+  </div>
+
+  <!-- Source Tags -->
+  <h3>Source Tags — Categorical Layer</h3>
+  <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: var(--space-lg);">
+    <div class="tag" style="background: var(--source-book-light); color: oklch(0.45 0.05 290);">Book</div>
+    <div class="tag" style="background: var(--source-book-light); color: oklch(0.45 0.05 290);">Article</div>
+    <div class="tag" style="background: var(--source-screen-light); color: oklch(0.43 0.05 200);">TV Show</div>
+    <div class="tag" style="background: var(--source-screen-light); color: oklch(0.43 0.05 200);">Movie</div>
+    <div class="tag" style="background: var(--source-lyrics-light); color: oklch(0.43 0.05 320);">Lyrics</div>
+    <div class="tag" style="background: var(--source-lyrics-light); color: oklch(0.43 0.05 320);">Podcast</div>
+  </div>
+
+  <!-- Toasts -->
+  <h3>Toast Notifications</h3>
+  <div style="margin-bottom: var(--space-lg);">
+    <div class="toast" style="border-color: var(--thyme); background: var(--thyme-light);">
+      <span style="color: var(--thyme);">✓</span>
+      <span style="color: var(--thyme-fg);">Study session complete! 42 cards reviewed.</span>
+    </div>
+    <div class="toast" style="border-color: var(--poppy);">
+      <span style="color: var(--poppy);">✕</span>
+      <span>Failed to save entry. Please try again.</span>
+    </div>
+    <div class="toast" style="border-color: var(--goldenrod);">
+      <span style="color: var(--goldenrod);">⚠</span>
+      <span>200+ cards due for review today.</span>
+    </div>
+    <div class="toast" style="border-color: var(--cornflower);">
+      <span style="color: var(--cornflower);">ℹ</span>
+      <span>12 new words added from "Breaking Bad S02".</span>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <h3>Modal</h3>
+  <div class="modal-demo">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Delete Entry?</h3>
+        <button class="modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete <strong>"ephemeral"</strong>? This action cannot be undone. Your study progress for this word will be lost.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" style="padding: 8px 16px;">Cancel</button>
+        <button class="btn btn-danger" style="padding: 8px 16px;">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skeleton -->
+  <h3>Loading Skeleton</h3>
+  <div style="max-width: var(--container-narrow); padding: 20px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: white; margin-bottom: var(--space-lg);">
+    <div class="skeleton skeleton-line" style="width: 40%; height: 20px; margin-bottom: 12px;"></div>
+    <div class="skeleton skeleton-line" style="width: 25%;"></div>
+    <div style="height: 16px;"></div>
+    <div class="skeleton skeleton-line" style="width: 100%;"></div>
+    <div class="skeleton skeleton-line" style="width: 85%;"></div>
+    <div style="height: 8px;"></div>
+    <div style="display: flex; gap: 8px;">
+      <div class="skeleton skeleton-pill"></div>
+      <div class="skeleton skeleton-pill" style="width: 60px;"></div>
+    </div>
+    <div style="height: 16px;"></div>
+    <div style="display: flex; gap: 6px;">
+      <div class="skeleton" style="flex:1; height: 38px; background: var(--straw); border-radius: var(--radius-md);"></div>
+      <div class="skeleton" style="flex:1; height: 38px; background: var(--straw); border-radius: var(--radius-md);"></div>
+      <div class="skeleton" style="flex:1; height: 38px; background: var(--straw); border-radius: var(--radius-md);"></div>
+      <div class="skeleton" style="flex:1; height: 38px; background: var(--straw); border-radius: var(--radius-md);"></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════
+     5. PATTERNS
+     ═══════════════════════════════════════════ -->
+<section class="ds-section" id="patterns">
+  <h2>Patterns</h2>
+
+  <!-- Example blocks by source -->
+  <h3>Example blocks by source type</h3>
+
+  <div class="example-block" style="border-color: var(--source-book); background: var(--source-book-light);">
+    <div class="example-badge" style="background: var(--lavender); color: white;">Book</div>
+    <div class="example-text" style="font-family: 'EB Garamond', serif; color: var(--umber);">
+      <span style="font-size: var(--type-lg); color: var(--accent); float: left; line-height: 1; margin-right: 4px;">"T</span>he ephemeral beauty of morning dew reminds us that nothing lasts forever."
+    </div>
+    <div class="example-translation">Мимолётная красота утренней росы напоминает нам, что ничто не длится вечно.</div>
+    <div class="example-source">Paulo Coelho — The Alchemist, p. 42</div>
+  </div>
+
+  <div class="example-block" style="border-color: var(--source-screen); background: var(--source-screen-light);">
+    <div class="example-badge" style="background: oklch(0.50 0.06 200); color: white;">Screen</div>
+    <div class="example-text" style="font-family: 'Courier Prime', monospace; color: var(--umber);">
+      › "The ephemeral nature of our arrangement makes it all the more... valuable."
+    </div>
+    <div class="example-translation">Мимолётная природа нашей договорённости делает её тем более... ценной.</div>
+    <div class="example-source">Breaking Bad — S03E08, 22:15</div>
+  </div>
+
+  <div class="example-block" style="border-color: var(--source-lyrics); background: var(--source-lyrics-light);">
+    <div class="example-badge" style="background: var(--heather); color: white;">Lyrics</div>
+    <div class="example-text" style="font-family: 'Caveat', cursive; font-size: 20px; line-height: var(--leading-loose); color: var(--umber);">
+      Ephemeral love, like petals in the wind<br>
+      Here for a moment, then gone again
+    </div>
+    <div class="example-source">Florence + The Machine — Cosmic Love</div>
+  </div>
+
+  <div class="example-block" style="border-color: var(--border); background: white; border-style: dashed;">
+    <div class="example-badge" style="background: var(--bark-light); color: var(--bark);">User</div>
+    <div class="example-text" style="font-style: italic; color: var(--text-secondary);">
+      "That party was so ephemeral — it felt like it ended before it even began."
+    </div>
+  </div>
+
+  <!-- Vocabulary card -->
+  <h3>Vocabulary List</h3>
+  <div class="vocab-card">
+    <div>
+      <div class="vocab-word"><span style="color: var(--accent);">e</span>phemeral</div>
+      <div class="vocab-meta">
+        <div class="pill" style="background: var(--accent-light); color: var(--poppy-fg); font-size: 10px; padding: 2px 8px;">adj.</div>
+        <div class="pill" style="background: var(--cornflower-light); color: var(--cornflower-fg); font-size: 10px; padding: 2px 8px;">C1</div>
+        <div class="tag" style="background: var(--source-screen-light); color: oklch(0.43 0.05 200); font-size: 9px;">TV Show</div>
+      </div>
+      <div class="vocab-def">lasting for a very short time; transient</div>
+    </div>
+    <div class="status-dot" style="background: var(--goldenrod);" title="Learning"></div>
+  </div>
+  <div class="vocab-card">
+    <div>
+      <div class="vocab-word"><span style="color: var(--accent);">s</span>erendipity</div>
+      <div class="vocab-meta">
+        <div class="pill" style="background: var(--accent-light); color: var(--poppy-fg); font-size: 10px; padding: 2px 8px;">noun</div>
+        <div class="pill" style="background: var(--cornflower-light); color: var(--cornflower-fg); font-size: 10px; padding: 2px 8px;">C2</div>
+        <div class="tag" style="background: var(--source-book-light); color: oklch(0.45 0.05 290); font-size: 9px;">Book</div>
+      </div>
+      <div class="vocab-def">the occurrence of events by chance in a happy way</div>
+    </div>
+    <div class="status-dot" style="background: var(--thyme);" title="Mastered"></div>
+  </div>
+  <div class="vocab-card">
+    <div>
+      <div class="vocab-word"><span style="color: var(--accent);">m</span>elancholy</div>
+      <div class="vocab-meta">
+        <div class="pill" style="background: var(--accent-light); color: var(--poppy-fg); font-size: 10px; padding: 2px 8px;">noun</div>
+        <div class="pill" style="background: var(--cornflower-light); color: var(--cornflower-fg); font-size: 10px; padding: 2px 8px;">B2</div>
+        <div class="tag" style="background: var(--source-lyrics-light); color: oklch(0.43 0.05 320); font-size: 9px;">Lyrics</div>
+      </div>
+      <div class="vocab-def">a deep, persistent sadness or pensive mood</div>
+    </div>
+    <div class="status-dot" style="background: var(--poppy);" title="New"></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════
+     6. MOTION & ELEVATION
+     ═══════════════════════════════════════════ -->
+<section class="ds-section" id="motion">
+  <h2>Elevation & Spacing</h2>
+
+  <h3>Elevation Levels</h3>
+  <div class="elevation-grid">
+    <div class="elevation-card" style="box-shadow: var(--elevation-0); border: 1px solid var(--border);">Level 0</div>
+    <div class="elevation-card" style="box-shadow: var(--elevation-1);">Level 1</div>
+    <div class="elevation-card" style="box-shadow: var(--elevation-2);">Level 2</div>
+    <div class="elevation-card" style="box-shadow: var(--elevation-3);">Level 3</div>
+  </div>
+
+  <h3>Spacing Scale</h3>
+  <div style="margin-bottom: var(--space-lg);">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:6px;">
+      <div style="width:var(--space-2xs); height:16px; background:var(--poppy); border-radius:2px;"></div>
+      <span style="font-size: var(--type-xs); color: var(--text-secondary);">2xs — 2px</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:6px;">
+      <div style="width:var(--space-xs); height:16px; background:var(--poppy); border-radius:2px;"></div>
+      <span style="font-size: var(--type-xs); color: var(--text-secondary);">xs — 4px</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:6px;">
+      <div style="width:var(--space-sm); height:16px; background:var(--goldenrod); border-radius:2px;"></div>
+      <span style="font-size: var(--type-xs); color: var(--text-secondary);">sm — 8px</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:6px;">
+      <div style="width:var(--space-md); height:16px; background:var(--goldenrod); border-radius:2px;"></div>
+      <span style="font-size: var(--type-xs); color: var(--text-secondary);">md — 16px</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:6px;">
+      <div style="width:var(--space-lg); height:16px; background:var(--cornflower); border-radius:2px;"></div>
+      <span style="font-size: var(--type-xs); color: var(--text-secondary);">lg — 24px</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:6px;">
+      <div style="width:var(--space-xl); height:16px; background:var(--cornflower); border-radius:2px;"></div>
+      <span style="font-size: var(--type-xs); color: var(--text-secondary);">xl — 40px</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:6px;">
+      <div style="width:var(--space-2xl); height:16px; background:var(--thyme); border-radius:2px;"></div>
+      <span style="font-size: var(--type-xs); color: var(--text-secondary);">2xl — 64px</span>
+    </div>
+  </div>
+
+  <h3>Border Radius</h3>
+  <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: var(--space-lg);">
+    <div style="width:48px;height:48px;border:2px solid var(--border-botanical);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--text-tertiary);">6px</div>
+    <div style="width:48px;height:48px;border:2px solid var(--border-botanical);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--text-tertiary);">10px</div>
+    <div style="width:48px;height:48px;border:2px solid var(--border-botanical);border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--text-tertiary);">16px</div>
+    <div style="width:48px;height:48px;border:2px solid var(--border-botanical);border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--text-tertiary);">full</div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════
+     7. ACCESSIBILITY
+     ═══════════════════════════════════════════ -->
+<section class="ds-section" id="accessibility">
+  <h2>Accessibility</h2>
+  <p>SRS buttons use both color AND text labels. Status pills use both color AND dot + text. The semantic axis (hot→calm) maps to universal temperature intuition. Colorblind simulation below.</p>
+
+  <h3>Colorblind Simulation — SRS Buttons</h3>
+  <svg style="position:absolute;width:0;height:0;">
+    <defs>
+      <filter id="protanopia"><feColorMatrix type="matrix" values="0.567,0.433,0,0,0 0.558,0.442,0,0,0 0,0.242,0.758,0,0 0,0,0,1,0"/></filter>
+      <filter id="deuteranopia"><feColorMatrix type="matrix" values="0.625,0.375,0,0,0 0.7,0.3,0,0,0 0,0.3,0.7,0,0 0,0,0,1,0"/></filter>
+    </svg>
+  <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-md); margin-bottom: var(--space-lg);">
+    <div>
+      <div style="font-size:var(--type-xs); color:var(--text-tertiary); margin-bottom: 8px; text-transform:uppercase; letter-spacing:0.5px;">Normal Vision</div>
+      <div style="display: flex; gap: 4px;">
+        <div class="srs-btn" style="flex:1; background:var(--srs-again); font-size:10px; padding:8px 2px;">Again</div>
+        <div class="srs-btn" style="flex:1; background:var(--srs-hard); font-size:10px; padding:8px 2px;">Hard</div>
+        <div class="srs-btn" style="flex:1; background:var(--srs-good); font-size:10px; padding:8px 2px;">Good</div>
+        <div class="srs-btn" style="flex:1; background:var(--srs-easy); font-size:10px; padding:8px 2px;">Easy</div>
+      </div>
+    </div>
+    <div style="filter: url(#protanopia);">
+      <div style="font-size:var(--type-xs); color:var(--text-tertiary); margin-bottom: 8px; text-transform:uppercase; letter-spacing:0.5px;">Protanopia</div>
+      <div style="display: flex; gap: 4px;">
+        <div class="srs-btn" style="flex:1; background:var(--srs-again); font-size:10px; padding:8px 2px;">Again</div>
+        <div class="srs-btn" style="flex:1; background:var(--srs-hard); font-size:10px; padding:8px 2px;">Hard</div>
+        <div class="srs-btn" style="flex:1; background:var(--srs-good); font-size:10px; padding:8px 2px;">Good</div>
+        <div class="srs-btn" style="flex:1; background:var(--srs-easy); font-size:10px; padding:8px 2px;">Easy</div>
+      </div>
+    </div>
+    <div style="filter: url(#deuteranopia);">
+      <div style="font-size:var(--type-xs); color:var(--text-tertiary); margin-bottom: 8px; text-transform:uppercase; letter-spacing:0.5px;">Deuteranopia</div>
+      <div style="display: flex; gap: 4px;">
+        <div class="srs-btn" style="flex:1; background:var(--srs-again); font-size:10px; padding:8px 2px;">Again</div>
+        <div class="srs-btn" style="flex:1; background:var(--srs-hard); font-size:10px; padding:8px 2px;">Hard</div>
+        <div class="srs-btn" style="flex:1; background:var(--srs-good); font-size:10px; padding:8px 2px;">Good</div>
+        <div class="srs-btn" style="flex:1; background:var(--srs-easy); font-size:10px; padding:8px 2px;">Easy</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Focus States</h3>
+  <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+    <button class="btn btn-primary" style="outline: 2px solid var(--focus-ring); outline-offset: 2px;">Focused Primary</button>
+    <button class="btn btn-secondary" style="outline: 2px solid var(--focus-ring); outline-offset: 2px;">Focused Secondary</button>
+    <button class="btn btn-calm" style="outline: 2px solid var(--focus-ring); outline-offset: 2px;">Focused Calm</button>
+  </div>
+</section>
+
+</div>
+</main>
+</body>
+</html>
