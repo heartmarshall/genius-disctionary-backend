@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton'
 import { OAuthDivider } from '@/components/auth/OAuthDivider'
+import { useRateLimitCountdown } from '@/hooks/useRateLimitCountdown'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
 
 function LoginPage() {
@@ -17,6 +18,7 @@ function LoginPage() {
   const { login } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [genericError, setGenericError] = useState<string | null>(null)
+  const { isRateLimited, secondsLeft, startCountdown } = useRateLimitCountdown()
 
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/dashboard'
 
@@ -42,7 +44,7 @@ function LoginPage() {
 
       // Never show field-specific errors for login (prevents enumeration)
       if (parsed.type === 'rate_limited') {
-        toast.error(parsed.message)
+        startCountdown(parsed.retryAfter ?? 60)
       } else {
         setGenericError(parsed.message)
       }
@@ -54,7 +56,13 @@ function LoginPage() {
       <h2 className="font-heading text-2xl mb-xs">Welcome back</h2>
       <p className="text-text-secondary text-sm mb-lg">Sign in to continue learning</p>
 
-      {genericError && (
+      {isRateLimited && (
+        <div className="bg-goldenrod-light border border-goldenrod/20 text-goldenrod-fg rounded-md px-md py-sm text-sm mb-md">
+          Too many attempts. Try again in {secondsLeft}s.
+        </div>
+      )}
+
+      {genericError && !isRateLimited && (
         <div className="bg-poppy-light border border-poppy/20 text-poppy-fg rounded-md px-md py-sm text-sm mb-md">
           {genericError}
         </div>
@@ -108,12 +116,14 @@ function LoginPage() {
           )}
         </div>
 
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
+        <Button type="submit" className="w-full" disabled={isSubmitting || isRateLimited}>
           {isSubmitting ? (
             <>
               <Loader2 className="size-4 animate-spin" />
               Signing in…
             </>
+          ) : isRateLimited ? (
+            `Wait ${secondsLeft}s…`
           ) : (
             'Sign In'
           )}

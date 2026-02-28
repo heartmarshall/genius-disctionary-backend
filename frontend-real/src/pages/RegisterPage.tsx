@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton'
 import { OAuthDivider } from '@/components/auth/OAuthDivider'
+import { useRateLimitCountdown } from '@/hooks/useRateLimitCountdown'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
 
 function RegisterPage() {
@@ -17,6 +18,7 @@ function RegisterPage() {
   const { login } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+  const { isRateLimited, secondsLeft, startCountdown } = useRateLimitCountdown()
 
   const {
     register: field,
@@ -38,7 +40,9 @@ function RegisterPage() {
     } catch (err) {
       const parsed = parseAuthError(err)
 
-      if (parsed.type === 'validation' && parsed.fieldErrors) {
+      if (parsed.type === 'rate_limited') {
+        startCountdown(parsed.retryAfter ?? 60)
+      } else if (parsed.type === 'validation' && parsed.fieldErrors) {
         for (const fe of parsed.fieldErrors) {
           if (fe.field === 'email' || fe.field === 'username' || fe.field === 'password') {
             setError(fe.field, { message: fe.message })
@@ -54,6 +58,12 @@ function RegisterPage() {
     <div>
       <h2 className="font-heading text-2xl mb-xs">Create account</h2>
       <p className="text-text-secondary text-sm mb-lg">Start building your vocabulary</p>
+
+      {isRateLimited && (
+        <div className="bg-goldenrod-light border border-goldenrod/20 text-goldenrod-fg rounded-md px-md py-sm text-sm mb-md">
+          Too many attempts. Try again in {secondsLeft}s.
+        </div>
+      )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-md" noValidate>
         {/* Email */}
@@ -150,12 +160,14 @@ function RegisterPage() {
           )}
         </div>
 
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
+        <Button type="submit" className="w-full" disabled={isSubmitting || isRateLimited}>
           {isSubmitting ? (
             <>
               <Loader2 className="size-4 animate-spin" />
               Creating account…
             </>
+          ) : isRateLimited ? (
+            `Wait ${secondsLeft}s…`
           ) : (
             'Create Account'
           )}

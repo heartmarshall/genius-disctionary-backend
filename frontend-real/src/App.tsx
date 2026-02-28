@@ -3,6 +3,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google'
 import { ApolloProvider } from '@/providers/ApolloProvider'
 import { AuthProvider } from '@/providers/AuthProvider'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
+import { GuestRoute } from '@/components/GuestRoute'
 import { Toaster } from '@/components/ui/sonner'
 import AuthLayout from '@/layouts/AuthLayout'
 import MainLayout from '@/layouts/MainLayout'
@@ -27,8 +28,14 @@ function App() {
       <AuthProvider>
         <BrowserRouter>
           <Routes>
-            {/* Auth routes — no protection */}
-            <Route element={<AuthLayout />}>
+            {/* Auth routes — redirect to dashboard if already logged in */}
+            <Route
+              element={
+                <GuestRoute>
+                  <AuthLayout />
+                </GuestRoute>
+              }
+            >
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
             </Route>
