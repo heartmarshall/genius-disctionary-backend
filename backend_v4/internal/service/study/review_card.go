@@ -4,19 +4,17 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
 	"github.com/heartmarshall/myenglish-backend/internal/service/study/fsrs"
-	"github.com/heartmarshall/myenglish-backend/pkg/ctxutil"
 )
 
 // ReviewCard records a review and updates the card's SRS state using FSRS-5.
 func (s *Service) ReviewCard(ctx context.Context, input ReviewCardInput) (*domain.Card, error) {
-	userID, ok := ctxutil.UserIDFromCtx(ctx)
-	if !ok {
-		return nil, domain.ErrUnauthorized
+	userID, err := s.userID(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	if err := input.Validate(); err != nil {
@@ -31,16 +29,7 @@ func (s *Service) ReviewCard(ctx context.Context, input ReviewCardInput) (*domai
 		return nil, fmt.Errorf("get settings: %w", err)
 	}
 
-	// Build FSRS parameters
-	params := fsrs.Parameters{
-		W:                s.fsrsWeights,
-		DesiredRetention: settings.DesiredRetention,
-		MaxIntervalDays:  min(s.srsConfig.MaxIntervalDays, settings.MaxIntervalDays),
-		EnableFuzz:       s.srsConfig.EnableFuzz,
-		LearningSteps:    s.srsConfig.LearningSteps,
-		RelearningSteps:  s.srsConfig.RelearningSteps,
-	}
-
+	params := s.buildFSRSParams(settings)
 	rating := mapGradeToRating(input.Grade)
 
 	var updatedCard *domain.Card
@@ -53,39 +42,10 @@ func (s *Service) ReviewCard(ctx context.Context, input ReviewCardInput) (*domai
 			return fmt.Errorf("get card: %w", cardErr)
 		}
 
-		// Snapshot state before review
-		snapshot := &domain.CardSnapshot{
-			State:         card.State,
-			Step:          card.Step,
-			Stability:     card.Stability,
-			Difficulty:    card.Difficulty,
-			Due:           card.Due,
-			LastReview:    card.LastReview,
-			Reps:          card.Reps,
-			Lapses:        card.Lapses,
-			ScheduledDays: card.ScheduledDays,
-			ElapsedDays:   card.ElapsedDays,
-		}
+		snapshot := snapshotFromCard(card)
 
-		// Convert domain card to FSRS card
-		fsrsCard := fsrs.Card{
-			State:         card.State,
-			Step:          card.Step,
-			Stability:     card.Stability,
-			Difficulty:    card.Difficulty,
-			Due:           card.Due,
-			LastReview:    card.LastReview,
-			Reps:          card.Reps,
-			Lapses:        card.Lapses,
-			ScheduledDays: card.ScheduledDays,
-			ElapsedDays:   card.ElapsedDays,
-		}
-
-		// Compute actual elapsed days since last review
-		if card.LastReview != nil {
-			elapsed := now.Sub(*card.LastReview)
-			fsrsCard.ElapsedDays = max(0, int(elapsed.Hours()/24))
-		}
+		fsrsCard := cardToFSRS(card)
+		fsrsCard.ElapsedDays = computeElapsedDays(card.LastReview, now)
 
 		// Calculate new SRS state
 		result, fsrsErr := fsrs.ReviewCard(params, fsrsCard, rating, now)
@@ -93,25 +53,8 @@ func (s *Service) ReviewCard(ctx context.Context, input ReviewCardInput) (*domai
 			return fmt.Errorf("fsrs review: %w", fsrsErr)
 		}
 
-		var lastReview *time.Time
-		if result.LastReview != nil {
-			t := *result.LastReview
-			lastReview = &t
-		}
-
 		var updateErr error
-		updatedCard, updateErr = s.cards.UpdateSRS(txCtx, userID, card.ID, domain.SRSUpdateParams{
-			State:         result.State,
-			Step:          result.Step,
-			Stability:     result.Stability,
-			Difficulty:    result.Difficulty,
-			Due:           result.Due,
-			LastReview:    lastReview,
-			Reps:          result.Reps,
-			Lapses:        result.Lapses,
-			ScheduledDays: result.ScheduledDays,
-			ElapsedDays:   result.ElapsedDays,
-		})
+		updatedCard, updateErr = s.cards.UpdateSRS(txCtx, userID, card.ID, fsrsResultToUpdateParams(result))
 		if updateErr != nil {
 			return fmt.Errorf("update card: %w", updateErr)
 		}
