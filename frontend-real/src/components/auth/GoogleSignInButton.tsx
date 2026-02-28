@@ -9,7 +9,13 @@ import { Loader2 } from 'lucide-react'
 
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
 
+// Gate component — prevents useGoogleLogin from being called without provider
 export function GoogleSignInButton() {
+  if (!googleClientId) return null
+  return <GoogleSignInButtonInner />
+}
+
+function GoogleSignInButtonInner() {
   const navigate = useNavigate()
   const location = useLocation()
   const { login } = useAuth()
@@ -45,9 +51,6 @@ export function GoogleSignInButton() {
       }
     },
   })
-
-  // Don't render if Google OAuth is not configured
-  if (!googleClientId) return null
 
   return (
     <Button
