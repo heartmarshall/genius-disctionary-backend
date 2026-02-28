@@ -8,14 +8,13 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
-	"github.com/heartmarshall/myenglish-backend/pkg/ctxutil"
 )
 
 // GetActiveSession returns the user's active study session, or nil if none.
 func (s *Service) GetActiveSession(ctx context.Context) (*domain.StudySession, error) {
-	userID, ok := ctxutil.UserIDFromCtx(ctx)
-	if !ok {
-		return nil, domain.ErrUnauthorized
+	userID, err := s.userID(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	session, err := s.sessions.GetActive(ctx, userID)
@@ -30,9 +29,9 @@ func (s *Service) GetActiveSession(ctx context.Context) (*domain.StudySession, e
 
 // StartSession starts a new study session or returns existing ACTIVE session (idempotent).
 func (s *Service) StartSession(ctx context.Context) (*domain.StudySession, error) {
-	userID, ok := ctxutil.UserIDFromCtx(ctx)
-	if !ok {
-		return nil, domain.ErrUnauthorized
+	userID, err := s.userID(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	// Check for existing ACTIVE session first
@@ -45,7 +44,7 @@ func (s *Service) StartSession(ctx context.Context) (*domain.StudySession, error
 		)
 		return existing, nil
 	}
-	if err != nil && !errors.Is(err, domain.ErrNotFound) {
+	if !errors.Is(err, domain.ErrNotFound) {
 		return nil, fmt.Errorf("check active session: %w", err)
 	}
 
@@ -85,9 +84,9 @@ func (s *Service) StartSession(ctx context.Context) (*domain.StudySession, error
 
 // FinishActiveSession finishes the user's current ACTIVE session.
 func (s *Service) FinishActiveSession(ctx context.Context) (*domain.StudySession, error) {
-	userID, ok := ctxutil.UserIDFromCtx(ctx)
-	if !ok {
-		return nil, domain.ErrUnauthorized
+	userID, err := s.userID(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	session, err := s.sessions.GetActive(ctx, userID)
@@ -100,9 +99,9 @@ func (s *Service) FinishActiveSession(ctx context.Context) (*domain.StudySession
 
 // FinishSession finishes a specific session by ID.
 func (s *Service) FinishSession(ctx context.Context, input FinishSessionInput) (*domain.StudySession, error) {
-	userID, ok := ctxutil.UserIDFromCtx(ctx)
-	if !ok {
-		return nil, domain.ErrUnauthorized
+	userID, err := s.userID(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	if err := input.Validate(); err != nil {
@@ -153,9 +152,9 @@ func (s *Service) finishSession(ctx context.Context, userID uuid.UUID, session *
 
 // AbandonSession abandons the current ACTIVE session (idempotent noop if no active session).
 func (s *Service) AbandonSession(ctx context.Context) error {
-	userID, ok := ctxutil.UserIDFromCtx(ctx)
-	if !ok {
-		return domain.ErrUnauthorized
+	userID, err := s.userID(ctx)
+	if err != nil {
+		return err
 	}
 
 	// Try to get active session

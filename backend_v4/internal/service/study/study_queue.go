@@ -6,14 +6,13 @@ import (
 	"log/slog"
 
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
-	"github.com/heartmarshall/myenglish-backend/pkg/ctxutil"
 )
 
 // GetStudyQueue returns cards ready for review (due cards + new cards respecting daily limit).
 func (s *Service) GetStudyQueue(ctx context.Context, input GetQueueInput) ([]*domain.Card, error) {
-	userID, ok := ctxutil.UserIDFromCtx(ctx)
-	if !ok {
-		return nil, domain.ErrUnauthorized
+	userID, err := s.userID(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	if err := input.Validate(); err != nil {

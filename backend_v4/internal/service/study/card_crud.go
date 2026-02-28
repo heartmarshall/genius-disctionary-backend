@@ -7,14 +7,13 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
-	"github.com/heartmarshall/myenglish-backend/pkg/ctxutil"
 )
 
 // CreateCard creates a study card for an entry. Entry must have at least one sense.
 func (s *Service) CreateCard(ctx context.Context, input CreateCardInput) (*domain.Card, error) {
-	userID, ok := ctxutil.UserIDFromCtx(ctx)
-	if !ok {
-		return nil, domain.ErrUnauthorized
+	userID, err := s.userID(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	if err := input.Validate(); err != nil {
@@ -22,7 +21,7 @@ func (s *Service) CreateCard(ctx context.Context, input CreateCardInput) (*domai
 	}
 
 	// Check entry exists
-	_, err := s.entries.GetByID(ctx, userID, input.EntryID)
+	_, err = s.entries.GetByID(ctx, userID, input.EntryID)
 	if err != nil {
 		return nil, fmt.Errorf("get entry: %w", err)
 	}
@@ -78,9 +77,9 @@ func (s *Service) CreateCard(ctx context.Context, input CreateCardInput) (*domai
 
 // DeleteCard deletes a study card. Entry remains in dictionary.
 func (s *Service) DeleteCard(ctx context.Context, input DeleteCardInput) error {
-	userID, ok := ctxutil.UserIDFromCtx(ctx)
-	if !ok {
-		return domain.ErrUnauthorized
+	userID, err := s.userID(ctx)
+	if err != nil {
+		return err
 	}
 
 	if err := input.Validate(); err != nil {
@@ -132,9 +131,9 @@ func (s *Service) DeleteCard(ctx context.Context, input DeleteCardInput) error {
 
 // BatchCreateCards creates cards for multiple entries in batch with partial success.
 func (s *Service) BatchCreateCards(ctx context.Context, input BatchCreateCardsInput) (BatchCreateResult, error) {
-	userID, ok := ctxutil.UserIDFromCtx(ctx)
-	if !ok {
-		return BatchCreateResult{}, domain.ErrUnauthorized
+	userID, err := s.userID(ctx)
+	if err != nil {
+		return BatchCreateResult{}, err
 	}
 
 	if err := input.Validate(); err != nil {

@@ -6,15 +6,14 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
-	"github.com/heartmarshall/myenglish-backend/pkg/ctxutil"
 )
 
 // GetStudyQueueEntries returns entries for the study queue, using batch loading
 // to avoid N+1 queries. It preserves the card ordering (due cards first, then new).
 func (s *Service) GetStudyQueueEntries(ctx context.Context, input GetQueueInput) ([]*domain.Entry, error) {
-	userID, ok := ctxutil.UserIDFromCtx(ctx)
-	if !ok {
-		return nil, domain.ErrUnauthorized
+	userID, err := s.userID(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	cards, err := s.GetStudyQueue(ctx, input)

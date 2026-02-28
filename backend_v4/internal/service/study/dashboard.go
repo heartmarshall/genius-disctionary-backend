@@ -8,15 +8,14 @@ import (
 	"time"
 
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
-	"github.com/heartmarshall/myenglish-backend/pkg/ctxutil"
 	"golang.org/x/sync/errgroup"
 )
 
 // GetDashboard returns aggregated study statistics for the user.
 func (s *Service) GetDashboard(ctx context.Context) (domain.Dashboard, error) {
-	userID, ok := ctxutil.UserIDFromCtx(ctx)
-	if !ok {
-		return domain.Dashboard{}, domain.ErrUnauthorized
+	userID, err := s.userID(ctx)
+	if err != nil {
+		return domain.Dashboard{}, err
 	}
 
 	now := s.clock.Now()
@@ -119,9 +118,9 @@ func (s *Service) GetDashboard(ctx context.Context) (domain.Dashboard, error) {
 
 // GetCardHistory returns the review history of a card with pagination.
 func (s *Service) GetCardHistory(ctx context.Context, input GetCardHistoryInput) ([]*domain.ReviewLog, int, error) {
-	userID, ok := ctxutil.UserIDFromCtx(ctx)
-	if !ok {
-		return nil, 0, domain.ErrUnauthorized
+	userID, err := s.userID(ctx)
+	if err != nil {
+		return nil, 0, err
 	}
 
 	if err := input.Validate(); err != nil {
@@ -129,7 +128,7 @@ func (s *Service) GetCardHistory(ctx context.Context, input GetCardHistoryInput)
 	}
 
 	// Check ownership
-	_, err := s.cards.GetByID(ctx, userID, input.CardID)
+	_, err = s.cards.GetByID(ctx, userID, input.CardID)
 	if err != nil {
 		return nil, 0, fmt.Errorf("get card: %w", err)
 	}
@@ -157,9 +156,9 @@ func (s *Service) GetCardHistory(ctx context.Context, input GetCardHistoryInput)
 
 // GetCardStats returns aggregated statistics for a card.
 func (s *Service) GetCardStats(ctx context.Context, input GetCardHistoryInput) (domain.CardStats, error) {
-	userID, ok := ctxutil.UserIDFromCtx(ctx)
-	if !ok {
-		return domain.CardStats{}, domain.ErrUnauthorized
+	userID, err := s.userID(ctx)
+	if err != nil {
+		return domain.CardStats{}, err
 	}
 
 	if err := input.Validate(); err != nil {
