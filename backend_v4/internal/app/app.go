@@ -178,7 +178,7 @@ func Run(ctx context.Context) error {
 
 	studyService, err := study.NewService(
 		logger, cardRepo, reviewlogRepo, sessionRepo, entryRepo,
-		senseRepo, userRepo, auditRepo, txm, srsConfig, fsrs.DefaultWeights,
+		senseRepo, userRepo, auditRepo, txm, study.RealClock{}, srsConfig, fsrs.DefaultWeights,
 	)
 	if err != nil {
 		return fmt.Errorf("create study service: %w", err)

@@ -75,6 +75,16 @@ type txManager interface {
 	RunInTx(ctx context.Context, fn func(ctx context.Context) error) error
 }
 
+type clock interface {
+	Now() time.Time
+}
+
+// RealClock returns the current wall-clock time.
+type RealClock struct{}
+
+// Now returns time.Now().
+func (RealClock) Now() time.Time { return time.Now() }
+
 // ---------------------------------------------------------------------------
 // Service
 // ---------------------------------------------------------------------------
@@ -89,6 +99,7 @@ type Service struct {
 	settings    settingsRepo
 	audit       auditLogger
 	tx          txManager
+	clock       clock
 	log         *slog.Logger
 	srsConfig   domain.SRSConfig
 	fsrsWeights [19]float64
@@ -105,6 +116,7 @@ func NewService(
 	settings settingsRepo,
 	audit auditLogger,
 	tx txManager,
+	clk clock,
 	srsConfig domain.SRSConfig,
 	fsrsWeights [19]float64,
 ) (*Service, error) {
@@ -121,6 +133,7 @@ func NewService(
 		settings:    settings,
 		audit:       audit,
 		tx:          tx,
+		clock:       clk,
 		log:         log.With("service", "study"),
 		srsConfig:   srsConfig,
 		fsrsWeights: fsrsWeights,

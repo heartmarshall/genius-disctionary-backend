@@ -22,7 +22,7 @@ func (s *Service) UndoReview(ctx context.Context, input UndoReviewInput) (*domai
 		return nil, err
 	}
 
-	now := time.Now()
+	now := s.clock.Now()
 	var restoredCard *domain.Card
 	var undoneGrade domain.ReviewGrade
 	var restoredState domain.CardState

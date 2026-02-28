@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
@@ -55,7 +54,7 @@ func (s *Service) StartSession(ctx context.Context) (*domain.StudySession, error
 		ID:        uuid.New(),
 		UserID:    userID,
 		Status:    domain.SessionStatusActive,
-		StartedAt: time.Now(),
+		StartedAt: s.clock.Now(),
 	}
 
 	created, err := s.sessions.Create(ctx, session)
@@ -124,7 +123,7 @@ func (s *Service) finishSession(ctx context.Context, userID uuid.UUID, session *
 		return nil, domain.NewValidationError("session", "session already finished")
 	}
 
-	now := time.Now()
+	now := s.clock.Now()
 	var finishedSession *domain.StudySession
 
 	err := s.tx.RunInTx(ctx, func(txCtx context.Context) error {

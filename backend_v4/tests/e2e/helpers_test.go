@@ -227,7 +227,7 @@ func setupTestServer(t *testing.T) *testServer {
 
 	studyService, err := study.NewService(
 		logger, cardRepo, reviewlogRepo, sessionRepo, entryRepo,
-		senseRepo, userRepo, auditRepo, txm, srsConfig, fsrs.DefaultWeights,
+		senseRepo, userRepo, auditRepo, txm, study.RealClock{}, srsConfig, fsrs.DefaultWeights,
 	)
 	if err != nil {
 		t.Fatalf("create study service: %v", err)

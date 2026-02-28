@@ -92,6 +92,7 @@ func TestService_GetStudyQueue_Success_MixOfDueAndNew(t *testing.T) {
 		reviews:  mockReviews,
 		settings: mockSettings,
 		log:      slog.Default(),
+		clock:    RealClock{},
 		srsConfig: domain.SRSConfig{
 			LearningSteps:    []time.Duration{1 * time.Minute, 10 * time.Minute},
 			DefaultRetention: 0.9,
@@ -131,7 +132,8 @@ func TestService_GetStudyQueue_NoUserID(t *testing.T) {
 	t.Parallel()
 
 	svc := &Service{
-		log: slog.Default(),
+		log:   slog.Default(),
+		clock: RealClock{},
 	}
 
 	ctx := context.Background() // No user ID
@@ -148,7 +150,8 @@ func TestService_GetStudyQueue_InvalidInput(t *testing.T) {
 
 	userID := uuid.New()
 	svc := &Service{
-		log: slog.Default(),
+		log:   slog.Default(),
+		clock: RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -173,6 +176,7 @@ func TestService_GetStudyQueue_SettingsLoadError(t *testing.T) {
 	svc := &Service{
 		settings: mockSettings,
 		log:      slog.Default(),
+		clock:    RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -215,6 +219,7 @@ func TestService_GetStudyQueue_CountNewTodayError(t *testing.T) {
 		settings: mockSettings,
 		reviews:  mockReviews,
 		log:      slog.Default(),
+		clock:    RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -260,6 +265,7 @@ func TestService_GetStudyQueue_DueCardsError(t *testing.T) {
 		reviews:  mockReviews,
 		cards:    mockCards,
 		log:      slog.Default(),
+		clock:    RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -317,6 +323,7 @@ func TestService_GetStudyQueue_DailyLimitReached(t *testing.T) {
 		reviews:  mockReviews,
 		settings: mockSettings,
 		log:      slog.Default(),
+		clock:    RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -387,6 +394,7 @@ func TestService_GetStudyQueue_OnlyDueCards(t *testing.T) {
 		reviews:  mockReviews,
 		settings: mockSettings,
 		log:      slog.Default(),
+		clock:    RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -505,6 +513,7 @@ func TestService_ReviewCard_Success_NewToLearning(t *testing.T) {
 		audit:    mockAudit,
 		tx:       mockTx,
 		log:      slog.Default(),
+		clock:    RealClock{},
 		srsConfig: domain.SRSConfig{
 			LearningSteps:    []time.Duration{1 * time.Minute, 10 * time.Minute},
 			DefaultRetention: 0.9,
@@ -625,6 +634,7 @@ func TestService_ReviewCard_Success_LearningToReview(t *testing.T) {
 		audit:    mockAudit,
 		tx:       mockTx,
 		log:      slog.Default(),
+		clock:    RealClock{},
 		srsConfig: domain.SRSConfig{
 			LearningSteps:    []time.Duration{1 * time.Minute, 10 * time.Minute},
 			DefaultRetention: 0.9,
@@ -735,6 +745,7 @@ func TestService_ReviewCard_Success_ReviewIntervalIncrease(t *testing.T) {
 		audit:       mockAudit,
 		tx:          mockTx,
 		log:         slog.Default(),
+		clock:       RealClock{},
 		fsrsWeights: fsrs.DefaultWeights,
 		srsConfig: domain.SRSConfig{
 			LearningSteps:    []time.Duration{1 * time.Minute, 10 * time.Minute},
@@ -832,6 +843,7 @@ func TestService_ReviewCard_ElapsedDaysComputedFromLastReview(t *testing.T) {
 		audit:       mockAudit,
 		tx:          mockTx,
 		log:         slog.Default(),
+		clock:       RealClock{},
 		fsrsWeights: fsrs.DefaultWeights,
 		srsConfig: domain.SRSConfig{
 			LearningSteps:    []time.Duration{1 * time.Minute, 10 * time.Minute},
@@ -872,7 +884,8 @@ func TestService_ReviewCard_NoUserID(t *testing.T) {
 	t.Parallel()
 
 	svc := &Service{
-		log: slog.Default(),
+		log:   slog.Default(),
+		clock: RealClock{},
 	}
 
 	ctx := context.Background() // No user ID
@@ -893,7 +906,8 @@ func TestService_ReviewCard_InvalidInput(t *testing.T) {
 
 	userID := uuid.New()
 	svc := &Service{
-		log: slog.Default(),
+		log:   slog.Default(),
+		clock: RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -938,6 +952,7 @@ func TestService_ReviewCard_CardNotFound(t *testing.T) {
 		settings: mockSettings,
 		tx:       mockTx,
 		log:      slog.Default(),
+		clock:    RealClock{},
 		srsConfig: domain.SRSConfig{
 			MaxIntervalDays: 365,
 			LearningSteps:   []time.Duration{1 * time.Minute, 10 * time.Minute},
@@ -989,6 +1004,7 @@ func TestService_ReviewCard_SettingsLoadError(t *testing.T) {
 		cards:    mockCards,
 		settings: mockSettings,
 		log:      slog.Default(),
+		clock:    RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -1057,6 +1073,7 @@ func TestService_ReviewCard_UpdateSRSError_TxRollback(t *testing.T) {
 		settings: mockSettings,
 		tx:       mockTx,
 		log:      slog.Default(),
+		clock:    RealClock{},
 		srsConfig: domain.SRSConfig{
 			LearningSteps:    []time.Duration{1 * time.Minute, 10 * time.Minute},
 			DefaultRetention: 0.9,
@@ -1151,6 +1168,7 @@ func TestService_ReviewCard_CreateReviewLogError_TxRollback(t *testing.T) {
 		audit:    mockAudit,
 		tx:       mockTx,
 		log:      slog.Default(),
+		clock:    RealClock{},
 		srsConfig: domain.SRSConfig{
 			LearningSteps:    []time.Duration{1 * time.Minute, 10 * time.Minute},
 			DefaultRetention: 0.9,
@@ -1244,6 +1262,7 @@ func TestService_ReviewCard_AuditError_TxRollback(t *testing.T) {
 		audit:    mockAudit,
 		tx:       mockTx,
 		log:      slog.Default(),
+		clock:    RealClock{},
 		srsConfig: domain.SRSConfig{
 			LearningSteps:    []time.Duration{1 * time.Minute, 10 * time.Minute},
 			DefaultRetention: 0.9,
@@ -1336,6 +1355,7 @@ func TestService_ReviewCard_Again_NewToLearning(t *testing.T) {
 		audit:    mockAudit,
 		tx:       mockTx,
 		log:      slog.Default(),
+		clock:    RealClock{},
 		srsConfig: domain.SRSConfig{
 			LearningSteps:   []time.Duration{1 * time.Minute, 10 * time.Minute},
 			RelearningSteps: []time.Duration{10 * time.Minute},
@@ -1433,6 +1453,7 @@ func TestService_ReviewCard_Hard_ReviewStaysReview(t *testing.T) {
 		audit:    mockAudit,
 		tx:       mockTx,
 		log:      slog.Default(),
+		clock:    RealClock{},
 		srsConfig: domain.SRSConfig{
 			LearningSteps:   []time.Duration{1 * time.Minute, 10 * time.Minute},
 			RelearningSteps: []time.Duration{10 * time.Minute},
@@ -1562,6 +1583,7 @@ func TestService_UndoReview_Success(t *testing.T) {
 		audit:   mockAudit,
 		tx:      mockTx,
 		log:     slog.Default(),
+		clock:   RealClock{},
 		srsConfig: domain.SRSConfig{
 			LearningSteps:    []time.Duration{1 * time.Minute, 10 * time.Minute},
 			DefaultRetention: 0.9,
@@ -1607,7 +1629,8 @@ func TestService_UndoReview_NoUserID(t *testing.T) {
 	t.Parallel()
 
 	svc := &Service{
-		log: slog.Default(),
+		log:   slog.Default(),
+		clock: RealClock{},
 	}
 
 	ctx := context.Background() // No user ID
@@ -1624,7 +1647,8 @@ func TestService_UndoReview_InvalidInput(t *testing.T) {
 
 	userID := uuid.New()
 	svc := &Service{
-		log: slog.Default(),
+		log:   slog.Default(),
+		clock: RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -1658,6 +1682,7 @@ func TestService_UndoReview_CardNotFound(t *testing.T) {
 		cards: mockCards,
 		tx:    mockTx,
 		log:   slog.Default(),
+		clock: RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -1706,6 +1731,7 @@ func TestService_UndoReview_NoReviewLog(t *testing.T) {
 		reviews: mockReviews,
 		tx:      mockTx,
 		log:     slog.Default(),
+		clock:   RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -1764,6 +1790,7 @@ func TestService_UndoReview_PrevStateNil(t *testing.T) {
 		reviews: mockReviews,
 		tx:      mockTx,
 		log:     slog.Default(),
+		clock:   RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -1831,6 +1858,7 @@ func TestService_UndoReview_UndoWindowExpired(t *testing.T) {
 		reviews: mockReviews,
 		tx:      mockTx,
 		log:     slog.Default(),
+		clock:   RealClock{},
 		srsConfig: domain.SRSConfig{
 			LearningSteps:    []time.Duration{1 * time.Minute, 10 * time.Minute},
 			DefaultRetention: 0.9,
@@ -1922,6 +1950,7 @@ func TestService_UndoReview_RestoreError_TxRollback(t *testing.T) {
 		reviews: mockReviews,
 		tx:      mockTx,
 		log:     slog.Default(),
+		clock:   RealClock{},
 		srsConfig: domain.SRSConfig{
 			LearningSteps:    []time.Duration{1 * time.Minute, 10 * time.Minute},
 			DefaultRetention: 0.9,
@@ -2022,6 +2051,7 @@ func TestService_UndoReview_DeleteLogError_TxRollback(t *testing.T) {
 		audit:   mockAudit,
 		tx:      mockTx,
 		log:     slog.Default(),
+		clock:   RealClock{},
 		srsConfig: domain.SRSConfig{
 			LearningSteps:    []time.Duration{1 * time.Minute, 10 * time.Minute},
 			DefaultRetention: 0.9,
@@ -2122,6 +2152,7 @@ func TestService_UndoReview_AuditError_TxRollback(t *testing.T) {
 		audit:   mockAudit,
 		tx:      mockTx,
 		log:     slog.Default(),
+		clock:   RealClock{},
 		srsConfig: domain.SRSConfig{
 			LearningSteps:    []time.Duration{1 * time.Minute, 10 * time.Minute},
 			DefaultRetention: 0.9,
@@ -2169,6 +2200,7 @@ func TestService_StartSession_Success_CreatesNew(t *testing.T) {
 	svc := &Service{
 		sessions: mockSessions,
 		log:      slog.Default(),
+		clock:    RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -2224,6 +2256,7 @@ func TestService_StartSession_ReturnsExisting_Idempotent(t *testing.T) {
 	svc := &Service{
 		sessions: mockSessions,
 		log:      slog.Default(),
+		clock:    RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -2360,6 +2393,7 @@ func TestService_FinishSession_Success(t *testing.T) {
 		reviews:  mockReviews,
 		tx:       mockTx,
 		log:      slog.Default(),
+		clock:    RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -2420,6 +2454,7 @@ func TestService_FinishSession_AlreadyFinished_ValidationError(t *testing.T) {
 	svc := &Service{
 		sessions: mockSessions,
 		log:      slog.Default(),
+		clock:    RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -2501,6 +2536,7 @@ func TestService_FinishSession_EmptySession_NoReviews(t *testing.T) {
 		reviews:  mockReviews,
 		tx:       mockTx,
 		log:      slog.Default(),
+		clock:    RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -2534,6 +2570,7 @@ func TestService_FinishSession_NotFound(t *testing.T) {
 	svc := &Service{
 		sessions: mockSessions,
 		log:      slog.Default(),
+		clock:    RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -2577,6 +2614,7 @@ func TestService_AbandonSession_Success(t *testing.T) {
 	svc := &Service{
 		sessions: mockSessions,
 		log:      slog.Default(),
+		clock:    RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -2613,6 +2651,7 @@ func TestService_AbandonSession_NoActive_IdempotentNoop(t *testing.T) {
 	svc := &Service{
 		sessions: mockSessions,
 		log:      slog.Default(),
+		clock:    RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -2714,6 +2753,7 @@ func TestService_CreateCard_Success(t *testing.T) {
 		audit:   mockAudit,
 		tx:      mockTx,
 		log:     slog.Default(),
+		clock:   RealClock{},
 		srsConfig: domain.SRSConfig{
 			DefaultRetention: 0.9,
 		},
@@ -2764,6 +2804,7 @@ func TestService_CreateCard_EntryNotFound(t *testing.T) {
 	svc := &Service{
 		entries: mockEntries,
 		log:     slog.Default(),
+		clock:   RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -2803,6 +2844,7 @@ func TestService_CreateCard_EntryHasNoSenses(t *testing.T) {
 		entries: mockEntries,
 		senses:  mockSenses,
 		log:     slog.Default(),
+		clock:   RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -2865,6 +2907,7 @@ func TestService_CreateCard_CardAlreadyExists(t *testing.T) {
 		cards:   mockCards,
 		tx:      mockTx,
 		log:     slog.Default(),
+		clock:   RealClock{},
 		srsConfig: domain.SRSConfig{
 			DefaultRetention: 0.9,
 		},
@@ -2938,6 +2981,7 @@ func TestService_CreateCard_TransactionRollback_AuditError(t *testing.T) {
 		audit:   mockAudit,
 		tx:      mockTx,
 		log:     slog.Default(),
+		clock:   RealClock{},
 		srsConfig: domain.SRSConfig{
 			DefaultRetention: 0.9,
 		},
@@ -2956,7 +3000,8 @@ func TestService_CreateCard_NoUserID(t *testing.T) {
 	t.Parallel()
 
 	svc := &Service{
-		log: slog.Default(),
+		log:   slog.Default(),
+		clock: RealClock{},
 	}
 
 	ctx := context.Background() // No user ID
@@ -3024,6 +3069,7 @@ func TestService_DeleteCard_Success(t *testing.T) {
 		audit: mockAudit,
 		tx:    mockTx,
 		log:   slog.Default(),
+		clock: RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -3061,6 +3107,7 @@ func TestService_DeleteCard_CardNotFound(t *testing.T) {
 	svc := &Service{
 		cards: mockCards,
 		log:   slog.Default(),
+		clock: RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -3110,6 +3157,7 @@ func TestService_DeleteCard_TransactionRollback(t *testing.T) {
 		audit: mockAudit,
 		tx:    mockTx,
 		log:   slog.Default(),
+		clock: RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -3130,7 +3178,8 @@ func TestService_DeleteCard_NoUserID(t *testing.T) {
 	t.Parallel()
 
 	svc := &Service{
-		log: slog.Default(),
+		log:   slog.Default(),
+		clock: RealClock{},
 	}
 
 	ctx := context.Background() // No user ID
@@ -3203,6 +3252,7 @@ func TestService_BatchCreateCards_Success_AllCreated(t *testing.T) {
 		audit:   mockAudit,
 		tx:      mockTx,
 		log:     slog.Default(),
+		clock:   RealClock{},
 		srsConfig: domain.SRSConfig{
 			DefaultRetention: 0.9,
 		},
@@ -3289,6 +3339,7 @@ func TestService_BatchCreateCards_SomeEntriesNotExist(t *testing.T) {
 		audit:   mockAudit,
 		tx:      mockTx,
 		log:     slog.Default(),
+		clock:   RealClock{},
 		srsConfig: domain.SRSConfig{
 			DefaultRetention: 0.9,
 		},
@@ -3368,6 +3419,7 @@ func TestService_BatchCreateCards_SomeEntriesNoSenses(t *testing.T) {
 		audit:   mockAudit,
 		tx:      mockTx,
 		log:     slog.Default(),
+		clock:   RealClock{},
 		srsConfig: domain.SRSConfig{
 			DefaultRetention: 0.9,
 		},
@@ -3446,6 +3498,7 @@ func TestService_BatchCreateCards_SomeEntriesAlreadyHaveCards(t *testing.T) {
 		audit:   mockAudit,
 		tx:      mockTx,
 		log:     slog.Default(),
+		clock:   RealClock{},
 		srsConfig: domain.SRSConfig{
 			DefaultRetention: 0.9,
 		},
@@ -3528,6 +3581,7 @@ func TestService_BatchCreateCards_MixedScenario(t *testing.T) {
 		audit:   mockAudit,
 		tx:      mockTx,
 		log:     slog.Default(),
+		clock:   RealClock{},
 		srsConfig: domain.SRSConfig{
 			DefaultRetention: 0.9,
 		},
@@ -3561,7 +3615,8 @@ func TestService_BatchCreateCards_ValidationError(t *testing.T) {
 	userID := uuid.New()
 
 	svc := &Service{
-		log: slog.Default(),
+		log:   slog.Default(),
+		clock: RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -3669,6 +3724,7 @@ func TestService_GetDashboard_Success_AllCountersCorrect(t *testing.T) {
 		reviews:  mockReviews,
 		sessions: mockSessions,
 		log:      slog.Default(),
+		clock:    RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -3758,6 +3814,7 @@ func TestService_GetDashboard_NoCards_AllZeros(t *testing.T) {
 		reviews:  mockReviews,
 		sessions: mockSessions,
 		log:      slog.Default(),
+		clock:    RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -3849,6 +3906,7 @@ func TestService_GetDashboard_StreakCalculation_FiveDays(t *testing.T) {
 		reviews:  mockReviews,
 		sessions: mockSessions,
 		log:      slog.Default(),
+		clock:    RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -3929,6 +3987,7 @@ func TestService_GetDashboard_StreakBroken_Gap(t *testing.T) {
 		reviews:  mockReviews,
 		sessions: mockSessions,
 		log:      slog.Default(),
+		clock:    RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -4010,6 +4069,7 @@ func TestService_GetDashboard_StreakStartsFromYesterday(t *testing.T) {
 		reviews:  mockReviews,
 		sessions: mockSessions,
 		log:      slog.Default(),
+		clock:    RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -4080,6 +4140,7 @@ func TestService_GetDashboard_OverdueCount(t *testing.T) {
 		reviews:  mockReviews,
 		sessions: mockSessions,
 		log:      slog.Default(),
+		clock:    RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -4156,6 +4217,7 @@ func TestService_GetDashboard_ActiveSessionPresent(t *testing.T) {
 		reviews:  mockReviews,
 		sessions: mockSessions,
 		log:      slog.Default(),
+		clock:    RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -4221,6 +4283,7 @@ func TestService_GetCardHistory_Success_WithPagination(t *testing.T) {
 		cards:   mockCards,
 		reviews: mockReviews,
 		log:     slog.Default(),
+		clock:   RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -4266,6 +4329,7 @@ func TestService_GetCardHistory_CardNotFound_OwnershipCheck(t *testing.T) {
 	svc := &Service{
 		cards: mockCards,
 		log:   slog.Default(),
+		clock: RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -4285,7 +4349,8 @@ func TestService_GetCardHistory_NoUserID(t *testing.T) {
 	t.Parallel()
 
 	svc := &Service{
-		log: slog.Default(),
+		log:   slog.Default(),
+		clock: RealClock{},
 	}
 
 	ctx := context.Background() // No user ID
@@ -4345,6 +4410,7 @@ func TestService_GetCardStats_Success_WithStats(t *testing.T) {
 		cards:   mockCards,
 		reviews: mockReviews,
 		log:     slog.Default(),
+		clock:   RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -4413,6 +4479,7 @@ func TestService_GetCardStats_NoReviews_ZerosAndNil(t *testing.T) {
 		cards:   mockCards,
 		reviews: mockReviews,
 		log:     slog.Default(),
+		clock:   RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -4471,6 +4538,7 @@ func TestService_GetActiveSession_Success_ReturnsSession(t *testing.T) {
 	svc := &Service{
 		sessions: mockSessions,
 		log:      slog.Default(),
+		clock:    RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -4501,6 +4569,7 @@ func TestService_GetActiveSession_NoActiveSession_ReturnsNil(t *testing.T) {
 	svc := &Service{
 		sessions: mockSessions,
 		log:      slog.Default(),
+		clock:    RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -4518,7 +4587,8 @@ func TestService_GetActiveSession_NoUserID(t *testing.T) {
 	t.Parallel()
 
 	svc := &Service{
-		log: slog.Default(),
+		log:   slog.Default(),
+		clock: RealClock{},
 	}
 
 	ctx := context.Background()
@@ -4543,6 +4613,7 @@ func TestService_GetActiveSession_RepoError(t *testing.T) {
 	svc := &Service{
 		sessions: mockSessions,
 		log:      slog.Default(),
+		clock:    RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -4593,6 +4664,7 @@ func TestService_StartSession_RaceCondition_ErrAlreadyExists(t *testing.T) {
 	svc := &Service{
 		sessions: mockSessions,
 		log:      slog.Default(),
+		clock:    RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -4622,7 +4694,8 @@ func TestService_StartSession_NoUserID(t *testing.T) {
 	t.Parallel()
 
 	svc := &Service{
-		log: slog.Default(),
+		log:   slog.Default(),
+		clock: RealClock{},
 	}
 
 	ctx := context.Background()
@@ -4678,6 +4751,7 @@ func TestService_GetStudyQueue_DefaultLimit_WhenZero(t *testing.T) {
 		reviews:  mockReviews,
 		settings: mockSettings,
 		log:      slog.Default(),
+		clock:    RealClock{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -4753,6 +4827,7 @@ func TestService_GetStudyQueueEntries_BatchLoadsEntries(t *testing.T) {
 		entries:  mockEntries,
 		settings: mockSettings,
 		log:      slog.Default(),
+		clock:    RealClock{},
 		srsConfig: domain.SRSConfig{
 			LearningSteps:     []time.Duration{1 * time.Minute, 10 * time.Minute},
 			DefaultRetention:  0.9,
@@ -4831,6 +4906,7 @@ func TestService_GetStudyQueueEntries_EmptyQueue(t *testing.T) {
 		entries:  mockEntries,
 		settings: mockSettings,
 		log:      slog.Default(),
+		clock:    RealClock{},
 		srsConfig: domain.SRSConfig{
 			LearningSteps:     []time.Duration{1 * time.Minute, 10 * time.Minute},
 			DefaultRetention:  0.9,
@@ -4858,7 +4934,8 @@ func TestService_GetStudyQueueEntries_NoUserID(t *testing.T) {
 	t.Parallel()
 
 	svc := &Service{
-		log: slog.Default(),
+		log:   slog.Default(),
+		clock: RealClock{},
 	}
 
 	ctx := context.Background() // No user ID
@@ -4916,6 +4993,7 @@ func TestService_GetStudyQueueEntries_GetByIDsError(t *testing.T) {
 		entries:  mockEntries,
 		settings: mockSettings,
 		log:      slog.Default(),
+		clock:    RealClock{},
 		srsConfig: domain.SRSConfig{
 			LearningSteps:     []time.Duration{1 * time.Minute, 10 * time.Minute},
 			DefaultRetention:  0.9,

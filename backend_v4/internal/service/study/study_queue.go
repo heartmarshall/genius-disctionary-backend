@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"time"
 
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
 	"github.com/heartmarshall/myenglish-backend/pkg/ctxutil"
@@ -26,7 +25,7 @@ func (s *Service) GetStudyQueue(ctx context.Context, input GetQueueInput) ([]*do
 		limit = 50
 	}
 
-	now := time.Now()
+	now := s.clock.Now()
 
 	// Load user settings for limits and timezone
 	settings, err := s.settings.GetByUserID(ctx, userID)

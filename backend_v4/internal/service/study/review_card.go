@@ -23,7 +23,7 @@ func (s *Service) ReviewCard(ctx context.Context, input ReviewCardInput) (*domai
 		return nil, err
 	}
 
-	now := time.Now()
+	now := s.clock.Now()
 
 	// Load settings outside tx (read-only, no lock needed)
 	settings, err := s.settings.GetByUserID(ctx, userID)

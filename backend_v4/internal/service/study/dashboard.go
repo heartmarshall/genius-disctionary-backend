@@ -19,7 +19,7 @@ func (s *Service) GetDashboard(ctx context.Context) (domain.Dashboard, error) {
 		return domain.Dashboard{}, domain.ErrUnauthorized
 	}
 
-	now := time.Now()
+	now := s.clock.Now()
 
 	// Load settings for timezone
 	settings, err := s.settings.GetByUserID(ctx, userID)
