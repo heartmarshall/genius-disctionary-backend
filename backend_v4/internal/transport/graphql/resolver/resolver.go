@@ -57,6 +57,7 @@ type studyService interface {
 	UndoReview(ctx context.Context, input study.UndoReviewInput) (*domain.Card, error)
 	StartSession(ctx context.Context) (*domain.StudySession, error)
 	FinishSession(ctx context.Context, input study.FinishSessionInput) (*domain.StudySession, error)
+	FinishActiveSession(ctx context.Context) (*domain.StudySession, error)
 	AbandonSession(ctx context.Context) error
 	GetActiveSession(ctx context.Context) (*domain.StudySession, error)
 	CreateCard(ctx context.Context, input study.CreateCardInput) (*domain.Card, error)

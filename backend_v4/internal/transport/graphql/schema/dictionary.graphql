@@ -159,7 +159,7 @@ type ExportItem {
   text: String!
   notes: String
   senses: [ExportSense!]!
-  cardStatus: LearningStatus
+  cardStatus: CardState
   createdAt: DateTime!
 }
 
@@ -184,7 +184,7 @@ input DictionaryFilterInput {
   hasCard: Boolean
   partOfSpeech: PartOfSpeech
   topicId: UUID
-  status: LearningStatus
+  status: CardState
   sortField: EntrySortField
   sortDirection: SortDirection
   """Cursor-based: количество записей."""

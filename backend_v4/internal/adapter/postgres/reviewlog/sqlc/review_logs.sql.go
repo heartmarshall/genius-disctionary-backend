@@ -15,14 +15,25 @@ import (
 
 const createReviewLog = `-- name: CreateReviewLog :one
 
-INSERT INTO review_logs (id, card_id, grade, prev_state, duration_ms, reviewed_at)
-VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id, card_id, grade, prev_state, duration_ms, reviewed_at
+INSERT INTO review_logs (id, card_id, user_id, grade, prev_state, duration_ms, reviewed_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING id, card_id, user_id, grade, prev_state, duration_ms, reviewed_at
 `
 
 type CreateReviewLogParams struct {
 	ID         uuid.UUID
 	CardID     uuid.UUID
+	UserID     uuid.UUID
+	Grade      ReviewGrade
+	PrevState  []byte
+	DurationMs pgtype.Int4
+	ReviewedAt time.Time
+}
+
+type CreateReviewLogRow struct {
+	ID         uuid.UUID
+	CardID     uuid.UUID
+	UserID     uuid.UUID
 	Grade      ReviewGrade
 	PrevState  []byte
 	DurationMs pgtype.Int4
@@ -32,19 +43,21 @@ type CreateReviewLogParams struct {
 // ---------------------------------------------------------------------------
 // review_logs
 // ---------------------------------------------------------------------------
-func (q *Queries) CreateReviewLog(ctx context.Context, arg CreateReviewLogParams) (ReviewLog, error) {
+func (q *Queries) CreateReviewLog(ctx context.Context, arg CreateReviewLogParams) (CreateReviewLogRow, error) {
 	row := q.db.QueryRow(ctx, createReviewLog,
 		arg.ID,
 		arg.CardID,
+		arg.UserID,
 		arg.Grade,
 		arg.PrevState,
 		arg.DurationMs,
 		arg.ReviewedAt,
 	)
-	var i ReviewLog
+	var i CreateReviewLogRow
 	err := row.Scan(
 		&i.ID,
 		&i.CardID,
+		&i.UserID,
 		&i.Grade,
 		&i.PrevState,
 		&i.DurationMs,
@@ -67,7 +80,7 @@ func (q *Queries) DeleteReviewLog(ctx context.Context, id uuid.UUID) (int64, err
 }
 
 const getByCardID = `-- name: GetByCardID :many
-SELECT id, card_id, grade, prev_state, duration_ms, reviewed_at
+SELECT id, card_id, user_id, grade, prev_state, duration_ms, reviewed_at
 FROM review_logs
 WHERE card_id = $1
 ORDER BY reviewed_at DESC
@@ -80,18 +93,29 @@ type GetByCardIDParams struct {
 	Lim    int32
 }
 
-func (q *Queries) GetByCardID(ctx context.Context, arg GetByCardIDParams) ([]ReviewLog, error) {
+type GetByCardIDRow struct {
+	ID         uuid.UUID
+	CardID     uuid.UUID
+	UserID     uuid.UUID
+	Grade      ReviewGrade
+	PrevState  []byte
+	DurationMs pgtype.Int4
+	ReviewedAt time.Time
+}
+
+func (q *Queries) GetByCardID(ctx context.Context, arg GetByCardIDParams) ([]GetByCardIDRow, error) {
 	rows, err := q.db.Query(ctx, getByCardID, arg.CardID, arg.Off, arg.Lim)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []ReviewLog{}
+	items := []GetByCardIDRow{}
 	for rows.Next() {
-		var i ReviewLog
+		var i GetByCardIDRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.CardID,
+			&i.UserID,
 			&i.Grade,
 			&i.PrevState,
 			&i.DurationMs,
@@ -108,19 +132,30 @@ func (q *Queries) GetByCardID(ctx context.Context, arg GetByCardIDParams) ([]Rev
 }
 
 const getLastByCardID = `-- name: GetLastByCardID :one
-SELECT id, card_id, grade, prev_state, duration_ms, reviewed_at
+SELECT id, card_id, user_id, grade, prev_state, duration_ms, reviewed_at
 FROM review_logs
 WHERE card_id = $1
 ORDER BY reviewed_at DESC
 LIMIT 1
 `
 
-func (q *Queries) GetLastByCardID(ctx context.Context, cardID uuid.UUID) (ReviewLog, error) {
+type GetLastByCardIDRow struct {
+	ID         uuid.UUID
+	CardID     uuid.UUID
+	UserID     uuid.UUID
+	Grade      ReviewGrade
+	PrevState  []byte
+	DurationMs pgtype.Int4
+	ReviewedAt time.Time
+}
+
+func (q *Queries) GetLastByCardID(ctx context.Context, cardID uuid.UUID) (GetLastByCardIDRow, error) {
 	row := q.db.QueryRow(ctx, getLastByCardID, cardID)
-	var i ReviewLog
+	var i GetLastByCardIDRow
 	err := row.Scan(
 		&i.ID,
 		&i.CardID,
+		&i.UserID,
 		&i.Grade,
 		&i.PrevState,
 		&i.DurationMs,

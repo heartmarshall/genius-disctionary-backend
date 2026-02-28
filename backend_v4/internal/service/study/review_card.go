@@ -25,13 +25,7 @@ func (s *Service) ReviewCard(ctx context.Context, input ReviewCardInput) (*domai
 
 	now := time.Now()
 
-	// Load card
-	card, err := s.cards.GetByID(ctx, userID, input.CardID)
-	if err != nil {
-		return nil, fmt.Errorf("get card: %w", err)
-	}
-
-	// Load settings
+	// Load settings outside tx (read-only, no lock needed)
 	settings, err := s.settings.GetByUserID(ctx, userID)
 	if err != nil {
 		return nil, fmt.Errorf("get settings: %w", err)
@@ -47,51 +41,58 @@ func (s *Service) ReviewCard(ctx context.Context, input ReviewCardInput) (*domai
 		RelearningSteps:  s.srsConfig.RelearningSteps,
 	}
 
-	// Snapshot state before review
-	snapshot := &domain.CardSnapshot{
-		State:         card.State,
-		Step:          card.Step,
-		Stability:     card.Stability,
-		Difficulty:    card.Difficulty,
-		Due:           card.Due,
-		LastReview:    card.LastReview,
-		Reps:          card.Reps,
-		Lapses:        card.Lapses,
-		ScheduledDays: card.ScheduledDays,
-		ElapsedDays:   card.ElapsedDays,
-	}
-
-	// Map domain grade to FSRS rating
 	rating := mapGradeToRating(input.Grade)
-
-	// Convert domain card to FSRS card
-	fsrsCard := fsrs.Card{
-		State:         fsrs.CardState(card.State),
-		Step:          card.Step,
-		Stability:     card.Stability,
-		Difficulty:    card.Difficulty,
-		Due:           card.Due,
-		LastReview:    card.LastReview,
-		Reps:          card.Reps,
-		Lapses:        card.Lapses,
-		ScheduledDays: card.ScheduledDays,
-		ElapsedDays:   card.ElapsedDays,
-	}
-
-	// Compute actual elapsed days since last review for FSRS retrievability calculation.
-	// The DB stores elapsed_days=0 after each review; we must recompute it here.
-	if card.LastReview != nil {
-		elapsed := now.Sub(*card.LastReview)
-		fsrsCard.ElapsedDays = max(0, int(elapsed.Hours()/24))
-	}
-
-	// Calculate new SRS state
-	result := fsrs.ReviewCard(params, fsrsCard, rating, now)
 
 	var updatedCard *domain.Card
 
-	// Transaction: update card + create log + audit
+	// Transaction: lock card, compute FSRS, update card + create log + audit
 	err = s.tx.RunInTx(ctx, func(txCtx context.Context) error {
+		// Lock card row inside transaction
+		card, cardErr := s.cards.GetByIDForUpdate(txCtx, userID, input.CardID)
+		if cardErr != nil {
+			return fmt.Errorf("get card: %w", cardErr)
+		}
+
+		// Snapshot state before review
+		snapshot := &domain.CardSnapshot{
+			State:         card.State,
+			Step:          card.Step,
+			Stability:     card.Stability,
+			Difficulty:    card.Difficulty,
+			Due:           card.Due,
+			LastReview:    card.LastReview,
+			Reps:          card.Reps,
+			Lapses:        card.Lapses,
+			ScheduledDays: card.ScheduledDays,
+			ElapsedDays:   card.ElapsedDays,
+		}
+
+		// Convert domain card to FSRS card
+		fsrsCard := fsrs.Card{
+			State:         card.State,
+			Step:          card.Step,
+			Stability:     card.Stability,
+			Difficulty:    card.Difficulty,
+			Due:           card.Due,
+			LastReview:    card.LastReview,
+			Reps:          card.Reps,
+			Lapses:        card.Lapses,
+			ScheduledDays: card.ScheduledDays,
+			ElapsedDays:   card.ElapsedDays,
+		}
+
+		// Compute actual elapsed days since last review
+		if card.LastReview != nil {
+			elapsed := now.Sub(*card.LastReview)
+			fsrsCard.ElapsedDays = max(0, int(elapsed.Hours()/24))
+		}
+
+		// Calculate new SRS state
+		result, fsrsErr := fsrs.ReviewCard(params, fsrsCard, rating, now)
+		if fsrsErr != nil {
+			return fmt.Errorf("fsrs review: %w", fsrsErr)
+		}
+
 		var lastReview *time.Time
 		if result.LastReview != nil {
 			t := *result.LastReview
@@ -100,7 +101,7 @@ func (s *Service) ReviewCard(ctx context.Context, input ReviewCardInput) (*domai
 
 		var updateErr error
 		updatedCard, updateErr = s.cards.UpdateSRS(txCtx, userID, card.ID, domain.SRSUpdateParams{
-			State:         domain.CardState(result.State),
+			State:         result.State,
 			Step:          result.Step,
 			Stability:     result.Stability,
 			Difficulty:    result.Difficulty,
@@ -119,6 +120,7 @@ func (s *Service) ReviewCard(ctx context.Context, input ReviewCardInput) (*domai
 		_, logErr := s.reviews.Create(txCtx, &domain.ReviewLog{
 			ID:         uuid.New(),
 			CardID:     card.ID,
+			UserID:     userID,
 			Grade:      input.Grade,
 			PrevState:  snapshot,
 			DurationMs: input.DurationMs,
@@ -163,9 +165,8 @@ func (s *Service) ReviewCard(ctx context.Context, input ReviewCardInput) (*domai
 
 	s.log.InfoContext(ctx, "card reviewed",
 		slog.String("user_id", userID.String()),
-		slog.String("card_id", card.ID.String()),
+		slog.String("card_id", input.CardID.String()),
 		slog.String("grade", string(input.Grade)),
-		slog.String("old_state", string(card.State)),
 		slog.String("new_state", string(updatedCard.State)),
 		slog.Float64("stability", updatedCard.Stability),
 	)

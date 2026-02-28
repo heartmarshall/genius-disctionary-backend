@@ -220,22 +220,22 @@ func (m *mockImageRepo) LinkCatalog(ctx context.Context, entryID, refImageID uui
 }
 
 type mockCardRepo struct {
-	GetByEntryIDsFunc func(ctx context.Context, entryIDs []uuid.UUID) ([]domain.Card, error)
-	CreateFunc        func(ctx context.Context, userID, entryID uuid.UUID, status domain.LearningStatus, easeFactor float64) (*domain.Card, error)
+	GetByEntryIDsFunc func(ctx context.Context, userID uuid.UUID, entryIDs []uuid.UUID) ([]domain.Card, error)
+	CreateFunc        func(ctx context.Context, userID, entryID uuid.UUID) (*domain.Card, error)
 }
 
-func (m *mockCardRepo) GetByEntryIDs(ctx context.Context, entryIDs []uuid.UUID) ([]domain.Card, error) {
+func (m *mockCardRepo) GetByEntryIDs(ctx context.Context, userID uuid.UUID, entryIDs []uuid.UUID) ([]domain.Card, error) {
 	if m.GetByEntryIDsFunc != nil {
-		return m.GetByEntryIDsFunc(ctx, entryIDs)
+		return m.GetByEntryIDsFunc(ctx, userID, entryIDs)
 	}
 	return nil, nil
 }
 
-func (m *mockCardRepo) Create(ctx context.Context, userID, entryID uuid.UUID, status domain.LearningStatus, easeFactor float64) (*domain.Card, error) {
+func (m *mockCardRepo) Create(ctx context.Context, userID, entryID uuid.UUID) (*domain.Card, error) {
 	if m.CreateFunc != nil {
-		return m.CreateFunc(ctx, userID, entryID, status, easeFactor)
+		return m.CreateFunc(ctx, userID, entryID)
 	}
-	return &domain.Card{ID: uuid.New(), UserID: userID, EntryID: entryID, Status: status, EaseFactor: easeFactor}, nil
+	return &domain.Card{ID: uuid.New(), UserID: userID, EntryID: entryID, State: domain.CardStateNew}, nil
 }
 
 type mockAuditRepo struct {
@@ -294,7 +294,6 @@ func (m *mockRefCatalogService) Search(ctx context.Context, query string, limit 
 func defaultCfg() config.DictionaryConfig {
 	return config.DictionaryConfig{
 		MaxEntriesPerUser:       10000,
-		DefaultEaseFactor:       2.5,
 		ImportChunkSize:         50,
 		ExportMaxEntries:        10000,
 		HardDeleteRetentionDays: 30,
@@ -570,10 +569,8 @@ func TestService_CreateFromCatalog_WithCard(t *testing.T) {
 	}
 
 	cardCreated := false
-	deps.cards.CreateFunc = func(_ context.Context, uid, eid uuid.UUID, status domain.LearningStatus, ef float64) (*domain.Card, error) {
+	deps.cards.CreateFunc = func(_ context.Context, uid, eid uuid.UUID) (*domain.Card, error) {
 		assert.Equal(t, userID, uid)
-		assert.Equal(t, domain.LearningStatusNew, status)
-		assert.Equal(t, 2.5, ef)
 		cardCreated = true
 		return &domain.Card{ID: uuid.New()}, nil
 	}
@@ -598,7 +595,7 @@ func TestService_CreateFromCatalog_NoCard(t *testing.T) {
 	}
 
 	cardCreated := false
-	deps.cards.CreateFunc = func(_ context.Context, _, _ uuid.UUID, _ domain.LearningStatus, _ float64) (*domain.Card, error) {
+	deps.cards.CreateFunc = func(_ context.Context, _, _ uuid.UUID) (*domain.Card, error) {
 		cardCreated = true
 		return &domain.Card{ID: uuid.New()}, nil
 	}
@@ -870,9 +867,7 @@ func TestService_CreateCustom_WithCard(t *testing.T) {
 	ctx, _ := authCtx()
 
 	cardCreated := false
-	deps.cards.CreateFunc = func(_ context.Context, _, _ uuid.UUID, status domain.LearningStatus, ef float64) (*domain.Card, error) {
-		assert.Equal(t, domain.LearningStatusNew, status)
-		assert.Equal(t, 2.5, ef)
+	deps.cards.CreateFunc = func(_ context.Context, _, _ uuid.UUID) (*domain.Card, error) {
 		cardCreated = true
 		return &domain.Card{ID: uuid.New()}, nil
 	}
@@ -1779,9 +1774,9 @@ func TestService_ExportEntries_Happy(t *testing.T) {
 		return []domain.Example{{ID: uuid.New(), SenseID: senseID, Sentence: &sentence}}, nil
 	}
 
-	status := domain.LearningStatusNew
-	deps.cards.GetByEntryIDsFunc = func(_ context.Context, ids []uuid.UUID) ([]domain.Card, error) {
-		return []domain.Card{{EntryID: entryID, Status: status}}, nil
+	state := domain.CardStateNew
+	deps.cards.GetByEntryIDsFunc = func(_ context.Context, _ uuid.UUID, ids []uuid.UUID) ([]domain.Card, error) {
+		return []domain.Card{{EntryID: entryID, State: state}}, nil
 	}
 
 	result, err := svc.ExportEntries(ctx)
@@ -1789,7 +1784,7 @@ func TestService_ExportEntries_Happy(t *testing.T) {
 	require.Len(t, result.Items, 1)
 	assert.Equal(t, "hello", result.Items[0].Text)
 	require.NotNil(t, result.Items[0].CardStatus)
-	assert.Equal(t, domain.LearningStatusNew, *result.Items[0].CardStatus)
+	assert.Equal(t, domain.CardStateNew, *result.Items[0].CardStatus)
 	require.Len(t, result.Items[0].Senses, 1)
 	assert.Equal(t, "greeting", *result.Items[0].Senses[0].Definition)
 	require.Len(t, result.Items[0].Senses[0].Translations, 1)
@@ -1846,7 +1841,7 @@ func TestService_ExportEntries_WithData(t *testing.T) {
 		return nil, nil
 	}
 
-	deps.cards.GetByEntryIDsFunc = func(_ context.Context, _ []uuid.UUID) ([]domain.Card, error) {
+	deps.cards.GetByEntryIDsFunc = func(_ context.Context, _ uuid.UUID, _ []uuid.UUID) ([]domain.Card, error) {
 		return nil, nil
 	}
 
@@ -2195,7 +2190,7 @@ func TestFindInput_Validate_InvalidPartOfSpeech(t *testing.T) {
 func TestFindInput_Validate_InvalidStatus(t *testing.T) {
 	t.Parallel()
 
-	invalidStatus := domain.LearningStatus("INVALID")
+	invalidStatus := domain.CardState("INVALID")
 	input := FindInput{Status: &invalidStatus}
 
 	err := input.Validate()
@@ -2312,7 +2307,7 @@ func TestService_ExportEntries_EntryWithoutCard(t *testing.T) {
 	deps.senses.GetByEntryIDsFunc = func(_ context.Context, _ []uuid.UUID) ([]domain.Sense, error) {
 		return nil, nil
 	}
-	deps.cards.GetByEntryIDsFunc = func(_ context.Context, _ []uuid.UUID) ([]domain.Card, error) {
+	deps.cards.GetByEntryIDsFunc = func(_ context.Context, _ uuid.UUID, _ []uuid.UUID) ([]domain.Card, error) {
 		return nil, nil // no cards
 	}
 

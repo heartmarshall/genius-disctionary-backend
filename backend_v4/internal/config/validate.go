@@ -32,9 +32,6 @@ func (d *DictionaryConfig) validate() error {
 	if d.MaxEntriesPerUser <= 0 {
 		return fmt.Errorf("max_entries_per_user must be positive (got %d)", d.MaxEntriesPerUser)
 	}
-	if d.DefaultEaseFactor < 1.0 || d.DefaultEaseFactor > 5.0 {
-		return fmt.Errorf("default_ease_factor must be between 1.0 and 5.0 (got %v)", d.DefaultEaseFactor)
-	}
 	if d.ImportChunkSize <= 0 || d.ImportChunkSize > 1000 {
 		return fmt.Errorf("import_chunk_size must be between 1 and 1000 (got %d)", d.ImportChunkSize)
 	}
@@ -48,14 +45,17 @@ func (d *DictionaryConfig) validate() error {
 }
 
 func (s *SRSConfig) validate() error {
-	if s.MinEaseFactor <= 0 {
-		return fmt.Errorf("min_ease_factor must be > 0 (got %v)", s.MinEaseFactor)
+	if s.DefaultRetention <= 0 || s.DefaultRetention >= 1 {
+		return fmt.Errorf("default_retention must be between 0 and 1 exclusive (got %v)", s.DefaultRetention)
 	}
 	if s.MaxIntervalDays <= 0 {
 		return fmt.Errorf("max_interval_days must be > 0 (got %d)", s.MaxIntervalDays)
 	}
 	if s.NewCardsPerDay < 0 {
 		return fmt.Errorf("new_cards_per_day must be >= 0 (got %d)", s.NewCardsPerDay)
+	}
+	if s.UndoWindowMinutes < 1 {
+		return fmt.Errorf("undo_window_minutes must be >= 1")
 	}
 
 	steps, err := ParseLearningSteps(s.LearningStepsRaw)
@@ -64,27 +64,6 @@ func (s *SRSConfig) validate() error {
 	}
 	s.LearningSteps = steps
 
-	// New SRS fields validation
-	if s.EasyInterval < 1 {
-		return fmt.Errorf("easy_interval must be >= 1")
-	}
-	if s.IntervalModifier <= 0 {
-		return fmt.Errorf("interval_modifier must be positive")
-	}
-	if s.HardIntervalModifier <= 0 {
-		return fmt.Errorf("hard_interval_modifier must be positive")
-	}
-	if s.EasyBonus <= 0 {
-		return fmt.Errorf("easy_bonus must be positive")
-	}
-	if s.LapseNewInterval < 0 || s.LapseNewInterval > 1 {
-		return fmt.Errorf("lapse_new_interval must be between 0.0 and 1.0")
-	}
-	if s.UndoWindowMinutes < 1 {
-		return fmt.Errorf("undo_window_minutes must be >= 1")
-	}
-
-	// Parse RelearningStepsRaw → RelearningSteps (similar to LearningSteps)
 	if s.RelearningStepsRaw != "" {
 		relearningSteps, err := ParseLearningSteps(s.RelearningStepsRaw)
 		if err != nil {

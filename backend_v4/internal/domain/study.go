@@ -2,8 +2,6 @@ package domain
 
 import (
 	"time"
-
-	"github.com/google/uuid"
 )
 
 // SRSConfig holds FSRS-5 spaced-repetition algorithm parameters (pure domain type).
@@ -50,7 +48,7 @@ type Dashboard struct {
 	Streak        int
 	StatusCounts  CardStatusCounts
 	OverdueCount  int
-	ActiveSession *uuid.UUID
+	ActiveSession *StudySession
 }
 
 // DayReviewCount holds the review count for a specific date.

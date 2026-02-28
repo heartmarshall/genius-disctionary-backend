@@ -40,6 +40,7 @@ import (
 	enrichmentsvc "github.com/heartmarshall/myenglish-backend/internal/service/enrichment"
 	"github.com/heartmarshall/myenglish-backend/internal/service/refcatalog"
 	"github.com/heartmarshall/myenglish-backend/internal/service/study"
+	"github.com/heartmarshall/myenglish-backend/internal/service/study/fsrs"
 	topicsvc "github.com/heartmarshall/myenglish-backend/internal/service/topic"
 	usersvc "github.com/heartmarshall/myenglish-backend/internal/service/user"
 	gqlpkg "github.com/heartmarshall/myenglish-backend/internal/transport/graphql"
@@ -149,20 +150,14 @@ func Run(ctx context.Context) error {
 	)
 
 	srsConfig := domain.SRSConfig{
-		DefaultEaseFactor:    cfg.SRS.DefaultEaseFactor,
-		MinEaseFactor:        cfg.SRS.MinEaseFactor,
-		MaxIntervalDays:      cfg.SRS.MaxIntervalDays,
-		GraduatingInterval:   cfg.SRS.GraduatingInterval,
-		LearningSteps:        cfg.SRS.LearningSteps,
-		NewCardsPerDay:       cfg.SRS.NewCardsPerDay,
-		ReviewsPerDay:        cfg.SRS.ReviewsPerDay,
-		EasyInterval:         cfg.SRS.EasyInterval,
-		RelearningSteps:      cfg.SRS.RelearningSteps,
-		IntervalModifier:     cfg.SRS.IntervalModifier,
-		HardIntervalModifier: cfg.SRS.HardIntervalModifier,
-		EasyBonus:            cfg.SRS.EasyBonus,
-		LapseNewInterval:     cfg.SRS.LapseNewInterval,
-		UndoWindowMinutes:    cfg.SRS.UndoWindowMinutes,
+		DefaultRetention:  cfg.SRS.DefaultRetention,
+		MaxIntervalDays:   cfg.SRS.MaxIntervalDays,
+		EnableFuzz:        cfg.SRS.EnableFuzz,
+		LearningSteps:     cfg.SRS.LearningSteps,
+		RelearningSteps:   cfg.SRS.RelearningSteps,
+		NewCardsPerDay:    cfg.SRS.NewCardsPerDay,
+		ReviewsPerDay:     cfg.SRS.ReviewsPerDay,
+		UndoWindowMinutes: cfg.SRS.UndoWindowMinutes,
 	}
 
 	enrichmentService := enrichmentsvc.NewService(
@@ -181,10 +176,13 @@ func Run(ctx context.Context) error {
 		imageRepo, auditRepo, txm,
 	)
 
-	studyService := study.NewService(
+	studyService, err := study.NewService(
 		logger, cardRepo, reviewlogRepo, sessionRepo, entryRepo,
-		senseRepo, userRepo, auditRepo, txm, srsConfig,
+		senseRepo, userRepo, auditRepo, txm, srsConfig, fsrs.DefaultWeights,
 	)
+	if err != nil {
+		return fmt.Errorf("create study service: %w", err)
+	}
 
 	topicService := topicsvc.NewService(
 		logger, topicRepo, entryRepo, auditRepo, txm,

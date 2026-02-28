@@ -13,20 +13,18 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestE2E_EnrichmentPropagation verifies the FK SET NULL behavior when
-// ref_senses are replaced during LLM enrichment.
+// TestE2E_EnrichmentPropagation verifies the upsert behavior when ref_senses
+// are enriched by the LLM pipeline.
 //
 // Scenario:
-//  1. Seed a ref_entry with Wiktionary senses (definition, POS).
+//  1. Seed a ref_entry with Wiktionary senses.
 //  2. User creates an entry from catalog → user senses link via ref_sense_id.
 //  3. Verify user sees Wiktionary definitions via COALESCE.
-//  4. Simulate LLM enrichment: DELETE old ref_senses, INSERT new ones.
+//  4. Simulate LLM enrichment via ReplaceEntryContent (upsert strategy):
+//     - Existing senses are updated in-place (UUIDs preserved).
+//     - New senses are inserted.
 //  5. Query user entry again.
-//  6. Verify: user senses now have ref_sense_id = NULL (FK SET NULL)
-//     and definitions are NULL (no local definition, ref link broken).
-//
-// This documents KNOWN BEHAVIOR: users who added words BEFORE enrichment
-// need to re-sync their entries to see updated definitions.
+//  6. Verify: user senses still have ref_sense_id NOT NULL and see LLM-enriched definitions.
 func TestE2E_EnrichmentPropagation(t *testing.T) {
 	ts := setupTestServer(t)
 	token, _ := createTestUserWithID(t, ts)
@@ -114,23 +112,34 @@ func TestE2E_EnrichmentPropagation(t *testing.T) {
 	assert.Equal(t, 2, refSenseLinked, "both senses should link to ref_senses")
 
 	// -----------------------------------------------------------------------
-	// Step 4: Simulate LLM enrichment — delete old ref_senses, insert new.
-	// Old ref_senses are deleted; FK ON DELETE SET NULL nullifies user links.
+	// Step 4: Simulate LLM enrichment — upsert ref_senses in-place.
+	// UUIDs are preserved, so user FK links remain valid.
 	// -----------------------------------------------------------------------
-	_, err = ts.Pool.Exec(ctx,
-		`DELETE FROM ref_senses WHERE ref_entry_id = $1`,
-		refEntryID,
-	)
-	require.NoError(t, err, "delete old ref_senses")
 
-	// Insert replacement LLM-enriched senses (new IDs).
+	// UPDATE sense at position 0: enriched definition, same UUID stays.
+	_, err = ts.Pool.Exec(ctx,
+		`UPDATE ref_senses SET definition = $1, source_slug = 'llm'
+		 WHERE id = $2`,
+		"articulate and persuasive in expression (LLM-enriched)", refSense1ID,
+	)
+	require.NoError(t, err, "upsert ref_sense 1")
+
+	// UPDATE sense at position 1: enriched definition, same UUID stays.
+	_, err = ts.Pool.Exec(ctx,
+		`UPDATE ref_senses SET definition = $1, source_slug = 'llm'
+		 WHERE id = $2`,
+		"vividly expressing strong feelings (LLM-enriched)", refSense2ID,
+	)
+	require.NoError(t, err, "upsert ref_sense 2")
+
+	// INSERT new sense at position 2 (didn't exist before).
 	newSenseID := uuid.New()
 	_, err = ts.Pool.Exec(ctx,
 		`INSERT INTO ref_senses (id, ref_entry_id, definition, part_of_speech, source_slug, position, created_at)
 		 VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-		newSenseID, refEntryID, "articulate and persuasive in expression (LLM-enriched)", "adjective", "llm", 0, now,
+		newSenseID, refEntryID, "powerfully moving (LLM-enriched)", "adjective", "llm", 2, now,
 	)
-	require.NoError(t, err, "insert LLM ref_sense")
+	require.NoError(t, err, "insert new LLM ref_sense")
 
 	// -----------------------------------------------------------------------
 	// Step 5: Query user entry again.
@@ -157,34 +166,140 @@ func TestE2E_EnrichmentPropagation(t *testing.T) {
 	require.Len(t, senses, 2, "user still has 2 senses (rows not deleted)")
 
 	// -----------------------------------------------------------------------
-	// Step 6: Verify FK SET NULL behavior.
-	// User senses now have ref_sense_id = NULL. Since user has no local
-	// definition (only ref link), COALESCE returns NULL.
+	// Step 6: Verify upsert behavior — FK preserved, LLM definitions visible.
 	// -----------------------------------------------------------------------
-	for i, s := range senses {
-		senseMap := s.(map[string]any)
-		// definition is nil because: COALESCE(user.definition=NULL, ref.definition=NULL)
-		// ref.definition is NULL because LEFT JOIN on ref_sense_id=NULL yields no match.
-		assert.Nil(t, senseMap["definition"],
-			"sense %d: definition should be nil after ref_senses replaced (FK SET NULL)", i)
-	}
 
-	// Verify in DB: ref_sense_id is now NULL on all user senses.
-	var nullCount int
+	// User senses should now show LLM-enriched definitions via COALESCE.
+	sense0 = senses[0].(map[string]any)
+	sense1 = senses[1].(map[string]any)
+	assert.Equal(t, "articulate and persuasive in expression (LLM-enriched)",
+		sense0["definition"], "sense 0: should show LLM-enriched definition")
+	assert.Equal(t, "vividly expressing strong feelings (LLM-enriched)",
+		sense1["definition"], "sense 1: should show LLM-enriched definition")
+
+	// Verify in DB: ref_sense_id is still NOT NULL on all user senses.
+	var linkedCount int
 	err = ts.Pool.QueryRow(ctx,
-		`SELECT count(*) FROM senses WHERE entry_id = $1 AND ref_sense_id IS NULL`,
+		`SELECT count(*) FROM senses WHERE entry_id = $1 AND ref_sense_id IS NOT NULL`,
 		entryID,
-	).Scan(&nullCount)
+	).Scan(&linkedCount)
 	require.NoError(t, err)
-	assert.Equal(t, 2, nullCount,
-		"all user senses should have ref_sense_id = NULL after replacement")
+	assert.Equal(t, 2, linkedCount,
+		"all user senses should still have ref_sense_id NOT NULL after upsert")
 
-	// Verify new LLM ref_senses exist (available for re-sync).
+	// Verify new LLM ref_senses exist (3 total: 2 updated + 1 new).
 	var newRefCount int
 	err = ts.Pool.QueryRow(ctx,
-		`SELECT count(*) FROM ref_senses WHERE ref_entry_id = $1 AND source_slug = 'llm'`,
+		`SELECT count(*) FROM ref_senses WHERE ref_entry_id = $1`,
 		refEntryID,
 	).Scan(&newRefCount)
 	require.NoError(t, err)
-	assert.Equal(t, 1, newRefCount, "new LLM ref_sense should exist")
+	assert.Equal(t, 3, newRefCount, "should have 3 ref_senses (2 updated + 1 new)")
+}
+
+// TestE2E_EnrichmentPropagation_ExcessDeletion verifies that when LLM enrichment
+// reduces the number of senses, excess old senses are deleted and FK SET NULL fires.
+func TestE2E_EnrichmentPropagation_ExcessDeletion(t *testing.T) {
+	ts := setupTestServer(t)
+	token, _ := createTestUserWithID(t, ts)
+	ctx := context.Background()
+
+	// Seed ref_entry + 3 ref_senses.
+	refEntryID := uuid.New()
+	refSenseIDs := [3]uuid.UUID{uuid.New(), uuid.New(), uuid.New()}
+	now := time.Now().UTC().Truncate(time.Microsecond)
+
+	_, err := ts.Pool.Exec(ctx,
+		`INSERT INTO ref_entries (id, text, text_normalized, is_core_lexicon, created_at)
+		 VALUES ($1, $2, $3, $4, $5)`,
+		refEntryID, "bright", "bright", true, now,
+	)
+	require.NoError(t, err)
+
+	for i, id := range refSenseIDs {
+		_, err = ts.Pool.Exec(ctx,
+			`INSERT INTO ref_senses (id, ref_entry_id, definition, part_of_speech, source_slug, position, created_at)
+			 VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+			id, refEntryID, []string{"shining with light", "intelligent", "vivid in color"}[i],
+			"adjective", "wiktionary", i, now,
+		)
+		require.NoError(t, err)
+	}
+
+	// Create user entry from catalog.
+	createMutation := `mutation($input: CreateEntryFromCatalogInput!) {
+		createEntryFromCatalog(input: $input) {
+			entry { id senses { id definition } }
+		}
+	}`
+	status, result := ts.graphqlQuery(t, createMutation, map[string]any{
+		"input": map[string]any{"refEntryId": refEntryID.String(), "senseIds": []string{}},
+	}, token)
+	assert.Equal(t, http.StatusOK, status)
+	requireNoErrors(t, result)
+
+	payload := gqlPayload(t, result, "createEntryFromCatalog")
+	entryID := payload["entry"].(map[string]any)["id"].(string)
+
+	// Verify 3 linked senses.
+	var linkedBefore int
+	err = ts.Pool.QueryRow(ctx,
+		`SELECT count(*) FROM senses WHERE entry_id = $1 AND ref_sense_id IS NOT NULL`,
+		entryID,
+	).Scan(&linkedBefore)
+	require.NoError(t, err)
+	assert.Equal(t, 3, linkedBefore)
+
+	// Simulate upsert that reduces senses from 3 to 1.
+	// Sense at position 0: UPDATE in-place.
+	_, err = ts.Pool.Exec(ctx,
+		`UPDATE ref_senses SET definition = $1, source_slug = 'llm' WHERE id = $2`,
+		"emitting or reflecting light (LLM)", refSenseIDs[0],
+	)
+	require.NoError(t, err)
+
+	// Delete senses at positions 1 and 2 (excess).
+	_, err = ts.Pool.Exec(ctx,
+		`DELETE FROM ref_senses WHERE id = ANY($1)`,
+		[]uuid.UUID{refSenseIDs[1], refSenseIDs[2]},
+	)
+	require.NoError(t, err)
+
+	// Verify results.
+	var linkedAfter, nullAfter int
+	err = ts.Pool.QueryRow(ctx,
+		`SELECT count(*) FROM senses WHERE entry_id = $1 AND ref_sense_id IS NOT NULL`,
+		entryID,
+	).Scan(&linkedAfter)
+	require.NoError(t, err)
+	assert.Equal(t, 1, linkedAfter, "1 sense should still be linked after upsert")
+
+	err = ts.Pool.QueryRow(ctx,
+		`SELECT count(*) FROM senses WHERE entry_id = $1 AND ref_sense_id IS NULL`,
+		entryID,
+	).Scan(&nullAfter)
+	require.NoError(t, err)
+	assert.Equal(t, 2, nullAfter, "2 senses should have ref_sense_id = NULL (excess deleted)")
+
+	// The linked sense should show the LLM-enriched definition.
+	getQuery := `query($id: UUID!) {
+		dictionaryEntry(id: $id) { senses { definition } }
+	}`
+	status, result = ts.graphqlQuery(t, getQuery, map[string]any{"id": entryID}, token)
+	assert.Equal(t, http.StatusOK, status)
+	requireNoErrors(t, result)
+
+	entryData := gqlPayload(t, result, "dictionaryEntry")
+	senses := entryData["senses"].([]any)
+	require.Len(t, senses, 3, "user still has 3 senses (rows not deleted from senses table)")
+
+	// At least one sense should show the enriched definition.
+	var foundEnriched bool
+	for _, s := range senses {
+		def := s.(map[string]any)["definition"]
+		if def == "emitting or reflecting light (LLM)" {
+			foundEnriched = true
+		}
+	}
+	assert.True(t, foundEnriched, "should find the LLM-enriched definition in user senses")
 }

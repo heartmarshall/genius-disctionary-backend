@@ -357,7 +357,7 @@ func TestRepo_GetStreakDays(t *testing.T) {
 
 	dayStart := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
 
-	counts, err := repo.GetStreakDays(ctx, user.ID, dayStart, 10)
+	counts, err := repo.GetStreakDays(ctx, user.ID, dayStart, 10, "UTC")
 	if err != nil {
 		t.Fatalf("GetStreakDays: unexpected error: %v", err)
 	}

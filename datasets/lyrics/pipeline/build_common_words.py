@@ -2,9 +2,9 @@
 """Find words common to all (or N) artists.
 
 Reads words.txt from each artist directory and produces:
+  - common_words.csv       full stats: word, artist_count, artists list
   - common_words.txt       words shared by ALL artists
   - common_words_90.txt    words shared by ≥90% of artists
-  - common_words_stats.csv full stats: word, artist_count, artists list
 
 Usage:
     python build_common_words.py                # all artists
@@ -56,7 +56,7 @@ def main():
     all_words = sorted(word_artists.items(), key=lambda x: (-len(x[1]), x[0]))
 
     # Save full stats CSV
-    csv_path = OUTPUT_DIR / "common_words_stats.csv"
+    csv_path = OUTPUT_DIR / "common_words.csv"
     with open(csv_path, "w", encoding="utf-8", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["word", "artist_count", "artist_pct", "artists"])

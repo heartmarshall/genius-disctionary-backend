@@ -58,7 +58,7 @@ type ExportItem struct {
 	Text       string
 	Notes      *string
 	Senses     []ExportSense
-	CardStatus *domain.LearningStatus
+	CardStatus *domain.CardState
 	CreatedAt  time.Time
 }
 

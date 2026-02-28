@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Build a unique-words vocabulary CSV for each artist from lyrics datasets.
+"""Build word frequency dataset.csv for each artist from lyrics.
 
-For every artist directory that contains dataset.json, produces a CSV with:
+For every artist directory that contains songs.json, produces dataset.csv with:
   - word (lowercase form as it appears in lyrics)
   - lemma (dictionary form via spaCy)
   - pos (part of speech: NOUN, VERB, ADJ, etc.)
@@ -11,6 +11,8 @@ For every artist directory that contains dataset.json, produces a CSV with:
   - avg_per_song (average occurrences per song where it appears)
   - is_stopword (True/False — common English stop words)
   - frequency_rank (1 = most frequent)
+
+Also produces words.txt — sorted unique lemmas (no stopwords).
 
 Usage:
     python build_vocabulary.py                     # all artists
@@ -42,8 +44,8 @@ OUTPUT_DIR = SCRIPT_DIR.parent / "output"
 
 
 def load_artist_data(artist_dir: Path) -> list[dict] | None:
-    """Load dataset.json for an artist. Returns None if not found."""
-    dataset_file = artist_dir / "dataset.json"
+    """Load songs.json for an artist. Returns None if not found."""
+    dataset_file = artist_dir / "songs.json"
     if not dataset_file.exists():
         return None
     with open(dataset_file, "r", encoding="utf-8") as f:
@@ -134,7 +136,7 @@ def process_artist(nlp, artist_dir: Path, min_count: int = 1):
     """Process one artist directory."""
     songs = load_artist_data(artist_dir)
     if songs is None:
-        print(f"  Skipping {artist_dir.name}: no dataset.json")
+        print(f"  Skipping {artist_dir.name}: no songs.json")
         return
 
     artist_name = songs[0].get("artist", artist_dir.name) if songs else artist_dir.name
@@ -149,7 +151,7 @@ def process_artist(nlp, artist_dir: Path, min_count: int = 1):
         return
 
     # Save CSV
-    csv_path = artist_dir / "unique.csv"
+    csv_path = artist_dir / "dataset.csv"
     df.to_csv(csv_path, index=False, encoding="utf-8")
 
     # Summary stats

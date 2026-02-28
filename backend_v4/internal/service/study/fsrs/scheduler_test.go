@@ -3,6 +3,8 @@ package fsrs
 import (
 	"testing"
 	"time"
+
+	"github.com/heartmarshall/myenglish-backend/internal/domain"
 )
 
 func newTestParams() Parameters {
@@ -16,14 +18,24 @@ func newTestParams() Parameters {
 	}
 }
 
+// mustReview is a test helper that calls ReviewCard and fails the test on error.
+func mustReview(t *testing.T, params Parameters, card Card, rating Rating, now time.Time) Card {
+	t.Helper()
+	result, err := ReviewCard(params, card, rating, now)
+	if err != nil {
+		t.Fatalf("ReviewCard failed: %v", err)
+	}
+	return result
+}
+
 func TestReviewNew_Again(t *testing.T) {
 	params := newTestParams()
-	card := Card{State: StateNew}
+	card := Card{State: domain.CardStateNew}
 	now := time.Date(2025, 1, 1, 12, 0, 0, 0, time.UTC)
 
-	result := ReviewCard(params, card, Again, now)
+	result := mustReview(t, params, card, Again, now)
 
-	if result.State != StateLearning {
+	if result.State != domain.CardStateLearning {
 		t.Errorf("state = %s, want LEARNING", result.State)
 	}
 	if result.Step != 0 {
@@ -39,12 +51,12 @@ func TestReviewNew_Again(t *testing.T) {
 
 func TestReviewNew_Good_StepProgression(t *testing.T) {
 	params := newTestParams()
-	card := Card{State: StateNew}
+	card := Card{State: domain.CardStateNew}
 	now := time.Date(2025, 1, 1, 12, 0, 0, 0, time.UTC)
 
-	result := ReviewCard(params, card, Good, now)
+	result := mustReview(t, params, card, Good, now)
 
-	if result.State != StateLearning {
+	if result.State != domain.CardStateLearning {
 		t.Errorf("state = %s, want LEARNING (should go to step 1)", result.State)
 	}
 	if result.Step != 1 {
@@ -54,12 +66,12 @@ func TestReviewNew_Good_StepProgression(t *testing.T) {
 
 func TestReviewNew_Easy_Graduate(t *testing.T) {
 	params := newTestParams()
-	card := Card{State: StateNew}
+	card := Card{State: domain.CardStateNew}
 	now := time.Date(2025, 1, 1, 12, 0, 0, 0, time.UTC)
 
-	result := ReviewCard(params, card, Easy, now)
+	result := mustReview(t, params, card, Easy, now)
 
-	if result.State != StateReview {
+	if result.State != domain.CardStateReview {
 		t.Errorf("state = %s, want REVIEW (should graduate)", result.State)
 	}
 	if result.ScheduledDays < 1 {
@@ -70,16 +82,16 @@ func TestReviewNew_Easy_Graduate(t *testing.T) {
 func TestReviewLearning_Good_Graduate(t *testing.T) {
 	params := newTestParams()
 	card := Card{
-		State:     StateLearning,
-		Step:      1, // last learning step
-		Stability: 3.0,
+		State:      domain.CardStateLearning,
+		Step:       1, // last learning step
+		Stability:  3.0,
 		Difficulty: 5.0,
 	}
 	now := time.Date(2025, 1, 1, 12, 0, 0, 0, time.UTC)
 
-	result := ReviewCard(params, card, Good, now)
+	result := mustReview(t, params, card, Good, now)
 
-	if result.State != StateReview {
+	if result.State != domain.CardStateReview {
 		t.Errorf("state = %s, want REVIEW (should graduate from last step)", result.State)
 	}
 	if result.ScheduledDays < 1 {
@@ -90,16 +102,16 @@ func TestReviewLearning_Good_Graduate(t *testing.T) {
 func TestReviewLearning_Again_ResetStep(t *testing.T) {
 	params := newTestParams()
 	card := Card{
-		State:      StateLearning,
+		State:      domain.CardStateLearning,
 		Step:       1,
 		Stability:  3.0,
 		Difficulty: 5.0,
 	}
 	now := time.Date(2025, 1, 1, 12, 0, 0, 0, time.UTC)
 
-	result := ReviewCard(params, card, Again, now)
+	result := mustReview(t, params, card, Again, now)
 
-	if result.State != StateLearning {
+	if result.State != domain.CardStateLearning {
 		t.Errorf("state = %s, want LEARNING", result.State)
 	}
 	if result.Step != 0 {
@@ -126,7 +138,7 @@ func TestReviewReview_IntervalOrdering(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			card := Card{
-				State:       StateReview,
+				State:       domain.CardStateReview,
 				Stability:   tc.stability,
 				Difficulty:  tc.difficulty,
 				ElapsedDays: int(tc.stability), // approximately due
@@ -134,9 +146,9 @@ func TestReviewReview_IntervalOrdering(t *testing.T) {
 			}
 			now := time.Date(2025, 1, 1, 12, 0, 0, 0, time.UTC)
 
-			hardCard := ReviewCard(params, card, Hard, now)
-			goodCard := ReviewCard(params, card, Good, now)
-			easyCard := ReviewCard(params, card, Easy, now)
+			hardCard := mustReview(t, params, card, Hard, now)
+			goodCard := mustReview(t, params, card, Good, now)
+			easyCard := mustReview(t, params, card, Easy, now)
 
 			if hardCard.ScheduledDays > goodCard.ScheduledDays {
 				t.Errorf("Hard (%d) > Good (%d)", hardCard.ScheduledDays, goodCard.ScheduledDays)
@@ -151,7 +163,7 @@ func TestReviewReview_IntervalOrdering(t *testing.T) {
 func TestReviewReview_Again_Lapse(t *testing.T) {
 	params := newTestParams()
 	card := Card{
-		State:       StateReview,
+		State:       domain.CardStateReview,
 		Stability:   20.0,
 		Difficulty:  5.0,
 		ElapsedDays: 20,
@@ -160,9 +172,9 @@ func TestReviewReview_Again_Lapse(t *testing.T) {
 	}
 	now := time.Date(2025, 1, 1, 12, 0, 0, 0, time.UTC)
 
-	result := ReviewCard(params, card, Again, now)
+	result := mustReview(t, params, card, Again, now)
 
-	if result.State != StateRelearning {
+	if result.State != domain.CardStateRelearning {
 		t.Errorf("state = %s, want RELEARNING", result.State)
 	}
 	if result.Lapses != 1 {
@@ -179,7 +191,7 @@ func TestReviewReview_Again_Lapse(t *testing.T) {
 func TestReviewReview_LapseCappedByNextSMin(t *testing.T) {
 	params := newTestParams()
 	card := Card{
-		State:       StateReview,
+		State:       domain.CardStateReview,
 		Stability:   50.0,
 		Difficulty:  5.0,
 		ElapsedDays: 50,
@@ -187,7 +199,7 @@ func TestReviewReview_LapseCappedByNextSMin(t *testing.T) {
 	}
 	now := time.Date(2025, 1, 1, 12, 0, 0, 0, time.UTC)
 
-	result := ReviewCard(params, card, Again, now)
+	result := mustReview(t, params, card, Again, now)
 
 	sMin := NextSMin(params.W, card.Stability)
 	if result.Stability > sMin+0.001 {
@@ -198,7 +210,7 @@ func TestReviewReview_LapseCappedByNextSMin(t *testing.T) {
 func TestReviewRelearning_Graduate(t *testing.T) {
 	params := newTestParams()
 	card := Card{
-		State:      StateRelearning,
+		State:      domain.CardStateRelearning,
 		Step:       0, // only one relearning step
 		Stability:  5.0,
 		Difficulty: 6.0,
@@ -206,9 +218,9 @@ func TestReviewRelearning_Graduate(t *testing.T) {
 	}
 	now := time.Date(2025, 1, 1, 12, 0, 0, 0, time.UTC)
 
-	result := ReviewCard(params, card, Good, now)
+	result := mustReview(t, params, card, Good, now)
 
-	if result.State != StateReview {
+	if result.State != domain.CardStateReview {
 		t.Errorf("state = %s, want REVIEW (should graduate from relearning)", result.State)
 	}
 	if result.ScheduledDays < 1 {
@@ -221,7 +233,7 @@ func TestReviewCard_FuzzEnabled(t *testing.T) {
 	params.EnableFuzz = true
 
 	card := Card{
-		State:       StateReview,
+		State:       domain.CardStateReview,
 		Stability:   30.0,
 		Difficulty:  5.0,
 		ElapsedDays: 30,
@@ -230,9 +242,9 @@ func TestReviewCard_FuzzEnabled(t *testing.T) {
 	now := time.Date(2025, 1, 1, 12, 0, 0, 0, time.UTC)
 
 	// With fuzz, should still maintain ordering
-	hardCard := ReviewCard(params, card, Hard, now)
-	goodCard := ReviewCard(params, card, Good, now)
-	easyCard := ReviewCard(params, card, Easy, now)
+	hardCard := mustReview(t, params, card, Hard, now)
+	goodCard := mustReview(t, params, card, Good, now)
+	easyCard := mustReview(t, params, card, Easy, now)
 
 	if hardCard.ScheduledDays > goodCard.ScheduledDays {
 		t.Errorf("With fuzz: Hard (%d) > Good (%d)", hardCard.ScheduledDays, goodCard.ScheduledDays)
@@ -244,12 +256,12 @@ func TestReviewCard_FuzzEnabled(t *testing.T) {
 
 func TestReviewNew_Hard_DelayBetweenSteps(t *testing.T) {
 	params := newTestParams()
-	card := Card{State: StateNew}
+	card := Card{State: domain.CardStateNew}
 	now := time.Date(2025, 1, 1, 12, 0, 0, 0, time.UTC)
 
-	result := ReviewCard(params, card, Hard, now)
+	result := mustReview(t, params, card, Hard, now)
 
-	if result.State != StateLearning {
+	if result.State != domain.CardStateLearning {
 		t.Errorf("state = %s, want LEARNING", result.State)
 	}
 
@@ -262,16 +274,16 @@ func TestReviewNew_Hard_DelayBetweenSteps(t *testing.T) {
 
 func TestReviewCard_RepsIncrement(t *testing.T) {
 	params := newTestParams()
-	card := Card{State: StateNew, Reps: 0}
+	card := Card{State: domain.CardStateNew, Reps: 0}
 	now := time.Date(2025, 1, 1, 12, 0, 0, 0, time.UTC)
 
-	result := ReviewCard(params, card, Good, now)
+	result := mustReview(t, params, card, Good, now)
 	if result.Reps != 1 {
 		t.Errorf("reps = %d, want 1", result.Reps)
 	}
 
 	// Review the learning card
-	result = ReviewCard(params, result, Good, now.Add(10*time.Minute))
+	result = mustReview(t, params, result, Good, now.Add(10*time.Minute))
 	if result.Reps != 2 {
 		t.Errorf("reps = %d, want 2", result.Reps)
 	}
@@ -282,7 +294,7 @@ func TestReviewCard_MaxIntervalCap(t *testing.T) {
 	params.MaxIntervalDays = 30
 
 	card := Card{
-		State:       StateReview,
+		State:       domain.CardStateReview,
 		Stability:   200.0, // very high stability
 		Difficulty:  3.0,
 		ElapsedDays: 200,
@@ -290,7 +302,7 @@ func TestReviewCard_MaxIntervalCap(t *testing.T) {
 	}
 	now := time.Date(2025, 1, 1, 12, 0, 0, 0, time.UTC)
 
-	result := ReviewCard(params, card, Easy, now)
+	result := mustReview(t, params, card, Easy, now)
 
 	if result.ScheduledDays > 30 {
 		t.Errorf("scheduledDays = %d, exceeds maxIntervalDays 30", result.ScheduledDays)
@@ -302,7 +314,7 @@ func TestReviewReview_ElapsedDaysAffectsStability(t *testing.T) {
 
 	// Two cards with same S, D but different elapsed days.
 	base := Card{
-		State:      StateReview,
+		State:      domain.CardStateReview,
 		Stability:  10.0,
 		Difficulty: 5.0,
 		Reps:       5,
@@ -312,12 +324,12 @@ func TestReviewReview_ElapsedDaysAffectsStability(t *testing.T) {
 	// Card reviewed on time (elapsed ≈ stability)
 	onTime := base
 	onTime.ElapsedDays = 10
-	resultOnTime := ReviewCard(params, onTime, Good, now)
+	resultOnTime := mustReview(t, params, onTime, Good, now)
 
 	// Card reviewed very late (elapsed >> stability)
 	late := base
 	late.ElapsedDays = 30
-	resultLate := ReviewCard(params, late, Good, now)
+	resultLate := mustReview(t, params, late, Good, now)
 
 	// A late successful review should increase stability MORE because R is lower.
 	if resultLate.Stability <= resultOnTime.Stability {
@@ -329,21 +341,32 @@ func TestReviewReview_ElapsedDaysAffectsStability(t *testing.T) {
 func TestReviewLearning_Easy_IntervalGteGood(t *testing.T) {
 	params := newTestParams()
 	card := Card{
-		State:      StateLearning,
+		State:      domain.CardStateLearning,
 		Step:       0,
 		Stability:  3.0,
 		Difficulty: 5.0,
 	}
 	now := time.Date(2025, 1, 1, 12, 0, 0, 0, time.UTC)
 
-	goodCard := ReviewCard(params, card, Good, now)
-	easyCard := ReviewCard(params, card, Easy, now)
+	goodCard := mustReview(t, params, card, Good, now)
+	easyCard := mustReview(t, params, card, Easy, now)
 
 	// If good graduated, easy should have >= good + 1 interval
-	if goodCard.State == StateReview && easyCard.State == StateReview {
+	if goodCard.State == domain.CardStateReview && easyCard.State == domain.CardStateReview {
 		if easyCard.ScheduledDays <= goodCard.ScheduledDays {
 			t.Errorf("Easy interval (%d) should be > Good interval (%d)",
 				easyCard.ScheduledDays, goodCard.ScheduledDays)
 		}
+	}
+}
+
+func TestReviewCard_UnknownState(t *testing.T) {
+	params := newTestParams()
+	card := Card{State: "INVALID"}
+	now := time.Date(2025, 1, 1, 12, 0, 0, 0, time.UTC)
+
+	_, err := ReviewCard(params, card, Good, now)
+	if err == nil {
+		t.Error("expected error for unknown card state, got nil")
 	}
 }

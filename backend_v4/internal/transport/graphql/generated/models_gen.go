@@ -68,9 +68,10 @@ type BatchCreateCardError struct {
 }
 
 type BatchCreateCardsPayload struct {
-	CreatedCount int                     `json:"createdCount"`
-	SkippedCount int                     `json:"skippedCount"`
-	Errors       []*BatchCreateCardError `json:"errors"`
+	CreatedCount    int                     `json:"createdCount"`
+	SkippedExisting int                     `json:"skippedExisting"`
+	SkippedNoSenses int                     `json:"skippedNoSenses"`
+	Errors          []*BatchCreateCardError `json:"errors"`
 }
 
 type BatchDeletePayload struct {
@@ -91,6 +92,19 @@ type BatchLinkEntriesInput struct {
 type BatchLinkPayload struct {
 	Linked  int `json:"linked"`
 	Skipped int `json:"skipped"`
+}
+
+type CardHistoryPayload struct {
+	Logs       []*domain.ReviewLog `json:"logs"`
+	TotalCount int                 `json:"totalCount"`
+}
+
+type CardSnapshotOutput struct {
+	State         domain.CardState `json:"state"`
+	Step          int              `json:"step"`
+	Stability     float64          `json:"stability"`
+	Difficulty    float64          `json:"difficulty"`
+	ScheduledDays int              `json:"scheduledDays"`
 }
 
 type ClearInboxPayload struct {
@@ -200,13 +214,13 @@ type DictionaryEdge struct {
 }
 
 type DictionaryFilterInput struct {
-	Search        *string                `json:"search,omitempty"`
-	HasCard       *bool                  `json:"hasCard,omitempty"`
-	PartOfSpeech  *domain.PartOfSpeech   `json:"partOfSpeech,omitempty"`
-	TopicID       *uuid.UUID             `json:"topicId,omitempty"`
-	Status        *domain.LearningStatus `json:"status,omitempty"`
-	SortField     *EntrySortField        `json:"sortField,omitempty"`
-	SortDirection *SortDirection         `json:"sortDirection,omitempty"`
+	Search        *string              `json:"search,omitempty"`
+	HasCard       *bool                `json:"hasCard,omitempty"`
+	PartOfSpeech  *domain.PartOfSpeech `json:"partOfSpeech,omitempty"`
+	TopicID       *uuid.UUID           `json:"topicId,omitempty"`
+	Status        *domain.CardState    `json:"status,omitempty"`
+	SortField     *EntrySortField      `json:"sortField,omitempty"`
+	SortDirection *SortDirection       `json:"sortDirection,omitempty"`
 	// Cursor-based: количество записей.
 	First *int `json:"first,omitempty"`
 	// Cursor-based: курсор после которого загружать.
@@ -215,10 +229,6 @@ type DictionaryFilterInput struct {
 	Limit *int `json:"limit,omitempty"`
 	// Offset-based: смещение.
 	Offset *int `json:"offset,omitempty"`
-}
-
-type FinishSessionInput struct {
-	SessionID uuid.UUID `json:"sessionId"`
 }
 
 type FinishSessionPayload struct {
@@ -376,10 +386,11 @@ type UpdateSensePayload struct {
 }
 
 type UpdateSettingsInput struct {
-	NewCardsPerDay  *int    `json:"newCardsPerDay,omitempty"`
-	ReviewsPerDay   *int    `json:"reviewsPerDay,omitempty"`
-	MaxIntervalDays *int    `json:"maxIntervalDays,omitempty"`
-	Timezone        *string `json:"timezone,omitempty"`
+	NewCardsPerDay   *int     `json:"newCardsPerDay,omitempty"`
+	ReviewsPerDay    *int     `json:"reviewsPerDay,omitempty"`
+	MaxIntervalDays  *int     `json:"maxIntervalDays,omitempty"`
+	DesiredRetention *float64 `json:"desiredRetention,omitempty"`
+	Timezone         *string  `json:"timezone,omitempty"`
 }
 
 type UpdateSettingsPayload struct {

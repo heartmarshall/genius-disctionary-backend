@@ -6,57 +6,58 @@ import (
 	"github.com/google/uuid"
 )
 
-// Card represents an SRS flashcard linked 1:1 with an Entry.
+// Card represents an FSRS-5 flashcard linked 1:1 with an Entry.
 type Card struct {
-	ID           uuid.UUID
-	UserID       uuid.UUID
-	EntryID      uuid.UUID
-	Status       LearningStatus
-	LearningStep int
-	NextReviewAt *time.Time
-	IntervalDays int
-	EaseFactor   float64
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
+	ID            uuid.UUID
+	UserID        uuid.UUID
+	EntryID       uuid.UUID
+	State         CardState
+	Step          int
+	Stability     float64
+	Difficulty    float64
+	Due           time.Time
+	LastReview    *time.Time
+	Reps          int
+	Lapses        int
+	ScheduledDays int
+	ElapsedDays   int
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 }
 
 // IsDue returns true if the card needs review at the given time.
-//   - NEW cards with no NextReviewAt are always due.
-//   - LEARNING / REVIEW / MASTERED cards are due when NextReviewAt <= now.
+//   - NEW cards are always due.
+//   - Other cards are due when Due <= now.
 func (c *Card) IsDue(now time.Time) bool {
-	if c.Status == LearningStatusNew && c.NextReviewAt == nil {
+	if c.State == CardStateNew {
 		return true
 	}
-	return c.NextReviewAt != nil && !c.NextReviewAt.After(now)
+	return !c.Due.After(now)
 }
 
 // ReviewLog records a single review event for a card.
 type ReviewLog struct {
 	ID         uuid.UUID
 	CardID     uuid.UUID
+	UserID     uuid.UUID
 	Grade      ReviewGrade
 	PrevState  *CardSnapshot
 	DurationMs *int
 	ReviewedAt time.Time
 }
 
-// CardSnapshot captures the SRS state of a card before a review (for undo).
-// No json/db tags — serialization is the responsibility of the repo layer.
+// CardSnapshot captures the FSRS state of a card before a review (for undo).
 type CardSnapshot struct {
-	Status       LearningStatus
-	LearningStep int
-	IntervalDays int
-	EaseFactor   float64
-	NextReviewAt *time.Time
-}
-
-// SRSResult is the output of a pure SRS calculation.
-type SRSResult struct {
-	Status       LearningStatus
-	LearningStep int
-	NextReviewAt time.Time
-	IntervalDays int
-	EaseFactor   float64
+	State         CardState
+	Step          int
+	Stability     float64
+	Difficulty    float64
+	Due           time.Time
+	LastReview    *time.Time
+	Reps          int
+	Lapses        int
+	ScheduledDays int
+	ElapsedDays   int
 }
 
 // StudySession tracks a user's study session from start to finish.

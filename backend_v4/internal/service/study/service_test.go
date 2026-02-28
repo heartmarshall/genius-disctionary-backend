@@ -442,7 +442,7 @@ func TestService_ReviewCard_Success_NewToLearning(t *testing.T) {
 	}
 
 	mockCards := &cardRepoMock{
-		GetByIDFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
+		GetByIDForUpdateFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
 			if uid != userID || cid != cardID {
 				t.Errorf("unexpected IDs: got (%v, %v), want (%v, %v)", uid, cid, userID, cardID)
 			}
@@ -533,8 +533,8 @@ func TestService_ReviewCard_Success_NewToLearning(t *testing.T) {
 	}
 
 	// Verify calls
-	if len(mockCards.GetByIDCalls()) != 1 {
-		t.Errorf("GetByID calls: got %d, want 1", len(mockCards.GetByIDCalls()))
+	if len(mockCards.calls.GetByIDForUpdate) != 1 {
+		t.Errorf("GetByIDForUpdate calls: got %d, want 1", len(mockCards.calls.GetByIDForUpdate))
 	}
 	if len(mockCards.UpdateSRSCalls()) != 1 {
 		t.Errorf("UpdateSRS calls: got %d, want 1", len(mockCards.UpdateSRSCalls()))
@@ -572,7 +572,7 @@ func TestService_ReviewCard_Success_LearningToReview(t *testing.T) {
 	}
 
 	mockCards := &cardRepoMock{
-		GetByIDFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
+		GetByIDForUpdateFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
 			return card, nil
 		},
 		UpdateSRSFunc: func(ctx context.Context, uid, cid uuid.UUID, params domain.SRSUpdateParams) (*domain.Card, error) {
@@ -682,7 +682,7 @@ func TestService_ReviewCard_Success_ReviewIntervalIncrease(t *testing.T) {
 
 	var capturedParams domain.SRSUpdateParams
 	mockCards := &cardRepoMock{
-		GetByIDFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
+		GetByIDForUpdateFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
 			return card, nil
 		},
 		UpdateSRSFunc: func(ctx context.Context, uid, cid uuid.UUID, params domain.SRSUpdateParams) (*domain.Card, error) {
@@ -792,7 +792,7 @@ func TestService_ReviewCard_ElapsedDaysComputedFromLastReview(t *testing.T) {
 
 	var capturedParams domain.SRSUpdateParams
 	mockCards := &cardRepoMock{
-		GetByIDFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
+		GetByIDForUpdateFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
 			return card, nil
 		},
 		UpdateSRSFunc: func(ctx context.Context, uid, cid uuid.UUID, params domain.SRSUpdateParams) (*domain.Card, error) {
@@ -853,10 +853,10 @@ func TestService_ReviewCard_ElapsedDaysComputedFromLastReview(t *testing.T) {
 	// A stability computed with elapsed=7 differs from elapsed=1 (which max(1,0) produces).
 	// Compare against what the scheduler would return with ElapsedDays=1 (the bug):
 	buggyCard := fsrs.Card{
-		State: fsrs.StateReview, Stability: 10.0, Difficulty: 5.0,
+		State: domain.CardStateReview, Stability: 10.0, Difficulty: 5.0,
 		ElapsedDays: 1, Reps: 5,
 	}
-	buggyResult := fsrs.ReviewCard(fsrs.Parameters{
+	buggyResult, _ := fsrs.ReviewCard(fsrs.Parameters{
 		W:                fsrs.DefaultWeights,
 		DesiredRetention: 0.9,
 		MaxIntervalDays:  365,
@@ -916,14 +916,34 @@ func TestService_ReviewCard_CardNotFound(t *testing.T) {
 	cardID := uuid.New()
 
 	mockCards := &cardRepoMock{
-		GetByIDFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
+		GetByIDForUpdateFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
 			return nil, domain.ErrNotFound
 		},
 	}
 
+	mockSettings := &settingsRepoMock{
+		GetByUserIDFunc: func(ctx context.Context, uid uuid.UUID) (*domain.UserSettings, error) {
+			return &domain.UserSettings{DesiredRetention: 0.9, MaxIntervalDays: 365}, nil
+		},
+	}
+
+	mockTx := &txManagerMock{
+		RunInTxFunc: func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		},
+	}
+
 	svc := &Service{
-		cards: mockCards,
-		log:   slog.Default(),
+		cards:    mockCards,
+		settings: mockSettings,
+		tx:       mockTx,
+		log:      slog.Default(),
+		srsConfig: domain.SRSConfig{
+			MaxIntervalDays: 365,
+			LearningSteps:   []time.Duration{1 * time.Minute, 10 * time.Minute},
+			RelearningSteps: []time.Duration{10 * time.Minute},
+		},
+		fsrsWeights: [19]float64{},
 	}
 
 	ctx := ctxutil.WithUserID(context.Background(), userID)
@@ -954,7 +974,7 @@ func TestService_ReviewCard_SettingsLoadError(t *testing.T) {
 	}
 
 	mockCards := &cardRepoMock{
-		GetByIDFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
+		GetByIDForUpdateFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
 			return card, nil
 		},
 	}
@@ -1004,7 +1024,7 @@ func TestService_ReviewCard_UpdateSRSError_TxRollback(t *testing.T) {
 	}
 
 	mockCards := &cardRepoMock{
-		GetByIDFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
+		GetByIDForUpdateFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
 			return card, nil
 		},
 		UpdateSRSFunc: func(ctx context.Context, uid, cid uuid.UUID, params domain.SRSUpdateParams) (*domain.Card, error) {
@@ -1091,7 +1111,7 @@ func TestService_ReviewCard_CreateReviewLogError_TxRollback(t *testing.T) {
 	}
 
 	mockCards := &cardRepoMock{
-		GetByIDFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
+		GetByIDForUpdateFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
 			return card, nil
 		},
 		UpdateSRSFunc: func(ctx context.Context, uid, cid uuid.UUID, params domain.SRSUpdateParams) (*domain.Card, error) {
@@ -1185,7 +1205,7 @@ func TestService_ReviewCard_AuditError_TxRollback(t *testing.T) {
 	}
 
 	mockCards := &cardRepoMock{
-		GetByIDFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
+		GetByIDForUpdateFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
 			return card, nil
 		},
 		UpdateSRSFunc: func(ctx context.Context, uid, cid uuid.UUID, params domain.SRSUpdateParams) (*domain.Card, error) {
@@ -1275,7 +1295,7 @@ func TestService_ReviewCard_Again_NewToLearning(t *testing.T) {
 	}
 
 	mockCards := &cardRepoMock{
-		GetByIDFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
+		GetByIDForUpdateFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
 			return card, nil
 		},
 		UpdateSRSFunc: func(ctx context.Context, uid, cid uuid.UUID, params domain.SRSUpdateParams) (*domain.Card, error) {
@@ -1375,7 +1395,7 @@ func TestService_ReviewCard_Hard_ReviewStaysReview(t *testing.T) {
 	}
 
 	mockCards := &cardRepoMock{
-		GetByIDFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
+		GetByIDForUpdateFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
 			return card, nil
 		},
 		UpdateSRSFunc: func(ctx context.Context, uid, cid uuid.UUID, params domain.SRSUpdateParams) (*domain.Card, error) {
@@ -1492,7 +1512,7 @@ func TestService_UndoReview_Success(t *testing.T) {
 	}
 
 	mockCards := &cardRepoMock{
-		GetByIDFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
+		GetByIDForUpdateFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
 			if uid != userID || cid != cardID {
 				t.Errorf("unexpected IDs: got (%v, %v), want (%v, %v)", uid, cid, userID, cardID)
 			}
@@ -1566,8 +1586,8 @@ func TestService_UndoReview_Success(t *testing.T) {
 	}
 
 	// Verify calls
-	if len(mockCards.GetByIDCalls()) != 1 {
-		t.Errorf("GetByID calls: got %d, want 1", len(mockCards.GetByIDCalls()))
+	if len(mockCards.calls.GetByIDForUpdate) != 1 {
+		t.Errorf("GetByIDForUpdate calls: got %d, want 1", len(mockCards.calls.GetByIDForUpdate))
 	}
 	if len(mockReviews.GetLastByCardIDCalls()) != 1 {
 		t.Errorf("GetLastByCardID calls: got %d, want 1", len(mockReviews.GetLastByCardIDCalls()))
@@ -1623,13 +1643,20 @@ func TestService_UndoReview_CardNotFound(t *testing.T) {
 	cardID := uuid.New()
 
 	mockCards := &cardRepoMock{
-		GetByIDFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
+		GetByIDForUpdateFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
 			return nil, domain.ErrNotFound
+		},
+	}
+
+	mockTx := &txManagerMock{
+		RunInTxFunc: func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
 		},
 	}
 
 	svc := &Service{
 		cards: mockCards,
+		tx:    mockTx,
 		log:   slog.Default(),
 	}
 
@@ -1657,7 +1684,7 @@ func TestService_UndoReview_NoReviewLog(t *testing.T) {
 	}
 
 	mockCards := &cardRepoMock{
-		GetByIDFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
+		GetByIDForUpdateFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
 			return card, nil
 		},
 	}
@@ -1668,9 +1695,16 @@ func TestService_UndoReview_NoReviewLog(t *testing.T) {
 		},
 	}
 
+	mockTx := &txManagerMock{
+		RunInTxFunc: func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		},
+	}
+
 	svc := &Service{
 		cards:   mockCards,
 		reviews: mockReviews,
+		tx:      mockTx,
 		log:     slog.Default(),
 	}
 
@@ -1708,7 +1742,7 @@ func TestService_UndoReview_PrevStateNil(t *testing.T) {
 	}
 
 	mockCards := &cardRepoMock{
-		GetByIDFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
+		GetByIDForUpdateFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
 			return card, nil
 		},
 	}
@@ -1719,9 +1753,16 @@ func TestService_UndoReview_PrevStateNil(t *testing.T) {
 		},
 	}
 
+	mockTx := &txManagerMock{
+		RunInTxFunc: func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		},
+	}
+
 	svc := &Service{
 		cards:   mockCards,
 		reviews: mockReviews,
+		tx:      mockTx,
 		log:     slog.Default(),
 	}
 
@@ -1768,7 +1809,7 @@ func TestService_UndoReview_UndoWindowExpired(t *testing.T) {
 	}
 
 	mockCards := &cardRepoMock{
-		GetByIDFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
+		GetByIDForUpdateFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
 			return card, nil
 		},
 	}
@@ -1779,9 +1820,16 @@ func TestService_UndoReview_UndoWindowExpired(t *testing.T) {
 		},
 	}
 
+	mockTx := &txManagerMock{
+		RunInTxFunc: func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		},
+	}
+
 	svc := &Service{
 		cards:   mockCards,
 		reviews: mockReviews,
+		tx:      mockTx,
 		log:     slog.Default(),
 		srsConfig: domain.SRSConfig{
 			LearningSteps:    []time.Duration{1 * time.Minute, 10 * time.Minute},
@@ -1845,7 +1893,7 @@ func TestService_UndoReview_RestoreError_TxRollback(t *testing.T) {
 	}
 
 	mockCards := &cardRepoMock{
-		GetByIDFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
+		GetByIDForUpdateFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
 			return card, nil
 		},
 		UpdateSRSFunc: func(ctx context.Context, uid, cid uuid.UUID, params domain.SRSUpdateParams) (*domain.Card, error) {
@@ -1938,7 +1986,7 @@ func TestService_UndoReview_DeleteLogError_TxRollback(t *testing.T) {
 	}
 
 	mockCards := &cardRepoMock{
-		GetByIDFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
+		GetByIDForUpdateFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
 			return card, nil
 		},
 		UpdateSRSFunc: func(ctx context.Context, uid, cid uuid.UUID, params domain.SRSUpdateParams) (*domain.Card, error) {
@@ -2039,7 +2087,7 @@ func TestService_UndoReview_AuditError_TxRollback(t *testing.T) {
 	}
 
 	mockCards := &cardRepoMock{
-		GetByIDFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
+		GetByIDForUpdateFunc: func(ctx context.Context, uid, cid uuid.UUID) (*domain.Card, error) {
 			return card, nil
 		},
 		UpdateSRSFunc: func(ctx context.Context, uid, cid uuid.UUID, params domain.SRSUpdateParams) (*domain.Card, error) {
@@ -2301,9 +2349,16 @@ func TestService_FinishSession_Success(t *testing.T) {
 		},
 	}
 
+	mockTx := &txManagerMock{
+		RunInTxFunc: func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		},
+	}
+
 	svc := &Service{
 		sessions: mockSessions,
 		reviews:  mockReviews,
+		tx:       mockTx,
 		log:      slog.Default(),
 	}
 
@@ -2435,9 +2490,16 @@ func TestService_FinishSession_EmptySession_NoReviews(t *testing.T) {
 		},
 	}
 
+	mockTx := &txManagerMock{
+		RunInTxFunc: func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		},
+	}
+
 	svc := &Service{
 		sessions: mockSessions,
 		reviews:  mockReviews,
+		tx:       mockTx,
 		log:      slog.Default(),
 	}
 
@@ -3590,7 +3652,7 @@ func TestService_GetDashboard_Success_AllCountersCorrect(t *testing.T) {
 		CountNewTodayFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
 			return 2, nil
 		},
-		GetStreakDaysFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time, lastNDays int) ([]domain.DayReviewCount, error) {
+		GetStreakDaysFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time, lastNDays int, timezone string) ([]domain.DayReviewCount, error) {
 			return streakDays, nil
 		},
 	}
@@ -3636,8 +3698,8 @@ func TestService_GetDashboard_Success_AllCountersCorrect(t *testing.T) {
 	}
 	if dashboard.ActiveSession == nil {
 		t.Error("ActiveSession should not be nil")
-	} else if *dashboard.ActiveSession != sessionID {
-		t.Errorf("ActiveSession: got %v, want %v", *dashboard.ActiveSession, sessionID)
+	} else if dashboard.ActiveSession.ID != sessionID {
+		t.Errorf("ActiveSession.ID: got %v, want %v", dashboard.ActiveSession.ID, sessionID)
 	}
 }
 
@@ -3679,7 +3741,7 @@ func TestService_GetDashboard_NoCards_AllZeros(t *testing.T) {
 		CountNewTodayFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
 			return 0, nil
 		},
-		GetStreakDaysFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time, lastNDays int) ([]domain.DayReviewCount, error) {
+		GetStreakDaysFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time, lastNDays int, timezone string) ([]domain.DayReviewCount, error) {
 			return []domain.DayReviewCount{}, nil
 		},
 	}
@@ -3770,7 +3832,7 @@ func TestService_GetDashboard_StreakCalculation_FiveDays(t *testing.T) {
 		CountNewTodayFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
 			return 0, nil
 		},
-		GetStreakDaysFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time, lastNDays int) ([]domain.DayReviewCount, error) {
+		GetStreakDaysFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time, lastNDays int, timezone string) ([]domain.DayReviewCount, error) {
 			return streakDays, nil
 		},
 	}
@@ -3850,7 +3912,7 @@ func TestService_GetDashboard_StreakBroken_Gap(t *testing.T) {
 		CountNewTodayFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
 			return 0, nil
 		},
-		GetStreakDaysFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time, lastNDays int) ([]domain.DayReviewCount, error) {
+		GetStreakDaysFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time, lastNDays int, timezone string) ([]domain.DayReviewCount, error) {
 			return streakDays, nil
 		},
 	}
@@ -3931,7 +3993,7 @@ func TestService_GetDashboard_StreakStartsFromYesterday(t *testing.T) {
 		CountNewTodayFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
 			return 0, nil
 		},
-		GetStreakDaysFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time, lastNDays int) ([]domain.DayReviewCount, error) {
+		GetStreakDaysFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time, lastNDays int, timezone string) ([]domain.DayReviewCount, error) {
 			return streakDays, nil
 		},
 	}
@@ -4001,7 +4063,7 @@ func TestService_GetDashboard_OverdueCount(t *testing.T) {
 		CountNewTodayFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
 			return 0, nil
 		},
-		GetStreakDaysFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time, lastNDays int) ([]domain.DayReviewCount, error) {
+		GetStreakDaysFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time, lastNDays int, timezone string) ([]domain.DayReviewCount, error) {
 			return []domain.DayReviewCount{}, nil
 		},
 	}
@@ -4077,7 +4139,7 @@ func TestService_GetDashboard_ActiveSessionPresent(t *testing.T) {
 		CountNewTodayFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time) (int, error) {
 			return 0, nil
 		},
-		GetStreakDaysFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time, lastNDays int) ([]domain.DayReviewCount, error) {
+		GetStreakDaysFunc: func(ctx context.Context, uid uuid.UUID, dayStart time.Time, lastNDays int, timezone string) ([]domain.DayReviewCount, error) {
 			return []domain.DayReviewCount{}, nil
 		},
 	}
@@ -4105,8 +4167,8 @@ func TestService_GetDashboard_ActiveSessionPresent(t *testing.T) {
 
 	if dashboard.ActiveSession == nil {
 		t.Error("ActiveSession should not be nil")
-	} else if *dashboard.ActiveSession != sessionID {
-		t.Errorf("ActiveSession: got %v, want %v", *dashboard.ActiveSession, sessionID)
+	} else if dashboard.ActiveSession.ID != sessionID {
+		t.Errorf("ActiveSession.ID: got %v, want %v", dashboard.ActiveSession.ID, sessionID)
 	}
 }
 

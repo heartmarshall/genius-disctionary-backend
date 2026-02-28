@@ -1,20 +1,20 @@
 package domain
 
-// LearningStatus represents the SRS learning state of a card.
-type LearningStatus string
+// CardState represents the FSRS-5 learning state of a card.
+type CardState string
 
 const (
-	LearningStatusNew      LearningStatus = "NEW"
-	LearningStatusLearning LearningStatus = "LEARNING"
-	LearningStatusReview   LearningStatus = "REVIEW"
-	LearningStatusMastered LearningStatus = "MASTERED"
+	CardStateNew        CardState = "NEW"
+	CardStateLearning   CardState = "LEARNING"
+	CardStateReview     CardState = "REVIEW"
+	CardStateRelearning CardState = "RELEARNING"
 )
 
-func (s LearningStatus) String() string { return string(s) }
+func (s CardState) String() string { return string(s) }
 
-func (s LearningStatus) IsValid() bool {
+func (s CardState) IsValid() bool {
 	switch s {
-	case LearningStatusNew, LearningStatusLearning, LearningStatusReview, LearningStatusMastered:
+	case CardStateNew, CardStateLearning, CardStateReview, CardStateRelearning:
 		return true
 	}
 	return false

@@ -20,22 +20,24 @@ type User struct {
 
 // UserSettings holds per-user SRS and display preferences.
 type UserSettings struct {
-	UserID          uuid.UUID
-	NewCardsPerDay  int
-	ReviewsPerDay   int
-	MaxIntervalDays int
-	Timezone        string
-	UpdatedAt       time.Time
+	UserID           uuid.UUID
+	NewCardsPerDay   int
+	ReviewsPerDay    int
+	MaxIntervalDays  int
+	DesiredRetention float64
+	Timezone         string
+	UpdatedAt        time.Time
 }
 
 // DefaultUserSettings returns UserSettings with sensible defaults.
 func DefaultUserSettings(userID uuid.UUID) UserSettings {
 	return UserSettings{
-		UserID:          userID,
-		NewCardsPerDay:  20,
-		ReviewsPerDay:   200,
-		MaxIntervalDays: 365,
-		Timezone:        "UTC",
+		UserID:           userID,
+		NewCardsPerDay:   20,
+		ReviewsPerDay:    200,
+		MaxIntervalDays:  365,
+		DesiredRetention: 0.9,
+		Timezone:         "UTC",
 	}
 }
 

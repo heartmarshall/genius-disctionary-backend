@@ -1,10 +1,10 @@
 wiktionary_path: ../datasets/kaikki.org-dictionary-English.jsonl
-ngsl_path: ../datasets/NGSL_1.2_stats.csv
-nawl_path: ../datasets/NAWL_1.2_with_en_definitions.csv
+ngsl_path: ../datasets/NGLS/NGSL_1.2_stats.csv
+nawl_path: ../datasets/NGLS/NAWL_1.2_alphabetized_description.txt
 cmu_path: ../datasets/cmudict.dict
-wordnet_path: ../datasets/english-wordnet-2025-plus-json
-tatoeba_path: "../datasets/Sentence pairs in English-Russian - 2026-02-22.tsv"
-top_n: 20000
+wordnet_path: ../datasets/english-wordnet-2025
+# tatoeba_path: not available
+top_n: 55000
 batch_size: 500
 max_examples_per_word: 5
 dry_run: false

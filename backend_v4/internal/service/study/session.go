@@ -84,7 +84,22 @@ func (s *Service) StartSession(ctx context.Context) (*domain.StudySession, error
 	return created, nil
 }
 
-// FinishSession finishes an ACTIVE session, aggregating review logs and calculating stats.
+// FinishActiveSession finishes the user's current ACTIVE session.
+func (s *Service) FinishActiveSession(ctx context.Context) (*domain.StudySession, error) {
+	userID, ok := ctxutil.UserIDFromCtx(ctx)
+	if !ok {
+		return nil, domain.ErrUnauthorized
+	}
+
+	session, err := s.sessions.GetActive(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("get active session: %w", err)
+	}
+
+	return s.finishSession(ctx, userID, session)
+}
+
+// FinishSession finishes a specific session by ID.
 func (s *Service) FinishSession(ctx context.Context, input FinishSessionInput) (*domain.StudySession, error) {
 	userID, ok := ctxutil.UserIDFromCtx(ctx)
 	if !ok {
@@ -95,69 +110,71 @@ func (s *Service) FinishSession(ctx context.Context, input FinishSessionInput) (
 		return nil, err
 	}
 
-	// Load session
 	session, err := s.sessions.GetByID(ctx, userID, input.SessionID)
 	if err != nil {
 		return nil, fmt.Errorf("get session: %w", err)
 	}
 
-	// Check status: must be ACTIVE
+	return s.finishSession(ctx, userID, session)
+}
+
+// finishSession aggregates review logs and finishes the session.
+func (s *Service) finishSession(ctx context.Context, userID uuid.UUID, session *domain.StudySession) (*domain.StudySession, error) {
 	if session.Status != domain.SessionStatusActive {
 		return nil, domain.NewValidationError("session", "session already finished")
 	}
 
 	now := time.Now()
+	var finishedSession *domain.StudySession
 
-	// Aggregate review logs for period [session.StartedAt, now]
-	logs, err := s.reviews.GetByPeriod(ctx, userID, session.StartedAt, now)
-	if err != nil {
-		return nil, fmt.Errorf("get review logs: %w", err)
-	}
-
-	// Calculate stats
-	totalReviewed := len(logs)
-	newReviewed := 0
-	gradeCounts := domain.GradeCounts{}
-
-	for _, log := range logs {
-		// Count new reviews (cards that were NEW before this review)
-		if log.PrevState != nil && log.PrevState.Status == domain.LearningStatusNew {
-			newReviewed++
+	err := s.tx.RunInTx(ctx, func(txCtx context.Context) error {
+		logs, logErr := s.reviews.GetByPeriod(txCtx, userID, session.StartedAt, now)
+		if logErr != nil {
+			return fmt.Errorf("get review logs: %w", logErr)
 		}
 
-		// Count grades
-		switch log.Grade {
-		case domain.ReviewGradeAgain:
-			gradeCounts.Again++
-		case domain.ReviewGradeHard:
-			gradeCounts.Hard++
-		case domain.ReviewGradeGood:
-			gradeCounts.Good++
-		case domain.ReviewGradeEasy:
-			gradeCounts.Easy++
+		totalReviewed := len(logs)
+		newReviewed := 0
+		gradeCounts := domain.GradeCounts{}
+
+		for _, log := range logs {
+			if log.PrevState != nil && log.PrevState.State == domain.CardStateNew {
+				newReviewed++
+			}
+			switch log.Grade {
+			case domain.ReviewGradeAgain:
+				gradeCounts.Again++
+			case domain.ReviewGradeHard:
+				gradeCounts.Hard++
+			case domain.ReviewGradeGood:
+				gradeCounts.Good++
+			case domain.ReviewGradeEasy:
+				gradeCounts.Easy++
+			}
 		}
-	}
 
-	dueReviewed := totalReviewed - newReviewed
-	durationMs := now.Sub(session.StartedAt).Milliseconds()
+		dueReviewed := totalReviewed - newReviewed
+		durationMs := now.Sub(session.StartedAt).Milliseconds()
 
-	accuracyRate := 0.0
-	if totalReviewed > 0 {
-		accuracyRate = float64(gradeCounts.Good+gradeCounts.Easy) / float64(totalReviewed) * 100
-	}
+		accuracyRate := 0.0
+		if totalReviewed > 0 {
+			accuracyRate = float64(gradeCounts.Good+gradeCounts.Easy) / float64(totalReviewed) * 100
+		}
 
-	// Create SessionResult
-	result := domain.SessionResult{
-		TotalReviewed: totalReviewed,
-		NewReviewed:   newReviewed,
-		DueReviewed:   dueReviewed,
-		GradeCounts:   gradeCounts,
-		DurationMs:    durationMs,
-		AccuracyRate:  accuracyRate,
-	}
+		result := domain.SessionResult{
+			TotalReviewed: totalReviewed,
+			NewReviewed:   newReviewed,
+			DueReviewed:   dueReviewed,
+			GradeCounts:   gradeCounts,
+			DurationMs:    durationMs,
+			AccuracyRate:  accuracyRate,
+		}
 
-	// Finish session
-	finishedSession, err := s.sessions.Finish(ctx, userID, session.ID, result)
+		var finErr error
+		finishedSession, finErr = s.sessions.Finish(txCtx, userID, session.ID, result)
+		return finErr
+	})
+
 	if err != nil {
 		return nil, fmt.Errorf("finish session: %w", err)
 	}
@@ -165,9 +182,6 @@ func (s *Service) FinishSession(ctx context.Context, input FinishSessionInput) (
 	s.log.InfoContext(ctx, "session finished",
 		slog.String("user_id", userID.String()),
 		slog.String("session_id", session.ID.String()),
-		slog.Int("total_reviewed", totalReviewed),
-		slog.Int("new_reviewed", newReviewed),
-		slog.Float64("accuracy_rate", accuracyRate),
 	)
 
 	return finishedSession, nil

@@ -92,7 +92,7 @@ func (s *Service) CreateEntryCustom(ctx context.Context, input CreateCustomInput
 
 		// Create card if requested.
 		if input.CreateCard {
-			if _, cardErr := s.cards.Create(txCtx, userID, created.ID, domain.LearningStatusNew, s.cfg.DefaultEaseFactor); cardErr != nil {
+			if _, cardErr := s.cards.Create(txCtx, userID, created.ID); cardErr != nil {
 				return fmt.Errorf("create card: %w", cardErr)
 			}
 		}

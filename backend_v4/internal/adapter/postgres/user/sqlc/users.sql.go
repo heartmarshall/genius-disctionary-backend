@@ -76,33 +76,46 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (CreateU
 }
 
 const createUserSettings = `-- name: CreateUserSettings :one
-INSERT INTO user_settings (user_id, new_cards_per_day, reviews_per_day, max_interval_days, timezone, updated_at)
-VALUES ($1, $2, $3, $4, $5, now())
-RETURNING user_id, new_cards_per_day, reviews_per_day, max_interval_days, timezone, updated_at
+INSERT INTO user_settings (user_id, new_cards_per_day, reviews_per_day, max_interval_days, desired_retention, timezone, updated_at)
+VALUES ($1, $2, $3, $4, $5, $6, now())
+RETURNING user_id, new_cards_per_day, reviews_per_day, max_interval_days, desired_retention, timezone, updated_at
 `
 
 type CreateUserSettingsParams struct {
-	UserID          uuid.UUID
-	NewCardsPerDay  int32
-	ReviewsPerDay   int32
-	MaxIntervalDays int32
-	Timezone        string
+	UserID           uuid.UUID
+	NewCardsPerDay   int32
+	ReviewsPerDay    int32
+	MaxIntervalDays  int32
+	DesiredRetention float64
+	Timezone         string
 }
 
-func (q *Queries) CreateUserSettings(ctx context.Context, arg CreateUserSettingsParams) (UserSetting, error) {
+type CreateUserSettingsRow struct {
+	UserID           uuid.UUID
+	NewCardsPerDay   int32
+	ReviewsPerDay    int32
+	MaxIntervalDays  int32
+	DesiredRetention float64
+	Timezone         string
+	UpdatedAt        time.Time
+}
+
+func (q *Queries) CreateUserSettings(ctx context.Context, arg CreateUserSettingsParams) (CreateUserSettingsRow, error) {
 	row := q.db.QueryRow(ctx, createUserSettings,
 		arg.UserID,
 		arg.NewCardsPerDay,
 		arg.ReviewsPerDay,
 		arg.MaxIntervalDays,
+		arg.DesiredRetention,
 		arg.Timezone,
 	)
-	var i UserSetting
+	var i CreateUserSettingsRow
 	err := row.Scan(
 		&i.UserID,
 		&i.NewCardsPerDay,
 		&i.ReviewsPerDay,
 		&i.MaxIntervalDays,
+		&i.DesiredRetention,
 		&i.Timezone,
 		&i.UpdatedAt,
 	)
@@ -209,19 +222,30 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (GetUs
 }
 
 const getUserSettings = `-- name: GetUserSettings :one
-SELECT user_id, new_cards_per_day, reviews_per_day, max_interval_days, timezone, updated_at
+SELECT user_id, new_cards_per_day, reviews_per_day, max_interval_days, desired_retention, timezone, updated_at
 FROM user_settings
 WHERE user_id = $1
 `
 
-func (q *Queries) GetUserSettings(ctx context.Context, userID uuid.UUID) (UserSetting, error) {
+type GetUserSettingsRow struct {
+	UserID           uuid.UUID
+	NewCardsPerDay   int32
+	ReviewsPerDay    int32
+	MaxIntervalDays  int32
+	DesiredRetention float64
+	Timezone         string
+	UpdatedAt        time.Time
+}
+
+func (q *Queries) GetUserSettings(ctx context.Context, userID uuid.UUID) (GetUserSettingsRow, error) {
 	row := q.db.QueryRow(ctx, getUserSettings, userID)
-	var i UserSetting
+	var i GetUserSettingsRow
 	err := row.Scan(
 		&i.UserID,
 		&i.NewCardsPerDay,
 		&i.ReviewsPerDay,
 		&i.MaxIntervalDays,
+		&i.DesiredRetention,
 		&i.Timezone,
 		&i.UpdatedAt,
 	)
@@ -361,33 +385,46 @@ func (q *Queries) UpdateUserRole(ctx context.Context, arg UpdateUserRoleParams) 
 
 const updateUserSettings = `-- name: UpdateUserSettings :one
 UPDATE user_settings
-SET new_cards_per_day = $2, reviews_per_day = $3, max_interval_days = $4, timezone = $5, updated_at = now()
+SET new_cards_per_day = $2, reviews_per_day = $3, max_interval_days = $4, desired_retention = $5, timezone = $6, updated_at = now()
 WHERE user_id = $1
-RETURNING user_id, new_cards_per_day, reviews_per_day, max_interval_days, timezone, updated_at
+RETURNING user_id, new_cards_per_day, reviews_per_day, max_interval_days, desired_retention, timezone, updated_at
 `
 
 type UpdateUserSettingsParams struct {
-	UserID          uuid.UUID
-	NewCardsPerDay  int32
-	ReviewsPerDay   int32
-	MaxIntervalDays int32
-	Timezone        string
+	UserID           uuid.UUID
+	NewCardsPerDay   int32
+	ReviewsPerDay    int32
+	MaxIntervalDays  int32
+	DesiredRetention float64
+	Timezone         string
 }
 
-func (q *Queries) UpdateUserSettings(ctx context.Context, arg UpdateUserSettingsParams) (UserSetting, error) {
+type UpdateUserSettingsRow struct {
+	UserID           uuid.UUID
+	NewCardsPerDay   int32
+	ReviewsPerDay    int32
+	MaxIntervalDays  int32
+	DesiredRetention float64
+	Timezone         string
+	UpdatedAt        time.Time
+}
+
+func (q *Queries) UpdateUserSettings(ctx context.Context, arg UpdateUserSettingsParams) (UpdateUserSettingsRow, error) {
 	row := q.db.QueryRow(ctx, updateUserSettings,
 		arg.UserID,
 		arg.NewCardsPerDay,
 		arg.ReviewsPerDay,
 		arg.MaxIntervalDays,
+		arg.DesiredRetention,
 		arg.Timezone,
 	)
-	var i UserSetting
+	var i UpdateUserSettingsRow
 	err := row.Scan(
 		&i.UserID,
 		&i.NewCardsPerDay,
 		&i.ReviewsPerDay,
 		&i.MaxIntervalDays,
+		&i.DesiredRetention,
 		&i.Timezone,
 		&i.UpdatedAt,
 	)

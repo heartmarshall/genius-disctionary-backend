@@ -47,7 +47,6 @@ auth:
 
 dictionary:
   max_entries_per_user: 5000
-  default_ease_factor: 2.5
   import_chunk_size: 100
   export_max_entries: 8000
   hard_delete_retention_days: 60
@@ -62,13 +61,14 @@ log:
   format: "text"
 
 srs:
-  default_ease_factor: 2.5
-  min_ease_factor: 1.3
+  default_retention: 0.9
   max_interval_days: 365
-  graduating_interval: 1
+  enable_fuzz: true
   learning_steps: "1m,10m"
+  relearning_steps: "10m"
   new_cards_per_day: 20
   reviews_per_day: 200
+  undo_window_minutes: 10
 `
 
 func TestLoad_ValidYAML(t *testing.T) {
@@ -109,9 +109,6 @@ func TestLoad_ValidYAML(t *testing.T) {
 	if cfg.Dictionary.MaxEntriesPerUser != 5000 {
 		t.Errorf("dictionary.max_entries_per_user = %d, want 5000", cfg.Dictionary.MaxEntriesPerUser)
 	}
-	if cfg.Dictionary.DefaultEaseFactor != 2.5 {
-		t.Errorf("dictionary.default_ease_factor = %v, want 2.5", cfg.Dictionary.DefaultEaseFactor)
-	}
 	if cfg.Dictionary.ImportChunkSize != 100 {
 		t.Errorf("dictionary.import_chunk_size = %d, want 100", cfg.Dictionary.ImportChunkSize)
 	}
@@ -139,8 +136,11 @@ func TestLoad_ValidYAML(t *testing.T) {
 	}
 
 	// SRS
-	if cfg.SRS.DefaultEaseFactor != 2.5 {
-		t.Errorf("srs.default_ease_factor = %v, want 2.5", cfg.SRS.DefaultEaseFactor)
+	if cfg.SRS.DefaultRetention != 0.9 {
+		t.Errorf("srs.default_retention = %v, want 0.9", cfg.SRS.DefaultRetention)
+	}
+	if !cfg.SRS.EnableFuzz {
+		t.Error("srs.enable_fuzz should be true")
 	}
 	if len(cfg.SRS.LearningSteps) != 2 {
 		t.Fatalf("srs.learning_steps len = %d, want 2", len(cfg.SRS.LearningSteps))
@@ -278,21 +278,21 @@ func TestValidate_AppleOAuthOnly(t *testing.T) {
 	}
 }
 
-func TestValidate_SRS_MinEaseFactorZero(t *testing.T) {
+func TestValidate_SRS_DefaultRetentionZero(t *testing.T) {
 	cfg := validConfig()
-	cfg.SRS.MinEaseFactor = 0
+	cfg.SRS.DefaultRetention = 0
 
 	if err := cfg.Validate(); err == nil {
-		t.Fatal("expected error for MinEaseFactor = 0")
+		t.Fatal("expected error for DefaultRetention = 0")
 	}
 }
 
-func TestValidate_SRS_MinEaseFactorNegative(t *testing.T) {
+func TestValidate_SRS_DefaultRetentionOne(t *testing.T) {
 	cfg := validConfig()
-	cfg.SRS.MinEaseFactor = -1
+	cfg.SRS.DefaultRetention = 1.0
 
 	if err := cfg.Validate(); err == nil {
-		t.Fatal("expected error for negative MinEaseFactor")
+		t.Fatal("expected error for DefaultRetention = 1.0")
 	}
 }
 
@@ -329,24 +329,6 @@ func TestValidate_Dictionary_MaxEntriesPerUserNegative(t *testing.T) {
 
 	if err := cfg.Validate(); err == nil {
 		t.Fatal("expected error for negative MaxEntriesPerUser")
-	}
-}
-
-func TestValidate_Dictionary_DefaultEaseFactorTooLow(t *testing.T) {
-	cfg := validConfig()
-	cfg.Dictionary.DefaultEaseFactor = 0.5
-
-	if err := cfg.Validate(); err == nil {
-		t.Fatal("expected error for DefaultEaseFactor < 1.0")
-	}
-}
-
-func TestValidate_Dictionary_DefaultEaseFactorTooHigh(t *testing.T) {
-	cfg := validConfig()
-	cfg.Dictionary.DefaultEaseFactor = 5.1
-
-	if err := cfg.Validate(); err == nil {
-		t.Fatal("expected error for DefaultEaseFactor > 5.0")
 	}
 }
 
@@ -397,14 +379,12 @@ func TestValidate_Dictionary_HardDeleteRetentionDaysNegative(t *testing.T) {
 
 func TestValidate_Dictionary_ValidBoundaryValues(t *testing.T) {
 	cfg := validConfig()
-	cfg.Dictionary.DefaultEaseFactor = 1.0
 	cfg.Dictionary.ImportChunkSize = 1
 
 	if err := cfg.Validate(); err != nil {
 		t.Fatalf("unexpected error for boundary values: %v", err)
 	}
 
-	cfg.Dictionary.DefaultEaseFactor = 5.0
 	cfg.Dictionary.ImportChunkSize = 1000
 
 	if err := cfg.Validate(); err != nil {
@@ -471,115 +451,6 @@ func TestParseLearningSteps_SingleStep(t *testing.T) {
 	}
 }
 
-func TestValidate_SRS_EasyIntervalZero(t *testing.T) {
-	cfg := validConfig()
-	cfg.SRS.EasyInterval = 0
-
-	if err := cfg.Validate(); err == nil {
-		t.Fatal("expected error for EasyInterval = 0")
-	}
-}
-
-func TestValidate_SRS_EasyIntervalNegative(t *testing.T) {
-	cfg := validConfig()
-	cfg.SRS.EasyInterval = -1
-
-	if err := cfg.Validate(); err == nil {
-		t.Fatal("expected error for negative EasyInterval")
-	}
-}
-
-func TestValidate_SRS_IntervalModifierZero(t *testing.T) {
-	cfg := validConfig()
-	cfg.SRS.IntervalModifier = 0
-
-	if err := cfg.Validate(); err == nil {
-		t.Fatal("expected error for IntervalModifier = 0")
-	}
-}
-
-func TestValidate_SRS_IntervalModifierNegative(t *testing.T) {
-	cfg := validConfig()
-	cfg.SRS.IntervalModifier = -0.5
-
-	if err := cfg.Validate(); err == nil {
-		t.Fatal("expected error for negative IntervalModifier")
-	}
-}
-
-func TestValidate_SRS_HardIntervalModifierZero(t *testing.T) {
-	cfg := validConfig()
-	cfg.SRS.HardIntervalModifier = 0
-
-	if err := cfg.Validate(); err == nil {
-		t.Fatal("expected error for HardIntervalModifier = 0")
-	}
-}
-
-func TestValidate_SRS_HardIntervalModifierNegative(t *testing.T) {
-	cfg := validConfig()
-	cfg.SRS.HardIntervalModifier = -1.2
-
-	if err := cfg.Validate(); err == nil {
-		t.Fatal("expected error for negative HardIntervalModifier")
-	}
-}
-
-func TestValidate_SRS_EasyBonusZero(t *testing.T) {
-	cfg := validConfig()
-	cfg.SRS.EasyBonus = 0
-
-	if err := cfg.Validate(); err == nil {
-		t.Fatal("expected error for EasyBonus = 0")
-	}
-}
-
-func TestValidate_SRS_EasyBonusNegative(t *testing.T) {
-	cfg := validConfig()
-	cfg.SRS.EasyBonus = -1.3
-
-	if err := cfg.Validate(); err == nil {
-		t.Fatal("expected error for negative EasyBonus")
-	}
-}
-
-func TestValidate_SRS_LapseNewIntervalNegative(t *testing.T) {
-	cfg := validConfig()
-	cfg.SRS.LapseNewInterval = -0.1
-
-	if err := cfg.Validate(); err == nil {
-		t.Fatal("expected error for LapseNewInterval < 0")
-	}
-}
-
-func TestValidate_SRS_LapseNewIntervalTooHigh(t *testing.T) {
-	cfg := validConfig()
-	cfg.SRS.LapseNewInterval = 1.1
-
-	if err := cfg.Validate(); err == nil {
-		t.Fatal("expected error for LapseNewInterval > 1.0")
-	}
-}
-
-func TestValidate_SRS_LapseNewIntervalValid(t *testing.T) {
-	cfg := validConfig()
-	cfg.SRS.LapseNewInterval = 0.0
-
-	if err := cfg.Validate(); err != nil {
-		t.Fatalf("unexpected error for LapseNewInterval = 0.0: %v", err)
-	}
-
-	cfg.SRS.LapseNewInterval = 1.0
-	if err := cfg.Validate(); err != nil {
-		t.Fatalf("unexpected error for LapseNewInterval = 1.0: %v", err)
-	}
-
-	cfg.SRS.LapseNewInterval = 0.5
-	if err := cfg.Validate(); err != nil {
-		t.Fatalf("unexpected error for LapseNewInterval = 0.5: %v", err)
-	}
-}
-
 func TestValidate_SRS_UndoWindowMinutesZero(t *testing.T) {
 	cfg := validConfig()
 	cfg.SRS.UndoWindowMinutes = 0
@@ -639,34 +510,17 @@ func TestValidate_SRS_RelearningStepsEmpty(t *testing.T) {
 	}
 }
 
-func TestValidate_SRS_AllNewFieldsValid(t *testing.T) {
+func TestValidate_SRS_AllFieldsValid(t *testing.T) {
 	cfg := validConfig()
-	cfg.SRS.EasyInterval = 4
 	cfg.SRS.RelearningStepsRaw = "10m"
-	cfg.SRS.IntervalModifier = 1.0
-	cfg.SRS.HardIntervalModifier = 1.2
-	cfg.SRS.EasyBonus = 1.3
-	cfg.SRS.LapseNewInterval = 0.0
 	cfg.SRS.UndoWindowMinutes = 10
 
 	if err := cfg.Validate(); err != nil {
-		t.Fatalf("unexpected error with all new fields: %v", err)
+		t.Fatalf("unexpected error with all fields: %v", err)
 	}
 
-	if cfg.SRS.EasyInterval != 4 {
-		t.Errorf("EasyInterval = %d, want 4", cfg.SRS.EasyInterval)
-	}
-	if cfg.SRS.IntervalModifier != 1.0 {
-		t.Errorf("IntervalModifier = %v, want 1.0", cfg.SRS.IntervalModifier)
-	}
-	if cfg.SRS.HardIntervalModifier != 1.2 {
-		t.Errorf("HardIntervalModifier = %v, want 1.2", cfg.SRS.HardIntervalModifier)
-	}
-	if cfg.SRS.EasyBonus != 1.3 {
-		t.Errorf("EasyBonus = %v, want 1.3", cfg.SRS.EasyBonus)
-	}
-	if cfg.SRS.LapseNewInterval != 0.0 {
-		t.Errorf("LapseNewInterval = %v, want 0.0", cfg.SRS.LapseNewInterval)
+	if cfg.SRS.DefaultRetention != 0.9 {
+		t.Errorf("DefaultRetention = %v, want 0.9", cfg.SRS.DefaultRetention)
 	}
 	if cfg.SRS.UndoWindowMinutes != 10 {
 		t.Errorf("UndoWindowMinutes = %d, want 10", cfg.SRS.UndoWindowMinutes)
@@ -690,26 +544,19 @@ func validConfig() Config {
 		},
 		Dictionary: DictionaryConfig{
 			MaxEntriesPerUser:       10000,
-			DefaultEaseFactor:       2.5,
 			ImportChunkSize:         50,
 			ExportMaxEntries:        10000,
 			HardDeleteRetentionDays: 30,
 		},
 		SRS: SRSConfig{
-			DefaultEaseFactor:    2.5,
-			MinEaseFactor:        1.3,
-			MaxIntervalDays:      365,
-			GraduatingInterval:   1,
-			LearningStepsRaw:     "1m,10m",
-			NewCardsPerDay:       20,
-			ReviewsPerDay:        200,
-			EasyInterval:         4,
-			RelearningStepsRaw:   "10m",
-			IntervalModifier:     1.0,
-			HardIntervalModifier: 1.2,
-			EasyBonus:            1.3,
-			LapseNewInterval:     0.0,
-			UndoWindowMinutes:    10,
+			DefaultRetention:   0.9,
+			MaxIntervalDays:    365,
+			EnableFuzz:         true,
+			LearningStepsRaw:   "1m,10m",
+			RelearningStepsRaw: "10m",
+			NewCardsPerDay:     20,
+			ReviewsPerDay:      200,
+			UndoWindowMinutes:  10,
 		},
 	}
 }

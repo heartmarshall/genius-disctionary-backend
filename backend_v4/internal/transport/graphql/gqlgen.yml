@@ -1,17 +1,17 @@
 schema:
-  - internal/transport/graphql/schema/*.graphql
+  - schema/*.graphql
 
 exec:
-  filename: internal/transport/graphql/generated/generated.go
+  filename: generated/generated.go
   package: generated
 
 model:
-  filename: internal/transport/graphql/generated/models_gen.go
+  filename: generated/models_gen.go
   package: generated
 
 resolver:
   layout: follow-schema
-  dir: internal/transport/graphql/resolver
+  dir: resolver
   package: resolver
   filename_template: "{name}.resolvers.go"
 
@@ -152,9 +152,9 @@ models:
       - "github.com/heartmarshall/myenglish-backend/internal/domain.EnrichmentQueueStats"
 
   # Enum bindings
-  LearningStatus:
+  CardState:
     model:
-      - "github.com/heartmarshall/myenglish-backend/internal/domain.LearningStatus"
+      - "github.com/heartmarshall/myenglish-backend/internal/domain.CardState"
   ReviewGrade:
     model:
       - "github.com/heartmarshall/myenglish-backend/internal/domain.ReviewGrade"

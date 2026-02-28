@@ -34,7 +34,7 @@ func TestE2E_CreateEntryFromCatalog_CopiesSensesAndCreatesCard(t *testing.T) {
 	// Create entry from catalog with card.
 	createQuery := `mutation($input: CreateEntryFromCatalogInput!) {
 		createEntryFromCatalog(input: $input) {
-			entry { id text senses { id definition partOfSpeech translations { id text } } card { id status } }
+			entry { id text senses { id definition partOfSpeech translations { id text } } card { id state } }
 		}
 	}`
 	createVars := map[string]any{
@@ -60,7 +60,7 @@ func TestE2E_CreateEntryFromCatalog_CopiesSensesAndCreatesCard(t *testing.T) {
 
 	// Card should be created.
 	card := entry["card"].(map[string]any)
-	assert.Equal(t, "NEW", card["status"])
+	assert.Equal(t, "NEW", card["state"])
 
 	// Verify via separate query — don't trust the mutation response alone.
 	getQuery := `query($id: UUID!) {
@@ -68,7 +68,7 @@ func TestE2E_CreateEntryFromCatalog_CopiesSensesAndCreatesCard(t *testing.T) {
 			id text notes
 			senses { id definition translations { id text } examples { id sentence } }
 			pronunciations { id transcription }
-			card { id status easeFactor }
+			card { id state stability difficulty }
 		}
 	}`
 	status, result = ts.graphqlQuery(t, getQuery, map[string]any{"id": entryID}, token)
@@ -135,7 +135,7 @@ func TestE2E_CreateCustomEntry_AppearsInDictionary(t *testing.T) {
 
 	createQuery := `mutation($input: CreateEntryCustomInput!) {
 		createEntryCustom(input: $input) {
-			entry { id text senses { id definition partOfSpeech translations { id text } examples { id sentence } } card { id status } }
+			entry { id text senses { id definition partOfSpeech translations { id text } examples { id sentence } } card { id state } }
 		}
 	}`
 	createVars := map[string]any{
@@ -181,7 +181,7 @@ func TestE2E_CreateCustomEntry_AppearsInDictionary(t *testing.T) {
 
 	// Card should be created.
 	require.NotNil(t, entry["card"])
-	assert.Equal(t, "NEW", entry["card"].(map[string]any)["status"])
+	assert.Equal(t, "NEW", entry["card"].(map[string]any)["state"])
 
 	// Read back via separate query.
 	getQuery := `query($id: UUID!) { dictionaryEntry(id: $id) { id text notes } }`

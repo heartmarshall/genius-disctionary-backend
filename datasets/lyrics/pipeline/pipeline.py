@@ -49,7 +49,7 @@ def run_download(token: str, artist_name: str, output_dir: Path, sources_dir: Pa
 
 
 def run_build_dataset(artist_dir: Path, sources_dir: Path):
-    """Step 2: Clean lyrics and build dataset.csv / dataset.json."""
+    """Step 2: Clean lyrics and build songs.csv / songs.json."""
     from build_dataset import build_dataset
     build_dataset(str(artist_dir), sources_dir=str(sources_dir / artist_dir.name))
 
@@ -64,7 +64,7 @@ def get_nlp():
 
 
 def run_build_vocabulary(artist_dir: Path, min_count: int):
-    """Step 3: Analyze vocabulary and build unique.csv + words.txt."""
+    """Step 3: Analyze vocabulary and build dataset.csv + words.txt."""
     from build_vocabulary import process_artist
     nlp = get_nlp()
     process_artist(nlp, artist_dir, min_count=min_count)
@@ -123,14 +123,14 @@ def process_artist(cfg: dict, token: str | None, output_dir: Path, sources_dir: 
         return f"{name}: FAILED — no _dataset.json"
 
     # Step 3: Vocabulary analysis
-    if (artist_dir / "dataset.json").exists():
+    if (artist_dir / "songs.json").exists():
         log(name, f"Step 3/3: Building vocabulary (min_count={min_count})")
         try:
             run_build_vocabulary(artist_dir, min_count)
         except Exception as e:
             return f"{name}: FAILED at vocabulary — {e}"
     else:
-        return f"{name}: FAILED — no dataset.json"
+        return f"{name}: FAILED — no songs.json"
 
     log(name, "Done!")
     return f"{name}: OK"

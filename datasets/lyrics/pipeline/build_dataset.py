@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Parse downloaded lyrics and build a clean dataset (CSV + JSON).
+"""Parse downloaded lyrics and build clean songs files (CSV + JSON).
 
 Reads _dataset.json from an artist directory, cleans lyrics and metadata,
-outputs a flat CSV and a clean JSON ready for analysis/ML.
+outputs songs.csv and songs.json ready for analysis/ML.
 """
 
 import argparse
@@ -115,13 +115,13 @@ def build_dataset(artist_dir: str, output_dir: str | None = None, sources_dir: s
         clean_data.append(record)
 
     # --- Save clean JSON ---
-    json_path = out_path / "dataset.json"
+    json_path = out_path / "songs.json"
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(clean_data, f, indent=2, ensure_ascii=False)
     print(f"  JSON: {json_path}")
 
     # --- Save CSV ---
-    csv_path = out_path / "dataset.csv"
+    csv_path = out_path / "songs.csv"
     fieldnames = [
         "number", "title", "artist", "album", "album_release_date",
         "release_date", "pageviews", "word_count", "line_count",

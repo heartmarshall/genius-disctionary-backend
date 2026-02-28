@@ -167,7 +167,7 @@ func (r *Repo) GetSettings(ctx context.Context, userID uuid.UUID) (*domain.UserS
 		return nil, mapError(err, "user_settings", userID)
 	}
 
-	s := toDomainSettings(row)
+	s := toDomainSettings(fromGetSettingsRow(row))
 	return &s, nil
 }
 
@@ -176,11 +176,12 @@ func (r *Repo) CreateSettings(ctx context.Context, s *domain.UserSettings) error
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	_, err := q.CreateUserSettings(ctx, sqlc.CreateUserSettingsParams{
-		UserID:          s.UserID,
-		NewCardsPerDay:  int32(s.NewCardsPerDay),
-		ReviewsPerDay:   int32(s.ReviewsPerDay),
-		MaxIntervalDays: int32(s.MaxIntervalDays),
-		Timezone:        s.Timezone,
+		UserID:           s.UserID,
+		NewCardsPerDay:   int32(s.NewCardsPerDay),
+		ReviewsPerDay:    int32(s.ReviewsPerDay),
+		MaxIntervalDays:  int32(s.MaxIntervalDays),
+		DesiredRetention: s.DesiredRetention,
+		Timezone:         s.Timezone,
 	})
 	if err != nil {
 		return mapError(err, "user_settings", s.UserID)
@@ -194,17 +195,18 @@ func (r *Repo) UpdateSettings(ctx context.Context, userID uuid.UUID, s domain.Us
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
 	row, err := q.UpdateUserSettings(ctx, sqlc.UpdateUserSettingsParams{
-		UserID:          userID,
-		NewCardsPerDay:  int32(s.NewCardsPerDay),
-		ReviewsPerDay:   int32(s.ReviewsPerDay),
-		MaxIntervalDays: int32(s.MaxIntervalDays),
-		Timezone:        s.Timezone,
+		UserID:           userID,
+		NewCardsPerDay:   int32(s.NewCardsPerDay),
+		ReviewsPerDay:    int32(s.ReviewsPerDay),
+		MaxIntervalDays:  int32(s.MaxIntervalDays),
+		DesiredRetention: s.DesiredRetention,
+		Timezone:         s.Timezone,
 	})
 	if err != nil {
 		return nil, mapError(err, "user_settings", userID)
 	}
 
-	result := toDomainSettings(row)
+	result := toDomainSettings(fromUpdateSettingsRow(row))
 	return &result, nil
 }
 
@@ -300,15 +302,35 @@ func toDomainUser(row userRow) domain.User {
 	}
 }
 
-// toDomainSettings converts a sqlc.UserSetting row into a domain.UserSettings.
-func toDomainSettings(row sqlc.UserSetting) domain.UserSettings {
+// settingsRow is the common field set returned by all user_settings queries.
+type settingsRow struct {
+	UserID           uuid.UUID
+	NewCardsPerDay   int32
+	ReviewsPerDay    int32
+	MaxIntervalDays  int32
+	DesiredRetention float64
+	Timezone         string
+	UpdatedAt        time.Time
+}
+
+func fromGetSettingsRow(r sqlc.GetUserSettingsRow) settingsRow {
+	return settingsRow{r.UserID, r.NewCardsPerDay, r.ReviewsPerDay, r.MaxIntervalDays, r.DesiredRetention, r.Timezone, r.UpdatedAt}
+}
+
+func fromUpdateSettingsRow(r sqlc.UpdateUserSettingsRow) settingsRow {
+	return settingsRow{r.UserID, r.NewCardsPerDay, r.ReviewsPerDay, r.MaxIntervalDays, r.DesiredRetention, r.Timezone, r.UpdatedAt}
+}
+
+// toDomainSettings converts a settingsRow into a domain.UserSettings.
+func toDomainSettings(row settingsRow) domain.UserSettings {
 	return domain.UserSettings{
-		UserID:          row.UserID,
-		NewCardsPerDay:  int(row.NewCardsPerDay),
-		ReviewsPerDay:   int(row.ReviewsPerDay),
-		MaxIntervalDays: int(row.MaxIntervalDays),
-		Timezone:        row.Timezone,
-		UpdatedAt:       row.UpdatedAt,
+		UserID:           row.UserID,
+		NewCardsPerDay:   int(row.NewCardsPerDay),
+		ReviewsPerDay:    int(row.ReviewsPerDay),
+		MaxIntervalDays:  int(row.MaxIntervalDays),
+		DesiredRetention: row.DesiredRetention,
+		Timezone:         row.Timezone,
+		UpdatedAt:        row.UpdatedAt,
 	}
 }
 

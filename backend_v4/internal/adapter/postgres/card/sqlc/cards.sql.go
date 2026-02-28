@@ -13,42 +13,62 @@ import (
 )
 
 const createCard = `-- name: CreateCard :one
-INSERT INTO cards (id, user_id, entry_id, status, ease_factor, created_at, updated_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id, user_id, entry_id, status, learning_step,
-          next_review_at, interval_days, ease_factor, created_at, updated_at
+INSERT INTO cards (id, user_id, entry_id, state, due, created_at, updated_at)
+VALUES ($1, $2, $3, 'NEW', now(), $4, $5)
+RETURNING id, user_id, entry_id, state, step, stability, difficulty,
+          due, last_review, reps, lapses, scheduled_days, elapsed_days,
+          created_at, updated_at
 `
 
 type CreateCardParams struct {
-	ID         uuid.UUID
-	UserID     uuid.UUID
-	EntryID    uuid.UUID
-	Status     LearningStatus
-	EaseFactor float64
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
+	ID        uuid.UUID
+	UserID    uuid.UUID
+	EntryID   uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
-func (q *Queries) CreateCard(ctx context.Context, arg CreateCardParams) (Card, error) {
+type CreateCardRow struct {
+	ID            uuid.UUID
+	UserID        uuid.UUID
+	EntryID       uuid.UUID
+	State         CardState
+	Step          int32
+	Stability     float64
+	Difficulty    float64
+	Due           time.Time
+	LastReview    *time.Time
+	Reps          int32
+	Lapses        int32
+	ScheduledDays int32
+	ElapsedDays   int32
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+}
+
+func (q *Queries) CreateCard(ctx context.Context, arg CreateCardParams) (CreateCardRow, error) {
 	row := q.db.QueryRow(ctx, createCard,
 		arg.ID,
 		arg.UserID,
 		arg.EntryID,
-		arg.Status,
-		arg.EaseFactor,
 		arg.CreatedAt,
 		arg.UpdatedAt,
 	)
-	var i Card
+	var i CreateCardRow
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,
 		&i.EntryID,
-		&i.Status,
-		&i.LearningStep,
-		&i.NextReviewAt,
-		&i.IntervalDays,
-		&i.EaseFactor,
+		&i.State,
+		&i.Step,
+		&i.Stability,
+		&i.Difficulty,
+		&i.Due,
+		&i.LastReview,
+		&i.Reps,
+		&i.Lapses,
+		&i.ScheduledDays,
+		&i.ElapsedDays,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -74,8 +94,9 @@ func (q *Queries) DeleteCard(ctx context.Context, arg DeleteCardParams) (int64, 
 }
 
 const getCardByEntryID = `-- name: GetCardByEntryID :one
-SELECT id, user_id, entry_id, status, learning_step,
-       next_review_at, interval_days, ease_factor, created_at, updated_at
+SELECT id, user_id, entry_id, state, step, stability, difficulty,
+       due, last_review, reps, lapses, scheduled_days, elapsed_days,
+       created_at, updated_at
 FROM cards
 WHERE entry_id = $1 AND user_id = $2
 `
@@ -85,18 +106,41 @@ type GetCardByEntryIDParams struct {
 	UserID  uuid.UUID
 }
 
-func (q *Queries) GetCardByEntryID(ctx context.Context, arg GetCardByEntryIDParams) (Card, error) {
+type GetCardByEntryIDRow struct {
+	ID            uuid.UUID
+	UserID        uuid.UUID
+	EntryID       uuid.UUID
+	State         CardState
+	Step          int32
+	Stability     float64
+	Difficulty    float64
+	Due           time.Time
+	LastReview    *time.Time
+	Reps          int32
+	Lapses        int32
+	ScheduledDays int32
+	ElapsedDays   int32
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+}
+
+func (q *Queries) GetCardByEntryID(ctx context.Context, arg GetCardByEntryIDParams) (GetCardByEntryIDRow, error) {
 	row := q.db.QueryRow(ctx, getCardByEntryID, arg.EntryID, arg.UserID)
-	var i Card
+	var i GetCardByEntryIDRow
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,
 		&i.EntryID,
-		&i.Status,
-		&i.LearningStep,
-		&i.NextReviewAt,
-		&i.IntervalDays,
-		&i.EaseFactor,
+		&i.State,
+		&i.Step,
+		&i.Stability,
+		&i.Difficulty,
+		&i.Due,
+		&i.LastReview,
+		&i.Reps,
+		&i.Lapses,
+		&i.ScheduledDays,
+		&i.ElapsedDays,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -105,8 +149,9 @@ func (q *Queries) GetCardByEntryID(ctx context.Context, arg GetCardByEntryIDPara
 
 const getCardByID = `-- name: GetCardByID :one
 
-SELECT id, user_id, entry_id, status, learning_step,
-       next_review_at, interval_days, ease_factor, created_at, updated_at
+SELECT id, user_id, entry_id, state, step, stability, difficulty,
+       due, last_review, reps, lapses, scheduled_days, elapsed_days,
+       created_at, updated_at
 FROM cards
 WHERE id = $1 AND user_id = $2
 `
@@ -116,60 +161,134 @@ type GetCardByIDParams struct {
 	UserID uuid.UUID
 }
 
+type GetCardByIDRow struct {
+	ID            uuid.UUID
+	UserID        uuid.UUID
+	EntryID       uuid.UUID
+	State         CardState
+	Step          int32
+	Stability     float64
+	Difficulty    float64
+	Due           time.Time
+	LastReview    *time.Time
+	Reps          int32
+	Lapses        int32
+	ScheduledDays int32
+	ElapsedDays   int32
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+}
+
 // ---------------------------------------------------------------------------
-// cards
+// cards (FSRS-5)
 // ---------------------------------------------------------------------------
-func (q *Queries) GetCardByID(ctx context.Context, arg GetCardByIDParams) (Card, error) {
+func (q *Queries) GetCardByID(ctx context.Context, arg GetCardByIDParams) (GetCardByIDRow, error) {
 	row := q.db.QueryRow(ctx, getCardByID, arg.ID, arg.UserID)
-	var i Card
+	var i GetCardByIDRow
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,
 		&i.EntryID,
-		&i.Status,
-		&i.LearningStep,
-		&i.NextReviewAt,
-		&i.IntervalDays,
-		&i.EaseFactor,
+		&i.State,
+		&i.Step,
+		&i.Stability,
+		&i.Difficulty,
+		&i.Due,
+		&i.LastReview,
+		&i.Reps,
+		&i.Lapses,
+		&i.ScheduledDays,
+		&i.ElapsedDays,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
 	return i, err
 }
 
-const updateCardSRS = `-- name: UpdateCardSRS :execrows
+const updateCardSRS = `-- name: UpdateCardSRS :one
 UPDATE cards
-SET status = $1,
-    next_review_at = $2,
-    interval_days = $3,
-    ease_factor = $4,
-    learning_step = $5,
+SET state = $1,
+    step = $2,
+    stability = $3,
+    difficulty = $4,
+    due = $5,
+    last_review = $6,
+    reps = $7,
+    lapses = $8,
+    scheduled_days = $9,
+    elapsed_days = $10,
     updated_at = now()
-WHERE id = $6 AND user_id = $7
+WHERE id = $11 AND user_id = $12
+RETURNING id, user_id, entry_id, state, step, stability, difficulty,
+          due, last_review, reps, lapses, scheduled_days, elapsed_days,
+          created_at, updated_at
 `
 
 type UpdateCardSRSParams struct {
-	Status       LearningStatus
-	NextReviewAt *time.Time
-	IntervalDays int32
-	EaseFactor   float64
-	LearningStep int32
-	ID           uuid.UUID
-	UserID       uuid.UUID
+	State         CardState
+	Step          int32
+	Stability     float64
+	Difficulty    float64
+	Due           time.Time
+	LastReview    *time.Time
+	Reps          int32
+	Lapses        int32
+	ScheduledDays int32
+	ElapsedDays   int32
+	ID            uuid.UUID
+	UserID        uuid.UUID
 }
 
-func (q *Queries) UpdateCardSRS(ctx context.Context, arg UpdateCardSRSParams) (int64, error) {
-	result, err := q.db.Exec(ctx, updateCardSRS,
-		arg.Status,
-		arg.NextReviewAt,
-		arg.IntervalDays,
-		arg.EaseFactor,
-		arg.LearningStep,
+type UpdateCardSRSRow struct {
+	ID            uuid.UUID
+	UserID        uuid.UUID
+	EntryID       uuid.UUID
+	State         CardState
+	Step          int32
+	Stability     float64
+	Difficulty    float64
+	Due           time.Time
+	LastReview    *time.Time
+	Reps          int32
+	Lapses        int32
+	ScheduledDays int32
+	ElapsedDays   int32
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+}
+
+func (q *Queries) UpdateCardSRS(ctx context.Context, arg UpdateCardSRSParams) (UpdateCardSRSRow, error) {
+	row := q.db.QueryRow(ctx, updateCardSRS,
+		arg.State,
+		arg.Step,
+		arg.Stability,
+		arg.Difficulty,
+		arg.Due,
+		arg.LastReview,
+		arg.Reps,
+		arg.Lapses,
+		arg.ScheduledDays,
+		arg.ElapsedDays,
 		arg.ID,
 		arg.UserID,
 	)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
+	var i UpdateCardSRSRow
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.EntryID,
+		&i.State,
+		&i.Step,
+		&i.Stability,
+		&i.Difficulty,
+		&i.Due,
+		&i.LastReview,
+		&i.Reps,
+		&i.Lapses,
+		&i.ScheduledDays,
+		&i.ElapsedDays,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }

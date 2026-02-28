@@ -8,7 +8,7 @@ type EntryFilter struct {
 	HasCard      *bool
 	PartOfSpeech *PartOfSpeech
 	TopicID      *uuid.UUID
-	Status       *LearningStatus
+	Status       *CardState
 	SortBy       string
 	SortOrder    string
 	Limit        int

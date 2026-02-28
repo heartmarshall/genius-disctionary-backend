@@ -27,7 +27,7 @@ func TestE2E_StudyQueue_ContainsNewCards(t *testing.T) {
 		testhelper.SeedEntryWithCard(t, ts.Pool, userID, ref.ID)
 	}
 
-	queueQuery := `query { studyQueue(limit: 10) { id text card { id status } } }`
+	queueQuery := `query { studyQueue(limit: 10) { id text card { id state } } }`
 	status, result := ts.graphqlQuery(t, queueQuery, nil, token)
 	assert.Equal(t, http.StatusOK, status)
 	requireNoErrors(t, result)
@@ -67,7 +67,7 @@ func TestE2E_ReviewCard_AllGradesFromNew(t *testing.T) {
 			cardID := entry.Card.ID.String()
 
 			reviewQuery := `mutation($input: ReviewCardInput!) {
-				reviewCard(input: $input) { card { id status nextReviewAt intervalDays easeFactor } }
+				reviewCard(input: $input) { card { id state stability difficulty due scheduledDays } }
 			}`
 			status, result := ts.graphqlQuery(t, reviewQuery, map[string]any{
 				"input": map[string]any{
@@ -80,9 +80,9 @@ func TestE2E_ReviewCard_AllGradesFromNew(t *testing.T) {
 			requireNoErrors(t, result)
 
 			card := gqlPayload(t, result, "reviewCard")["card"].(map[string]any)
-			assert.Equal(t, tc.expectedStatus, card["status"],
-				"grade %s from NEW should result in status %s", tc.grade, tc.expectedStatus)
-			assert.NotNil(t, card["nextReviewAt"], "nextReviewAt should be set after review")
+			assert.Equal(t, tc.expectedStatus, card["state"],
+				"grade %s from NEW should result in state %s", tc.grade, tc.expectedStatus)
+			assert.NotNil(t, card["due"], "due should be set after review")
 
 			// Verify via separate card stats query.
 			statsQuery := `query($id: UUID!) { cardStats(cardId: $id) { totalReviews } }`
@@ -109,32 +109,32 @@ func TestE2E_UndoReview_RestoresPreviousState(t *testing.T) {
 	cardID := entry.Card.ID.String()
 
 	// Card starts as NEW.
-	getCardQuery := `query($id: UUID!) { dictionaryEntry(id: $id) { card { id status easeFactor } } }`
+	getCardQuery := `query($id: UUID!) { dictionaryEntry(id: $id) { card { id state stability difficulty } } }`
 	status, result := ts.graphqlQuery(t, getCardQuery, map[string]any{"id": entry.ID.String()}, token)
 	require.Equal(t, http.StatusOK, status)
 	requireNoErrors(t, result)
 	originalCard := gqlPayload(t, result, "dictionaryEntry")["card"].(map[string]any)
-	assert.Equal(t, "NEW", originalCard["status"])
+	assert.Equal(t, "NEW", originalCard["state"])
 
 	// Review with AGAIN → LEARNING.
 	reviewQuery := `mutation($input: ReviewCardInput!) {
-		reviewCard(input: $input) { card { id status } }
+		reviewCard(input: $input) { card { id state } }
 	}`
 	status, result = ts.graphqlQuery(t, reviewQuery, map[string]any{
 		"input": map[string]any{"cardId": cardID, "grade": "AGAIN"},
 	}, token)
 	assert.Equal(t, http.StatusOK, status)
 	requireNoErrors(t, result)
-	assert.Equal(t, "LEARNING", gqlPayload(t, result, "reviewCard")["card"].(map[string]any)["status"])
+	assert.Equal(t, "LEARNING", gqlPayload(t, result, "reviewCard")["card"].(map[string]any)["state"])
 
 	// Undo the review.
-	undoQuery := `mutation($id: UUID!) { undoReview(cardId: $id) { card { id status } } }`
+	undoQuery := `mutation($id: UUID!) { undoReview(cardId: $id) { card { id state } } }`
 	status, result = ts.graphqlQuery(t, undoQuery, map[string]any{"id": cardID}, token)
 	assert.Equal(t, http.StatusOK, status)
 	requireNoErrors(t, result)
 
 	undoneCard := gqlPayload(t, result, "undoReview")["card"].(map[string]any)
-	assert.Equal(t, "NEW", undoneCard["status"], "undo should restore card to NEW")
+	assert.Equal(t, "NEW", undoneCard["state"], "undo should restore card to NEW")
 
 	// Verify review log was deleted.
 	historyQuery := `query($input: GetCardHistoryInput!) { cardHistory(input: $input) { id } }`
@@ -182,7 +182,7 @@ func TestE2E_StudySession_FullLifecycle(t *testing.T) {
 
 	// Review both cards.
 	reviewQuery := `mutation($input: ReviewCardInput!) {
-		reviewCard(input: $input) { card { id status } }
+		reviewCard(input: $input) { card { id state } }
 	}`
 	for _, cardID := range cardIDs {
 		status, result = ts.graphqlQuery(t, reviewQuery, map[string]any{
@@ -193,14 +193,12 @@ func TestE2E_StudySession_FullLifecycle(t *testing.T) {
 	}
 
 	// Finish session.
-	finishQuery := `mutation($input: FinishSessionInput!) {
-		finishStudySession(input: $input) {
+	finishQuery := `mutation {
+		finishStudySession {
 			session { id status finishedAt result { totalReviews gradeCounts { again hard good easy } } }
 		}
 	}`
-	status, result = ts.graphqlQuery(t, finishQuery, map[string]any{
-		"input": map[string]any{"sessionId": sessionID},
-	}, token)
+	status, result = ts.graphqlQuery(t, finishQuery, nil, token)
 	assert.Equal(t, http.StatusOK, status)
 	requireNoErrors(t, result)
 
@@ -259,7 +257,7 @@ func TestE2E_CardHistory_TracksMultipleReviews(t *testing.T) {
 	cardID := entry.Card.ID.String()
 
 	reviewQuery := `mutation($input: ReviewCardInput!) {
-		reviewCard(input: $input) { card { id status } }
+		reviewCard(input: $input) { card { id state } }
 	}`
 
 	// Review twice (AGAIN, then GOOD).
@@ -327,17 +325,17 @@ func TestE2E_CreateCard_ViaAPI(t *testing.T) {
 	assert.Nil(t, entry["card"], "entry should not have a card initially")
 
 	// Create card via mutation.
-	createCardQuery := `mutation($id: UUID!) { createCard(entryId: $id) { card { id status easeFactor } } }`
+	createCardQuery := `mutation($id: UUID!) { createCard(entryId: $id) { card { id state stability difficulty } } }`
 	status, result = ts.graphqlQuery(t, createCardQuery, map[string]any{"id": entryID}, token)
 	assert.Equal(t, http.StatusOK, status)
 	requireNoErrors(t, result)
 
 	card := gqlPayload(t, result, "createCard")["card"].(map[string]any)
-	assert.Equal(t, "NEW", card["status"])
-	assert.Equal(t, 2.5, card["easeFactor"])
+	assert.Equal(t, "NEW", card["state"])
+	assert.Equal(t, float64(0), card["stability"])
 
 	// Verify via entry query.
-	getQuery := `query($id: UUID!) { dictionaryEntry(id: $id) { card { id status } } }`
+	getQuery := `query($id: UUID!) { dictionaryEntry(id: $id) { card { id state } } }`
 	status, result = ts.graphqlQuery(t, getQuery, map[string]any{"id": entryID}, token)
 	assert.Equal(t, http.StatusOK, status)
 	requireNoErrors(t, result)

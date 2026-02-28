@@ -25,20 +25,20 @@ WHERE id = $1
 RETURNING id, email, username, name, avatar_url, role, created_at, updated_at;
 
 -- name: GetUserSettings :one
-SELECT user_id, new_cards_per_day, reviews_per_day, max_interval_days, timezone, updated_at
+SELECT user_id, new_cards_per_day, reviews_per_day, max_interval_days, desired_retention, timezone, updated_at
 FROM user_settings
 WHERE user_id = $1;
 
 -- name: CreateUserSettings :one
-INSERT INTO user_settings (user_id, new_cards_per_day, reviews_per_day, max_interval_days, timezone, updated_at)
-VALUES ($1, $2, $3, $4, $5, now())
-RETURNING user_id, new_cards_per_day, reviews_per_day, max_interval_days, timezone, updated_at;
+INSERT INTO user_settings (user_id, new_cards_per_day, reviews_per_day, max_interval_days, desired_retention, timezone, updated_at)
+VALUES ($1, $2, $3, $4, $5, $6, now())
+RETURNING user_id, new_cards_per_day, reviews_per_day, max_interval_days, desired_retention, timezone, updated_at;
 
 -- name: UpdateUserSettings :one
 UPDATE user_settings
-SET new_cards_per_day = $2, reviews_per_day = $3, max_interval_days = $4, timezone = $5, updated_at = now()
+SET new_cards_per_day = $2, reviews_per_day = $3, max_interval_days = $4, desired_retention = $5, timezone = $6, updated_at = now()
 WHERE user_id = $1
-RETURNING user_id, new_cards_per_day, reviews_per_day, max_interval_days, timezone, updated_at;
+RETURNING user_id, new_cards_per_day, reviews_per_day, max_interval_days, desired_retention, timezone, updated_at;
 
 -- name: UpdateUserRole :one
 UPDATE users

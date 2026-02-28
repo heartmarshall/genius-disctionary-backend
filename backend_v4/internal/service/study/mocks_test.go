@@ -48,6 +48,9 @@ var _ cardRepo = &cardRepoMock{}
 //			GetByIDFunc: func(ctx context.Context, userID uuid.UUID, cardID uuid.UUID) (*domain.Card, error) {
 //				panic("mock out the GetByID method")
 //			},
+//			GetByIDForUpdateFunc: func(ctx context.Context, userID uuid.UUID, cardID uuid.UUID) (*domain.Card, error) {
+//				panic("mock out the GetByIDForUpdate method")
+//			},
 //			GetDueCardsFunc: func(ctx context.Context, userID uuid.UUID, now time.Time, limit int) ([]*domain.Card, error) {
 //				panic("mock out the GetDueCards method")
 //			},
@@ -90,6 +93,9 @@ type cardRepoMock struct {
 
 	// GetByIDFunc mocks the GetByID method.
 	GetByIDFunc func(ctx context.Context, userID uuid.UUID, cardID uuid.UUID) (*domain.Card, error)
+
+	// GetByIDForUpdateFunc mocks the GetByIDForUpdate method.
+	GetByIDForUpdateFunc func(ctx context.Context, userID uuid.UUID, cardID uuid.UUID) (*domain.Card, error)
 
 	// GetDueCardsFunc mocks the GetDueCards method.
 	GetDueCardsFunc func(ctx context.Context, userID uuid.UUID, now time.Time, limit int) ([]*domain.Card, error)
@@ -179,6 +185,15 @@ type cardRepoMock struct {
 			// CardID is the cardID argument value.
 			CardID uuid.UUID
 		}
+		// GetByIDForUpdate holds details about calls to the GetByIDForUpdate method.
+		GetByIDForUpdate []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// UserID is the userID argument value.
+			UserID uuid.UUID
+			// CardID is the cardID argument value.
+			CardID uuid.UUID
+		}
 		// GetDueCards holds details about calls to the GetDueCards method.
 		GetDueCards []struct {
 			// Ctx is the ctx argument value.
@@ -220,6 +235,7 @@ type cardRepoMock struct {
 	lockExistsByEntryIDs sync.RWMutex
 	lockGetByEntryID     sync.RWMutex
 	lockGetByID          sync.RWMutex
+	lockGetByIDForUpdate sync.RWMutex
 	lockGetDueCards      sync.RWMutex
 	lockGetNewCards      sync.RWMutex
 	lockUpdateSRS        sync.RWMutex
@@ -577,6 +593,46 @@ func (mock *cardRepoMock) GetByIDCalls() []struct {
 	return calls
 }
 
+// GetByIDForUpdate calls GetByIDForUpdateFunc.
+func (mock *cardRepoMock) GetByIDForUpdate(ctx context.Context, userID uuid.UUID, cardID uuid.UUID) (*domain.Card, error) {
+	if mock.GetByIDForUpdateFunc == nil {
+		panic("cardRepoMock.GetByIDForUpdateFunc: method is nil but cardRepo.GetByIDForUpdate was just called")
+	}
+	callInfo := struct {
+		Ctx    context.Context
+		UserID uuid.UUID
+		CardID uuid.UUID
+	}{
+		Ctx:    ctx,
+		UserID: userID,
+		CardID: cardID,
+	}
+	mock.lockGetByIDForUpdate.Lock()
+	mock.calls.GetByIDForUpdate = append(mock.calls.GetByIDForUpdate, callInfo)
+	mock.lockGetByIDForUpdate.Unlock()
+	return mock.GetByIDForUpdateFunc(ctx, userID, cardID)
+}
+
+// GetByIDForUpdateCalls gets all the calls that were made to GetByIDForUpdate.
+// Check the length with:
+//
+//	len(mockedcardRepo.GetByIDForUpdateCalls())
+func (mock *cardRepoMock) GetByIDForUpdateCalls() []struct {
+	Ctx    context.Context
+	UserID uuid.UUID
+	CardID uuid.UUID
+} {
+	var calls []struct {
+		Ctx    context.Context
+		UserID uuid.UUID
+		CardID uuid.UUID
+	}
+	mock.lockGetByIDForUpdate.RLock()
+	calls = mock.calls.GetByIDForUpdate
+	mock.lockGetByIDForUpdate.RUnlock()
+	return calls
+}
+
 // GetDueCards calls GetDueCardsFunc.
 func (mock *cardRepoMock) GetDueCards(ctx context.Context, userID uuid.UUID, now time.Time, limit int) ([]*domain.Card, error) {
 	if mock.GetDueCardsFunc == nil {
@@ -739,7 +795,7 @@ var _ reviewLogRepo = &reviewLogRepoMock{}
 //			GetStatsByCardIDFunc: func(ctx context.Context, cardID uuid.UUID) (domain.ReviewLogAggregation, error) {
 //				panic("mock out the GetStatsByCardID method")
 //			},
-//			GetStreakDaysFunc: func(ctx context.Context, userID uuid.UUID, dayStart time.Time, lastNDays int) ([]domain.DayReviewCount, error) {
+//			GetStreakDaysFunc: func(ctx context.Context, userID uuid.UUID, dayStart time.Time, lastNDays int, timezone string) ([]domain.DayReviewCount, error) {
 //				panic("mock out the GetStreakDays method")
 //			},
 //		}
@@ -774,7 +830,7 @@ type reviewLogRepoMock struct {
 	GetStatsByCardIDFunc func(ctx context.Context, cardID uuid.UUID) (domain.ReviewLogAggregation, error)
 
 	// GetStreakDaysFunc mocks the GetStreakDays method.
-	GetStreakDaysFunc func(ctx context.Context, userID uuid.UUID, dayStart time.Time, lastNDays int) ([]domain.DayReviewCount, error)
+	GetStreakDaysFunc func(ctx context.Context, userID uuid.UUID, dayStart time.Time, lastNDays int, timezone string) ([]domain.DayReviewCount, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -856,6 +912,8 @@ type reviewLogRepoMock struct {
 			DayStart time.Time
 			// LastNDays is the lastNDays argument value.
 			LastNDays int
+			// Timezone is the timezone argument value.
+			Timezone string
 		}
 	}
 	lockCountNewToday    sync.RWMutex
@@ -1182,7 +1240,7 @@ func (mock *reviewLogRepoMock) GetStatsByCardIDCalls() []struct {
 }
 
 // GetStreakDays calls GetStreakDaysFunc.
-func (mock *reviewLogRepoMock) GetStreakDays(ctx context.Context, userID uuid.UUID, dayStart time.Time, lastNDays int) ([]domain.DayReviewCount, error) {
+func (mock *reviewLogRepoMock) GetStreakDays(ctx context.Context, userID uuid.UUID, dayStart time.Time, lastNDays int, timezone string) ([]domain.DayReviewCount, error) {
 	if mock.GetStreakDaysFunc == nil {
 		panic("reviewLogRepoMock.GetStreakDaysFunc: method is nil but reviewLogRepo.GetStreakDays was just called")
 	}
@@ -1191,16 +1249,18 @@ func (mock *reviewLogRepoMock) GetStreakDays(ctx context.Context, userID uuid.UU
 		UserID    uuid.UUID
 		DayStart  time.Time
 		LastNDays int
+		Timezone  string
 	}{
 		Ctx:       ctx,
 		UserID:    userID,
 		DayStart:  dayStart,
 		LastNDays: lastNDays,
+		Timezone:  timezone,
 	}
 	mock.lockGetStreakDays.Lock()
 	mock.calls.GetStreakDays = append(mock.calls.GetStreakDays, callInfo)
 	mock.lockGetStreakDays.Unlock()
-	return mock.GetStreakDaysFunc(ctx, userID, dayStart, lastNDays)
+	return mock.GetStreakDaysFunc(ctx, userID, dayStart, lastNDays, timezone)
 }
 
 // GetStreakDaysCalls gets all the calls that were made to GetStreakDays.
@@ -1212,12 +1272,14 @@ func (mock *reviewLogRepoMock) GetStreakDaysCalls() []struct {
 	UserID    uuid.UUID
 	DayStart  time.Time
 	LastNDays int
+	Timezone  string
 } {
 	var calls []struct {
 		Ctx       context.Context
 		UserID    uuid.UUID
 		DayStart  time.Time
 		LastNDays int
+		Timezone  string
 	}
 	mock.lockGetStreakDays.RLock()
 	calls = mock.calls.GetStreakDays

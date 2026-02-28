@@ -18,6 +18,7 @@ type UserSettings {
   newCardsPerDay: Int!
   reviewsPerDay: Int!
   maxIntervalDays: Int!
+  desiredRetention: Float!
   timezone: String!
 }
 
@@ -29,6 +30,7 @@ input UpdateSettingsInput {
   newCardsPerDay: Int
   reviewsPerDay: Int
   maxIntervalDays: Int
+  desiredRetention: Float
   timezone: String
 }
 

@@ -27,7 +27,7 @@ func TestStudyQueue_Success(t *testing.T) {
 
 	studyMock := &studyServiceMock{
 		GetStudyQueueEntriesFunc: func(ctx context.Context, input study.GetQueueInput) ([]*domain.Entry, error) {
-			assert.Equal(t, 20, input.Limit)
+			assert.Equal(t, 50, input.Limit)
 			return []*domain.Entry{
 				{ID: entryID, Text: "test"},
 			}, nil
@@ -137,7 +137,8 @@ func TestCardHistory_Success(t *testing.T) {
 	result, err := resolver.CardHistory(ctx, generated.GetCardHistoryInput{CardID: cardID})
 
 	require.NoError(t, err)
-	require.Len(t, result, 1)
+	require.Len(t, result.Logs, 1)
+	assert.Equal(t, 1, result.TotalCount)
 }
 
 // TestCardHistory_CustomPagination tests custom limit and offset.
@@ -332,7 +333,8 @@ func TestBatchCreateCards_Success(t *testing.T) {
 
 	require.NoError(t, err)
 	assert.Equal(t, 2, result.CreatedCount)
-	assert.Equal(t, 3, result.SkippedCount) // 1 + 2
+	assert.Equal(t, 1, result.SkippedExisting)
+	assert.Equal(t, 2, result.SkippedNoSenses)
 }
 
 // TestBatchCreateCards_WithErrors tests batch creation with errors.
@@ -396,8 +398,7 @@ func TestFinishStudySession_Success(t *testing.T) {
 	sessionID := uuid.New()
 
 	studyMock := &studyServiceMock{
-		FinishSessionFunc: func(ctx context.Context, input study.FinishSessionInput) (*domain.StudySession, error) {
-			assert.Equal(t, sessionID, input.SessionID)
+		FinishActiveSessionFunc: func(ctx context.Context) (*domain.StudySession, error) {
 			return &domain.StudySession{ID: sessionID}, nil
 		},
 	}
@@ -405,7 +406,7 @@ func TestFinishStudySession_Success(t *testing.T) {
 	resolver := &mutationResolver{&Resolver{study: studyMock}}
 	ctx := ctxutil.WithUserID(context.Background(), userID)
 
-	result, err := resolver.FinishStudySession(ctx, generated.FinishSessionInput{SessionID: sessionID})
+	result, err := resolver.FinishStudySession(ctx)
 
 	require.NoError(t, err)
 	assert.Equal(t, sessionID, result.Session.ID)

@@ -173,87 +173,69 @@ func (r *Repo) BulkInsertCoverage(ctx context.Context, coverage []domain.RefEntr
 // Replace methods (for LLM enrichment)
 // ---------------------------------------------------------------------------
 
-// ReplaceEntryContent replaces all senses, translations, and examples for a ref entry.
-// Strategy: delete old child data, insert new. User senses with ref_sense_id pointing
-// to deleted senses get SET NULL (by FK constraint ON DELETE SET NULL).
-// This is acceptable because LLM data is strictly better quality.
+// ReplaceEntryContent upserts senses, translations, and examples for a ref entry.
+// Strategy: position-based matching — existing rows are updated in-place (preserving
+// UUIDs and FK references from user senses), new rows are inserted, excess old rows
+// are deleted. This keeps user FK links valid so they see enriched data via COALESCE.
 func (r *Repo) ReplaceEntryContent(ctx context.Context, entryID uuid.UUID, senses []domain.RefSense, translations []domain.RefTranslation, examples []domain.RefExample) error {
 	return r.txm.RunInTx(ctx, func(txCtx context.Context) error {
 		q := postgres.QuerierFromCtx(txCtx, r.pool)
 
-		// 1. Delete existing senses (cascades to ref_translations, ref_examples via FK).
-		if _, err := q.Exec(txCtx, `DELETE FROM ref_senses WHERE ref_entry_id = $1`, entryID); err != nil {
-			return fmt.Errorf("delete old senses: %w", err)
+		// 1. Fetch existing senses ordered by position.
+		oldSenses, err := r.fetchOldSenseIDs(txCtx, q, entryID)
+		if err != nil {
+			return err
 		}
 
-		// 2. Insert new senses.
-		if len(senses) > 0 {
-			batch := &pgx.Batch{}
-			for _, s := range senses {
-				var pos *string
-				if s.PartOfSpeech != nil {
-					p := string(*s.PartOfSpeech)
-					pos = &p
-				}
-				batch.Queue(
-					`INSERT INTO ref_senses (id, ref_entry_id, definition, part_of_speech, cefr_level, notes, source_slug, position, created_at)
-					 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-					s.ID, s.RefEntryID, s.Definition, pos, s.CEFRLevel, s.Notes, s.SourceSlug, s.Position, s.CreatedAt,
-				)
+		// 2. Group new translations/examples by the mapper-generated sense ID.
+		trBySense := groupTranslationsBySense(translations)
+		exBySense := groupExamplesBySense(examples)
+
+		minSenses := min(len(oldSenses), len(senses))
+
+		// 3. UPDATE matched senses in-place (preserves UUID → user FK stays valid).
+		for i := range minSenses {
+			oldID := oldSenses[i]
+			ns := senses[i]
+
+			if err := r.updateSense(txCtx, q, oldID, ns); err != nil {
+				return err
 			}
-			results := q.SendBatch(txCtx, batch)
-			for range senses {
-				if _, err := results.Exec(); err != nil {
-					results.Close()
-					return fmt.Errorf("insert sense: %w", err)
-				}
+			if err := r.upsertTranslations(txCtx, q, oldID, trBySense[ns.ID]); err != nil {
+				return err
 			}
-			results.Close()
+			if err := r.upsertExamples(txCtx, q, oldID, exBySense[ns.ID]); err != nil {
+				return err
+			}
 		}
 
-		// 3. Insert new translations.
-		if len(translations) > 0 {
-			batch := &pgx.Batch{}
-			for _, tr := range translations {
-				batch.Queue(
-					`INSERT INTO ref_translations (id, ref_sense_id, text, source_slug, position)
-					 VALUES ($1, $2, $3, $4, $5)`,
-					tr.ID, tr.RefSenseID, tr.Text, tr.SourceSlug, tr.Position,
-				)
+		// 4. INSERT excess new senses (+ their children).
+		for i := minSenses; i < len(senses); i++ {
+			ns := senses[i]
+			if err := r.insertSense(txCtx, q, ns); err != nil {
+				return err
 			}
-			results := q.SendBatch(txCtx, batch)
-			for range translations {
-				if _, err := results.Exec(); err != nil {
-					results.Close()
-					return fmt.Errorf("insert translation: %w", err)
-				}
+			if err := r.insertTranslations(txCtx, q, trBySense[ns.ID]); err != nil {
+				return err
 			}
-			results.Close()
+			if err := r.insertExamples(txCtx, q, exBySense[ns.ID]); err != nil {
+				return err
+			}
 		}
 
-		// 4. Insert new examples.
-		if len(examples) > 0 {
-			batch := &pgx.Batch{}
-			for _, ex := range examples {
-				batch.Queue(
-					`INSERT INTO ref_examples (id, ref_sense_id, sentence, translation, source_slug, position)
-					 VALUES ($1, $2, $3, $4, $5, $6)`,
-					ex.ID, ex.RefSenseID, ex.Sentence, ex.Translation, ex.SourceSlug, ex.Position,
-				)
+		// 5. DELETE excess old senses (FK ON DELETE SET NULL preserves user data).
+		if len(oldSenses) > len(senses) {
+			excessIDs := oldSenses[minSenses:]
+			if _, err := q.Exec(txCtx,
+				`DELETE FROM ref_senses WHERE id = ANY($1)`, excessIDs,
+			); err != nil {
+				return fmt.Errorf("delete excess senses: %w", err)
 			}
-			results := q.SendBatch(txCtx, batch)
-			for range examples {
-				if _, err := results.Exec(); err != nil {
-					results.Close()
-					return fmt.Errorf("insert example: %w", err)
-				}
-			}
-			results.Close()
 		}
 
-		// 5. Upsert source coverage for 'llm'.
+		// 6. Upsert source coverage for 'llm'.
 		now := time.Now()
-		_, err := q.Exec(txCtx,
+		_, err = q.Exec(txCtx,
 			`INSERT INTO ref_entry_source_coverage (ref_entry_id, source_slug, status, fetched_at)
 			 VALUES ($1, 'llm', 'fetched', $2)
 			 ON CONFLICT (ref_entry_id, source_slug) DO UPDATE
@@ -266,6 +248,230 @@ func (r *Repo) ReplaceEntryContent(ctx context.Context, entryID uuid.UUID, sense
 
 		return nil
 	})
+}
+
+// ---------------------------------------------------------------------------
+// Upsert helpers (position-based matching)
+// ---------------------------------------------------------------------------
+
+// fetchOldSenseIDs returns existing sense UUIDs for an entry, ordered by position.
+func (r *Repo) fetchOldSenseIDs(ctx context.Context, q postgres.Querier, entryID uuid.UUID) ([]uuid.UUID, error) {
+	rows, err := q.Query(ctx,
+		`SELECT id FROM ref_senses WHERE ref_entry_id = $1 ORDER BY position`, entryID,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("fetch old senses: %w", err)
+	}
+	defer rows.Close()
+
+	var ids []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, fmt.Errorf("scan old sense id: %w", err)
+		}
+		ids = append(ids, id)
+	}
+	return ids, rows.Err()
+}
+
+// updateSense updates an existing ref_sense row in-place, preserving its UUID.
+func (r *Repo) updateSense(ctx context.Context, q postgres.Querier, oldID uuid.UUID, ns domain.RefSense) error {
+	var pos *string
+	if ns.PartOfSpeech != nil {
+		p := string(*ns.PartOfSpeech)
+		pos = &p
+	}
+	_, err := q.Exec(ctx,
+		`UPDATE ref_senses SET definition = $1, part_of_speech = $2, cefr_level = $3,
+		 notes = $4, source_slug = $5, position = $6 WHERE id = $7`,
+		ns.Definition, pos, ns.CEFRLevel, ns.Notes, ns.SourceSlug, ns.Position, oldID,
+	)
+	if err != nil {
+		return fmt.Errorf("update sense: %w", err)
+	}
+	return nil
+}
+
+// insertSense inserts a new ref_sense row.
+func (r *Repo) insertSense(ctx context.Context, q postgres.Querier, s domain.RefSense) error {
+	var pos *string
+	if s.PartOfSpeech != nil {
+		p := string(*s.PartOfSpeech)
+		pos = &p
+	}
+	_, err := q.Exec(ctx,
+		`INSERT INTO ref_senses (id, ref_entry_id, definition, part_of_speech, cefr_level, notes, source_slug, position, created_at)
+		 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+		s.ID, s.RefEntryID, s.Definition, pos, s.CEFRLevel, s.Notes, s.SourceSlug, s.Position, s.CreatedAt,
+	)
+	if err != nil {
+		return fmt.Errorf("insert sense: %w", err)
+	}
+	return nil
+}
+
+// upsertTranslations applies position-based upsert for translations within a sense.
+func (r *Repo) upsertTranslations(ctx context.Context, q postgres.Querier, senseID uuid.UUID, newTrs []domain.RefTranslation) error {
+	// Fetch existing translation IDs ordered by position.
+	oldIDs, err := r.fetchChildIDs(ctx, q, "ref_translations", "ref_sense_id", senseID)
+	if err != nil {
+		return fmt.Errorf("fetch old translations: %w", err)
+	}
+
+	minTrs := min(len(oldIDs), len(newTrs))
+
+	// UPDATE matched translations.
+	for i := range minTrs {
+		_, err := q.Exec(ctx,
+			`UPDATE ref_translations SET text = $1, source_slug = $2, position = $3 WHERE id = $4`,
+			newTrs[i].Text, newTrs[i].SourceSlug, newTrs[i].Position, oldIDs[i],
+		)
+		if err != nil {
+			return fmt.Errorf("update translation: %w", err)
+		}
+	}
+
+	// INSERT excess new translations (re-parent to existing sense).
+	for i := minTrs; i < len(newTrs); i++ {
+		tr := newTrs[i]
+		_, err := q.Exec(ctx,
+			`INSERT INTO ref_translations (id, ref_sense_id, text, source_slug, position)
+			 VALUES ($1, $2, $3, $4, $5)`,
+			tr.ID, senseID, tr.Text, tr.SourceSlug, tr.Position,
+		)
+		if err != nil {
+			return fmt.Errorf("insert translation: %w", err)
+		}
+	}
+
+	// DELETE excess old translations.
+	if len(oldIDs) > len(newTrs) {
+		excessIDs := oldIDs[minTrs:]
+		if _, err := q.Exec(ctx,
+			`DELETE FROM ref_translations WHERE id = ANY($1)`, excessIDs,
+		); err != nil {
+			return fmt.Errorf("delete excess translations: %w", err)
+		}
+	}
+
+	return nil
+}
+
+// upsertExamples applies position-based upsert for examples within a sense.
+func (r *Repo) upsertExamples(ctx context.Context, q postgres.Querier, senseID uuid.UUID, newExs []domain.RefExample) error {
+	// Fetch existing example IDs ordered by position.
+	oldIDs, err := r.fetchChildIDs(ctx, q, "ref_examples", "ref_sense_id", senseID)
+	if err != nil {
+		return fmt.Errorf("fetch old examples: %w", err)
+	}
+
+	minExs := min(len(oldIDs), len(newExs))
+
+	// UPDATE matched examples.
+	for i := range minExs {
+		_, err := q.Exec(ctx,
+			`UPDATE ref_examples SET sentence = $1, translation = $2, source_slug = $3, position = $4 WHERE id = $5`,
+			newExs[i].Sentence, newExs[i].Translation, newExs[i].SourceSlug, newExs[i].Position, oldIDs[i],
+		)
+		if err != nil {
+			return fmt.Errorf("update example: %w", err)
+		}
+	}
+
+	// INSERT excess new examples (re-parent to existing sense).
+	for i := minExs; i < len(newExs); i++ {
+		ex := newExs[i]
+		_, err := q.Exec(ctx,
+			`INSERT INTO ref_examples (id, ref_sense_id, sentence, translation, source_slug, position)
+			 VALUES ($1, $2, $3, $4, $5, $6)`,
+			ex.ID, senseID, ex.Sentence, ex.Translation, ex.SourceSlug, ex.Position,
+		)
+		if err != nil {
+			return fmt.Errorf("insert example: %w", err)
+		}
+	}
+
+	// DELETE excess old examples.
+	if len(oldIDs) > len(newExs) {
+		excessIDs := oldIDs[minExs:]
+		if _, err := q.Exec(ctx,
+			`DELETE FROM ref_examples WHERE id = ANY($1)`, excessIDs,
+		); err != nil {
+			return fmt.Errorf("delete excess examples: %w", err)
+		}
+	}
+
+	return nil
+}
+
+// insertTranslations inserts a batch of translations for a newly inserted sense.
+func (r *Repo) insertTranslations(ctx context.Context, q postgres.Querier, trs []domain.RefTranslation) error {
+	for _, tr := range trs {
+		_, err := q.Exec(ctx,
+			`INSERT INTO ref_translations (id, ref_sense_id, text, source_slug, position)
+			 VALUES ($1, $2, $3, $4, $5)`,
+			tr.ID, tr.RefSenseID, tr.Text, tr.SourceSlug, tr.Position,
+		)
+		if err != nil {
+			return fmt.Errorf("insert translation: %w", err)
+		}
+	}
+	return nil
+}
+
+// insertExamples inserts a batch of examples for a newly inserted sense.
+func (r *Repo) insertExamples(ctx context.Context, q postgres.Querier, exs []domain.RefExample) error {
+	for _, ex := range exs {
+		_, err := q.Exec(ctx,
+			`INSERT INTO ref_examples (id, ref_sense_id, sentence, translation, source_slug, position)
+			 VALUES ($1, $2, $3, $4, $5, $6)`,
+			ex.ID, ex.RefSenseID, ex.Sentence, ex.Translation, ex.SourceSlug, ex.Position,
+		)
+		if err != nil {
+			return fmt.Errorf("insert example: %w", err)
+		}
+	}
+	return nil
+}
+
+// fetchChildIDs returns UUIDs of child rows ordered by position.
+func (r *Repo) fetchChildIDs(ctx context.Context, q postgres.Querier, table, fkCol string, parentID uuid.UUID) ([]uuid.UUID, error) {
+	rows, err := q.Query(ctx,
+		fmt.Sprintf(`SELECT id FROM %s WHERE %s = $1 ORDER BY position`, table, fkCol), parentID,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var ids []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		ids = append(ids, id)
+	}
+	return ids, rows.Err()
+}
+
+// groupTranslationsBySense groups translations by their mapper-generated RefSenseID.
+func groupTranslationsBySense(trs []domain.RefTranslation) map[uuid.UUID][]domain.RefTranslation {
+	m := make(map[uuid.UUID][]domain.RefTranslation, len(trs))
+	for _, tr := range trs {
+		m[tr.RefSenseID] = append(m[tr.RefSenseID], tr)
+	}
+	return m
+}
+
+// groupExamplesBySense groups examples by their mapper-generated RefSenseID.
+func groupExamplesBySense(exs []domain.RefExample) map[uuid.UUID][]domain.RefExample {
+	m := make(map[uuid.UUID][]domain.RefExample, len(exs))
+	for _, ex := range exs {
+		m[ex.RefSenseID] = append(m[ex.RefSenseID], ex)
+	}
+	return m
 }
 
 // ---------------------------------------------------------------------------

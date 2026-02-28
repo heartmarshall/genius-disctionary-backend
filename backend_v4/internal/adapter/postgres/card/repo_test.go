@@ -559,7 +559,7 @@ func TestRepo_GetByEntryIDs_Batch(t *testing.T) {
 	entry2 := testhelper.SeedEntryWithCard(t, pool, user.ID, refEntry2.ID)
 
 	// Also include a nonexistent entry ID to test it doesn't cause errors.
-	cards, err := repo.GetByEntryIDs(ctx, []uuid.UUID{entry1.ID, entry2.ID, uuid.New()})
+	cards, err := repo.GetByEntryIDs(ctx, user.ID, []uuid.UUID{entry1.ID, entry2.ID, uuid.New()})
 	if err != nil {
 		t.Fatalf("GetByEntryIDs: unexpected error: %v", err)
 	}

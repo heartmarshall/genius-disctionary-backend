@@ -48,6 +48,7 @@ import (
 	inboxsvc "github.com/heartmarshall/myenglish-backend/internal/service/inbox"
 	"github.com/heartmarshall/myenglish-backend/internal/service/refcatalog"
 	"github.com/heartmarshall/myenglish-backend/internal/service/study"
+	"github.com/heartmarshall/myenglish-backend/internal/service/study/fsrs"
 	topicsvc "github.com/heartmarshall/myenglish-backend/internal/service/topic"
 	usersvc "github.com/heartmarshall/myenglish-backend/internal/service/user"
 	gqlpkg "github.com/heartmarshall/myenglish-backend/internal/transport/graphql"
@@ -198,20 +199,14 @@ func setupTestServer(t *testing.T) *testServer {
 	refCatalogService := refcatalog.NewService(logger, refentryRepo, txm, dictProvider, transProvider)
 
 	srsConfig := domain.SRSConfig{
-		DefaultEaseFactor:    2.5,
-		MinEaseFactor:        1.3,
-		MaxIntervalDays:      365,
-		GraduatingInterval:   1,
-		LearningSteps:        []time.Duration{time.Minute, 10 * time.Minute},
-		NewCardsPerDay:       20,
-		ReviewsPerDay:        200,
-		EasyInterval:         4,
-		RelearningSteps:      []time.Duration{10 * time.Minute},
-		IntervalModifier:     1.0,
-		HardIntervalModifier: 1.2,
-		EasyBonus:            1.3,
-		LapseNewInterval:     0.0,
-		UndoWindowMinutes:    10,
+		DefaultRetention:  0.9,
+		MaxIntervalDays:   365,
+		EnableFuzz:        true,
+		LearningSteps:     []time.Duration{time.Minute, 10 * time.Minute},
+		RelearningSteps:   []time.Duration{10 * time.Minute},
+		NewCardsPerDay:    20,
+		ReviewsPerDay:     200,
+		UndoWindowMinutes: 10,
 	}
 
 	enrichmentService := enrichmentsvc.NewService(logger, enrichmentQueueRepo)
@@ -221,7 +216,6 @@ func setupTestServer(t *testing.T) *testServer {
 		pronunciationRepo, imageRepo, cardRepo, auditRepo, txm,
 		refCatalogService, config.DictionaryConfig{
 			MaxEntriesPerUser: 10000,
-			DefaultEaseFactor: 2.5,
 		},
 	)
 	dictionaryService.SetEnrichment(enrichmentService)
@@ -231,10 +225,13 @@ func setupTestServer(t *testing.T) *testServer {
 		imageRepo, auditRepo, txm,
 	)
 
-	studyService := study.NewService(
+	studyService, err := study.NewService(
 		logger, cardRepo, reviewlogRepo, sessionRepo, entryRepo,
-		senseRepo, userRepo, auditRepo, txm, srsConfig,
+		senseRepo, userRepo, auditRepo, txm, srsConfig, fsrs.DefaultWeights,
 	)
+	if err != nil {
+		t.Fatalf("create study service: %v", err)
+	}
 
 	topicService := topicsvc.NewService(logger, topicRepo, entryRepo, auditRepo, txm)
 
@@ -401,9 +398,9 @@ func createTestUserAndGetToken(t *testing.T, ts *testServer) string {
 
 	// Insert default user settings.
 	_, err = ts.Pool.Exec(context.Background(),
-		`INSERT INTO user_settings (user_id, new_cards_per_day, reviews_per_day, max_interval_days, timezone, updated_at)
-		 VALUES ($1, $2, $3, $4, $5, $6)`,
-		userID, 20, 200, 365, "UTC", now,
+		`INSERT INTO user_settings (user_id, new_cards_per_day, reviews_per_day, max_interval_days, desired_retention, timezone, updated_at)
+		 VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+		userID, 20, 200, 365, 0.9, "UTC", now,
 	)
 	if err != nil {
 		t.Fatalf("insert test settings: %v", err)
@@ -443,9 +440,9 @@ func createTestUserWithID(t *testing.T, ts *testServer) (string, uuid.UUID) {
 	}
 
 	_, err = ts.Pool.Exec(context.Background(),
-		`INSERT INTO user_settings (user_id, new_cards_per_day, reviews_per_day, max_interval_days, timezone, updated_at)
-		 VALUES ($1, $2, $3, $4, $5, $6)`,
-		userID, 20, 200, 365, "UTC", now,
+		`INSERT INTO user_settings (user_id, new_cards_per_day, reviews_per_day, max_interval_days, desired_retention, timezone, updated_at)
+		 VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+		userID, 20, 200, 365, 0.9, "UTC", now,
 	)
 	if err != nil {
 		t.Fatalf("insert test settings: %v", err)

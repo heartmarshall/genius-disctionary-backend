@@ -147,7 +147,7 @@ type FindInput struct {
 	HasCard      *bool
 	PartOfSpeech *domain.PartOfSpeech
 	TopicID      *uuid.UUID
-	Status       *domain.LearningStatus
+	Status       *domain.CardState
 	SortBy       string
 	SortOrder    string
 	Limit        int

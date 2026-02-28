@@ -42,37 +42,34 @@ func New(pool *pgxpool.Pool) *Repo {
 // ---------------------------------------------------------------------------
 
 const countTodaySQL = `
-SELECT count(*) FROM review_logs rl
-JOIN cards c ON rl.card_id = c.id
-WHERE c.user_id = $1 AND rl.reviewed_at >= $2`
+SELECT count(*) FROM review_logs
+WHERE user_id = $1 AND reviewed_at >= $2`
 
 const getStreakDaysSQL = `
 SELECT
-    date_trunc('day', rl.reviewed_at)::date AS review_date,
+    date_trunc('day', reviewed_at AT TIME ZONE $4)::date AS review_date,
     count(*) AS review_count
-FROM review_logs rl
-JOIN cards c ON rl.card_id = c.id
-WHERE c.user_id = $1 AND rl.reviewed_at >= $2
+FROM review_logs
+WHERE user_id = $1 AND reviewed_at >= $2
 GROUP BY review_date
 ORDER BY review_date DESC
 LIMIT $3`
 
 const getByCardIDsSQL = `
-SELECT rl.id, rl.card_id, rl.grade, rl.prev_state, rl.duration_ms, rl.reviewed_at
-FROM review_logs rl
-WHERE rl.card_id = ANY($1::uuid[])
-ORDER BY rl.card_id, rl.reviewed_at DESC`
+SELECT id, card_id, user_id, grade, prev_state, duration_ms, reviewed_at
+FROM review_logs
+WHERE card_id = ANY($1::uuid[])
+ORDER BY card_id, reviewed_at DESC`
 
 const countByCardIDSQL = `SELECT count(*) FROM review_logs WHERE card_id = $1`
 
 // countNewTodaySQL depends on the JSON key "state" in cardSnapshotJSON.
 // If you rename cardSnapshotJSON.State's json tag, update this query too.
 const countNewTodaySQL = `
-SELECT count(*) FROM review_logs rl
-JOIN cards c ON rl.card_id = c.id
-WHERE c.user_id = $1 AND rl.reviewed_at >= $2
-AND rl.prev_state IS NOT NULL
-AND rl.prev_state->>'state' = 'NEW'`
+SELECT count(*) FROM review_logs
+WHERE user_id = $1 AND reviewed_at >= $2
+AND prev_state IS NOT NULL
+AND prev_state->>'state' = 'NEW'`
 
 const getStatsByCardIDSQL = `
 SELECT
@@ -86,11 +83,10 @@ FROM review_logs
 WHERE card_id = $1`
 
 const getByPeriodSQL = `
-SELECT rl.id, rl.card_id, rl.grade, rl.prev_state, rl.duration_ms, rl.reviewed_at
-FROM review_logs rl
-JOIN cards c ON rl.card_id = c.id
-WHERE c.user_id = $1 AND rl.reviewed_at >= $2 AND rl.reviewed_at <= $3
-ORDER BY rl.reviewed_at DESC`
+SELECT id, card_id, user_id, grade, prev_state, duration_ms, reviewed_at
+FROM review_logs
+WHERE user_id = $1 AND reviewed_at >= $2 AND reviewed_at <= $3
+ORDER BY reviewed_at DESC`
 
 // ---------------------------------------------------------------------------
 // Read operations
@@ -125,7 +121,7 @@ func (r *Repo) GetByCardID(ctx context.Context, cardID uuid.UUID, limit, offset 
 
 	logs := make([]*domain.ReviewLog, len(rows))
 	for i, row := range rows {
-		rl, err := toDomainReviewLog(row)
+		rl, err := toDomainReviewLog(sqlc.CreateReviewLogRow(row))
 		if err != nil {
 			return nil, 0, err
 		}
@@ -145,7 +141,7 @@ func (r *Repo) GetLastByCardID(ctx context.Context, cardID uuid.UUID) (*domain.R
 		return nil, mapError(err, "review_log", cardID)
 	}
 
-	rl, err := toDomainReviewLog(row)
+	rl, err := toDomainReviewLog(sqlc.CreateReviewLogRow(row))
 	if err != nil {
 		return nil, err
 	}
@@ -173,19 +169,21 @@ func (r *Repo) GetByCardIDs(ctx context.Context, cardIDs []uuid.UUID) ([]ReviewL
 		var (
 			id         uuid.UUID
 			cardID     uuid.UUID
+			userID     uuid.UUID
 			grade      string
 			prevState  []byte
 			durationMs pgtype.Int4
 			reviewedAt time.Time
 		)
 
-		if err := rows.Scan(&id, &cardID, &grade, &prevState, &durationMs, &reviewedAt); err != nil {
+		if err := rows.Scan(&id, &cardID, &userID, &grade, &prevState, &durationMs, &reviewedAt); err != nil {
 			return nil, fmt.Errorf("scan review_log: %w", err)
 		}
 
 		rl := domain.ReviewLog{
 			ID:         id,
 			CardID:     cardID,
+			UserID:     userID,
 			Grade:      domain.ReviewGrade(grade),
 			ReviewedAt: reviewedAt,
 		}
@@ -233,13 +231,14 @@ func (r *Repo) CountToday(ctx context.Context, userID uuid.UUID, dayStart time.T
 // GetStreakDays returns daily review counts grouped by day,
 // ordered by date DESC, limited to `lastNDays` entries.
 // dayStart is the start of the current day; the query goes back lastNDays from it.
-func (r *Repo) GetStreakDays(ctx context.Context, userID uuid.UUID, dayStart time.Time, lastNDays int) ([]domain.DayReviewCount, error) {
+// timezone is an IANA timezone name (e.g. "America/New_York") used for day grouping.
+func (r *Repo) GetStreakDays(ctx context.Context, userID uuid.UUID, dayStart time.Time, lastNDays int, timezone string) ([]domain.DayReviewCount, error) {
 	querier := postgres.QuerierFromCtx(ctx, r.pool)
 
 	// dayStart is already the start of the first day. We go back lastNDays from dayStart.
 	from := dayStart.AddDate(0, 0, -lastNDays)
 
-	rows, err := querier.Query(ctx, getStreakDaysSQL, userID, from, lastNDays)
+	rows, err := querier.Query(ctx, getStreakDaysSQL, userID, from, lastNDays, timezone)
 	if err != nil {
 		return nil, fmt.Errorf("get streak days: %w", err)
 	}
@@ -285,6 +284,7 @@ func (r *Repo) Create(ctx context.Context, rl *domain.ReviewLog) (*domain.Review
 	row, err := q.CreateReviewLog(ctx, sqlc.CreateReviewLogParams{
 		ID:         rl.ID,
 		CardID:     rl.CardID,
+		UserID:     rl.UserID,
 		Grade:      sqlc.ReviewGrade(rl.Grade),
 		PrevState:  prevStateBytes,
 		DurationMs: durationMs,
@@ -367,19 +367,21 @@ func (r *Repo) GetByPeriod(ctx context.Context, userID uuid.UUID, from, to time.
 		var (
 			id         uuid.UUID
 			cardID     uuid.UUID
+			userID     uuid.UUID
 			grade      string
 			prevState  []byte
 			durationMs pgtype.Int4
 			reviewedAt time.Time
 		)
 
-		if err := rows.Scan(&id, &cardID, &grade, &prevState, &durationMs, &reviewedAt); err != nil {
+		if err := rows.Scan(&id, &cardID, &userID, &grade, &prevState, &durationMs, &reviewedAt); err != nil {
 			return nil, fmt.Errorf("scan review_log: %w", err)
 		}
 
 		rl := &domain.ReviewLog{
 			ID:         id,
 			CardID:     cardID,
+			UserID:     userID,
 			Grade:      domain.ReviewGrade(grade),
 			ReviewedAt: reviewedAt,
 		}
@@ -498,11 +500,14 @@ func unmarshalPrevState(data []byte) (*domain.CardSnapshot, error) {
 // Mapping helpers: sqlc -> domain
 // ---------------------------------------------------------------------------
 
-// toDomainReviewLog converts a sqlc.ReviewLog row into a domain.ReviewLog.
-func toDomainReviewLog(row sqlc.ReviewLog) (domain.ReviewLog, error) {
+// toDomainReviewLog converts a sqlc row into a domain.ReviewLog.
+// All sqlc row types (CreateReviewLogRow, GetByCardIDRow, GetLastByCardIDRow)
+// share the same field layout, so callers can use explicit struct conversion.
+func toDomainReviewLog(row sqlc.CreateReviewLogRow) (domain.ReviewLog, error) {
 	rl := domain.ReviewLog{
 		ID:         row.ID,
 		CardID:     row.CardID,
+		UserID:     row.UserID,
 		Grade:      domain.ReviewGrade(row.Grade),
 		ReviewedAt: row.ReviewedAt,
 	}

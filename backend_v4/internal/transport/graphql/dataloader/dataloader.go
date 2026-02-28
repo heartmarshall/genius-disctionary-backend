@@ -49,7 +49,7 @@ type imageRepo interface {
 }
 
 type cardRepo interface {
-	GetByEntryIDs(ctx context.Context, entryIDs []uuid.UUID) ([]domain.Card, error)
+	GetByEntryIDs(ctx context.Context, userID uuid.UUID, entryIDs []uuid.UUID) ([]domain.Card, error)
 }
 
 type topicRepo interface {

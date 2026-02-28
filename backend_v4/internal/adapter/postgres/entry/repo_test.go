@@ -66,15 +66,15 @@ func linkEntryTopic(t *testing.T, pool *pgxpool.Pool, entryID, topicID uuid.UUID
 }
 
 // seedCard creates a card for the given entry.
-func seedCard(t *testing.T, pool *pgxpool.Pool, userID, entryID uuid.UUID, status domain.LearningStatus) uuid.UUID {
+func seedCard(t *testing.T, pool *pgxpool.Pool, userID, entryID uuid.UUID, state domain.CardState) uuid.UUID {
 	t.Helper()
 	ctx := context.Background()
 	id := uuid.New()
 	now := time.Now().UTC().Truncate(time.Microsecond)
 	_, err := pool.Exec(ctx,
-		`INSERT INTO cards (id, user_id, entry_id, status, learning_step, interval_days, ease_factor, created_at, updated_at)
-		 VALUES ($1, $2, $3, $4, 0, 0, 2.5, $5, $6)`,
-		id, userID, entryID, string(status), now, now,
+		`INSERT INTO cards (id, user_id, entry_id, state, step, stability, difficulty, due, created_at, updated_at)
+		 VALUES ($1, $2, $3, $4, 0, 0, 0, $5, $5, $6)`,
+		id, userID, entryID, string(state), now, now,
 	)
 	if err != nil {
 		t.Fatalf("seedCard: %v", err)
@@ -969,7 +969,7 @@ func TestRepo_Find_HasCardFilter(t *testing.T) {
 	// Entry with card.
 	eWithCard := buildEntry(user.ID, "hascard-yes-"+suffix, nil)
 	cWithCard, _ := repo.Create(ctx, &eWithCard)
-	seedCard(t, pool, user.ID, cWithCard.ID, domain.LearningStatusNew)
+	seedCard(t, pool, user.ID, cWithCard.ID, domain.CardStateNew)
 
 	// Entry without card.
 	eNoCard := buildEntry(user.ID, "hascard-no-"+suffix, nil)
@@ -1084,15 +1084,15 @@ func TestRepo_Find_StatusFilter(t *testing.T) {
 	// Entry with NEW card.
 	eNew := buildEntry(user.ID, "status-new-"+suffix, nil)
 	cNew, _ := repo.Create(ctx, &eNew)
-	seedCard(t, pool, user.ID, cNew.ID, domain.LearningStatusNew)
+	seedCard(t, pool, user.ID, cNew.ID, domain.CardStateNew)
 
 	// Entry with LEARNING card.
 	eLearning := buildEntry(user.ID, "status-learning-"+suffix, nil)
 	cLearning, _ := repo.Create(ctx, &eLearning)
-	seedCard(t, pool, user.ID, cLearning.ID, domain.LearningStatusLearning)
+	seedCard(t, pool, user.ID, cLearning.ID, domain.CardStateLearning)
 
 	// Filter: NEW.
-	statusNew := domain.LearningStatusNew
+	statusNew := domain.CardStateNew
 	search := suffix
 	_, totalCount, err := repo.Find(ctx, user.ID, domain.EntryFilter{Status: &statusNew, Search: &search})
 	if err != nil {
@@ -1119,7 +1119,7 @@ func TestRepo_Find_CombinedFilters(t *testing.T) {
 	// Entry that matches ALL filters: has card (NEW), is NOUN, in topic.
 	eMatch := buildEntry(user.ID, "combined-match-"+suffix, nil)
 	cMatch, _ := repo.Create(ctx, &eMatch)
-	seedCard(t, pool, user.ID, cMatch.ID, domain.LearningStatusNew)
+	seedCard(t, pool, user.ID, cMatch.ID, domain.CardStateNew)
 	posNoun := domain.PartOfSpeechNoun
 	seedSense(t, pool, cMatch.ID, &posNoun)
 	linkEntryTopic(t, pool, cMatch.ID, topicID)
@@ -1132,7 +1132,7 @@ func TestRepo_Find_CombinedFilters(t *testing.T) {
 
 	hasCard := true
 	pos := domain.PartOfSpeechNoun
-	status := domain.LearningStatusNew
+	status := domain.CardStateNew
 	search := suffix
 
 	entries, totalCount, err := repo.Find(ctx, user.ID, domain.EntryFilter{

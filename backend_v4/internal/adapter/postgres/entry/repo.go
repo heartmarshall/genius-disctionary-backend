@@ -602,7 +602,7 @@ func buildBaseWhere(userID uuid.UUID, f domain.EntryFilter) sq.And {
 
 	if f.Status != nil {
 		where = append(where, sq.Expr(
-			"EXISTS (SELECT 1 FROM cards WHERE cards.entry_id = entries.id AND cards.status = ?)",
+			"EXISTS (SELECT 1 FROM cards WHERE cards.entry_id = entries.id AND cards.state = ?)",
 			string(*f.Status),
 		))
 	}

@@ -5,10 +5,15 @@
 type Card {
   id: UUID!
   entryId: UUID!
-  status: LearningStatus!
-  nextReviewAt: DateTime
-  intervalDays: Int!
-  easeFactor: Float!
+  state: CardState!
+  step: Int!
+  stability: Float!
+  difficulty: Float!
+  due: DateTime!
+  lastReview: DateTime
+  scheduledDays: Int!
+  reps: Int!
+  lapses: Int!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -17,8 +22,17 @@ type ReviewLog {
   id: UUID!
   cardId: UUID!
   grade: ReviewGrade!
+  prevState: CardSnapshotOutput
   durationMs: Int
   reviewedAt: DateTime!
+}
+
+type CardSnapshotOutput {
+  state: CardState!
+  step: Int!
+  stability: Float!
+  difficulty: Float!
+  scheduledDays: Int!
 }
 
 type StudySession {
@@ -31,8 +45,11 @@ type StudySession {
 
 type SessionResult {
   totalReviews: Int!
+  newReviewed: Int!
+  dueReviewed: Int!
   gradeCounts: GradeCounts!
-  averageDurationMs: Int!
+  totalDurationMs: Int!
+  accuracyRate: Float!
 }
 
 type GradeCounts {
@@ -46,6 +63,7 @@ type Dashboard {
   dueCount: Int!
   newCount: Int!
   reviewedToday: Int!
+  newToday: Int!
   streak: Int!
   statusCounts: CardStatusCounts!
   overdueCount: Int!
@@ -56,14 +74,19 @@ type CardStatusCounts {
   new: Int!
   learning: Int!
   review: Int!
-  mastered: Int!
+  relearning: Int!
+  total: Int!
 }
 
 type CardStats {
   totalReviews: Int!
   averageDurationMs: Int!
   accuracy: Float!
-  gradeDistribution: GradeCounts!
+  currentState: CardState!
+  stability: Float!
+  difficulty: Float!
+  scheduledDays: Int!
+  gradeDistribution: GradeCounts
 }
 
 # ============================================================
@@ -74,10 +97,6 @@ input ReviewCardInput {
   cardId: UUID!
   grade: ReviewGrade!
   durationMs: Int
-}
-
-input FinishSessionInput {
-  sessionId: UUID!
 }
 
 input GetCardHistoryInput {
@@ -108,7 +127,8 @@ type DeleteCardPayload {
 
 type BatchCreateCardsPayload {
   createdCount: Int!
-  skippedCount: Int!
+  skippedExisting: Int!
+  skippedNoSenses: Int!
   errors: [BatchCreateCardError!]!
 }
 
@@ -129,6 +149,11 @@ type AbandonSessionPayload {
   success: Boolean!
 }
 
+type CardHistoryPayload {
+  logs: [ReviewLog!]!
+  totalCount: Int!
+}
+
 # ============================================================
 #  QUERIES — Study
 # ============================================================
@@ -141,7 +166,7 @@ extend type Query {
   dashboard: Dashboard!
 
   """История повторений карточки."""
-  cardHistory(input: GetCardHistoryInput!): [ReviewLog!]!
+  cardHistory(input: GetCardHistoryInput!): CardHistoryPayload!
 
   """Статистика карточки: accuracy, grade distribution."""
   cardStats(cardId: UUID!): CardStats!
@@ -158,6 +183,6 @@ extend type Mutation {
   deleteCard(id: UUID!): DeleteCardPayload!
   batchCreateCards(entryIds: [UUID!]!): BatchCreateCardsPayload!
   startStudySession: StartSessionPayload!
-  finishStudySession(input: FinishSessionInput!): FinishSessionPayload!
+  finishStudySession: FinishSessionPayload!
   abandonStudySession: AbandonSessionPayload!
 }

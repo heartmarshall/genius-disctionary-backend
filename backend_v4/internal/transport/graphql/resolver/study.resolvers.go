@@ -28,19 +28,6 @@ func (r *cardStatsResolver) Accuracy(ctx context.Context, obj *domain.CardStats)
 	return obj.AccuracyRate, nil
 }
 
-// ActiveSession is the resolver for the activeSession field.
-func (r *dashboardResolver) ActiveSession(ctx context.Context, obj *domain.Dashboard) (*domain.StudySession, error) {
-	if obj.ActiveSession == nil {
-		return nil, nil
-	}
-
-	session, err := r.study.GetActiveSession(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return session, nil
-}
-
 // ReviewCard is the resolver for the reviewCard field.
 func (r *mutationResolver) ReviewCard(ctx context.Context, input generated.ReviewCardInput) (*generated.ReviewCardPayload, error) {
 	_, ok := ctxutil.UserIDFromCtx(ctx)
@@ -123,8 +110,6 @@ func (r *mutationResolver) BatchCreateCards(ctx context.Context, entryIds []uuid
 		return nil, err
 	}
 
-	skippedCount := result.SkippedExisting + result.SkippedNoSenses
-
 	errors := make([]*generated.BatchCreateCardError, len(result.Errors))
 	for i, e := range result.Errors {
 		errors[i] = &generated.BatchCreateCardError{
@@ -134,9 +119,10 @@ func (r *mutationResolver) BatchCreateCards(ctx context.Context, entryIds []uuid
 	}
 
 	return &generated.BatchCreateCardsPayload{
-		CreatedCount: result.Created,
-		SkippedCount: skippedCount,
-		Errors:       errors,
+		CreatedCount:    result.Created,
+		SkippedExisting: result.SkippedExisting,
+		SkippedNoSenses: result.SkippedNoSenses,
+		Errors:          errors,
 	}, nil
 }
 
@@ -156,14 +142,13 @@ func (r *mutationResolver) StartStudySession(ctx context.Context) (*generated.St
 }
 
 // FinishStudySession is the resolver for the finishStudySession field.
-func (r *mutationResolver) FinishStudySession(ctx context.Context, input generated.FinishSessionInput) (*generated.FinishSessionPayload, error) {
+func (r *mutationResolver) FinishStudySession(ctx context.Context) (*generated.FinishSessionPayload, error) {
 	_, ok := ctxutil.UserIDFromCtx(ctx)
 	if !ok {
 		return nil, domain.ErrUnauthorized
 	}
 
-	serviceInput := study.FinishSessionInput{SessionID: input.SessionID}
-	session, err := r.study.FinishSession(ctx, serviceInput)
+	session, err := r.study.FinishActiveSession(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -193,7 +178,7 @@ func (r *queryResolver) StudyQueue(ctx context.Context, limit *int) ([]*domain.E
 		return nil, domain.ErrUnauthorized
 	}
 
-	l := 20
+	l := 50
 	if limit != nil {
 		l = *limit
 	}
@@ -218,7 +203,7 @@ func (r *queryResolver) Dashboard(ctx context.Context) (*domain.Dashboard, error
 }
 
 // CardHistory is the resolver for the cardHistory field.
-func (r *queryResolver) CardHistory(ctx context.Context, input generated.GetCardHistoryInput) ([]*domain.ReviewLog, error) {
+func (r *queryResolver) CardHistory(ctx context.Context, input generated.GetCardHistoryInput) (*generated.CardHistoryPayload, error) {
 	_, ok := ctxutil.UserIDFromCtx(ctx)
 	if !ok {
 		return nil, domain.ErrUnauthorized
@@ -240,12 +225,15 @@ func (r *queryResolver) CardHistory(ctx context.Context, input generated.GetCard
 		Offset: offset,
 	}
 
-	logs, _, err := r.study.GetCardHistory(ctx, serviceInput)
+	logs, total, err := r.study.GetCardHistory(ctx, serviceInput)
 	if err != nil {
 		return nil, err
 	}
 
-	return logs, nil
+	return &generated.CardHistoryPayload{
+		Logs:       logs,
+		TotalCount: total,
+	}, nil
 }
 
 // CardStats is the resolver for the cardStats field.
@@ -264,25 +252,39 @@ func (r *queryResolver) CardStats(ctx context.Context, cardID uuid.UUID) (*domai
 	return &stats, nil
 }
 
+// PrevState is the resolver for the prevState field.
+func (r *reviewLogResolver) PrevState(ctx context.Context, obj *domain.ReviewLog) (*generated.CardSnapshotOutput, error) {
+	if obj.PrevState == nil {
+		return nil, nil
+	}
+	return &generated.CardSnapshotOutput{
+		State:         obj.PrevState.State,
+		Step:          obj.PrevState.Step,
+		Stability:     obj.PrevState.Stability,
+		Difficulty:    obj.PrevState.Difficulty,
+		ScheduledDays: obj.PrevState.ScheduledDays,
+	}, nil
+}
+
 // TotalReviews is the resolver for the totalReviews field.
 func (r *sessionResultResolver) TotalReviews(ctx context.Context, obj *domain.SessionResult) (int, error) {
 	return obj.TotalReviewed, nil
 }
 
-// AverageDurationMs is the resolver for the averageDurationMs field.
-func (r *sessionResultResolver) AverageDurationMs(ctx context.Context, obj *domain.SessionResult) (int, error) {
+// TotalDurationMs is the resolver for the totalDurationMs field.
+func (r *sessionResultResolver) TotalDurationMs(ctx context.Context, obj *domain.SessionResult) (int, error) {
 	return int(obj.DurationMs), nil
 }
 
 // CardStats returns generated.CardStatsResolver implementation.
 func (r *Resolver) CardStats() generated.CardStatsResolver { return &cardStatsResolver{r} }
 
-// Dashboard returns generated.DashboardResolver implementation.
-func (r *Resolver) Dashboard() generated.DashboardResolver { return &dashboardResolver{r} }
+// ReviewLog returns generated.ReviewLogResolver implementation.
+func (r *Resolver) ReviewLog() generated.ReviewLogResolver { return &reviewLogResolver{r} }
 
 // SessionResult returns generated.SessionResultResolver implementation.
 func (r *Resolver) SessionResult() generated.SessionResultResolver { return &sessionResultResolver{r} }
 
 type cardStatsResolver struct{ *Resolver }
-type dashboardResolver struct{ *Resolver }
+type reviewLogResolver struct{ *Resolver }
 type sessionResultResolver struct{ *Resolver }

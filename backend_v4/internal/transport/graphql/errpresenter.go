@@ -18,42 +18,34 @@ func NewErrorPresenter(log *slog.Logger) graphql.ErrorPresenterFunc {
 		// Get original error (gqlgen wraps errors)
 		gqlErr := graphql.DefaultErrorPresenter(ctx, err)
 
-		// Unwrap to domain error
-		var origErr error
-		if unwrapped := errors.Unwrap(err); unwrapped != nil {
-			origErr = unwrapped
-		} else {
-			origErr = err
-		}
-
 		switch {
-		case errors.Is(origErr, domain.ErrNotFound):
+		case errors.Is(err, domain.ErrNotFound):
 			gqlErr.Extensions = map[string]interface{}{"code": "NOT_FOUND"}
 
-		case errors.Is(origErr, domain.ErrAlreadyExists):
+		case errors.Is(err, domain.ErrAlreadyExists):
 			gqlErr.Extensions = map[string]interface{}{"code": "ALREADY_EXISTS"}
 
-		case errors.Is(origErr, domain.ErrValidation):
+		case errors.Is(err, domain.ErrValidation):
 			gqlErr.Extensions = map[string]interface{}{"code": "VALIDATION"}
 			var ve *domain.ValidationError
 			if errors.As(err, &ve) {
 				gqlErr.Extensions["fields"] = ve.Errors
 			}
 
-		case errors.Is(origErr, domain.ErrUnauthorized):
+		case errors.Is(err, domain.ErrUnauthorized):
 			gqlErr.Extensions = map[string]interface{}{"code": "UNAUTHENTICATED"}
 
-		case errors.Is(origErr, domain.ErrForbidden):
+		case errors.Is(err, domain.ErrForbidden):
 			gqlErr.Extensions = map[string]interface{}{"code": "FORBIDDEN"}
 
-		case errors.Is(origErr, domain.ErrConflict):
+		case errors.Is(err, domain.ErrConflict):
 			gqlErr.Extensions = map[string]interface{}{"code": "CONFLICT"}
 
 		default:
 			// Unexpected error - log it, return generic message to client
 			requestID := ctxutil.RequestIDFromCtx(ctx)
 			log.ErrorContext(ctx, "unexpected GraphQL error",
-				slog.String("error", origErr.Error()),
+				slog.String("error", err.Error()),
 				slog.String("request_id", requestID),
 			)
 			gqlErr.Message = "internal error"

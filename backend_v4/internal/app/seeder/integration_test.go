@@ -45,6 +45,7 @@ import (
 	inboxsvc "github.com/heartmarshall/myenglish-backend/internal/service/inbox"
 	"github.com/heartmarshall/myenglish-backend/internal/service/refcatalog"
 	"github.com/heartmarshall/myenglish-backend/internal/service/study"
+	"github.com/heartmarshall/myenglish-backend/internal/service/study/fsrs"
 	topicsvc "github.com/heartmarshall/myenglish-backend/internal/service/topic"
 	usersvc "github.com/heartmarshall/myenglish-backend/internal/service/user"
 	gqlpkg "github.com/heartmarshall/myenglish-backend/internal/transport/graphql"
@@ -507,7 +508,6 @@ func setupGraphQLServer(t *testing.T, pool *pgxpool.Pool, txm *postgres.TxManage
 		pronunciationRepo, imageRepo, cardRepo, auditRepo, txm,
 		refCatalogService, config.DictionaryConfig{
 			MaxEntriesPerUser: 10000,
-			DefaultEaseFactor: 2.5,
 		},
 	)
 
@@ -517,26 +517,23 @@ func setupGraphQLServer(t *testing.T, pool *pgxpool.Pool, txm *postgres.TxManage
 	)
 
 	srsConfig := domain.SRSConfig{
-		DefaultEaseFactor:    2.5,
-		MinEaseFactor:        1.3,
-		MaxIntervalDays:      365,
-		GraduatingInterval:   1,
-		LearningSteps:        []time.Duration{time.Minute, 10 * time.Minute},
-		NewCardsPerDay:       20,
-		ReviewsPerDay:        200,
-		EasyInterval:         4,
-		RelearningSteps:      []time.Duration{10 * time.Minute},
-		IntervalModifier:     1.0,
-		HardIntervalModifier: 1.2,
-		EasyBonus:            1.3,
-		LapseNewInterval:     0.0,
-		UndoWindowMinutes:    10,
+		DefaultRetention:  0.9,
+		MaxIntervalDays:   365,
+		EnableFuzz:        true,
+		LearningSteps:     []time.Duration{time.Minute, 10 * time.Minute},
+		RelearningSteps:   []time.Duration{10 * time.Minute},
+		NewCardsPerDay:    20,
+		ReviewsPerDay:     200,
+		UndoWindowMinutes: 10,
 	}
 
-	studyService := study.NewService(
+	studyService, err := study.NewService(
 		logger, cardRepo, reviewlogRepo, sessionRepo, entryRepo,
-		senseRepo, userRepo, auditRepo, txm, srsConfig,
+		senseRepo, userRepo, auditRepo, txm, srsConfig, fsrs.DefaultWeights,
 	)
+	if err != nil {
+		t.Fatalf("create study service: %v", err)
+	}
 
 	topicService := topicsvc.NewService(logger, topicRepo, entryRepo, auditRepo, txm)
 	inboxService := inboxsvc.NewService(logger, inboxRepo)

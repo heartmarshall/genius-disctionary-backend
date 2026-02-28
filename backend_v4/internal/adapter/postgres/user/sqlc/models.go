@@ -56,6 +56,50 @@ func (ns NullAuditAction) Value() (driver.Value, error) {
 	return string(ns.AuditAction), nil
 }
 
+type CardState string
+
+const (
+	CardStateNEW        CardState = "NEW"
+	CardStateLEARNING   CardState = "LEARNING"
+	CardStateREVIEW     CardState = "REVIEW"
+	CardStateRELEARNING CardState = "RELEARNING"
+)
+
+func (e *CardState) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = CardState(s)
+	case string:
+		*e = CardState(s)
+	default:
+		return fmt.Errorf("unsupported scan type for CardState: %T", src)
+	}
+	return nil
+}
+
+type NullCardState struct {
+	CardState CardState
+	Valid     bool // Valid is true if CardState is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullCardState) Scan(value interface{}) error {
+	if value == nil {
+		ns.CardState, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.CardState.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullCardState) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.CardState), nil
+}
+
 type EntityType string
 
 const (
@@ -102,50 +146,6 @@ func (ns NullEntityType) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	return string(ns.EntityType), nil
-}
-
-type LearningStatus string
-
-const (
-	LearningStatusNEW      LearningStatus = "NEW"
-	LearningStatusLEARNING LearningStatus = "LEARNING"
-	LearningStatusREVIEW   LearningStatus = "REVIEW"
-	LearningStatusMASTERED LearningStatus = "MASTERED"
-)
-
-func (e *LearningStatus) Scan(src interface{}) error {
-	switch s := src.(type) {
-	case []byte:
-		*e = LearningStatus(s)
-	case string:
-		*e = LearningStatus(s)
-	default:
-		return fmt.Errorf("unsupported scan type for LearningStatus: %T", src)
-	}
-	return nil
-}
-
-type NullLearningStatus struct {
-	LearningStatus LearningStatus
-	Valid          bool // Valid is true if LearningStatus is not NULL
-}
-
-// Scan implements the Scanner interface.
-func (ns *NullLearningStatus) Scan(value interface{}) error {
-	if value == nil {
-		ns.LearningStatus, ns.Valid = "", false
-		return nil
-	}
-	ns.Valid = true
-	return ns.LearningStatus.Scan(value)
-}
-
-// Value implements the driver Valuer interface.
-func (ns NullLearningStatus) Value() (driver.Value, error) {
-	if !ns.Valid {
-		return nil, nil
-	}
-	return string(ns.LearningStatus), nil
 }
 
 type PartOfSpeech string
@@ -264,16 +264,21 @@ type AuthMethod struct {
 }
 
 type Card struct {
-	ID           uuid.UUID
-	UserID       uuid.UUID
-	EntryID      uuid.UUID
-	Status       LearningStatus
-	LearningStep int32
-	NextReviewAt *time.Time
-	IntervalDays int32
-	EaseFactor   float64
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
+	ID            uuid.UUID
+	UserID        uuid.UUID
+	EntryID       uuid.UUID
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	State         CardState
+	Step          int32
+	Stability     float64
+	Difficulty    float64
+	Due           time.Time
+	LastReview    *time.Time
+	Reps          int32
+	Lapses        int32
+	ScheduledDays int32
+	ElapsedDays   int32
 }
 
 type EnrichmentQueue struct {
@@ -433,6 +438,7 @@ type ReviewLog struct {
 	PrevState  []byte
 	DurationMs pgtype.Int4
 	ReviewedAt time.Time
+	UserID     uuid.UUID
 }
 
 type Sense struct {
@@ -495,10 +501,11 @@ type UserImage struct {
 }
 
 type UserSetting struct {
-	UserID          uuid.UUID
-	NewCardsPerDay  int32
-	ReviewsPerDay   int32
-	MaxIntervalDays int32
-	Timezone        string
-	UpdatedAt       time.Time
+	UserID           uuid.UUID
+	NewCardsPerDay   int32
+	ReviewsPerDay    int32
+	MaxIntervalDays  int32
+	Timezone         string
+	UpdatedAt        time.Time
+	DesiredRetention float64
 }

@@ -2,33 +2,33 @@ package domain
 
 import "testing"
 
-func TestLearningStatus_IsValid(t *testing.T) {
+func TestCardState_IsValid(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		status LearningStatus
-		want   bool
+		state CardState
+		want  bool
 	}{
-		{LearningStatusNew, true},
-		{LearningStatusLearning, true},
-		{LearningStatusReview, true},
-		{LearningStatusMastered, true},
-		{LearningStatus("INVALID"), false},
-		{LearningStatus(""), false},
+		{CardStateNew, true},
+		{CardStateLearning, true},
+		{CardStateReview, true},
+		{CardStateRelearning, true},
+		{CardState("INVALID"), false},
+		{CardState(""), false},
 	}
 	for _, tt := range tests {
-		t.Run(string(tt.status), func(t *testing.T) {
+		t.Run(string(tt.state), func(t *testing.T) {
 			t.Parallel()
-			if got := tt.status.IsValid(); got != tt.want {
-				t.Errorf("LearningStatus(%q).IsValid() = %v, want %v", tt.status, got, tt.want)
+			if got := tt.state.IsValid(); got != tt.want {
+				t.Errorf("CardState(%q).IsValid() = %v, want %v", tt.state, got, tt.want)
 			}
 		})
 	}
 }
 
-func TestLearningStatus_String(t *testing.T) {
+func TestCardState_String(t *testing.T) {
 	t.Parallel()
-	if got := LearningStatusNew.String(); got != "NEW" {
+	if got := CardStateNew.String(); got != "NEW" {
 		t.Errorf("got %q, want NEW", got)
 	}
 }

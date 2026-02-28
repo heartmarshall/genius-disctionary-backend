@@ -85,10 +85,16 @@ WHERE c.user_id = $1 AND e.deleted_at IS NULL
   AND c.state IN ('LEARNING', 'RELEARNING', 'REVIEW')
   AND c.due < $2`
 
+var getByIDForUpdateSQL = `
+SELECT ` + cardColumns + `
+FROM cards c
+WHERE c.id = $1 AND c.user_id = $2
+FOR UPDATE`
+
 var getByEntryIDsSQL = `
 SELECT ` + cardColumns + `
 FROM cards c
-WHERE c.entry_id = ANY($1::uuid[])`
+WHERE c.entry_id = ANY($1::uuid[]) AND c.user_id = $2`
 
 const existsByEntryIDsSQL = `
 SELECT entry_id FROM cards WHERE user_id = $1 AND entry_id = ANY($2::uuid[])`
@@ -113,6 +119,48 @@ func (r *Repo) GetByID(ctx context.Context, userID, cardID uuid.UUID) (*domain.C
 	return &c, nil
 }
 
+// GetByIDForUpdate returns a card with a FOR UPDATE lock (must be called within a transaction).
+func (r *Repo) GetByIDForUpdate(ctx context.Context, userID, cardID uuid.UUID) (*domain.Card, error) {
+	querier := postgres.QuerierFromCtx(ctx, r.pool)
+
+	row := querier.QueryRow(ctx, getByIDForUpdateSQL, cardID, userID)
+
+	var (
+		id            uuid.UUID
+		uid           uuid.UUID
+		entryID       uuid.UUID
+		state         string
+		step          int32
+		stability     float64
+		difficulty    float64
+		due           time.Time
+		lastReview    *time.Time
+		reps          int32
+		lapses        int32
+		scheduledDays int32
+		elapsedDays   int32
+		createdAt     time.Time
+		updatedAt     time.Time
+	)
+
+	if err := row.Scan(&id, &uid, &entryID, &state, &step, &stability, &difficulty,
+		&due, &lastReview, &reps, &lapses, &scheduledDays, &elapsedDays,
+		&createdAt, &updatedAt); err != nil {
+		return nil, mapError(err, "card", cardID)
+	}
+
+	c := domain.Card{
+		ID: id, UserID: uid, EntryID: entryID,
+		State: domain.CardState(state), Step: int(step),
+		Stability: stability, Difficulty: difficulty,
+		Due: due, LastReview: lastReview,
+		Reps: int(reps), Lapses: int(lapses),
+		ScheduledDays: int(scheduledDays), ElapsedDays: int(elapsedDays),
+		CreatedAt: createdAt, UpdatedAt: updatedAt,
+	}
+	return &c, nil
+}
+
 // GetByEntryID returns a card by entry_id filtered by user_id.
 func (r *Repo) GetByEntryID(ctx context.Context, userID, entryID uuid.UUID) (*domain.Card, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
@@ -130,14 +178,14 @@ func (r *Repo) GetByEntryID(ctx context.Context, userID, entryID uuid.UUID) (*do
 }
 
 // GetByEntryIDs returns cards for multiple entries (batch for DataLoader).
-func (r *Repo) GetByEntryIDs(ctx context.Context, entryIDs []uuid.UUID) ([]domain.Card, error) {
+func (r *Repo) GetByEntryIDs(ctx context.Context, userID uuid.UUID, entryIDs []uuid.UUID) ([]domain.Card, error) {
 	if len(entryIDs) == 0 {
 		return []domain.Card{}, nil
 	}
 
 	querier := postgres.QuerierFromCtx(ctx, r.pool)
 
-	rows, err := querier.Query(ctx, getByEntryIDsSQL, entryIDs)
+	rows, err := querier.Query(ctx, getByEntryIDsSQL, entryIDs, userID)
 	if err != nil {
 		return nil, fmt.Errorf("get cards by entry_ids: %w", err)
 	}
@@ -318,7 +366,7 @@ func (r *Repo) Create(ctx context.Context, userID, entryID uuid.UUID) (*domain.C
 func (r *Repo) UpdateSRS(ctx context.Context, userID, cardID uuid.UUID, params domain.SRSUpdateParams) (*domain.Card, error) {
 	q := sqlc.New(postgres.QuerierFromCtx(ctx, r.pool))
 
-	rowsAffected, err := q.UpdateCardSRS(ctx, sqlc.UpdateCardSRSParams{
+	row, err := q.UpdateCardSRS(ctx, sqlc.UpdateCardSRSParams{
 		ID:            cardID,
 		UserID:        userID,
 		State:         sqlc.CardState(params.State),
@@ -333,14 +381,14 @@ func (r *Repo) UpdateSRS(ctx context.Context, userID, cardID uuid.UUID, params d
 		ElapsedDays:   int32(params.ElapsedDays),
 	})
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, fmt.Errorf("card %s: %w", cardID, domain.ErrNotFound)
+		}
 		return nil, mapError(err, "card", cardID)
 	}
 
-	if rowsAffected == 0 {
-		return nil, fmt.Errorf("card %s: %w", cardID, domain.ErrNotFound)
-	}
-
-	return r.GetByID(ctx, userID, cardID)
+	c := toDomainCard(fromUpdateSRSRow(row))
+	return &c, nil
 }
 
 // Delete removes a card by ID.
@@ -465,6 +513,16 @@ func fromGetByIDRow(r sqlc.GetCardByIDRow) sqlc.Card {
 }
 
 func fromGetByEntryIDRow(r sqlc.GetCardByEntryIDRow) sqlc.Card {
+	return sqlc.Card{
+		ID: r.ID, UserID: r.UserID, EntryID: r.EntryID,
+		State: r.State, Step: r.Step, Stability: r.Stability, Difficulty: r.Difficulty,
+		Due: r.Due, LastReview: r.LastReview, Reps: r.Reps, Lapses: r.Lapses,
+		ScheduledDays: r.ScheduledDays, ElapsedDays: r.ElapsedDays,
+		CreatedAt: r.CreatedAt, UpdatedAt: r.UpdatedAt,
+	}
+}
+
+func fromUpdateSRSRow(r sqlc.UpdateCardSRSRow) sqlc.Card {
 	return sqlc.Card{
 		ID: r.ID, UserID: r.UserID, EntryID: r.EntryID,
 		State: r.State, Step: r.Step, Stability: r.Stability, Difficulty: r.Difficulty,

@@ -2,11 +2,13 @@ package study
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
+	"github.com/heartmarshall/myenglish-backend/internal/service/study/fsrs"
 )
 
 // ---------------------------------------------------------------------------
@@ -15,6 +17,7 @@ import (
 
 type cardRepo interface {
 	GetByID(ctx context.Context, userID, cardID uuid.UUID) (*domain.Card, error)
+	GetByIDForUpdate(ctx context.Context, userID, cardID uuid.UUID) (*domain.Card, error)
 	GetByEntryID(ctx context.Context, userID, entryID uuid.UUID) (*domain.Card, error)
 	Create(ctx context.Context, userID, entryID uuid.UUID) (*domain.Card, error)
 	UpdateSRS(ctx context.Context, userID, cardID uuid.UUID, params domain.SRSUpdateParams) (*domain.Card, error)
@@ -35,7 +38,7 @@ type reviewLogRepo interface {
 	Delete(ctx context.Context, id uuid.UUID) error
 	CountToday(ctx context.Context, userID uuid.UUID, dayStart time.Time) (int, error)
 	CountNewToday(ctx context.Context, userID uuid.UUID, dayStart time.Time) (int, error)
-	GetStreakDays(ctx context.Context, userID uuid.UUID, dayStart time.Time, lastNDays int) ([]domain.DayReviewCount, error)
+	GetStreakDays(ctx context.Context, userID uuid.UUID, dayStart time.Time, lastNDays int, timezone string) ([]domain.DayReviewCount, error)
 	GetByPeriod(ctx context.Context, userID uuid.UUID, from, to time.Time) ([]*domain.ReviewLog, error)
 	GetStatsByCardID(ctx context.Context, cardID uuid.UUID) (domain.ReviewLogAggregation, error)
 }
@@ -104,7 +107,11 @@ func NewService(
 	tx txManager,
 	srsConfig domain.SRSConfig,
 	fsrsWeights [19]float64,
-) *Service {
+) (*Service, error) {
+	if err := fsrs.ValidateWeights(fsrsWeights); err != nil {
+		return nil, fmt.Errorf("invalid FSRS weights: %w", err)
+	}
+
 	return &Service{
 		cards:       cards,
 		reviews:     reviews,
@@ -117,5 +124,5 @@ func NewService(
 		log:         log.With("service", "study"),
 		srsConfig:   srsConfig,
 		fsrsWeights: fsrsWeights,
-	}
+	}, nil
 }

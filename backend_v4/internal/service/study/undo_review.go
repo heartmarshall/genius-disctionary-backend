@@ -23,51 +23,54 @@ func (s *Service) UndoReview(ctx context.Context, input UndoReviewInput) (*domai
 	}
 
 	now := time.Now()
-
-	// Load card
-	card, err := s.cards.GetByID(ctx, userID, input.CardID)
-	if err != nil {
-		return nil, fmt.Errorf("get card: %w", err)
-	}
-
-	// Load last review log
-	lastLog, err := s.reviews.GetLastByCardID(ctx, input.CardID)
-	if err != nil {
-		if errors.Is(err, domain.ErrNotFound) {
-			return nil, domain.NewValidationError("card_id", "card has no reviews to undo")
-		}
-		return nil, fmt.Errorf("get last review: %w", err)
-	}
-
-	// Check prev_state exists
-	if lastLog.PrevState == nil {
-		return nil, domain.NewValidationError("review", "review cannot be undone")
-	}
-
-	// Check undo window
-	undoWindow := time.Duration(s.srsConfig.UndoWindowMinutes) * time.Minute
-	if now.Sub(lastLog.ReviewedAt) > undoWindow {
-		return nil, domain.NewValidationError("review", "undo window expired")
-	}
-
 	var restoredCard *domain.Card
+	var undoneGrade domain.ReviewGrade
+	var restoredState domain.CardState
 
-	// Transaction: restore card + delete log + audit
-	err = s.tx.RunInTx(ctx, func(txCtx context.Context) error {
-		// Restore prev state (NextReviewAt might be nil for NEW cards)
-		var nextReview *time.Time
-		if lastLog.PrevState.NextReviewAt != nil {
-			t := *lastLog.PrevState.NextReviewAt
-			nextReview = &t
+	// Transaction: lock card, validate, restore, delete log, audit
+	err := s.tx.RunInTx(ctx, func(txCtx context.Context) error {
+		// Lock card row
+		card, cardErr := s.cards.GetByIDForUpdate(txCtx, userID, input.CardID)
+		if cardErr != nil {
+			return fmt.Errorf("get card: %w", cardErr)
 		}
+
+		// Load last review log
+		lastLog, logErr := s.reviews.GetLastByCardID(txCtx, input.CardID)
+		if logErr != nil {
+			if errors.Is(logErr, domain.ErrNotFound) {
+				return domain.NewValidationError("card_id", "card has no reviews to undo")
+			}
+			return fmt.Errorf("get last review: %w", logErr)
+		}
+
+		// Check prev_state exists
+		if lastLog.PrevState == nil {
+			return domain.NewValidationError("review", "review cannot be undone")
+		}
+
+		// Check undo window
+		undoWindow := time.Duration(s.srsConfig.UndoWindowMinutes) * time.Minute
+		if now.Sub(lastLog.ReviewedAt) > undoWindow {
+			return domain.NewValidationError("review", "undo window expired")
+		}
+
+		undoneGrade = lastLog.Grade
+		ps := lastLog.PrevState
+		restoredState = ps.State
 
 		var restoreErr error
 		restoredCard, restoreErr = s.cards.UpdateSRS(txCtx, userID, card.ID, domain.SRSUpdateParams{
-			Status:       lastLog.PrevState.Status,
-			NextReviewAt: nextReview,
-			IntervalDays: lastLog.PrevState.IntervalDays,
-			EaseFactor:   lastLog.PrevState.EaseFactor,
-			LearningStep: lastLog.PrevState.LearningStep,
+			State:         ps.State,
+			Step:          ps.Step,
+			Stability:     ps.Stability,
+			Difficulty:    ps.Difficulty,
+			Due:           ps.Due,
+			LastReview:    ps.LastReview,
+			Reps:          ps.Reps,
+			Lapses:        ps.Lapses,
+			ScheduledDays: ps.ScheduledDays,
+			ElapsedDays:   ps.ElapsedDays,
 		})
 		if restoreErr != nil {
 			return fmt.Errorf("restore card: %w", restoreErr)
@@ -86,9 +89,9 @@ func (s *Service) UndoReview(ctx context.Context, input UndoReviewInput) (*domai
 			Action:     domain.AuditActionUpdate,
 			Changes: map[string]any{
 				"undo": map[string]any{"old": lastLog.Grade},
-				"status": map[string]any{
-					"old": card.Status,
-					"new": lastLog.PrevState.Status,
+				"state": map[string]any{
+					"old": card.State,
+					"new": ps.State,
 				},
 			},
 		})
@@ -103,16 +106,15 @@ func (s *Service) UndoReview(ctx context.Context, input UndoReviewInput) (*domai
 		return nil, err
 	}
 
-	// Safety check: ensure card was actually restored
 	if restoredCard == nil {
 		return nil, fmt.Errorf("card restore failed: no result returned")
 	}
 
 	s.log.InfoContext(ctx, "review undone",
 		slog.String("user_id", userID.String()),
-		slog.String("card_id", card.ID.String()),
-		slog.String("undone_grade", string(lastLog.Grade)),
-		slog.String("restored_status", string(lastLog.PrevState.Status)),
+		slog.String("card_id", input.CardID.String()),
+		slog.String("undone_grade", string(undoneGrade)),
+		slog.String("restored_state", string(restoredState)),
 	)
 
 	return restoredCard, nil

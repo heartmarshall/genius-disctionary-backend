@@ -1,8 +1,8 @@
-enum LearningStatus {
+enum CardState {
   NEW
   LEARNING
   REVIEW
-  MASTERED
+  RELEARNING
 }
 
 enum ReviewGrade {

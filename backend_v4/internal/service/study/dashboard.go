@@ -7,7 +7,6 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
 	"github.com/heartmarshall/myenglish-backend/pkg/ctxutil"
 	"golang.org/x/sync/errgroup"
@@ -76,7 +75,7 @@ func (s *Service) GetDashboard(ctx context.Context) (domain.Dashboard, error) {
 	})
 	g.Go(func() error {
 		var gErr error
-		streakDays, gErr = s.reviews.GetStreakDays(gctx, userID, dayStart, 365)
+		streakDays, gErr = s.reviews.GetStreakDays(gctx, userID, dayStart, 365, settings.Timezone)
 		return gErr
 	})
 	g.Go(func() error {
@@ -97,11 +96,6 @@ func (s *Service) GetDashboard(ctx context.Context) (domain.Dashboard, error) {
 	today := time.Date(nowInTz.Year(), nowInTz.Month(), nowInTz.Day(), 0, 0, 0, 0, tz)
 	streak := calculateStreak(streakDays, today)
 
-	var activeSessionID *uuid.UUID
-	if activeSession != nil {
-		activeSessionID = &activeSession.ID
-	}
-
 	dashboard := domain.Dashboard{
 		DueCount:      dueCount,
 		NewCount:      newCount,
@@ -110,7 +104,7 @@ func (s *Service) GetDashboard(ctx context.Context) (domain.Dashboard, error) {
 		Streak:        streak,
 		StatusCounts:  statusCounts,
 		OverdueCount:  overdueCount,
-		ActiveSession: activeSessionID,
+		ActiveSession: activeSession,
 	}
 
 	s.log.InfoContext(ctx, "dashboard loaded",

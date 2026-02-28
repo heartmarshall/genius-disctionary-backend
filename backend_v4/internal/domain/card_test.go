@@ -13,73 +13,48 @@ func TestCard_IsDue(t *testing.T) {
 	future := now.Add(time.Hour)
 
 	tests := []struct {
-		name   string
-		card   Card
-		want   bool
+		name string
+		card Card
+		want bool
 	}{
 		{
-			name: "MASTERED card due when next_review_at in past",
-			card: Card{Status: LearningStatusMastered, NextReviewAt: &past},
+			name: "NEW card is always due",
+			card: Card{State: CardStateNew, Due: time.Time{}},
 			want: true,
 		},
 		{
-			name: "MASTERED card not due when next_review_at in future",
-			card: Card{Status: LearningStatusMastered, NextReviewAt: &future},
-			want: false,
-		},
-		{
-			name: "MASTERED with nil NextReviewAt is not due",
-			card: Card{Status: LearningStatusMastered, NextReviewAt: nil},
-			want: false,
-		},
-		{
-			name: "NEW with nil NextReviewAt is due",
-			card: Card{Status: LearningStatusNew, NextReviewAt: nil},
+			name: "REVIEW card due when Due in past",
+			card: Card{State: CardStateReview, Due: past},
 			want: true,
 		},
 		{
-			name: "NEW with past NextReviewAt is due",
-			card: Card{Status: LearningStatusNew, NextReviewAt: &past},
-			want: true,
-		},
-		{
-			name: "NEW with future NextReviewAt is not due",
-			card: Card{Status: LearningStatusNew, NextReviewAt: &future},
+			name: "REVIEW card not due when Due in future",
+			card: Card{State: CardStateReview, Due: future},
 			want: false,
 		},
 		{
-			name: "LEARNING with past NextReviewAt is due",
-			card: Card{Status: LearningStatusLearning, NextReviewAt: &past},
+			name: "REVIEW card due when Due equals now",
+			card: Card{State: CardStateReview, Due: now},
 			want: true,
 		},
 		{
-			name: "LEARNING with now NextReviewAt is due",
-			card: Card{Status: LearningStatusLearning, NextReviewAt: &now},
+			name: "LEARNING card due when Due in past",
+			card: Card{State: CardStateLearning, Due: past},
 			want: true,
 		},
 		{
-			name: "LEARNING with future NextReviewAt is not due",
-			card: Card{Status: LearningStatusLearning, NextReviewAt: &future},
+			name: "LEARNING card not due when Due in future",
+			card: Card{State: CardStateLearning, Due: future},
 			want: false,
 		},
 		{
-			name: "REVIEW with past NextReviewAt is due",
-			card: Card{Status: LearningStatusReview, NextReviewAt: &past},
+			name: "RELEARNING card due when Due in past",
+			card: Card{State: CardStateRelearning, Due: past},
 			want: true,
 		},
 		{
-			name: "REVIEW with future NextReviewAt is not due",
-			card: Card{Status: LearningStatusReview, NextReviewAt: &future},
-			want: false,
-		},
-		{
-			name: "LEARNING with nil NextReviewAt is not due",
-			card: Card{Status: LearningStatusLearning, NextReviewAt: nil},
-			want: false,
-		},
-		{
-			name: "REVIEW with nil NextReviewAt is not due",
-			card: Card{Status: LearningStatusReview, NextReviewAt: nil},
+			name: "RELEARNING card not due when Due in future",
+			card: Card{State: CardStateRelearning, Due: future},
 			want: false,
 		},
 	}

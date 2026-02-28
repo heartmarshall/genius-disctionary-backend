@@ -56,8 +56,8 @@ type imageRepo interface {
 }
 
 type cardRepo interface {
-	GetByEntryIDs(ctx context.Context, entryIDs []uuid.UUID) ([]domain.Card, error)
-	Create(ctx context.Context, userID, entryID uuid.UUID, status domain.LearningStatus, easeFactor float64) (*domain.Card, error)
+	GetByEntryIDs(ctx context.Context, userID uuid.UUID, entryIDs []uuid.UUID) ([]domain.Card, error)
+	Create(ctx context.Context, userID, entryID uuid.UUID) (*domain.Card, error)
 }
 
 type auditRepo interface {

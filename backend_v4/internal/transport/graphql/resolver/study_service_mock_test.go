@@ -78,6 +78,9 @@ type studyServiceMock struct {
 	// DeleteCardFunc mocks the DeleteCard method.
 	DeleteCardFunc func(ctx context.Context, input study.DeleteCardInput) error
 
+	// FinishActiveSessionFunc mocks the FinishActiveSession method.
+	FinishActiveSessionFunc func(ctx context.Context) (*domain.StudySession, error)
+
 	// FinishSessionFunc mocks the FinishSession method.
 	FinishSessionFunc func(ctx context.Context, input study.FinishSessionInput) (*domain.StudySession, error)
 
@@ -135,6 +138,11 @@ type studyServiceMock struct {
 			Ctx context.Context
 			// Input is the input argument value.
 			Input study.DeleteCardInput
+		}
+		// FinishActiveSession holds details about calls to the FinishActiveSession method.
+		FinishActiveSession []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 		}
 		// FinishSession holds details about calls to the FinishSession method.
 		FinishSession []struct {
@@ -205,7 +213,8 @@ type studyServiceMock struct {
 	lockBatchCreateCards sync.RWMutex
 	lockCreateCard       sync.RWMutex
 	lockDeleteCard       sync.RWMutex
-	lockFinishSession    sync.RWMutex
+	lockFinishActiveSession sync.RWMutex
+	lockFinishSession      sync.RWMutex
 	lockGetCardHistory   sync.RWMutex
 	lockGetCardStats     sync.RWMutex
 	lockGetActiveSession sync.RWMutex
@@ -354,6 +363,35 @@ func (mock *studyServiceMock) DeleteCardCalls() []struct {
 	mock.lockDeleteCard.RLock()
 	calls = mock.calls.DeleteCard
 	mock.lockDeleteCard.RUnlock()
+	return calls
+}
+
+// FinishActiveSession calls FinishActiveSessionFunc.
+func (mock *studyServiceMock) FinishActiveSession(ctx context.Context) (*domain.StudySession, error) {
+	if mock.FinishActiveSessionFunc == nil {
+		panic("studyServiceMock.FinishActiveSessionFunc: method is nil but studyService.FinishActiveSession was just called")
+	}
+	callInfo := struct {
+		Ctx context.Context
+	}{
+		Ctx: ctx,
+	}
+	mock.lockFinishActiveSession.Lock()
+	mock.calls.FinishActiveSession = append(mock.calls.FinishActiveSession, callInfo)
+	mock.lockFinishActiveSession.Unlock()
+	return mock.FinishActiveSessionFunc(ctx)
+}
+
+// FinishActiveSessionCalls gets all the calls that were made to FinishActiveSession.
+func (mock *studyServiceMock) FinishActiveSessionCalls() []struct {
+	Ctx context.Context
+} {
+	var calls []struct {
+		Ctx context.Context
+	}
+	mock.lockFinishActiveSession.RLock()
+	calls = mock.calls.FinishActiveSession
+	mock.lockFinishActiveSession.RUnlock()
 	return calls
 }
 

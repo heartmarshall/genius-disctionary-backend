@@ -83,7 +83,7 @@ func (s *Service) ExportEntries(ctx context.Context) (*ExportResult, error) {
 	}
 
 	// Batch load cards.
-	cards, err := s.cards.GetByEntryIDs(ctx, entryIDs)
+	cards, err := s.cards.GetByEntryIDs(ctx, userID, entryIDs)
 	if err != nil {
 		return nil, fmt.Errorf("get cards: %w", err)
 	}
@@ -103,7 +103,7 @@ func (s *Service) ExportEntries(ctx context.Context) (*ExportResult, error) {
 
 		// Card status.
 		if card, found := cardByEntry[entry.ID]; found {
-			status := card.Status
+			status := card.State
 			item.CardStatus = &status
 		}
 

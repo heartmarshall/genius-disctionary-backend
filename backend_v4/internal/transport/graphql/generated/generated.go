@@ -42,7 +42,6 @@ type Config struct {
 
 type ResolverRoot interface {
 	CardStats() CardStatsResolver
-	Dashboard() DashboardResolver
 	DictionaryEntry() DictionaryEntryResolver
 	EnrichmentQueueItem() EnrichmentQueueItemResolver
 	Mutation() MutationResolver
@@ -50,6 +49,7 @@ type ResolverRoot interface {
 	RefEntry() RefEntryResolver
 	RefEntrySourceCoverage() RefEntrySourceCoverageResolver
 	RefWordRelation() RefWordRelationResolver
+	ReviewLog() ReviewLogResolver
 	Sense() SenseResolver
 	SessionResult() SessionResultResolver
 	User() UserResolver
@@ -90,9 +90,10 @@ type ComplexityRoot struct {
 	}
 
 	BatchCreateCardsPayload struct {
-		CreatedCount func(childComplexity int) int
-		Errors       func(childComplexity int) int
-		SkippedCount func(childComplexity int) int
+		CreatedCount    func(childComplexity int) int
+		Errors          func(childComplexity int) int
+		SkippedExisting func(childComplexity int) int
+		SkippedNoSenses func(childComplexity int) int
 	}
 
 	BatchDeletePayload struct {
@@ -111,28 +112,51 @@ type ComplexityRoot struct {
 	}
 
 	Card struct {
-		CreatedAt    func(childComplexity int) int
-		EaseFactor   func(childComplexity int) int
-		EntryID      func(childComplexity int) int
-		ID           func(childComplexity int) int
-		IntervalDays func(childComplexity int) int
-		NextReviewAt func(childComplexity int) int
-		Status       func(childComplexity int) int
-		UpdatedAt    func(childComplexity int) int
+		CreatedAt     func(childComplexity int) int
+		Difficulty    func(childComplexity int) int
+		Due           func(childComplexity int) int
+		EntryID       func(childComplexity int) int
+		ID            func(childComplexity int) int
+		Lapses        func(childComplexity int) int
+		LastReview    func(childComplexity int) int
+		Reps          func(childComplexity int) int
+		ScheduledDays func(childComplexity int) int
+		Stability     func(childComplexity int) int
+		State         func(childComplexity int) int
+		Step          func(childComplexity int) int
+		UpdatedAt     func(childComplexity int) int
+	}
+
+	CardHistoryPayload struct {
+		Logs       func(childComplexity int) int
+		TotalCount func(childComplexity int) int
+	}
+
+	CardSnapshotOutput struct {
+		Difficulty    func(childComplexity int) int
+		ScheduledDays func(childComplexity int) int
+		Stability     func(childComplexity int) int
+		State         func(childComplexity int) int
+		Step          func(childComplexity int) int
 	}
 
 	CardStats struct {
 		Accuracy          func(childComplexity int) int
 		AverageDurationMs func(childComplexity int) int
+		CurrentState      func(childComplexity int) int
+		Difficulty        func(childComplexity int) int
 		GradeDistribution func(childComplexity int) int
+		ScheduledDays     func(childComplexity int) int
+		Stability         func(childComplexity int) int
 		TotalReviews      func(childComplexity int) int
 	}
 
 	CardStatusCounts struct {
-		Learning func(childComplexity int) int
-		Mastered func(childComplexity int) int
-		New      func(childComplexity int) int
-		Review   func(childComplexity int) int
+		Learning   func(childComplexity int) int
+		New        func(childComplexity int) int
+		Relearning func(childComplexity int) int
+		Review     func(childComplexity int) int
+		Total      func(childComplexity int) int
 	}
 
 	CatalogImage struct {
@@ -165,6 +189,7 @@ type ComplexityRoot struct {
 		ActiveSession func(childComplexity int) int
 		DueCount      func(childComplexity int) int
 		NewCount      func(childComplexity int) int
+		NewToday      func(childComplexity int) int
 		OverdueCount  func(childComplexity int) int
 		ReviewedToday func(childComplexity int) int
 		StatusCounts  func(childComplexity int) int
@@ -349,7 +374,7 @@ type ComplexityRoot struct {
 		DeleteTopic             func(childComplexity int, id uuid.UUID) int
 		DeleteTranslation       func(childComplexity int, id uuid.UUID) int
 		DeleteUserImage         func(childComplexity int, id uuid.UUID) int
-		FinishStudySession      func(childComplexity int, input FinishSessionInput) int
+		FinishStudySession      func(childComplexity int) int
 		ImportEntries           func(childComplexity int, input ImportEntriesInput) int
 		LinkEntryToTopic        func(childComplexity int, input LinkEntryInput) int
 		ReorderExamples         func(childComplexity int, input ReorderExamplesInput) int
@@ -498,6 +523,7 @@ type ComplexityRoot struct {
 		DurationMs func(childComplexity int) int
 		Grade      func(childComplexity int) int
 		ID         func(childComplexity int) int
+		PrevState  func(childComplexity int) int
 		ReviewedAt func(childComplexity int) int
 	}
 
@@ -513,9 +539,12 @@ type ComplexityRoot struct {
 	}
 
 	SessionResult struct {
-		AverageDurationMs func(childComplexity int) int
-		GradeCounts       func(childComplexity int) int
-		TotalReviews      func(childComplexity int) int
+		AccuracyRate    func(childComplexity int) int
+		DueReviewed     func(childComplexity int) int
+		GradeCounts     func(childComplexity int) int
+		NewReviewed     func(childComplexity int) int
+		TotalDurationMs func(childComplexity int) int
+		TotalReviews    func(childComplexity int) int
 	}
 
 	StartSessionPayload struct {
@@ -601,19 +630,17 @@ type ComplexityRoot struct {
 	}
 
 	UserSettings struct {
-		MaxIntervalDays func(childComplexity int) int
-		NewCardsPerDay  func(childComplexity int) int
-		ReviewsPerDay   func(childComplexity int) int
-		Timezone        func(childComplexity int) int
+		DesiredRetention func(childComplexity int) int
+		MaxIntervalDays  func(childComplexity int) int
+		NewCardsPerDay   func(childComplexity int) int
+		ReviewsPerDay    func(childComplexity int) int
+		Timezone         func(childComplexity int) int
 	}
 }
 
 type CardStatsResolver interface {
 	AverageDurationMs(ctx context.Context, obj *domain.CardStats) (int, error)
 	Accuracy(ctx context.Context, obj *domain.CardStats) (float64, error)
-}
-type DashboardResolver interface {
-	ActiveSession(ctx context.Context, obj *domain.Dashboard) (*domain.StudySession, error)
 }
 type DictionaryEntryResolver interface {
 	Senses(ctx context.Context, obj *domain.Entry) ([]*domain.Sense, error)
@@ -664,7 +691,7 @@ type MutationResolver interface {
 	DeleteCard(ctx context.Context, id uuid.UUID) (*DeleteCardPayload, error)
 	BatchCreateCards(ctx context.Context, entryIds []uuid.UUID) (*BatchCreateCardsPayload, error)
 	StartStudySession(ctx context.Context) (*StartSessionPayload, error)
-	FinishStudySession(ctx context.Context, input FinishSessionInput) (*FinishSessionPayload, error)
+	FinishStudySession(ctx context.Context) (*FinishSessionPayload, error)
 	AbandonStudySession(ctx context.Context) (*AbandonSessionPayload, error)
 	UpdateSettings(ctx context.Context, input UpdateSettingsInput) (*UpdateSettingsPayload, error)
 	UpdateProfile(ctx context.Context, input UpdateProfileInput) (*UpdateProfilePayload, error)
@@ -686,7 +713,7 @@ type QueryResolver interface {
 	InboxItem(ctx context.Context, id uuid.UUID) (*domain.InboxItem, error)
 	StudyQueue(ctx context.Context, limit *int) ([]*domain.Entry, error)
 	Dashboard(ctx context.Context) (*domain.Dashboard, error)
-	CardHistory(ctx context.Context, input GetCardHistoryInput) ([]*domain.ReviewLog, error)
+	CardHistory(ctx context.Context, input GetCardHistoryInput) (*CardHistoryPayload, error)
 	CardStats(ctx context.Context, cardID uuid.UUID) (*domain.CardStats, error)
 	Me(ctx context.Context) (*domain.User, error)
 }
@@ -701,6 +728,9 @@ type RefWordRelationResolver interface {
 	SourceEntry(ctx context.Context, obj *domain.RefWordRelation) (*domain.RefEntry, error)
 	TargetEntry(ctx context.Context, obj *domain.RefWordRelation) (*domain.RefEntry, error)
 }
+type ReviewLogResolver interface {
+	PrevState(ctx context.Context, obj *domain.ReviewLog) (*CardSnapshotOutput, error)
+}
 type SenseResolver interface {
 	Translations(ctx context.Context, obj *domain.Sense) ([]*domain.Translation, error)
 	Examples(ctx context.Context, obj *domain.Sense) ([]*domain.Example, error)
@@ -708,7 +738,7 @@ type SenseResolver interface {
 type SessionResultResolver interface {
 	TotalReviews(ctx context.Context, obj *domain.SessionResult) (int, error)
 
-	AverageDurationMs(ctx context.Context, obj *domain.SessionResult) (int, error)
+	TotalDurationMs(ctx context.Context, obj *domain.SessionResult) (int, error)
 }
 type UserResolver interface {
 	Role(ctx context.Context, obj *domain.User) (string, error)
@@ -808,12 +838,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.BatchCreateCardsPayload.Errors(childComplexity), true
-	case "BatchCreateCardsPayload.skippedCount":
-		if e.complexity.BatchCreateCardsPayload.SkippedCount == nil {
+	case "BatchCreateCardsPayload.skippedExisting":
+		if e.complexity.BatchCreateCardsPayload.SkippedExisting == nil {
 			break
 		}
 
-		return e.complexity.BatchCreateCardsPayload.SkippedCount(childComplexity), true
+		return e.complexity.BatchCreateCardsPayload.SkippedExisting(childComplexity), true
+	case "BatchCreateCardsPayload.skippedNoSenses":
+		if e.complexity.BatchCreateCardsPayload.SkippedNoSenses == nil {
+			break
+		}
+
+		return e.complexity.BatchCreateCardsPayload.SkippedNoSenses(childComplexity), true
 
 	case "BatchDeletePayload.deletedCount":
 		if e.complexity.BatchDeletePayload.DeletedCount == nil {
@@ -860,12 +896,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Card.CreatedAt(childComplexity), true
-	case "Card.easeFactor":
-		if e.complexity.Card.EaseFactor == nil {
+	case "Card.difficulty":
+		if e.complexity.Card.Difficulty == nil {
 			break
 		}
 
-		return e.complexity.Card.EaseFactor(childComplexity), true
+		return e.complexity.Card.Difficulty(childComplexity), true
+	case "Card.due":
+		if e.complexity.Card.Due == nil {
+			break
+		}
+
+		return e.complexity.Card.Due(childComplexity), true
 	case "Card.entryId":
 		if e.complexity.Card.EntryID == nil {
 			break
@@ -878,30 +920,98 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Card.ID(childComplexity), true
-	case "Card.intervalDays":
-		if e.complexity.Card.IntervalDays == nil {
+	case "Card.lapses":
+		if e.complexity.Card.Lapses == nil {
 			break
 		}
 
-		return e.complexity.Card.IntervalDays(childComplexity), true
-	case "Card.nextReviewAt":
-		if e.complexity.Card.NextReviewAt == nil {
+		return e.complexity.Card.Lapses(childComplexity), true
+	case "Card.lastReview":
+		if e.complexity.Card.LastReview == nil {
 			break
 		}
 
-		return e.complexity.Card.NextReviewAt(childComplexity), true
-	case "Card.status":
-		if e.complexity.Card.Status == nil {
+		return e.complexity.Card.LastReview(childComplexity), true
+	case "Card.reps":
+		if e.complexity.Card.Reps == nil {
 			break
 		}
 
-		return e.complexity.Card.Status(childComplexity), true
+		return e.complexity.Card.Reps(childComplexity), true
+	case "Card.scheduledDays":
+		if e.complexity.Card.ScheduledDays == nil {
+			break
+		}
+
+		return e.complexity.Card.ScheduledDays(childComplexity), true
+	case "Card.stability":
+		if e.complexity.Card.Stability == nil {
+			break
+		}
+
+		return e.complexity.Card.Stability(childComplexity), true
+	case "Card.state":
+		if e.complexity.Card.State == nil {
+			break
+		}
+
+		return e.complexity.Card.State(childComplexity), true
+	case "Card.step":
+		if e.complexity.Card.Step == nil {
+			break
+		}
+
+		return e.complexity.Card.Step(childComplexity), true
 	case "Card.updatedAt":
 		if e.complexity.Card.UpdatedAt == nil {
 			break
 		}
 
 		return e.complexity.Card.UpdatedAt(childComplexity), true
+
+	case "CardHistoryPayload.logs":
+		if e.complexity.CardHistoryPayload.Logs == nil {
+			break
+		}
+
+		return e.complexity.CardHistoryPayload.Logs(childComplexity), true
+	case "CardHistoryPayload.totalCount":
+		if e.complexity.CardHistoryPayload.TotalCount == nil {
+			break
+		}
+
+		return e.complexity.CardHistoryPayload.TotalCount(childComplexity), true
+
+	case "CardSnapshotOutput.difficulty":
+		if e.complexity.CardSnapshotOutput.Difficulty == nil {
+			break
+		}
+
+		return e.complexity.CardSnapshotOutput.Difficulty(childComplexity), true
+	case "CardSnapshotOutput.scheduledDays":
+		if e.complexity.CardSnapshotOutput.ScheduledDays == nil {
+			break
+		}
+
+		return e.complexity.CardSnapshotOutput.ScheduledDays(childComplexity), true
+	case "CardSnapshotOutput.stability":
+		if e.complexity.CardSnapshotOutput.Stability == nil {
+			break
+		}
+
+		return e.complexity.CardSnapshotOutput.Stability(childComplexity), true
+	case "CardSnapshotOutput.state":
+		if e.complexity.CardSnapshotOutput.State == nil {
+			break
+		}
+
+		return e.complexity.CardSnapshotOutput.State(childComplexity), true
+	case "CardSnapshotOutput.step":
+		if e.complexity.CardSnapshotOutput.Step == nil {
+			break
+		}
+
+		return e.complexity.CardSnapshotOutput.Step(childComplexity), true
 
 	case "CardStats.accuracy":
 		if e.complexity.CardStats.Accuracy == nil {
@@ -915,12 +1025,36 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.CardStats.AverageDurationMs(childComplexity), true
+	case "CardStats.currentState":
+		if e.complexity.CardStats.CurrentState == nil {
+			break
+		}
+
+		return e.complexity.CardStats.CurrentState(childComplexity), true
+	case "CardStats.difficulty":
+		if e.complexity.CardStats.Difficulty == nil {
+			break
+		}
+
+		return e.complexity.CardStats.Difficulty(childComplexity), true
 	case "CardStats.gradeDistribution":
 		if e.complexity.CardStats.GradeDistribution == nil {
 			break
 		}
 
 		return e.complexity.CardStats.GradeDistribution(childComplexity), true
+	case "CardStats.scheduledDays":
+		if e.complexity.CardStats.ScheduledDays == nil {
+			break
+		}
+
+		return e.complexity.CardStats.ScheduledDays(childComplexity), true
+	case "CardStats.stability":
+		if e.complexity.CardStats.Stability == nil {
+			break
+		}
+
+		return e.complexity.CardStats.Stability(childComplexity), true
 	case "CardStats.totalReviews":
 		if e.complexity.CardStats.TotalReviews == nil {
 			break
@@ -934,24 +1068,30 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.CardStatusCounts.Learning(childComplexity), true
-	case "CardStatusCounts.mastered":
-		if e.complexity.CardStatusCounts.Mastered == nil {
-			break
-		}
-
-		return e.complexity.CardStatusCounts.Mastered(childComplexity), true
 	case "CardStatusCounts.new":
 		if e.complexity.CardStatusCounts.New == nil {
 			break
 		}
 
 		return e.complexity.CardStatusCounts.New(childComplexity), true
+	case "CardStatusCounts.relearning":
+		if e.complexity.CardStatusCounts.Relearning == nil {
+			break
+		}
+
+		return e.complexity.CardStatusCounts.Relearning(childComplexity), true
 	case "CardStatusCounts.review":
 		if e.complexity.CardStatusCounts.Review == nil {
 			break
 		}
 
 		return e.complexity.CardStatusCounts.Review(childComplexity), true
+	case "CardStatusCounts.total":
+		if e.complexity.CardStatusCounts.Total == nil {
+			break
+		}
+
+		return e.complexity.CardStatusCounts.Total(childComplexity), true
 
 	case "CatalogImage.caption":
 		if e.complexity.CatalogImage.Caption == nil {
@@ -1025,6 +1165,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Dashboard.NewCount(childComplexity), true
+	case "Dashboard.newToday":
+		if e.complexity.Dashboard.NewToday == nil {
+			break
+		}
+
+		return e.complexity.Dashboard.NewToday(childComplexity), true
 	case "Dashboard.overdueCount":
 		if e.complexity.Dashboard.OverdueCount == nil {
 			break
@@ -1780,12 +1926,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			break
 		}
 
-		args, err := ec.field_Mutation_finishStudySession_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.FinishStudySession(childComplexity, args["input"].(FinishSessionInput)), true
+		return e.complexity.Mutation.FinishStudySession(childComplexity), true
 	case "Mutation.importEntries":
 		if e.complexity.Mutation.ImportEntries == nil {
 			break
@@ -2547,6 +2688,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.ReviewLog.ID(childComplexity), true
+	case "ReviewLog.prevState":
+		if e.complexity.ReviewLog.PrevState == nil {
+			break
+		}
+
+		return e.complexity.ReviewLog.PrevState(childComplexity), true
 	case "ReviewLog.reviewedAt":
 		if e.complexity.ReviewLog.ReviewedAt == nil {
 			break
@@ -2603,18 +2750,36 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Sense.Translations(childComplexity), true
 
-	case "SessionResult.averageDurationMs":
-		if e.complexity.SessionResult.AverageDurationMs == nil {
+	case "SessionResult.accuracyRate":
+		if e.complexity.SessionResult.AccuracyRate == nil {
 			break
 		}
 
-		return e.complexity.SessionResult.AverageDurationMs(childComplexity), true
+		return e.complexity.SessionResult.AccuracyRate(childComplexity), true
+	case "SessionResult.dueReviewed":
+		if e.complexity.SessionResult.DueReviewed == nil {
+			break
+		}
+
+		return e.complexity.SessionResult.DueReviewed(childComplexity), true
 	case "SessionResult.gradeCounts":
 		if e.complexity.SessionResult.GradeCounts == nil {
 			break
 		}
 
 		return e.complexity.SessionResult.GradeCounts(childComplexity), true
+	case "SessionResult.newReviewed":
+		if e.complexity.SessionResult.NewReviewed == nil {
+			break
+		}
+
+		return e.complexity.SessionResult.NewReviewed(childComplexity), true
+	case "SessionResult.totalDurationMs":
+		if e.complexity.SessionResult.TotalDurationMs == nil {
+			break
+		}
+
+		return e.complexity.SessionResult.TotalDurationMs(childComplexity), true
 	case "SessionResult.totalReviews":
 		if e.complexity.SessionResult.TotalReviews == nil {
 			break
@@ -2859,6 +3024,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.UserImage.URL(childComplexity), true
 
+	case "UserSettings.desiredRetention":
+		if e.complexity.UserSettings.DesiredRetention == nil {
+			break
+		}
+
+		return e.complexity.UserSettings.DesiredRetention(childComplexity), true
 	case "UserSettings.maxIntervalDays":
 		if e.complexity.UserSettings.MaxIntervalDays == nil {
 			break
@@ -2904,7 +3075,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCustomExampleInput,
 		ec.unmarshalInputCustomSenseInput,
 		ec.unmarshalInputDictionaryFilterInput,
-		ec.unmarshalInputFinishSessionInput,
 		ec.unmarshalInputGetCardHistoryInput,
 		ec.unmarshalInputImportEntriesInput,
 		ec.unmarshalInputImportItemInput,
@@ -3366,7 +3536,7 @@ type ExportItem {
   text: String!
   notes: String
   senses: [ExportSense!]!
-  cardStatus: LearningStatus
+  cardStatus: CardState
   createdAt: DateTime!
 }
 
@@ -3391,7 +3561,7 @@ input DictionaryFilterInput {
   hasCard: Boolean
   partOfSpeech: PartOfSpeech
   topicId: UUID
-  status: LearningStatus
+  status: CardState
   sortField: EntrySortField
   sortDirection: SortDirection
   """Cursor-based: количество записей."""
@@ -3546,11 +3716,11 @@ extend type Mutation {
   importEntries(input: ImportEntriesInput!): ImportPayload!
 }
 `, BuiltIn: false},
-	{Name: "../schema/enums.graphql", Input: `enum LearningStatus {
+	{Name: "../schema/enums.graphql", Input: `enum CardState {
   NEW
   LEARNING
   REVIEW
-  MASTERED
+  RELEARNING
 }
 
 enum ReviewGrade {
@@ -3770,10 +3940,15 @@ type Mutation
 type Card {
   id: UUID!
   entryId: UUID!
-  status: LearningStatus!
-  nextReviewAt: DateTime
-  intervalDays: Int!
-  easeFactor: Float!
+  state: CardState!
+  step: Int!
+  stability: Float!
+  difficulty: Float!
+  due: DateTime!
+  lastReview: DateTime
+  scheduledDays: Int!
+  reps: Int!
+  lapses: Int!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -3782,8 +3957,17 @@ type ReviewLog {
   id: UUID!
   cardId: UUID!
   grade: ReviewGrade!
+  prevState: CardSnapshotOutput
   durationMs: Int
   reviewedAt: DateTime!
+}
+
+type CardSnapshotOutput {
+  state: CardState!
+  step: Int!
+  stability: Float!
+  difficulty: Float!
+  scheduledDays: Int!
 }
 
 type StudySession {
@@ -3796,8 +3980,11 @@ type StudySession {
 
 type SessionResult {
   totalReviews: Int!
+  newReviewed: Int!
+  dueReviewed: Int!
   gradeCounts: GradeCounts!
-  averageDurationMs: Int!
+  totalDurationMs: Int!
+  accuracyRate: Float!
 }
 
 type GradeCounts {
@@ -3811,6 +3998,7 @@ type Dashboard {
   dueCount: Int!
   newCount: Int!
   reviewedToday: Int!
+  newToday: Int!
   streak: Int!
   statusCounts: CardStatusCounts!
   overdueCount: Int!
@@ -3821,14 +4009,19 @@ type CardStatusCounts {
   new: Int!
   learning: Int!
   review: Int!
-  mastered: Int!
+  relearning: Int!
+  total: Int!
 }
 
 type CardStats {
   totalReviews: Int!
   averageDurationMs: Int!
   accuracy: Float!
-  gradeDistribution: GradeCounts!
+  currentState: CardState!
+  stability: Float!
+  difficulty: Float!
+  scheduledDays: Int!
+  gradeDistribution: GradeCounts
 }
 
 # ============================================================
@@ -3839,10 +4032,6 @@ input ReviewCardInput {
   cardId: UUID!
   grade: ReviewGrade!
   durationMs: Int
-}
-
-input FinishSessionInput {
-  sessionId: UUID!
 }
 
 input GetCardHistoryInput {
@@ -3873,7 +4062,8 @@ type DeleteCardPayload {
 
 type BatchCreateCardsPayload {
   createdCount: Int!
-  skippedCount: Int!
+  skippedExisting: Int!
+  skippedNoSenses: Int!
   errors: [BatchCreateCardError!]!
 }
 
@@ -3894,6 +4084,11 @@ type AbandonSessionPayload {
   success: Boolean!
 }
 
+type CardHistoryPayload {
+  logs: [ReviewLog!]!
+  totalCount: Int!
+}
+
 # ============================================================
 #  QUERIES — Study
 # ============================================================
@@ -3906,7 +4101,7 @@ extend type Query {
   dashboard: Dashboard!
 
   """История повторений карточки."""
-  cardHistory(input: GetCardHistoryInput!): [ReviewLog!]!
+  cardHistory(input: GetCardHistoryInput!): CardHistoryPayload!
 
   """Статистика карточки: accuracy, grade distribution."""
   cardStats(cardId: UUID!): CardStats!
@@ -3923,7 +4118,7 @@ extend type Mutation {
   deleteCard(id: UUID!): DeleteCardPayload!
   batchCreateCards(entryIds: [UUID!]!): BatchCreateCardsPayload!
   startStudySession: StartSessionPayload!
-  finishStudySession(input: FinishSessionInput!): FinishSessionPayload!
+  finishStudySession: FinishSessionPayload!
   abandonStudySession: AbandonSessionPayload!
 }
 `, BuiltIn: false},
@@ -3947,6 +4142,7 @@ type UserSettings {
   newCardsPerDay: Int!
   reviewsPerDay: Int!
   maxIntervalDays: Int!
+  desiredRetention: Float!
   timezone: String!
 }
 
@@ -3958,6 +4154,7 @@ input UpdateSettingsInput {
   newCardsPerDay: Int
   reviewsPerDay: Int
   maxIntervalDays: Int
+  desiredRetention: Float
   timezone: String
 }
 
@@ -4236,17 +4433,6 @@ func (ec *executionContext) field_Mutation_deleteUserImage_args(ctx context.Cont
 		return nil, err
 	}
 	args["id"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_finishStudySession_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
-	var err error
-	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNFinishSessionInput2githubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋtransportᚋgraphqlᚋgeneratedᚐFinishSessionInput)
-	if err != nil {
-		return nil, err
-	}
-	args["input"] = arg0
 	return args, nil
 }
 
@@ -5020,14 +5206,14 @@ func (ec *executionContext) fieldContext_BatchCreateCardsPayload_createdCount(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _BatchCreateCardsPayload_skippedCount(ctx context.Context, field graphql.CollectedField, obj *BatchCreateCardsPayload) (ret graphql.Marshaler) {
+func (ec *executionContext) _BatchCreateCardsPayload_skippedExisting(ctx context.Context, field graphql.CollectedField, obj *BatchCreateCardsPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_BatchCreateCardsPayload_skippedCount,
+		ec.fieldContext_BatchCreateCardsPayload_skippedExisting,
 		func(ctx context.Context) (any, error) {
-			return obj.SkippedCount, nil
+			return obj.SkippedExisting, nil
 		},
 		nil,
 		ec.marshalNInt2int,
@@ -5036,7 +5222,36 @@ func (ec *executionContext) _BatchCreateCardsPayload_skippedCount(ctx context.Co
 	)
 }
 
-func (ec *executionContext) fieldContext_BatchCreateCardsPayload_skippedCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_BatchCreateCardsPayload_skippedExisting(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BatchCreateCardsPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BatchCreateCardsPayload_skippedNoSenses(ctx context.Context, field graphql.CollectedField, obj *BatchCreateCardsPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_BatchCreateCardsPayload_skippedNoSenses,
+		func(ctx context.Context) (any, error) {
+			return obj.SkippedNoSenses, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_BatchCreateCardsPayload_skippedNoSenses(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BatchCreateCardsPayload",
 		Field:      field,
@@ -5322,72 +5537,43 @@ func (ec *executionContext) fieldContext_Card_entryId(_ context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _Card_status(ctx context.Context, field graphql.CollectedField, obj *domain.Card) (ret graphql.Marshaler) {
+func (ec *executionContext) _Card_state(ctx context.Context, field graphql.CollectedField, obj *domain.Card) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Card_status,
+		ec.fieldContext_Card_state,
 		func(ctx context.Context) (any, error) {
-			return obj.Status, nil
+			return obj.State, nil
 		},
 		nil,
-		ec.marshalNLearningStatus2githubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐLearningStatus,
+		ec.marshalNCardState2githubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐCardState,
 		true,
 		true,
 	)
 }
 
-func (ec *executionContext) fieldContext_Card_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Card_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Card",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type LearningStatus does not have child fields")
+			return nil, errors.New("field of type CardState does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Card_nextReviewAt(ctx context.Context, field graphql.CollectedField, obj *domain.Card) (ret graphql.Marshaler) {
+func (ec *executionContext) _Card_step(ctx context.Context, field graphql.CollectedField, obj *domain.Card) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Card_nextReviewAt,
+		ec.fieldContext_Card_step,
 		func(ctx context.Context) (any, error) {
-			return obj.NextReviewAt, nil
-		},
-		nil,
-		ec.marshalODateTime2ᚖtimeᚐTime,
-		true,
-		false,
-	)
-}
-
-func (ec *executionContext) fieldContext_Card_nextReviewAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Card",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type DateTime does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Card_intervalDays(ctx context.Context, field graphql.CollectedField, obj *domain.Card) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_Card_intervalDays,
-		func(ctx context.Context) (any, error) {
-			return obj.IntervalDays, nil
+			return obj.Step, nil
 		},
 		nil,
 		ec.marshalNInt2int,
@@ -5396,7 +5582,7 @@ func (ec *executionContext) _Card_intervalDays(ctx context.Context, field graphq
 	)
 }
 
-func (ec *executionContext) fieldContext_Card_intervalDays(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Card_step(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Card",
 		Field:      field,
@@ -5409,14 +5595,14 @@ func (ec *executionContext) fieldContext_Card_intervalDays(_ context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Card_easeFactor(ctx context.Context, field graphql.CollectedField, obj *domain.Card) (ret graphql.Marshaler) {
+func (ec *executionContext) _Card_stability(ctx context.Context, field graphql.CollectedField, obj *domain.Card) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Card_easeFactor,
+		ec.fieldContext_Card_stability,
 		func(ctx context.Context) (any, error) {
-			return obj.EaseFactor, nil
+			return obj.Stability, nil
 		},
 		nil,
 		ec.marshalNFloat2float64,
@@ -5425,7 +5611,7 @@ func (ec *executionContext) _Card_easeFactor(ctx context.Context, field graphql.
 	)
 }
 
-func (ec *executionContext) fieldContext_Card_easeFactor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Card_stability(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Card",
 		Field:      field,
@@ -5433,6 +5619,180 @@ func (ec *executionContext) fieldContext_Card_easeFactor(_ context.Context, fiel
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Card_difficulty(ctx context.Context, field graphql.CollectedField, obj *domain.Card) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Card_difficulty,
+		func(ctx context.Context) (any, error) {
+			return obj.Difficulty, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Card_difficulty(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Card",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Card_due(ctx context.Context, field graphql.CollectedField, obj *domain.Card) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Card_due,
+		func(ctx context.Context) (any, error) {
+			return obj.Due, nil
+		},
+		nil,
+		ec.marshalNDateTime2timeᚐTime,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Card_due(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Card",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Card_lastReview(ctx context.Context, field graphql.CollectedField, obj *domain.Card) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Card_lastReview,
+		func(ctx context.Context) (any, error) {
+			return obj.LastReview, nil
+		},
+		nil,
+		ec.marshalODateTime2ᚖtimeᚐTime,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Card_lastReview(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Card",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Card_scheduledDays(ctx context.Context, field graphql.CollectedField, obj *domain.Card) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Card_scheduledDays,
+		func(ctx context.Context) (any, error) {
+			return obj.ScheduledDays, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Card_scheduledDays(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Card",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Card_reps(ctx context.Context, field graphql.CollectedField, obj *domain.Card) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Card_reps,
+		func(ctx context.Context) (any, error) {
+			return obj.Reps, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Card_reps(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Card",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Card_lapses(ctx context.Context, field graphql.CollectedField, obj *domain.Card) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Card_lapses,
+		func(ctx context.Context) (any, error) {
+			return obj.Lapses, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Card_lapses(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Card",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -5491,6 +5851,223 @@ func (ec *executionContext) fieldContext_Card_updatedAt(_ context.Context, field
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CardHistoryPayload_logs(ctx context.Context, field graphql.CollectedField, obj *CardHistoryPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_CardHistoryPayload_logs,
+		func(ctx context.Context) (any, error) {
+			return obj.Logs, nil
+		},
+		nil,
+		ec.marshalNReviewLog2ᚕᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐReviewLogᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_CardHistoryPayload_logs(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CardHistoryPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ReviewLog_id(ctx, field)
+			case "cardId":
+				return ec.fieldContext_ReviewLog_cardId(ctx, field)
+			case "grade":
+				return ec.fieldContext_ReviewLog_grade(ctx, field)
+			case "prevState":
+				return ec.fieldContext_ReviewLog_prevState(ctx, field)
+			case "durationMs":
+				return ec.fieldContext_ReviewLog_durationMs(ctx, field)
+			case "reviewedAt":
+				return ec.fieldContext_ReviewLog_reviewedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ReviewLog", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CardHistoryPayload_totalCount(ctx context.Context, field graphql.CollectedField, obj *CardHistoryPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_CardHistoryPayload_totalCount,
+		func(ctx context.Context) (any, error) {
+			return obj.TotalCount, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_CardHistoryPayload_totalCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CardHistoryPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CardSnapshotOutput_state(ctx context.Context, field graphql.CollectedField, obj *CardSnapshotOutput) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_CardSnapshotOutput_state,
+		func(ctx context.Context) (any, error) {
+			return obj.State, nil
+		},
+		nil,
+		ec.marshalNCardState2githubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐCardState,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_CardSnapshotOutput_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CardSnapshotOutput",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type CardState does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CardSnapshotOutput_step(ctx context.Context, field graphql.CollectedField, obj *CardSnapshotOutput) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_CardSnapshotOutput_step,
+		func(ctx context.Context) (any, error) {
+			return obj.Step, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_CardSnapshotOutput_step(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CardSnapshotOutput",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CardSnapshotOutput_stability(ctx context.Context, field graphql.CollectedField, obj *CardSnapshotOutput) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_CardSnapshotOutput_stability,
+		func(ctx context.Context) (any, error) {
+			return obj.Stability, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_CardSnapshotOutput_stability(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CardSnapshotOutput",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CardSnapshotOutput_difficulty(ctx context.Context, field graphql.CollectedField, obj *CardSnapshotOutput) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_CardSnapshotOutput_difficulty,
+		func(ctx context.Context) (any, error) {
+			return obj.Difficulty, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_CardSnapshotOutput_difficulty(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CardSnapshotOutput",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CardSnapshotOutput_scheduledDays(ctx context.Context, field graphql.CollectedField, obj *CardSnapshotOutput) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_CardSnapshotOutput_scheduledDays,
+		func(ctx context.Context) (any, error) {
+			return obj.ScheduledDays, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_CardSnapshotOutput_scheduledDays(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CardSnapshotOutput",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -5583,6 +6160,122 @@ func (ec *executionContext) fieldContext_CardStats_accuracy(_ context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _CardStats_currentState(ctx context.Context, field graphql.CollectedField, obj *domain.CardStats) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_CardStats_currentState,
+		func(ctx context.Context) (any, error) {
+			return obj.CurrentState, nil
+		},
+		nil,
+		ec.marshalNCardState2githubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐCardState,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_CardStats_currentState(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CardStats",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type CardState does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CardStats_stability(ctx context.Context, field graphql.CollectedField, obj *domain.CardStats) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_CardStats_stability,
+		func(ctx context.Context) (any, error) {
+			return obj.Stability, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_CardStats_stability(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CardStats",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CardStats_difficulty(ctx context.Context, field graphql.CollectedField, obj *domain.CardStats) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_CardStats_difficulty,
+		func(ctx context.Context) (any, error) {
+			return obj.Difficulty, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_CardStats_difficulty(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CardStats",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CardStats_scheduledDays(ctx context.Context, field graphql.CollectedField, obj *domain.CardStats) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_CardStats_scheduledDays,
+		func(ctx context.Context) (any, error) {
+			return obj.ScheduledDays, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_CardStats_scheduledDays(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CardStats",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _CardStats_gradeDistribution(ctx context.Context, field graphql.CollectedField, obj *domain.CardStats) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -5593,9 +6286,9 @@ func (ec *executionContext) _CardStats_gradeDistribution(ctx context.Context, fi
 			return obj.GradeDistribution, nil
 		},
 		nil,
-		ec.marshalNGradeCounts2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐGradeCounts,
+		ec.marshalOGradeCounts2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐGradeCounts,
 		true,
-		true,
+		false,
 	)
 }
 
@@ -5709,14 +6402,14 @@ func (ec *executionContext) fieldContext_CardStatusCounts_review(_ context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _CardStatusCounts_mastered(ctx context.Context, field graphql.CollectedField, obj *domain.CardStatusCounts) (ret graphql.Marshaler) {
+func (ec *executionContext) _CardStatusCounts_relearning(ctx context.Context, field graphql.CollectedField, obj *domain.CardStatusCounts) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_CardStatusCounts_mastered,
+		ec.fieldContext_CardStatusCounts_relearning,
 		func(ctx context.Context) (any, error) {
-			return obj.Mastered, nil
+			return obj.Relearning, nil
 		},
 		nil,
 		ec.marshalNInt2int,
@@ -5725,7 +6418,36 @@ func (ec *executionContext) _CardStatusCounts_mastered(ctx context.Context, fiel
 	)
 }
 
-func (ec *executionContext) fieldContext_CardStatusCounts_mastered(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CardStatusCounts_relearning(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CardStatusCounts",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CardStatusCounts_total(ctx context.Context, field graphql.CollectedField, obj *domain.CardStatusCounts) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_CardStatusCounts_total,
+		func(ctx context.Context) (any, error) {
+			return obj.Total, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_CardStatusCounts_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CardStatusCounts",
 		Field:      field,
@@ -5882,14 +6604,24 @@ func (ec *executionContext) fieldContext_CreateCardPayload_card(_ context.Contex
 				return ec.fieldContext_Card_id(ctx, field)
 			case "entryId":
 				return ec.fieldContext_Card_entryId(ctx, field)
-			case "status":
-				return ec.fieldContext_Card_status(ctx, field)
-			case "nextReviewAt":
-				return ec.fieldContext_Card_nextReviewAt(ctx, field)
-			case "intervalDays":
-				return ec.fieldContext_Card_intervalDays(ctx, field)
-			case "easeFactor":
-				return ec.fieldContext_Card_easeFactor(ctx, field)
+			case "state":
+				return ec.fieldContext_Card_state(ctx, field)
+			case "step":
+				return ec.fieldContext_Card_step(ctx, field)
+			case "stability":
+				return ec.fieldContext_Card_stability(ctx, field)
+			case "difficulty":
+				return ec.fieldContext_Card_difficulty(ctx, field)
+			case "due":
+				return ec.fieldContext_Card_due(ctx, field)
+			case "lastReview":
+				return ec.fieldContext_Card_lastReview(ctx, field)
+			case "scheduledDays":
+				return ec.fieldContext_Card_scheduledDays(ctx, field)
+			case "reps":
+				return ec.fieldContext_Card_reps(ctx, field)
+			case "lapses":
+				return ec.fieldContext_Card_lapses(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Card_createdAt(ctx, field)
 			case "updatedAt":
@@ -6127,6 +6859,35 @@ func (ec *executionContext) fieldContext_Dashboard_reviewedToday(_ context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _Dashboard_newToday(ctx context.Context, field graphql.CollectedField, obj *domain.Dashboard) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Dashboard_newToday,
+		func(ctx context.Context) (any, error) {
+			return obj.NewToday, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Dashboard_newToday(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Dashboard",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Dashboard_streak(ctx context.Context, field graphql.CollectedField, obj *domain.Dashboard) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -6186,8 +6947,10 @@ func (ec *executionContext) fieldContext_Dashboard_statusCounts(_ context.Contex
 				return ec.fieldContext_CardStatusCounts_learning(ctx, field)
 			case "review":
 				return ec.fieldContext_CardStatusCounts_review(ctx, field)
-			case "mastered":
-				return ec.fieldContext_CardStatusCounts_mastered(ctx, field)
+			case "relearning":
+				return ec.fieldContext_CardStatusCounts_relearning(ctx, field)
+			case "total":
+				return ec.fieldContext_CardStatusCounts_total(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type CardStatusCounts", field.Name)
 		},
@@ -6231,7 +6994,7 @@ func (ec *executionContext) _Dashboard_activeSession(ctx context.Context, field 
 		field,
 		ec.fieldContext_Dashboard_activeSession,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Dashboard().ActiveSession(ctx, obj)
+			return obj.ActiveSession, nil
 		},
 		nil,
 		ec.marshalOStudySession2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐStudySession,
@@ -6244,8 +7007,8 @@ func (ec *executionContext) fieldContext_Dashboard_activeSession(_ context.Conte
 	fc = &graphql.FieldContext{
 		Object:     "Dashboard",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -7165,14 +7928,24 @@ func (ec *executionContext) fieldContext_DictionaryEntry_card(_ context.Context,
 				return ec.fieldContext_Card_id(ctx, field)
 			case "entryId":
 				return ec.fieldContext_Card_entryId(ctx, field)
-			case "status":
-				return ec.fieldContext_Card_status(ctx, field)
-			case "nextReviewAt":
-				return ec.fieldContext_Card_nextReviewAt(ctx, field)
-			case "intervalDays":
-				return ec.fieldContext_Card_intervalDays(ctx, field)
-			case "easeFactor":
-				return ec.fieldContext_Card_easeFactor(ctx, field)
+			case "state":
+				return ec.fieldContext_Card_state(ctx, field)
+			case "step":
+				return ec.fieldContext_Card_step(ctx, field)
+			case "stability":
+				return ec.fieldContext_Card_stability(ctx, field)
+			case "difficulty":
+				return ec.fieldContext_Card_difficulty(ctx, field)
+			case "due":
+				return ec.fieldContext_Card_due(ctx, field)
+			case "lastReview":
+				return ec.fieldContext_Card_lastReview(ctx, field)
+			case "scheduledDays":
+				return ec.fieldContext_Card_scheduledDays(ctx, field)
+			case "reps":
+				return ec.fieldContext_Card_reps(ctx, field)
+			case "lapses":
+				return ec.fieldContext_Card_lapses(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Card_createdAt(ctx, field)
 			case "updatedAt":
@@ -7885,7 +8658,7 @@ func (ec *executionContext) _ExportItem_cardStatus(ctx context.Context, field gr
 			return obj.CardStatus, nil
 		},
 		nil,
-		ec.marshalOLearningStatus2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐLearningStatus,
+		ec.marshalOCardState2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐCardState,
 		true,
 		false,
 	)
@@ -7898,7 +8671,7 @@ func (ec *executionContext) fieldContext_ExportItem_cardStatus(_ context.Context
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type LearningStatus does not have child fields")
+			return nil, errors.New("field of type CardState does not have child fields")
 		},
 	}
 	return fc, nil
@@ -10289,8 +11062,10 @@ func (ec *executionContext) fieldContext_Mutation_batchCreateCards(ctx context.C
 			switch field.Name {
 			case "createdCount":
 				return ec.fieldContext_BatchCreateCardsPayload_createdCount(ctx, field)
-			case "skippedCount":
-				return ec.fieldContext_BatchCreateCardsPayload_skippedCount(ctx, field)
+			case "skippedExisting":
+				return ec.fieldContext_BatchCreateCardsPayload_skippedExisting(ctx, field)
+			case "skippedNoSenses":
+				return ec.fieldContext_BatchCreateCardsPayload_skippedNoSenses(ctx, field)
 			case "errors":
 				return ec.fieldContext_BatchCreateCardsPayload_errors(ctx, field)
 			}
@@ -10351,8 +11126,7 @@ func (ec *executionContext) _Mutation_finishStudySession(ctx context.Context, fi
 		field,
 		ec.fieldContext_Mutation_finishStudySession,
 		func(ctx context.Context) (any, error) {
-			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().FinishStudySession(ctx, fc.Args["input"].(FinishSessionInput))
+			return ec.resolvers.Mutation().FinishStudySession(ctx)
 		},
 		nil,
 		ec.marshalNFinishSessionPayload2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋtransportᚋgraphqlᚋgeneratedᚐFinishSessionPayload,
@@ -10361,7 +11135,7 @@ func (ec *executionContext) _Mutation_finishStudySession(ctx context.Context, fi
 	)
 }
 
-func (ec *executionContext) fieldContext_Mutation_finishStudySession(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_finishStudySession(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -10374,17 +11148,6 @@ func (ec *executionContext) fieldContext_Mutation_finishStudySession(ctx context
 			}
 			return nil, fmt.Errorf("no field named %q was found under type FinishSessionPayload", field.Name)
 		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_finishStudySession_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
 	}
 	return fc, nil
 }
@@ -11555,6 +12318,8 @@ func (ec *executionContext) fieldContext_Query_dashboard(_ context.Context, fiel
 				return ec.fieldContext_Dashboard_newCount(ctx, field)
 			case "reviewedToday":
 				return ec.fieldContext_Dashboard_reviewedToday(ctx, field)
+			case "newToday":
+				return ec.fieldContext_Dashboard_newToday(ctx, field)
 			case "streak":
 				return ec.fieldContext_Dashboard_streak(ctx, field)
 			case "statusCounts":
@@ -11581,7 +12346,7 @@ func (ec *executionContext) _Query_cardHistory(ctx context.Context, field graphq
 			return ec.resolvers.Query().CardHistory(ctx, fc.Args["input"].(GetCardHistoryInput))
 		},
 		nil,
-		ec.marshalNReviewLog2ᚕᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐReviewLogᚄ,
+		ec.marshalNCardHistoryPayload2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋtransportᚋgraphqlᚋgeneratedᚐCardHistoryPayload,
 		true,
 		true,
 	)
@@ -11595,18 +12360,12 @@ func (ec *executionContext) fieldContext_Query_cardHistory(ctx context.Context, 
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_ReviewLog_id(ctx, field)
-			case "cardId":
-				return ec.fieldContext_ReviewLog_cardId(ctx, field)
-			case "grade":
-				return ec.fieldContext_ReviewLog_grade(ctx, field)
-			case "durationMs":
-				return ec.fieldContext_ReviewLog_durationMs(ctx, field)
-			case "reviewedAt":
-				return ec.fieldContext_ReviewLog_reviewedAt(ctx, field)
+			case "logs":
+				return ec.fieldContext_CardHistoryPayload_logs(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_CardHistoryPayload_totalCount(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ReviewLog", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type CardHistoryPayload", field.Name)
 		},
 	}
 	defer func() {
@@ -11654,6 +12413,14 @@ func (ec *executionContext) fieldContext_Query_cardStats(ctx context.Context, fi
 				return ec.fieldContext_CardStats_averageDurationMs(ctx, field)
 			case "accuracy":
 				return ec.fieldContext_CardStats_accuracy(ctx, field)
+			case "currentState":
+				return ec.fieldContext_CardStats_currentState(ctx, field)
+			case "stability":
+				return ec.fieldContext_CardStats_stability(ctx, field)
+			case "difficulty":
+				return ec.fieldContext_CardStats_difficulty(ctx, field)
+			case "scheduledDays":
+				return ec.fieldContext_CardStats_scheduledDays(ctx, field)
 			case "gradeDistribution":
 				return ec.fieldContext_CardStats_gradeDistribution(ctx, field)
 			}
@@ -13504,14 +14271,24 @@ func (ec *executionContext) fieldContext_ReviewCardPayload_card(_ context.Contex
 				return ec.fieldContext_Card_id(ctx, field)
 			case "entryId":
 				return ec.fieldContext_Card_entryId(ctx, field)
-			case "status":
-				return ec.fieldContext_Card_status(ctx, field)
-			case "nextReviewAt":
-				return ec.fieldContext_Card_nextReviewAt(ctx, field)
-			case "intervalDays":
-				return ec.fieldContext_Card_intervalDays(ctx, field)
-			case "easeFactor":
-				return ec.fieldContext_Card_easeFactor(ctx, field)
+			case "state":
+				return ec.fieldContext_Card_state(ctx, field)
+			case "step":
+				return ec.fieldContext_Card_step(ctx, field)
+			case "stability":
+				return ec.fieldContext_Card_stability(ctx, field)
+			case "difficulty":
+				return ec.fieldContext_Card_difficulty(ctx, field)
+			case "due":
+				return ec.fieldContext_Card_due(ctx, field)
+			case "lastReview":
+				return ec.fieldContext_Card_lastReview(ctx, field)
+			case "scheduledDays":
+				return ec.fieldContext_Card_scheduledDays(ctx, field)
+			case "reps":
+				return ec.fieldContext_Card_reps(ctx, field)
+			case "lapses":
+				return ec.fieldContext_Card_lapses(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Card_createdAt(ctx, field)
 			case "updatedAt":
@@ -13605,6 +14382,47 @@ func (ec *executionContext) fieldContext_ReviewLog_grade(_ context.Context, fiel
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ReviewGrade does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ReviewLog_prevState(ctx context.Context, field graphql.CollectedField, obj *domain.ReviewLog) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ReviewLog_prevState,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.ReviewLog().PrevState(ctx, obj)
+		},
+		nil,
+		ec.marshalOCardSnapshotOutput2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋtransportᚋgraphqlᚋgeneratedᚐCardSnapshotOutput,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_ReviewLog_prevState(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReviewLog",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "state":
+				return ec.fieldContext_CardSnapshotOutput_state(ctx, field)
+			case "step":
+				return ec.fieldContext_CardSnapshotOutput_step(ctx, field)
+			case "stability":
+				return ec.fieldContext_CardSnapshotOutput_stability(ctx, field)
+			case "difficulty":
+				return ec.fieldContext_CardSnapshotOutput_difficulty(ctx, field)
+			case "scheduledDays":
+				return ec.fieldContext_CardSnapshotOutput_scheduledDays(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type CardSnapshotOutput", field.Name)
 		},
 	}
 	return fc, nil
@@ -13951,6 +14769,64 @@ func (ec *executionContext) fieldContext_SessionResult_totalReviews(_ context.Co
 	return fc, nil
 }
 
+func (ec *executionContext) _SessionResult_newReviewed(ctx context.Context, field graphql.CollectedField, obj *domain.SessionResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_SessionResult_newReviewed,
+		func(ctx context.Context) (any, error) {
+			return obj.NewReviewed, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_SessionResult_newReviewed(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SessionResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SessionResult_dueReviewed(ctx context.Context, field graphql.CollectedField, obj *domain.SessionResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_SessionResult_dueReviewed,
+		func(ctx context.Context) (any, error) {
+			return obj.DueReviewed, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_SessionResult_dueReviewed(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SessionResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SessionResult_gradeCounts(ctx context.Context, field graphql.CollectedField, obj *domain.SessionResult) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -13990,14 +14866,14 @@ func (ec *executionContext) fieldContext_SessionResult_gradeCounts(_ context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _SessionResult_averageDurationMs(ctx context.Context, field graphql.CollectedField, obj *domain.SessionResult) (ret graphql.Marshaler) {
+func (ec *executionContext) _SessionResult_totalDurationMs(ctx context.Context, field graphql.CollectedField, obj *domain.SessionResult) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_SessionResult_averageDurationMs,
+		ec.fieldContext_SessionResult_totalDurationMs,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.SessionResult().AverageDurationMs(ctx, obj)
+			return ec.resolvers.SessionResult().TotalDurationMs(ctx, obj)
 		},
 		nil,
 		ec.marshalNInt2int,
@@ -14006,7 +14882,7 @@ func (ec *executionContext) _SessionResult_averageDurationMs(ctx context.Context
 	)
 }
 
-func (ec *executionContext) fieldContext_SessionResult_averageDurationMs(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SessionResult_totalDurationMs(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SessionResult",
 		Field:      field,
@@ -14014,6 +14890,35 @@ func (ec *executionContext) fieldContext_SessionResult_averageDurationMs(_ conte
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SessionResult_accuracyRate(ctx context.Context, field graphql.CollectedField, obj *domain.SessionResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_SessionResult_accuracyRate,
+		func(ctx context.Context) (any, error) {
+			return obj.AccuracyRate, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_SessionResult_accuracyRate(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SessionResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -14202,10 +15107,16 @@ func (ec *executionContext) fieldContext_StudySession_result(_ context.Context, 
 			switch field.Name {
 			case "totalReviews":
 				return ec.fieldContext_SessionResult_totalReviews(ctx, field)
+			case "newReviewed":
+				return ec.fieldContext_SessionResult_newReviewed(ctx, field)
+			case "dueReviewed":
+				return ec.fieldContext_SessionResult_dueReviewed(ctx, field)
 			case "gradeCounts":
 				return ec.fieldContext_SessionResult_gradeCounts(ctx, field)
-			case "averageDurationMs":
-				return ec.fieldContext_SessionResult_averageDurationMs(ctx, field)
+			case "totalDurationMs":
+				return ec.fieldContext_SessionResult_totalDurationMs(ctx, field)
+			case "accuracyRate":
+				return ec.fieldContext_SessionResult_accuracyRate(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type SessionResult", field.Name)
 		},
@@ -14531,14 +15442,24 @@ func (ec *executionContext) fieldContext_UndoReviewPayload_card(_ context.Contex
 				return ec.fieldContext_Card_id(ctx, field)
 			case "entryId":
 				return ec.fieldContext_Card_entryId(ctx, field)
-			case "status":
-				return ec.fieldContext_Card_status(ctx, field)
-			case "nextReviewAt":
-				return ec.fieldContext_Card_nextReviewAt(ctx, field)
-			case "intervalDays":
-				return ec.fieldContext_Card_intervalDays(ctx, field)
-			case "easeFactor":
-				return ec.fieldContext_Card_easeFactor(ctx, field)
+			case "state":
+				return ec.fieldContext_Card_state(ctx, field)
+			case "step":
+				return ec.fieldContext_Card_step(ctx, field)
+			case "stability":
+				return ec.fieldContext_Card_stability(ctx, field)
+			case "difficulty":
+				return ec.fieldContext_Card_difficulty(ctx, field)
+			case "due":
+				return ec.fieldContext_Card_due(ctx, field)
+			case "lastReview":
+				return ec.fieldContext_Card_lastReview(ctx, field)
+			case "scheduledDays":
+				return ec.fieldContext_Card_scheduledDays(ctx, field)
+			case "reps":
+				return ec.fieldContext_Card_reps(ctx, field)
+			case "lapses":
+				return ec.fieldContext_Card_lapses(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Card_createdAt(ctx, field)
 			case "updatedAt":
@@ -14801,6 +15722,8 @@ func (ec *executionContext) fieldContext_UpdateSettingsPayload_settings(_ contex
 				return ec.fieldContext_UserSettings_reviewsPerDay(ctx, field)
 			case "maxIntervalDays":
 				return ec.fieldContext_UserSettings_maxIntervalDays(ctx, field)
+			case "desiredRetention":
+				return ec.fieldContext_UserSettings_desiredRetention(ctx, field)
 			case "timezone":
 				return ec.fieldContext_UserSettings_timezone(ctx, field)
 			}
@@ -15125,6 +16048,8 @@ func (ec *executionContext) fieldContext_User_settings(_ context.Context, field 
 				return ec.fieldContext_UserSettings_reviewsPerDay(ctx, field)
 			case "maxIntervalDays":
 				return ec.fieldContext_UserSettings_maxIntervalDays(ctx, field)
+			case "desiredRetention":
+				return ec.fieldContext_UserSettings_desiredRetention(ctx, field)
 			case "timezone":
 				return ec.fieldContext_UserSettings_timezone(ctx, field)
 			}
@@ -15332,6 +16257,35 @@ func (ec *executionContext) fieldContext_UserSettings_maxIntervalDays(_ context.
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserSettings_desiredRetention(ctx context.Context, field graphql.CollectedField, obj *domain.UserSettings) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UserSettings_desiredRetention,
+		func(ctx context.Context) (any, error) {
+			return obj.DesiredRetention, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_UserSettings_desiredRetention(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserSettings",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -17314,7 +18268,7 @@ func (ec *executionContext) unmarshalInputDictionaryFilterInput(ctx context.Cont
 			it.TopicID = data
 		case "status":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
-			data, err := ec.unmarshalOLearningStatus2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐLearningStatus(ctx, v)
+			data, err := ec.unmarshalOCardState2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐCardState(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -17361,33 +18315,6 @@ func (ec *executionContext) unmarshalInputDictionaryFilterInput(ctx context.Cont
 				return it, err
 			}
 			it.Offset = data
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputFinishSessionInput(ctx context.Context, obj any) (FinishSessionInput, error) {
-	var it FinishSessionInput
-	asMap := map[string]any{}
-	for k, v := range obj.(map[string]any) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"sessionId"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "sessionId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sessionId"))
-			data, err := ec.unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.SessionID = data
 		}
 	}
 
@@ -17919,7 +18846,7 @@ func (ec *executionContext) unmarshalInputUpdateSettingsInput(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"newCardsPerDay", "reviewsPerDay", "maxIntervalDays", "timezone"}
+	fieldsInOrder := [...]string{"newCardsPerDay", "reviewsPerDay", "maxIntervalDays", "desiredRetention", "timezone"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -17947,6 +18874,13 @@ func (ec *executionContext) unmarshalInputUpdateSettingsInput(ctx context.Contex
 				return it, err
 			}
 			it.MaxIntervalDays = data
+		case "desiredRetention":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("desiredRetention"))
+			data, err := ec.unmarshalOFloat2ᚖfloat64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DesiredRetention = data
 		case "timezone":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timezone"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
@@ -18342,8 +19276,13 @@ func (ec *executionContext) _BatchCreateCardsPayload(ctx context.Context, sel as
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "skippedCount":
-			out.Values[i] = ec._BatchCreateCardsPayload_skippedCount(ctx, field, obj)
+		case "skippedExisting":
+			out.Values[i] = ec._BatchCreateCardsPayload_skippedExisting(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "skippedNoSenses":
+			out.Values[i] = ec._BatchCreateCardsPayload_skippedNoSenses(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -18528,20 +19467,45 @@ func (ec *executionContext) _Card(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "status":
-			out.Values[i] = ec._Card_status(ctx, field, obj)
+		case "state":
+			out.Values[i] = ec._Card_state(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "nextReviewAt":
-			out.Values[i] = ec._Card_nextReviewAt(ctx, field, obj)
-		case "intervalDays":
-			out.Values[i] = ec._Card_intervalDays(ctx, field, obj)
+		case "step":
+			out.Values[i] = ec._Card_step(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "easeFactor":
-			out.Values[i] = ec._Card_easeFactor(ctx, field, obj)
+		case "stability":
+			out.Values[i] = ec._Card_stability(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "difficulty":
+			out.Values[i] = ec._Card_difficulty(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "due":
+			out.Values[i] = ec._Card_due(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "lastReview":
+			out.Values[i] = ec._Card_lastReview(ctx, field, obj)
+		case "scheduledDays":
+			out.Values[i] = ec._Card_scheduledDays(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "reps":
+			out.Values[i] = ec._Card_reps(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "lapses":
+			out.Values[i] = ec._Card_lapses(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -18552,6 +19516,109 @@ func (ec *executionContext) _Card(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "updatedAt":
 			out.Values[i] = ec._Card_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var cardHistoryPayloadImplementors = []string{"CardHistoryPayload"}
+
+func (ec *executionContext) _CardHistoryPayload(ctx context.Context, sel ast.SelectionSet, obj *CardHistoryPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, cardHistoryPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CardHistoryPayload")
+		case "logs":
+			out.Values[i] = ec._CardHistoryPayload_logs(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "totalCount":
+			out.Values[i] = ec._CardHistoryPayload_totalCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var cardSnapshotOutputImplementors = []string{"CardSnapshotOutput"}
+
+func (ec *executionContext) _CardSnapshotOutput(ctx context.Context, sel ast.SelectionSet, obj *CardSnapshotOutput) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, cardSnapshotOutputImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CardSnapshotOutput")
+		case "state":
+			out.Values[i] = ec._CardSnapshotOutput_state(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "step":
+			out.Values[i] = ec._CardSnapshotOutput_step(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "stability":
+			out.Values[i] = ec._CardSnapshotOutput_stability(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "difficulty":
+			out.Values[i] = ec._CardSnapshotOutput_difficulty(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "scheduledDays":
+			out.Values[i] = ec._CardSnapshotOutput_scheduledDays(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -18666,11 +19733,28 @@ func (ec *executionContext) _CardStats(ctx context.Context, sel ast.SelectionSet
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "gradeDistribution":
-			out.Values[i] = ec._CardStats_gradeDistribution(ctx, field, obj)
+		case "currentState":
+			out.Values[i] = ec._CardStats_currentState(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "stability":
+			out.Values[i] = ec._CardStats_stability(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "difficulty":
+			out.Values[i] = ec._CardStats_difficulty(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "scheduledDays":
+			out.Values[i] = ec._CardStats_scheduledDays(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "gradeDistribution":
+			out.Values[i] = ec._CardStats_gradeDistribution(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -18720,8 +19804,13 @@ func (ec *executionContext) _CardStatusCounts(ctx context.Context, sel ast.Selec
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "mastered":
-			out.Values[i] = ec._CardStatusCounts_mastered(ctx, field, obj)
+		case "relearning":
+			out.Values[i] = ec._CardStatusCounts_relearning(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "total":
+			out.Values[i] = ec._CardStatusCounts_total(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -19003,66 +20092,40 @@ func (ec *executionContext) _Dashboard(ctx context.Context, sel ast.SelectionSet
 		case "dueCount":
 			out.Values[i] = ec._Dashboard_dueCount(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "newCount":
 			out.Values[i] = ec._Dashboard_newCount(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "reviewedToday":
 			out.Values[i] = ec._Dashboard_reviewedToday(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
+			}
+		case "newToday":
+			out.Values[i] = ec._Dashboard_newToday(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
 			}
 		case "streak":
 			out.Values[i] = ec._Dashboard_streak(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "statusCounts":
 			out.Values[i] = ec._Dashboard_statusCounts(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "overdueCount":
 			out.Values[i] = ec._Dashboard_overdueCount(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "activeSession":
-			field := field
-
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Dashboard_activeSession(ctx, field, obj)
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			out.Values[i] = ec._Dashboard_activeSession(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -22207,24 +23270,57 @@ func (ec *executionContext) _ReviewLog(ctx context.Context, sel ast.SelectionSet
 		case "id":
 			out.Values[i] = ec._ReviewLog_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "cardId":
 			out.Values[i] = ec._ReviewLog_cardId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "grade":
 			out.Values[i] = ec._ReviewLog_grade(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "prevState":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ReviewLog_prevState(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "durationMs":
 			out.Values[i] = ec._ReviewLog_durationMs(ctx, field, obj)
 		case "reviewedAt":
 			out.Values[i] = ec._ReviewLog_reviewedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -22423,12 +23519,22 @@ func (ec *executionContext) _SessionResult(ctx context.Context, sel ast.Selectio
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "newReviewed":
+			out.Values[i] = ec._SessionResult_newReviewed(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "dueReviewed":
+			out.Values[i] = ec._SessionResult_dueReviewed(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "gradeCounts":
 			out.Values[i] = ec._SessionResult_gradeCounts(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "averageDurationMs":
+		case "totalDurationMs":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -22437,7 +23543,7 @@ func (ec *executionContext) _SessionResult(ctx context.Context, sel ast.Selectio
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._SessionResult_averageDurationMs(ctx, field, obj)
+				res = ec._SessionResult_totalDurationMs(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -22464,6 +23570,11 @@ func (ec *executionContext) _SessionResult(ctx context.Context, sel ast.Selectio
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "accuracyRate":
+			out.Values[i] = ec._SessionResult_accuracyRate(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -23249,6 +24360,11 @@ func (ec *executionContext) _UserSettings(ctx context.Context, sel ast.Selection
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "desiredRetention":
+			out.Values[i] = ec._UserSettings_desiredRetention(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "timezone":
 			out.Values[i] = ec._UserSettings_timezone(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -23895,6 +25011,37 @@ func (ec *executionContext) marshalNCard2ᚖgithubᚗcomᚋheartmarshallᚋmyeng
 		return graphql.Null
 	}
 	return ec._Card(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNCardHistoryPayload2githubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋtransportᚋgraphqlᚋgeneratedᚐCardHistoryPayload(ctx context.Context, sel ast.SelectionSet, v CardHistoryPayload) graphql.Marshaler {
+	return ec._CardHistoryPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNCardHistoryPayload2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋtransportᚋgraphqlᚋgeneratedᚐCardHistoryPayload(ctx context.Context, sel ast.SelectionSet, v *CardHistoryPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._CardHistoryPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNCardState2githubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐCardState(ctx context.Context, v any) (domain.CardState, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := domain.CardState(tmp)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNCardState2githubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐCardState(ctx context.Context, sel ast.SelectionSet, v domain.CardState) graphql.Marshaler {
+	_ = sel
+	res := graphql.MarshalString(string(v))
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) marshalNCardStats2githubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐCardStats(ctx context.Context, sel ast.SelectionSet, v domain.CardStats) graphql.Marshaler {
@@ -24640,11 +25787,6 @@ func (ec *executionContext) marshalNExportSense2ᚕgithubᚗcomᚋheartmarshall�
 	return ret
 }
 
-func (ec *executionContext) unmarshalNFinishSessionInput2githubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋtransportᚋgraphqlᚋgeneratedᚐFinishSessionInput(ctx context.Context, v any) (FinishSessionInput, error) {
-	res, err := ec.unmarshalInputFinishSessionInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) marshalNFinishSessionPayload2githubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋtransportᚋgraphqlᚋgeneratedᚐFinishSessionPayload(ctx context.Context, sel ast.SelectionSet, v FinishSessionPayload) graphql.Marshaler {
 	return ec._FinishSessionPayload(ctx, sel, &v)
 }
@@ -24682,16 +25824,6 @@ func (ec *executionContext) unmarshalNGetCardHistoryInput2githubᚗcomᚋheartma
 
 func (ec *executionContext) marshalNGradeCounts2githubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐGradeCounts(ctx context.Context, sel ast.SelectionSet, v domain.GradeCounts) graphql.Marshaler {
 	return ec._GradeCounts(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNGradeCounts2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐGradeCounts(ctx context.Context, sel ast.SelectionSet, v *domain.GradeCounts) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._GradeCounts(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNImportEntriesInput2githubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋtransportᚋgraphqlᚋgeneratedᚐImportEntriesInput(ctx context.Context, v any) (ImportEntriesInput, error) {
@@ -24863,23 +25995,6 @@ func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v any) (int, 
 func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
 	_ = sel
 	res := graphql.MarshalInt(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
-}
-
-func (ec *executionContext) unmarshalNLearningStatus2githubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐLearningStatus(ctx context.Context, v any) (domain.LearningStatus, error) {
-	tmp, err := graphql.UnmarshalString(v)
-	res := domain.LearningStatus(tmp)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNLearningStatus2githubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐLearningStatus(ctx context.Context, sel ast.SelectionSet, v domain.LearningStatus) graphql.Marshaler {
-	_ = sel
-	res := graphql.MarshalString(string(v))
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
@@ -26480,6 +27595,32 @@ func (ec *executionContext) marshalOCard2ᚖgithubᚗcomᚋheartmarshallᚋmyeng
 	return ec._Card(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalOCardSnapshotOutput2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋtransportᚋgraphqlᚋgeneratedᚐCardSnapshotOutput(ctx context.Context, sel ast.SelectionSet, v *CardSnapshotOutput) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._CardSnapshotOutput(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOCardState2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐCardState(ctx context.Context, v any) (*domain.CardState, error) {
+	if v == nil {
+		return nil, nil
+	}
+	tmp, err := graphql.UnmarshalString(v)
+	res := domain.CardState(tmp)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOCardState2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐCardState(ctx context.Context, sel ast.SelectionSet, v *domain.CardState) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	_ = sel
+	_ = ctx
+	res := graphql.MarshalString(string(*v))
+	return res
+}
+
 func (ec *executionContext) unmarshalOCustomExampleInput2ᚕᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋtransportᚋgraphqlᚋgeneratedᚐCustomExampleInputᚄ(ctx context.Context, v any) ([]*CustomExampleInput, error) {
 	if v == nil {
 		return nil, nil
@@ -26545,6 +27686,30 @@ func (ec *executionContext) marshalOEntrySortField2ᚖgithubᚗcomᚋheartmarsha
 	return v
 }
 
+func (ec *executionContext) unmarshalOFloat2ᚖfloat64(ctx context.Context, v any) (*float64, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalFloatContext(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOFloat2ᚖfloat64(ctx context.Context, sel ast.SelectionSet, v *float64) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	_ = sel
+	res := graphql.MarshalFloatContext(*v)
+	return graphql.WrapContextMarshaler(ctx, res)
+}
+
+func (ec *executionContext) marshalOGradeCounts2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐGradeCounts(ctx context.Context, sel ast.SelectionSet, v *domain.GradeCounts) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._GradeCounts(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalOInboxItem2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐInboxItem(ctx context.Context, sel ast.SelectionSet, v *domain.InboxItem) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -26567,25 +27732,6 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	_ = sel
 	_ = ctx
 	res := graphql.MarshalInt(*v)
-	return res
-}
-
-func (ec *executionContext) unmarshalOLearningStatus2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐLearningStatus(ctx context.Context, v any) (*domain.LearningStatus, error) {
-	if v == nil {
-		return nil, nil
-	}
-	tmp, err := graphql.UnmarshalString(v)
-	res := domain.LearningStatus(tmp)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOLearningStatus2ᚖgithubᚗcomᚋheartmarshallᚋmyenglishᚑbackendᚋinternalᚋdomainᚐLearningStatus(ctx context.Context, sel ast.SelectionSet, v *domain.LearningStatus) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	_ = sel
-	_ = ctx
-	res := graphql.MarshalString(string(*v))
 	return res
 }
 

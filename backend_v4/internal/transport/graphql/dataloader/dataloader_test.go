@@ -16,6 +16,7 @@ import (
 	"github.com/heartmarshall/myenglish-backend/internal/adapter/postgres/topic"
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
 	dl "github.com/heartmarshall/myenglish-backend/internal/transport/graphql/dataloader"
+	"github.com/heartmarshall/myenglish-backend/pkg/ctxutil"
 )
 
 // ---------------------------------------------------------------------------
@@ -77,7 +78,7 @@ type mockCardRepo struct {
 	err    error
 }
 
-func (m *mockCardRepo) GetByEntryIDs(_ context.Context, _ []uuid.UUID) ([]domain.Card, error) {
+func (m *mockCardRepo) GetByEntryIDs(_ context.Context, _ uuid.UUID, _ []uuid.UUID) ([]domain.Card, error) {
 	return m.result, m.err
 }
 
@@ -231,7 +232,7 @@ func TestCardLoader_NullableResult(t *testing.T) {
 	}
 
 	loaders := dl.NewLoaders(repos)
-	ctx := context.Background()
+	ctx := ctxutil.WithUserID(context.Background(), uuid.New())
 
 	result1, err := loaders.CardByEntryID.Load(ctx, entry1)()
 	require.NoError(t, err)

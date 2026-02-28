@@ -46,9 +46,9 @@ func SeedUser(t *testing.T, pool *pgxpool.Pool) domain.User {
 	settings.UpdatedAt = now
 
 	_, err = pool.Exec(ctx,
-		`INSERT INTO user_settings (user_id, new_cards_per_day, reviews_per_day, max_interval_days, timezone, updated_at)
-		 VALUES ($1, $2, $3, $4, $5, $6)`,
-		settings.UserID, settings.NewCardsPerDay, settings.ReviewsPerDay, settings.MaxIntervalDays, settings.Timezone, settings.UpdatedAt,
+		`INSERT INTO user_settings (user_id, new_cards_per_day, reviews_per_day, max_interval_days, desired_retention, timezone, updated_at)
+		 VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+		settings.UserID, settings.NewCardsPerDay, settings.ReviewsPerDay, settings.MaxIntervalDays, settings.DesiredRetention, settings.Timezone, settings.UpdatedAt,
 	)
 	if err != nil {
 		t.Fatalf("testhelper: SeedUser insert user_settings: %v", err)
@@ -325,21 +325,19 @@ func SeedEntryWithCard(t *testing.T, pool *pgxpool.Pool, userID uuid.UUID, refEn
 
 	now := time.Now().UTC().Truncate(time.Microsecond)
 	card := domain.Card{
-		ID:           uuid.New(),
-		UserID:       userID,
-		EntryID:      entry.ID,
-		Status:       domain.LearningStatusNew,
-		LearningStep: 0,
-		IntervalDays: 0,
-		EaseFactor:   2.5,
-		CreatedAt:    now,
-		UpdatedAt:    now,
+		ID:        uuid.New(),
+		UserID:    userID,
+		EntryID:   entry.ID,
+		State:     domain.CardStateNew,
+		Due:       now,
+		CreatedAt: now,
+		UpdatedAt: now,
 	}
 
 	_, err := pool.Exec(ctx,
-		`INSERT INTO cards (id, user_id, entry_id, status, learning_step, interval_days, ease_factor, created_at, updated_at)
-		 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-		card.ID, card.UserID, card.EntryID, string(card.Status), card.LearningStep, card.IntervalDays, card.EaseFactor, card.CreatedAt, card.UpdatedAt,
+		`INSERT INTO cards (id, user_id, entry_id, state, due, created_at, updated_at)
+		 VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+		card.ID, card.UserID, card.EntryID, string(card.State), card.Due, card.CreatedAt, card.UpdatedAt,
 	)
 	if err != nil {
 		t.Fatalf("testhelper: SeedEntryWithCard insert card: %v", err)

@@ -7,6 +7,7 @@ import (
 	"github.com/graph-gophers/dataloader/v7"
 
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
+	"github.com/heartmarshall/myenglish-backend/pkg/ctxutil"
 )
 
 // ---------------------------------------------------------------------------
@@ -135,7 +136,12 @@ func newUserImagesBatchFn(repo imageRepo) dataloader.BatchFunc[uuid.UUID, []doma
 
 func newCardBatchFn(repo cardRepo) dataloader.BatchFunc[uuid.UUID, *domain.Card] {
 	return func(ctx context.Context, keys []uuid.UUID) []*dataloader.Result[*domain.Card] {
-		rows, err := repo.GetByEntryIDs(ctx, keys)
+		userID, ok := ctxutil.UserIDFromCtx(ctx)
+		if !ok {
+			return errorResults[*domain.Card](len(keys), domain.ErrUnauthorized)
+		}
+
+		rows, err := repo.GetByEntryIDs(ctx, userID, keys)
 		if err != nil {
 			return errorResults[*domain.Card](len(keys), err)
 		}

@@ -83,7 +83,7 @@ func TestE2E_BatchCreateCards_PartialSuccess(t *testing.T) {
 	entryB := testhelper.SeedEntryWithCard(t, ts.Pool, userID, ref2.ID)
 
 	batchQuery := `mutation($ids: [UUID!]!) {
-		batchCreateCards(entryIds: $ids) { createdCount skippedCount errors { entryId message } }
+		batchCreateCards(entryIds: $ids) { createdCount skippedExisting skippedNoSenses errors { entryId message } }
 	}`
 	status, result := ts.graphqlQuery(t, batchQuery, map[string]any{
 		"ids": []any{entryA.ID.String(), entryB.ID.String()},
@@ -93,7 +93,7 @@ func TestE2E_BatchCreateCards_PartialSuccess(t *testing.T) {
 
 	payload := gqlPayload(t, result, "batchCreateCards")
 	assert.Equal(t, float64(1), payload["createdCount"], "should create 1 card (entry A)")
-	assert.Equal(t, float64(1), payload["skippedCount"], "should skip 1 (entry B already has card)")
+	assert.Equal(t, float64(1), payload["skippedExisting"], "should skip 1 (entry B already has card)")
 
 	// Verify entry A now has a card.
 	getQuery := `query($id: UUID!) { dictionaryEntry(id: $id) { card { id status } } }`
@@ -215,7 +215,7 @@ func TestE2E_BatchCreateCards_SkipsEntriesWithNoSenses(t *testing.T) {
 
 	// Batch create cards.
 	batchQuery := `mutation($ids: [UUID!]!) {
-		batchCreateCards(entryIds: $ids) { createdCount skippedCount errors { entryId message } }
+		batchCreateCards(entryIds: $ids) { createdCount skippedExisting skippedNoSenses errors { entryId message } }
 	}`
 	status, result = ts.graphqlQuery(t, batchQuery, map[string]any{
 		"ids": []any{entryWithSense, entryNoSense},
@@ -225,8 +225,8 @@ func TestE2E_BatchCreateCards_SkipsEntriesWithNoSenses(t *testing.T) {
 
 	payload := gqlPayload(t, result, "batchCreateCards")
 	assert.Equal(t, float64(1), payload["createdCount"])
-	// The senseless entry should be in skipped or errors.
-	totalSkippedOrError := payload["skippedCount"].(float64) + float64(len(payload["errors"].([]any)))
+	// The senseless entry should be in skippedNoSenses or errors.
+	totalSkippedOrError := payload["skippedNoSenses"].(float64) + float64(len(payload["errors"].([]any)))
 	assert.GreaterOrEqual(t, totalSkippedOrError, float64(1), "entry without senses should be skipped or error")
 }
 
