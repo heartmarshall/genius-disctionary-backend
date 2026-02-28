@@ -140,6 +140,13 @@ func reviewLearning(params Parameters, card Card, rating Rating, now time.Time, 
 		steps = []time.Duration{time.Minute}
 	}
 
+	// Snapshot pre-update stability for interval ordering (Easy vs Good comparison).
+	preS := card.Stability
+
+	// Update S/D for every rating (FSRS-5 spec: short-term stability applies to all ratings).
+	card.Stability = ShortTermStability(params.W, card.Stability, rating)
+	card.Difficulty = NextDifficulty(params.W, card.Difficulty, rating)
+
 	switch rating {
 	case Again:
 		// Reset to step 0. Lapses are only incremented on REVIEW → RELEARNING transition.
@@ -161,10 +168,8 @@ func reviewLearning(params Parameters, card Card, rating Rating, now time.Time, 
 	case Good:
 		nextStep := card.Step + 1
 		if nextStep >= len(steps) {
-			// Graduate
-			s := ShortTermStability(params.W, card.Stability, Good)
-			d := NextDifficulty(params.W, card.Difficulty, Good)
-			card = graduateToReview(params, card, s, d, now)
+			// Graduate — S/D already updated above.
+			card = graduateToReview(params, card, card.Stability, card.Difficulty, now)
 		} else {
 			card.Step = nextStep
 			card.ElapsedDays = 0
@@ -173,13 +178,12 @@ func reviewLearning(params Parameters, card Card, rating Rating, now time.Time, 
 		}
 
 	case Easy:
-		// Graduate immediately
-		s := ShortTermStability(params.W, card.Stability, Easy)
-		d := NextDifficulty(params.W, card.Difficulty, Easy)
-		card = graduateToReview(params, card, s, d, now)
+		// Graduate immediately — S/D already updated above.
+		card = graduateToReview(params, card, card.Stability, card.Difficulty, now)
 
-		// For Easy from learning, ensure easyInterval >= goodInterval + 1
-		goodS := ShortTermStability(params.W, card.Stability, Good)
+		// For Easy from learning, ensure easyInterval >= goodInterval + 1.
+		// Use pre-update stability to compute what Good would have produced.
+		goodS := ShortTermStability(params.W, preS, Good)
 		goodInterval := NextInterval(goodS, params.DesiredRetention)
 		goodInterval = clampInterval(goodInterval, params.MaxIntervalDays)
 		if card.ScheduledDays <= goodInterval {
