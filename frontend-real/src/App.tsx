@@ -1,0 +1,60 @@
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router'
+import { ApolloProvider } from '@/providers/ApolloProvider'
+import { AuthProvider } from '@/providers/AuthProvider'
+import { ProtectedRoute } from '@/components/ProtectedRoute'
+import { Toaster } from '@/components/ui/sonner'
+import AuthLayout from '@/layouts/AuthLayout'
+import MainLayout from '@/layouts/MainLayout'
+import LoginPage from '@/pages/LoginPage'
+import RegisterPage from '@/pages/RegisterPage'
+import DashboardPage from '@/pages/DashboardPage'
+import DictionaryPage from '@/pages/DictionaryPage'
+import DictionaryEntryPage from '@/pages/DictionaryEntryPage'
+import StudyPage from '@/pages/StudyPage'
+import TopicsPage from '@/pages/TopicsPage'
+import InboxPage from '@/pages/InboxPage'
+import SettingsPage from '@/pages/SettingsPage'
+import AdminPage from '@/pages/AdminPage'
+import NotFoundPage from '@/pages/NotFoundPage'
+
+function App() {
+  return (
+    <ApolloProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Auth routes — no protection */}
+            <Route element={<AuthLayout />}>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+            </Route>
+
+            {/* Protected app routes */}
+            <Route
+              element={
+                <ProtectedRoute>
+                  <MainLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/dictionary" element={<DictionaryPage />} />
+              <Route path="/dictionary/:id" element={<DictionaryEntryPage />} />
+              <Route path="/study" element={<StudyPage />} />
+              <Route path="/topics" element={<TopicsPage />} />
+              <Route path="/inbox" element={<InboxPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/admin" element={<AdminPage />} />
+            </Route>
+
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </BrowserRouter>
+        <Toaster position="bottom-right" />
+      </AuthProvider>
+    </ApolloProvider>
+  )
+}
+
+export default App

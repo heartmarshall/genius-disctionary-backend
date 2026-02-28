@@ -1,0 +1,243 @@
+@import 'tailwindcss';
+@import './herbarium.css';
+
+/*
+ * Tailwind v4 theme: map Herbarium CSS variables to utility classes.
+ * Usage: bg-poppy, text-umber, font-heading, etc.
+ */
+@theme {
+  /* ── Colors: Flowers ── */
+  --color-poppy: var(--poppy);
+  --color-poppy-hover: var(--poppy-hover);
+  --color-poppy-active: var(--poppy-active);
+  --color-poppy-light: var(--poppy-light);
+  --color-poppy-fg: var(--poppy-fg);
+
+  --color-goldenrod: var(--goldenrod);
+  --color-goldenrod-hover: var(--goldenrod-hover);
+  --color-goldenrod-light: var(--goldenrod-light);
+  --color-goldenrod-fg: var(--goldenrod-fg);
+
+  --color-cornflower: var(--cornflower);
+  --color-cornflower-hover: var(--cornflower-hover);
+  --color-cornflower-light: var(--cornflower-light);
+  --color-cornflower-fg: var(--cornflower-fg);
+
+  --color-thyme: var(--thyme);
+  --color-thyme-hover: var(--thyme-hover);
+  --color-thyme-light: var(--thyme-light);
+  --color-thyme-fg: var(--thyme-fg);
+
+  /* ── Colors: Earth & Wood ── */
+  --color-umber: var(--umber);
+  --color-bark: var(--bark);
+  --color-clay: var(--clay);
+  --color-bark-light: var(--bark-light);
+  --color-clay-light: var(--clay-light);
+
+  /* ── Colors: Greens ── */
+  --color-moss: var(--moss);
+  --color-fern: var(--fern);
+  --color-sage: var(--sage);
+  --color-sage-light: var(--sage-light);
+
+  /* ── Colors: Petals & Berry ── */
+  --color-dried-rose: var(--dried-rose);
+  --color-dried-rose-light: var(--dried-rose-light);
+  --color-lavender: var(--lavender);
+  --color-lavender-light: var(--lavender-light);
+  --color-heather: var(--heather);
+  --color-heather-light: var(--heather-light);
+
+  /* ── Colors: Warm Neutrals ── */
+  --color-parchment: var(--parchment);
+  --color-linen: var(--linen);
+  --color-honey: var(--honey);
+  --color-honey-light: var(--honey-light);
+  --color-straw: var(--straw);
+
+  /* ── Colors: Cool Neutrals ── */
+  --color-mist: var(--mist);
+  --color-slate: var(--slate);
+  --color-storm: var(--storm);
+
+  /* ── Colors: Semantic ── */
+  --color-bg-page: var(--bg-page);
+  --color-bg-card: var(--bg-card);
+  --color-bg-surface: var(--bg-surface);
+  --color-bg-srs: var(--bg-srs);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-text-disabled: var(--text-disabled);
+
+  --color-border: var(--border);
+  --color-border-light: var(--border-light);
+  --color-border-botanical: var(--border-botanical);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-active: var(--accent-active);
+  --color-accent-light: var(--accent-light);
+
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+  --color-warning: var(--warning);
+  --color-warning-bg: var(--warning-bg);
+  --color-success: var(--success);
+  --color-success-bg: var(--success-bg);
+
+  /* ── Colors: SRS ── */
+  --color-srs-again: var(--srs-again);
+  --color-srs-hard: var(--srs-hard);
+  --color-srs-good: var(--srs-good);
+  --color-srs-easy: var(--srs-easy);
+  --color-srs-again-bg: var(--srs-again-bg);
+  --color-srs-hard-bg: var(--srs-hard-bg);
+  --color-srs-good-bg: var(--srs-good-bg);
+  --color-srs-easy-bg: var(--srs-easy-bg);
+
+  /* ── Colors: Status ── */
+  --color-status-new: var(--status-new);
+  --color-status-new-fg: var(--status-new-fg);
+  --color-status-learning: var(--status-learning);
+  --color-status-learning-fg: var(--status-learning-fg);
+  --color-status-review: var(--status-review);
+  --color-status-review-fg: var(--status-review-fg);
+  --color-status-mastered: var(--status-mastered);
+  --color-status-mastered-fg: var(--status-mastered-fg);
+
+  /* ── Colors: Sources ── */
+  --color-source-book: var(--source-book);
+  --color-source-book-light: var(--source-book-light);
+  --color-source-screen: var(--source-screen);
+  --color-source-screen-light: var(--source-screen-light);
+  --color-source-lyrics: var(--source-lyrics);
+  --color-source-lyrics-light: var(--source-lyrics-light);
+
+  /* ── Font Families ── */
+  --font-body: 'Space Grotesk', sans-serif;
+  --font-heading: 'Orelega One', serif;
+  --font-word: 'Lisu Bosa', serif;
+  --font-example-book: 'EB Garamond', serif;
+  --font-example-screen: 'Courier Prime', monospace;
+  --font-example-lyrics: 'Caveat', cursive;
+
+  /* ── Spacing ── */
+  --spacing-2xs: var(--space-2xs);
+  --spacing-xs: var(--space-xs);
+  --spacing-sm: var(--space-sm);
+  --spacing-md: var(--space-md);
+  --spacing-lg: var(--space-lg);
+  --spacing-xl: var(--space-xl);
+  --spacing-2xl: var(--space-2xl);
+
+  /* ── Border Radius ── */
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-full: var(--radius-full);
+
+  /* ── Shadows (Elevation) ── */
+  --shadow-0: var(--elevation-0);
+  --shadow-1: var(--elevation-1);
+  --shadow-2: var(--elevation-2);
+  --shadow-3: var(--elevation-3);
+
+  /* ── shadcn/ui color mappings (for bg-primary, text-muted-foreground, etc.) ── */
+  --color-background: var(--bg-page);
+  --color-foreground: var(--text-primary);
+  --color-primary: var(--poppy);
+  --color-primary-foreground: #ffffff;
+  --color-secondary: var(--bg-surface);
+  --color-secondary-foreground: var(--bark);
+  --color-muted: var(--linen);
+  --color-muted-foreground: var(--text-secondary);
+  --color-destructive: var(--poppy);
+  --color-destructive-foreground: #ffffff;
+  --color-input: var(--border);
+  --color-ring: var(--focus-ring);
+  --color-popover: var(--bg-card);
+  --color-popover-foreground: var(--text-primary);
+  --color-card: var(--bg-card);
+  --color-card-foreground: var(--text-primary);
+  --color-sidebar-background: var(--linen);
+  --color-sidebar-foreground: var(--text-primary);
+  --color-sidebar-primary: var(--poppy);
+  --color-sidebar-primary-foreground: #ffffff;
+  --color-sidebar-accent: var(--poppy-light);
+  --color-sidebar-accent-foreground: var(--poppy-fg);
+  --color-sidebar-border: var(--border);
+  --color-sidebar-ring: var(--focus-ring);
+}
+
+/*
+ * shadcn/ui CSS variable mapping → Herbarium tokens.
+ * shadcn components use these internally (e.g. bg-primary, text-muted-foreground).
+ */
+@layer base {
+  :root {
+    --background: var(--bg-page);
+    --foreground: var(--text-primary);
+
+    --primary: var(--accent);
+    --primary-foreground: #ffffff;
+
+    --secondary: var(--bg-surface);
+    --secondary-foreground: var(--bark);
+
+    --muted: var(--linen);
+    --muted-foreground: var(--text-secondary);
+
+    --accent: var(--poppy);
+    --accent-foreground: #ffffff;
+
+    --destructive: var(--danger);
+    --destructive-foreground: #ffffff;
+
+    --border: var(--border);
+    --input: var(--border);
+    --ring: var(--focus-ring);
+
+    --popover: var(--bg-card);
+    --popover-foreground: var(--text-primary);
+
+    --card: var(--bg-card);
+    --card-foreground: var(--text-primary);
+
+    --sidebar-background: var(--linen);
+    --sidebar-foreground: var(--text-primary);
+    --sidebar-primary: var(--accent);
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: var(--accent-light);
+    --sidebar-accent-foreground: var(--poppy-fg);
+    --sidebar-border: var(--border);
+    --sidebar-ring: var(--focus-ring);
+
+    --radius: var(--radius-md);
+  }
+}
+
+/* ═══ Base styles ═══ */
+body {
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  background: var(--bg-page);
+  font-size: var(--type-base);
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Focus ring using Herbarium accent */
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
