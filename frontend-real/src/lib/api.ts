@@ -30,7 +30,8 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ error: response.statusText }))
-    throw new ApiError(response.status, error)
+    const retryAfter = response.headers.get('Retry-After')
+    throw new ApiError(response.status, error, retryAfter ? parseInt(retryAfter, 10) : undefined)
   }
 
   return response.json() as Promise<T>
@@ -39,12 +40,14 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
 export class ApiError extends Error {
   status: number
   data: unknown
+  retryAfter?: number
 
-  constructor(status: number, data: unknown) {
+  constructor(status: number, data: unknown, retryAfter?: number) {
     super(`API Error: ${status}`)
     this.name = 'ApiError'
     this.status = status
     this.data = data
+    this.retryAfter = retryAfter
   }
 }
 

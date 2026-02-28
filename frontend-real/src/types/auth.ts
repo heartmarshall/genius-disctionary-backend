@@ -17,3 +17,14 @@ export interface AuthResponse {
   refreshToken: string
   user: User
 }
+
+export interface ValidationFieldError {
+  field: string
+  message: string
+}
+
+export interface ValidationErrorResponse {
+  error: string
+  code: 'VALIDATION'
+  fields: ValidationFieldError[]
+}
