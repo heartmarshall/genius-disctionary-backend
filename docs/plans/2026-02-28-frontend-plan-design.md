@@ -1,16 +1,10 @@
-# MyEnglish Frontend — General Plan
-
-**Date**: 2026-02-28
-**Status**: Approved
-**Approach**: Vertical slices — each phase delivers a working feature end-to-end
-
----
+# MyEnglish Frontend
 
 ## 1. Project Context
 
 ### Product
 
-**MyEnglish** — spaced-repetition vocabulary learning platform (FSRS-5 algorithm). Users build personal English dictionaries from a shared reference catalog or manually, create flashcards, and study them on an algorithm-optimized schedule.
+**MyEnglish** — spaced-repetition vocabulary learning platform. Users build personal English dictionaries, create flashcards, and study them on an algorithm-optimized schedule.
 
 ### Target Audience
 
@@ -19,9 +13,6 @@ Non-native English speakers (Russian-speaking primarily), levels CEFR A2–C1.
 ### Documentation Sources
 
 | Document | Path | Purpose |
-|----------|------|---------|
-| **Design System** | `frontend-real/design-docs/palette-v3.html` | Herbarium v3.0 — full palette, typography, ready components (flashcard, SRS buttons, pills, tags, buttons, inputs, modals, toasts, skeletons). Open in browser. |
-| **API Reference** | `backend_v4/docs/API.md` | All REST and GraphQL endpoints, request/response formats, pagination, errors |
 | **Domain Model** | `docs/business/DOMAIN_MODEL.md` | Entities (Entry, Sense, Card, Topic, Inbox etc.) and relationships |
 | **Business Rules** | `docs/business/BUSINESS_RULES.md` | All limits, validations, formulas (SRS, streak, accuracy) |
 | **Workflows** | `docs/business/WORKFLOWS.md` | Step-by-step scenarios: registration, adding words, studying, dashboard |
@@ -36,26 +27,25 @@ Non-native English speakers (Russian-speaking primarily), levels CEFR A2–C1.
 
 ### Visual System
 
-**Herbarium Design System v3.0** (see `palette-v3.html`) — botanical "pressed herbarium" theme. Muted nature-inspired palette (24 OKLCH colors, chroma 0.06–0.10). White backgrounds + warm neutrals (parchment, linen, umber). Accent — poppy (muted vermillion).
+**Herbarium Design System**
+ botanical "pressed herbarium" theme. Muted nature-inspired palette. White backgrounds. Accent — poppy color (muted vermillion).
 
-**Semantic evaluation axis** (hot → calm): Poppy (Again/New) → Goldenrod (Hard/Learning) → Cornflower (Good/Review) → Thyme (Easy/Mastered).
 
-**6 fonts** (defined in `palette-v3.html`):
+**6 fonts** :
 
+// TODO: заменить space grotesk на что-то более подходящее для primary UI
 - Space Grotesk — primary UI text
-- Orelega One — headings
-- Lisu Bosa — words on flashcards
+- Orelega One — headings, words on flashcards
 - EB Garamond — book example sentences
 - Courier Prime — movie/TV subtitle examples
+// TODO: подобрать другой шрифт для примеров из песен
 - Caveat — song lyric examples
 
-**Ready components in design system**: SRS Flashcard, SRS Buttons (active + disabled), Tab Navigation, Buttons (primary, secondary, ghost, danger, calm, disabled), Input Fields (normal + error), Status Pills, Source Tags, Toasts, Modals, Vocab Cards, Skeleton loaders, Elevation levels, Example blocks.
-
 ### Tech Stack
-
-- React 19 + TypeScript + Vite
-- Tailwind CSS + CSS variables from Herbarium
-- shadcn/ui (base components customized to Herbarium theme)
+- React + TypeScript + Vite
+- Tailwind CSS
+// TODO: найти какие еще готовые библиотеки можно использовать
+- shadcn/ui
 - Apollo Client (GraphQL)
 - React Router (routing)
 
@@ -86,20 +76,7 @@ Non-native English speakers (Russian-speaking primarily), levels CEFR A2–C1.
 
 **Goal**: Runnable empty project with all infrastructure. After this phase, any feature can be worked on.
 
-**Scope**:
-
-- Project init: Vite + React 19 + TypeScript
-- Tailwind CSS with CSS variables from Herbarium (`palette-v3.html`): all colors, fonts, spacing, radius, elevation, motion tokens
-- shadcn/ui: install, customize to Herbarium theme
-- Google Fonts (6 fonts from design system)
-- Project structure: `pages/`, `components/`, `lib/`, `hooks/`, `graphql/`
-- React Router: layout with navigation (Tab Navigation from `palette-v3.html`), stubs for all pages
-- Apollo Client: client setup, auth link (JWT in headers), token refresh logic
-- Auth infrastructure: token storage, protected routes, auth context
-- Base UI components from design system: Button, Input, Toast, Modal, Pill, Tag, Skeleton (all per `palette-v3.html`)
-- ESLint, Prettier
-
-**Deliverable**: Navigate to any route, see Herbarium-styled navigation, all base components work.
+**Deliverable**: Navigate to any route, see navigation, all base components work.
 
 ---
 
@@ -131,8 +108,7 @@ Non-native English speakers (Russian-speaking primarily), levels CEFR A2–C1.
 **Scope**:
 
 - Stat widgets: Due Count, New Count, Reviewed Today, New Today, Overdue Count, Streak
-- Card status distribution (New / Learning / Review / Relearning) — visualized with Status Pills from `palette-v3.html`
-- Active session indicator (if unfinished session exists)
+- Card status distribution (New / Learning / Review / Relearning)
 - "Start Study" button (links to Phase 4, stub until then)
 - Responsive layout: mobile (stacked cards) + desktop (grid)
 
@@ -149,12 +125,14 @@ Non-native English speakers (Russian-speaking primarily), levels CEFR A2–C1.
 **Scope**:
 
 - **Word list**: cursor pagination, search, sort (created_at, updated_at), filters (hasCard, partOfSpeech, topicId, status)
-- **Word card in list**: Vocab Card from `palette-v3.html` — word, definition, status (pill), part of speech (tag)
+- очень важно сделать так, чтобы при поиске страница не обновлялась полность и поле ввода не деактивировалось после ввода пользователем символов.
+- **Word card in list**: Vocab Card — word, definition, status (pill), part of speech (tag) 
+// TODO: перенести обзор карточки слова из прошлой версии фронтенда
 - **Word detail page**: full Entry view with Senses, Translations, Examples, User Images, Topics, Card info
-- **Add from catalog**: search (`searchCatalog`), preview (`previewRefEntry`), select senses, option to create card
+- **Add from catalog**: пользователь выбирает слово из поиска -> открывается карточка этого слова. (пока что пусть пользователь просто выбирает какие senses выбрать для себя, но в будущем надо чтобы можно было выбирать любую инфу из ref - что оставить а что убрать)
 - **Add custom word**: form with text, senses, definitions, translations, examples
 - **Edit**: CRUD for Senses, Translations, Examples (add/update/delete/reorder)
-- **Delete**: soft delete with confirmation (Modal from `palette-v3.html`)
+- **Delete**: soft delete with confirmation
 - **Trash**: deleted entries list, restore
 - **Bulk import**: upload word list, display results (created/skipped/errors)
 - **Card creation**: "Create Card" button for entries without card, batch create
@@ -172,9 +150,9 @@ Non-native English speakers (Russian-speaking primarily), levels CEFR A2–C1.
 **Scope**:
 
 - **Start session**: button from Dashboard or navigation
-- **Flashcard UI**: component from `palette-v3.html` — word (Lisu Bosa), phonetics, definition, translation, example (styled by source: EB Garamond / Courier Prime / Caveat)
+- **Flashcard UI**: component — word, phonetics, definition, translation, examples
 - **"Show answer" mechanic**: first show word, on click — definition + translation + examples
-- **SRS buttons**: Again / Hard / Good / Easy with intervals (from `palette-v3.html`, semantic color axis)
+- **SRS buttons**: Again / Hard / Good / Easy with intervals
 - **Undo**: undo last review button (within 10 min window)
 - **Session progress**: progress bar, card counter
 - **Session finish**: results screen — total reviews, accuracy rate, grade distribution, new vs due
@@ -243,11 +221,9 @@ Non-native English speakers (Russian-speaking primarily), levels CEFR A2–C1.
 **Scope**:
 
 - **Error handling**: global error boundary, retry logic, offline state
-- **Loading states**: Skeleton loaders from `palette-v3.html` on all pages
+- **Loading states**: Skeleton loaders on all pages
 - **Empty states**: when no words, no cards, no topics
-- **Animations**: motion tokens from design system (duration-fast/normal/slow, ease-spring/standard)
-- **Accessibility**: keyboard navigation, focus ring (poppy), ARIA labels, screen reader support
-- **Responsive**: final check of all screens on mobile/tablet/desktop
+- **Animations**: 
 - **Toast notifications**: success/error for all mutations
 - **Optimistic updates**: for frequently used actions (review card, delete entry)
 - **Performance**: code splitting per route, lazy loading
