@@ -35,7 +35,11 @@ export function Sidebar({ collapsed, onToggle, onClose }: SidebarProps) {
 
   const handleLogout = async () => {
     setIsLoggingOut(true)
-    await logout()
+    try {
+      await logout()
+    } catch {
+      setIsLoggingOut(false)
+    }
   }
 
   return (
@@ -89,7 +93,7 @@ export function Sidebar({ collapsed, onToggle, onClose }: SidebarProps) {
       <div className="mt-auto border-t border-border-default px-2 py-3">
         {!collapsed && user && (
           <p className="mb-2 truncate px-3 text-xs text-text-secondary">
-            {user.email}
+            {user.email || user.username}
           </p>
         )}
         <button

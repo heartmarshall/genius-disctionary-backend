@@ -8,7 +8,6 @@ import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton'
 import { FormField } from '@/components/common/FormField'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
 
 interface LoginFormValues {
   email: string
@@ -52,12 +51,6 @@ export function LoginPage() {
       <h1 className="text-3xl font-bold text-text-primary">Войти</h1>
 
       <GoogleSignInButton />
-
-      <div className="flex items-center gap-3">
-        <Separator className="flex-1" />
-        <span className="text-xs text-text-tertiary">или</span>
-        <Separator className="flex-1" />
-      </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         {genericError && (
