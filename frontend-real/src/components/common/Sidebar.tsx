@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { cn } from '@/lib/utils'
+import { useAuth } from '@/providers/AuthProvider'
 import {
   LayoutDashboard,
   BookOpen,
@@ -9,6 +11,7 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  LogOut,
 } from 'lucide-react'
 
 const navItems = [
@@ -27,6 +30,14 @@ interface SidebarProps {
 }
 
 export function Sidebar({ collapsed, onToggle, onClose }: SidebarProps) {
+  const { user, logout } = useAuth()
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true)
+    await logout()
+  }
+
   return (
     <aside
       aria-label="Main navigation"
@@ -74,6 +85,24 @@ export function Sidebar({ collapsed, onToggle, onClose }: SidebarProps) {
           </NavLink>
         ))}
       </nav>
+
+      <div className="mt-auto border-t border-border-default px-2 py-3">
+        {!collapsed && user && (
+          <p className="mb-2 truncate px-3 text-xs text-text-secondary">
+            {user.email}
+          </p>
+        )}
+        <button
+          type="button"
+          onClick={handleLogout}
+          disabled={isLoggingOut}
+          aria-label="Выйти"
+          className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-text-secondary transition-colors duration-150 hover:bg-poppy-light hover:text-poppy disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <LogOut size={20} />
+          {!collapsed && <span>{isLoggingOut ? 'Выходим...' : 'Выйти'}</span>}
+        </button>
+      </div>
     </aside>
   )
 }
