@@ -1,11 +1,12 @@
 import { useForm } from 'react-hook-form'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import { useAuth } from '@/providers/AuthProvider'
 import { registerUser, isApiError } from '@/lib/auth-api'
 import { validateEmail, validateUsername, validatePassword } from '@/lib/validation'
 import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton'
 import { FormField } from '@/components/common/FormField'
+import { PasswordInput } from '@/components/common/PasswordInput'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 
@@ -18,6 +19,8 @@ interface RegisterFormValues {
 
 export function RegisterPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const redirectTo = searchParams.get('redirect') || '/dashboard'
   const auth = useAuth()
 
   const {
@@ -32,7 +35,7 @@ export function RegisterPage() {
     try {
       const response = await registerUser(data.email, data.username, data.password)
       auth.login({ accessToken: response.accessToken, refreshToken: response.refreshToken }, response.user)
-      navigate('/dashboard')
+      navigate(redirectTo)
     } catch (err) {
       if (isApiError(err)) {
         if (err.status === 429) {
@@ -57,7 +60,7 @@ export function RegisterPage() {
     <div className="flex flex-col gap-6">
       <h1 className="text-3xl font-bold text-text-primary">Создать аккаунт</h1>
 
-      <GoogleSignInButton />
+      <GoogleSignInButton redirectTo={redirectTo} />
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <FormField label="Email" required error={errors.email?.message} id="register-email">
@@ -80,9 +83,8 @@ export function RegisterPage() {
         </FormField>
 
         <FormField label="Пароль" required error={errors.password?.message} id="register-password">
-          <Input
+          <PasswordInput
             id="register-password"
-            type="password"
             autoComplete="new-password"
             placeholder="Минимум 8 символов"
             {...register('password', { validate: validatePassword })}
@@ -90,9 +92,8 @@ export function RegisterPage() {
         </FormField>
 
         <FormField label="Подтверди пароль" required error={errors.confirmPassword?.message} id="register-confirm-password">
-          <Input
+          <PasswordInput
             id="register-confirm-password"
-            type="password"
             autoComplete="new-password"
             placeholder="Повтори пароль"
             {...register('confirmPassword', {

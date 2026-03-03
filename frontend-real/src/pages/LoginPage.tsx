@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import { useAuth } from '@/providers/AuthProvider'
 import { loginPassword, isApiError } from '@/lib/auth-api'
 import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton'
 import { FormField } from '@/components/common/FormField'
+import { PasswordInput } from '@/components/common/PasswordInput'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 
@@ -16,6 +17,8 @@ interface LoginFormValues {
 
 export function LoginPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const redirectTo = searchParams.get('redirect') || '/dashboard'
   const auth = useAuth()
   const [genericError, setGenericError] = useState('')
 
@@ -30,7 +33,7 @@ export function LoginPage() {
     try {
       const response = await loginPassword(data.email, data.password)
       auth.login({ accessToken: response.accessToken, refreshToken: response.refreshToken }, response.user)
-      navigate('/dashboard')
+      navigate(redirectTo)
     } catch (err) {
       if (isApiError(err)) {
         if (err.status === 429) {
@@ -50,7 +53,7 @@ export function LoginPage() {
     <div className="flex flex-col gap-6">
       <h1 className="text-3xl font-bold text-text-primary">Войти</h1>
 
-      <GoogleSignInButton />
+      <GoogleSignInButton redirectTo={redirectTo} />
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         {genericError && (
@@ -68,9 +71,8 @@ export function LoginPage() {
         </FormField>
 
         <FormField label="Пароль" required error={errors.password?.message} id="login-password">
-          <Input
+          <PasswordInput
             id="login-password"
-            type="password"
             autoComplete="current-password"
             placeholder="Пароль"
             {...register('password', { required: 'Введи пароль' })}
