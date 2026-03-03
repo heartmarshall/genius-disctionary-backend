@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Orelega+One&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Courier+Prime&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Layer 1 — Interface */
+    --bg-page: #ffffff;
+    --bg-card: #ffffff;
+    --surface-secondary: #f8f8f8;
+    --surface-disabled: #e8e8e8;
+    --border-default: #d4d4d4;
+    --border-subtle: #e8e8e8;
+    --text-primary: #1a1a1a;
+    --text-secondary: #666666;
+    --text-tertiary: #999999;
+    --text-disabled: #b8b8b8;
+    --text-on-accent: #ffffff;
+
+    /* Layer 2 — Poppy */
+    --poppy: #a14832;
+    --poppy-hover: #8a3b28;
+    --poppy-light: #f5ebe7;
+    --poppy-fg: #7d3e2b;
+
+    /* Layer 2 — Goldenrod */
+    --goldenrod: #b9983d;
+    --goldenrod-hover: #766536;
+    --goldenrod-light: #f3f0e5;
+    --goldenrod-fg: #6b5e34;
+
+    /* Layer 2 — Cornflower */
+    --cornflower: #55698a;
+    --cornflower-hover: #475a78;
+    --cornflower-light: #e8ecf2;
+    --cornflower-fg: #3f526d;
+
+    /* Layer 2 — Thyme */
+    --thyme: #4c7458;
+    --thyme-hover: #40654b;
+    --thyme-light: #eff5f0;
+    --thyme-fg: #3a6146;
+  }
+
+  * {
+    @apply border-border-subtle;
+  }
+
+  body {
+    @apply bg-bg-page text-text-primary font-sans;
+  }
+}
