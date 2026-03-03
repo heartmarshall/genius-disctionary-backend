@@ -23,7 +23,7 @@ export function RegisterPage() {
     register,
     handleSubmit,
     setError,
-    watch,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormValues>({ mode: 'onBlur' })
 
@@ -57,36 +57,44 @@ export function RegisterPage() {
       <h1 className="text-3xl font-bold text-text-primary">Создать аккаунт</h1>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <FormField label="Email" required error={errors.email?.message}>
+        <FormField label="Email" required error={errors.email?.message} id="register-email">
           <Input
+            id="register-email"
             type="email"
+            autoComplete="email"
             placeholder="email@example.com"
             {...register('email', { validate: validateEmail })}
           />
         </FormField>
 
-        <FormField label="Имя пользователя" required error={errors.username?.message}>
+        <FormField label="Имя пользователя" required error={errors.username?.message} id="register-username">
           <Input
+            id="register-username"
+            autoComplete="username"
             placeholder="username"
             {...register('username', { validate: validateUsername })}
           />
         </FormField>
 
-        <FormField label="Пароль" required error={errors.password?.message}>
+        <FormField label="Пароль" required error={errors.password?.message} id="register-password">
           <Input
+            id="register-password"
             type="password"
+            autoComplete="new-password"
             placeholder="Минимум 8 символов"
             {...register('password', { validate: validatePassword })}
           />
         </FormField>
 
-        <FormField label="Подтверди пароль" required error={errors.confirmPassword?.message}>
+        <FormField label="Подтверди пароль" required error={errors.confirmPassword?.message} id="register-confirm-password">
           <Input
+            id="register-confirm-password"
             type="password"
+            autoComplete="new-password"
             placeholder="Повтори пароль"
             {...register('confirmPassword', {
               validate: (value) =>
-                value === watch('password') || 'Пароли не совпадают',
+                value === getValues('password') || 'Пароли не совпадают',
             })}
           />
         </FormField>

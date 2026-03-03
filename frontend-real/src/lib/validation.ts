@@ -2,8 +2,8 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export function validateEmail(value: string): string | true {
   if (!value.trim()) return 'Введи email'
-  if (!EMAIL_REGEX.test(value)) return 'Некорректный формат email'
   if (value.length > 254) return 'Email слишком длинный (макс. 254 символа)'
+  if (!EMAIL_REGEX.test(value)) return 'Некорректный формат email'
   return true
 }
 

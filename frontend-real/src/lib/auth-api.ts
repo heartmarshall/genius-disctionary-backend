@@ -8,7 +8,8 @@ export function isApiError(err: unknown): err is ApiError {
     err !== null &&
     'status' in err &&
     typeof (err as ApiError).status === 'number' &&
-    'error' in err
+    'error' in err &&
+    typeof (err as ApiError).error === 'string'
   )
 }
 
@@ -66,7 +67,7 @@ export async function loginPassword(
 }
 
 export async function loginOAuth(
-  provider: string,
+  provider: 'google',
   code: string,
 ): Promise<AuthResponse> {
   try {
