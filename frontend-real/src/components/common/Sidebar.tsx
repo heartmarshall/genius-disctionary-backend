@@ -29,6 +29,7 @@ interface SidebarProps {
 export function Sidebar({ collapsed, onToggle, onClose }: SidebarProps) {
   return (
     <aside
+      aria-label="Main navigation"
       className={cn(
         'flex h-full flex-col border-r border-border-default bg-surface-secondary transition-[width] duration-200',
         collapsed ? 'w-16' : 'w-60'
@@ -54,6 +55,7 @@ export function Sidebar({ collapsed, onToggle, onClose }: SidebarProps) {
             key={to}
             to={to}
             onClick={onClose}
+            aria-label={collapsed ? label : undefined}
             className={({ isActive }) =>
               cn(
                 'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors duration-150',

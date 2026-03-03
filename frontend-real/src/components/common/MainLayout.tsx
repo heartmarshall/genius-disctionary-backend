@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import { Menu } from 'lucide-react'
 import { Sidebar } from './Sidebar'
@@ -6,6 +6,22 @@ import { Sidebar } from './Sidebar'
 export function MainLayout() {
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const sidebarRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!mobileOpen) return
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileOpen(false)
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    document.body.style.overflow = 'hidden'
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      document.body.style.overflow = ''
+    }
+  }, [mobileOpen])
 
   return (
     <div className="flex h-screen overflow-hidden bg-bg-page">
@@ -16,12 +32,18 @@ export function MainLayout() {
 
       {/* Mobile overlay */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-20 flex md:hidden">
+        <div
+          className="fixed inset-0 z-20 flex md:hidden"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Navigation"
+        >
           <div
             className="fixed inset-0 bg-black/40"
+            aria-hidden="true"
             onClick={() => setMobileOpen(false)}
           />
-          <div className="relative z-20">
+          <div className="relative z-20" ref={sidebarRef}>
             <Sidebar
               collapsed={false}
               onToggle={() => setMobileOpen(false)}
