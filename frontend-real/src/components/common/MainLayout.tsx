@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
+import { Menu } from 'lucide-react'
 import { Sidebar } from './Sidebar'
 
 export function MainLayout() {
@@ -40,9 +41,7 @@ export function MainLayout() {
             className="text-text-secondary"
             aria-label="Open navigation"
           >
-            <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M3 12h18M3 6h18M3 18h18" />
-            </svg>
+            <Menu size={24} />
           </button>
           <span className="ml-3 text-lg font-semibold text-text-primary">MyEnglish</span>
         </header>

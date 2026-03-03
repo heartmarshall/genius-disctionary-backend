@@ -44,6 +44,9 @@ export default {
           light: 'var(--thyme-light)',
           fg: 'var(--thyme-fg)',
         },
+        'source-book': { DEFAULT: 'var(--source-book)', light: 'var(--source-book-light)' },
+        'source-screen': { DEFAULT: 'var(--source-screen)', light: 'var(--source-screen-light)' },
+        'source-music': { DEFAULT: 'var(--source-music)', light: 'var(--source-music-light)' },
       },
       fontFamily: {
         sans: ['Space Grotesk', 'system-ui', 'sans-serif'],

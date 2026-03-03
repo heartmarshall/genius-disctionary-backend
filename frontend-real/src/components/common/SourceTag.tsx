@@ -3,20 +3,20 @@ import { cn } from '@/lib/utils'
 const sourceConfig = {
   book: {
     label: 'Book',
-    bg: 'bg-[#f0ecf5]',
-    text: 'text-[#7a6898]',
+    bg: 'bg-source-book-light',
+    text: 'text-source-book',
     font: 'font-serif',
   },
   screen: {
     label: 'Screen',
-    bg: 'bg-[#e8eff3]',
-    text: 'text-[#4e7385]',
+    bg: 'bg-source-screen-light',
+    text: 'text-source-screen',
     font: 'font-mono',
   },
   music: {
     label: 'Music',
-    bg: 'bg-[#f3ecf1]',
-    text: 'text-[#8a6482]',
+    bg: 'bg-source-music-light',
+    text: 'text-source-music',
     font: 'font-serif italic',
   },
 } as const

@@ -43,6 +43,14 @@
     --thyme-light: #eff5f0;
     --thyme-fg: #3a6146;
 
+    /* Layer 3 — Content sources */
+    --source-book: #7a6898;
+    --source-book-light: #f0ecf5;
+    --source-screen: #4e7385;
+    --source-screen-light: #e8eff3;
+    --source-music: #8a6482;
+    --source-music-light: #f3ecf1;
+
     /* shadcn/ui mappings → Herbarium tokens */
     --background: var(--bg-page);
     --foreground: var(--text-primary);

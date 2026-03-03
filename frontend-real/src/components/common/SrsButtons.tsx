@@ -31,10 +31,9 @@ export function SrsButtons({ onGrade, intervals, disabled, className }: SrsButto
             onClick={() => onGrade(grade)}
             className={cn(
               'flex flex-1 flex-col items-center rounded-md px-3 py-2 text-sm font-medium transition-colors duration-150',
-              config.bg,
-              config.hover,
-              config.text,
-              disabled && 'bg-surface-disabled text-text-disabled cursor-not-allowed'
+              disabled
+                ? 'bg-surface-disabled text-text-disabled cursor-not-allowed'
+                : [config.bg, config.hover, config.text]
             )}
           >
             <span>{config.label}</span>
