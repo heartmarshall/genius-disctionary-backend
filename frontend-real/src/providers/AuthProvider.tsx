@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import { useApolloClient } from '@apollo/client/react'
+import { ServerError } from '@apollo/client/errors'
 import type { User, AuthTokens } from '@/types/auth'
 import {
   getAccessToken,
@@ -35,7 +36,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     client
       .query<{ me: User }>({ query: ME_QUERY, fetchPolicy: 'network-only' })
       .then(({ data }) => { if (data?.me) setUser(data.me) })
-      .catch(() => clearTokens())
+      .catch((err: unknown) => {
+        // Only clear tokens on auth errors (401/403).
+        // Network errors or server errors should preserve the session.
+        const networkError =
+          err && typeof err === 'object' && 'networkError' in err
+            ? (err as { networkError: unknown }).networkError
+            : null
+        if (ServerError.is(networkError) && (networkError.statusCode === 401 || networkError.statusCode === 403)) {
+          clearTokens()
+        }
+      })
       .finally(() => setIsLoading(false))
   }, [client])
 

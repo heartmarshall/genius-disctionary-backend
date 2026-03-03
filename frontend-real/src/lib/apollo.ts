@@ -28,17 +28,34 @@ const authLink = new ApolloLink((operation, forward) => {
   return forward(operation)
 })
 
+let refreshPromise: Promise<{ accessToken: string; refreshToken: string }> | null = null
+let isRedirectingToLogin = false
+
+function redirectToLogin() {
+  if (isRedirectingToLogin) return
+  isRedirectingToLogin = true
+  clearTokens()
+  window.location.href = '/login'
+}
+
 const errorLink = onError(({ error, operation, forward }) => {
   if (ServerError.is(error) && error.statusCode === 401) {
-    const refreshToken = getRefreshToken()
-    if (!refreshToken) {
-      clearTokens()
-      window.location.href = '/login'
+    // Prevent infinite retry: if this is already a retried request, give up
+    const context = operation.getContext()
+    if (context._hasRetried) {
+      redirectToLogin()
       return
     }
 
-    return new Observable((observer) => {
-      fetch(`${BASE_URL}/auth/refresh`, {
+    const refreshToken = getRefreshToken()
+    if (!refreshToken) {
+      redirectToLogin()
+      return
+    }
+
+    // Coalesce concurrent refresh attempts into a single request
+    if (!refreshPromise) {
+      refreshPromise = fetch(`${BASE_URL}/auth/refresh`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ refreshToken }),
@@ -47,21 +64,27 @@ const errorLink = onError(({ error, operation, forward }) => {
           if (!res.ok) throw new Error('Refresh failed')
           return res.json()
         })
-        .then(({ accessToken, refreshToken: newRefreshToken }) => {
-          setAccessToken(accessToken)
-          setRefreshToken(newRefreshToken)
+        .then((data: { accessToken: string; refreshToken: string }) => {
+          setAccessToken(data.accessToken)
+          setRefreshToken(data.refreshToken)
+          return data
+        })
+        .finally(() => {
+          refreshPromise = null
+        })
+    }
 
+    return new Observable((observer) => {
+      refreshPromise!
+        .then(({ accessToken }) => {
           operation.setContext({
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
+            headers: { Authorization: `Bearer ${accessToken}` },
+            _hasRetried: true,
           })
-
           forward(operation).subscribe(observer)
         })
         .catch(() => {
-          clearTokens()
-          window.location.href = '/login'
+          redirectToLogin()
           observer.complete()
         })
     })
