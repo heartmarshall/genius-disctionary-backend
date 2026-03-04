@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { useAuth } from '@/providers/AuthProvider'
 import { loginPassword, isApiError } from '@/lib/auth-api'
+import { validateEmail, validatePassword } from '@/lib/validation'
 import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton'
 import { FormField } from '@/components/common/FormField'
 import { PasswordInput } from '@/components/common/PasswordInput'
@@ -68,7 +69,7 @@ export function LoginPage() {
             type="email"
             autoComplete="email"
             placeholder={t('field.placeholder.email')}
-            {...register('email', { required: t('login.error.credentials') })}
+            {...register('email', { validate: validateEmail })}
           />
         </FormField>
 
@@ -77,7 +78,7 @@ export function LoginPage() {
             id="login-password"
             autoComplete="current-password"
             placeholder={t('field.placeholder.password')}
-            {...register('password', { required: t('login.error.credentials') })}
+            {...register('password', { validate: validatePassword })}
           />
         </FormField>
 

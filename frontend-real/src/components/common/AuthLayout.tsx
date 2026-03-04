@@ -4,7 +4,7 @@ import { useAuth } from '@/providers/AuthProvider'
 import { Skeleton } from '@/components/ui/skeleton'
 
 function LanguageToggle() {
-  const { i18n } = useTranslation()
+  const { t, i18n } = useTranslation('auth')
   const current = i18n.resolvedLanguage?.startsWith('ru') ? 'ru' : 'en'
   const next = current === 'en' ? 'ru' : 'en'
   const label = current.toUpperCase()
@@ -14,7 +14,7 @@ function LanguageToggle() {
       type="button"
       onClick={() => i18n.changeLanguage(next)}
       className="text-sm font-medium text-text-secondary transition-colors duration-150 hover:text-poppy"
-      aria-label={`Switch language to ${next === 'en' ? 'English' : 'Russian'}`}
+      aria-label={t(`language.switch_to_${next}`)}
     >
       {label}
     </button>
