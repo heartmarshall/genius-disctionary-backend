@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { useAuth } from '@/providers/AuthProvider'
 import { loginPassword, isApiError } from '@/lib/auth-api'
@@ -16,6 +17,7 @@ interface LoginFormValues {
 }
 
 export function LoginPage() {
+  const { t } = useTranslation('auth')
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const redirectTo = searchParams.get('redirect') || '/dashboard'
@@ -37,21 +39,21 @@ export function LoginPage() {
     } catch (err) {
       if (isApiError(err)) {
         if (err.status === 429) {
-          toast.error('Слишком много попыток. Попробуй позже.')
+          toast.error(t('login.error.rate_limit'))
           return
         }
         if (err.status === 401) {
-          setGenericError('Неверный email или пароль')
+          setGenericError(t('login.error.credentials'))
           return
         }
       }
-      toast.error('Ошибка входа. Попробуй ещё раз.')
+      toast.error(t('login.error.generic'))
     }
   }
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-3xl font-bold text-text-primary">Войти</h1>
+      <h1 className="text-3xl font-bold text-text-primary">{t('login.title')}</h1>
 
       <GoogleSignInButton redirectTo={redirectTo} />
 
@@ -60,34 +62,34 @@ export function LoginPage() {
           <p className="text-sm text-poppy-fg" role="alert">{genericError}</p>
         )}
 
-        <FormField label="Email" required error={errors.email?.message} id="login-email">
+        <FormField label={t('field.email')} required error={errors.email?.message} id="login-email">
           <Input
             id="login-email"
             type="email"
             autoComplete="email"
-            placeholder="email@example.com"
-            {...register('email', { required: 'Введи email' })}
+            placeholder={t('field.placeholder.email')}
+            {...register('email', { required: t('login.error.credentials') })}
           />
         </FormField>
 
-        <FormField label="Пароль" required error={errors.password?.message} id="login-password">
+        <FormField label={t('field.password')} required error={errors.password?.message} id="login-password">
           <PasswordInput
             id="login-password"
             autoComplete="current-password"
-            placeholder="Пароль"
-            {...register('password', { required: 'Введи пароль' })}
+            placeholder={t('field.placeholder.password')}
+            {...register('password', { required: t('login.error.credentials') })}
           />
         </FormField>
 
         <Button type="submit" disabled={isSubmitting} className="w-full">
-          {isSubmitting ? 'Входим...' : 'Войти'}
+          {isSubmitting ? t('login.submitting') : t('login.submit')}
         </Button>
       </form>
 
       <p className="text-center text-sm text-text-secondary">
-        Нет аккаунта?{' '}
+        {t('login.no_account')}{' '}
         <Link to="/register" className="text-poppy hover:underline">
-          Создать
+          {t('login.signup_link')}
         </Link>
       </p>
     </div>
