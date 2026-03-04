@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useGoogleLogin } from '@react-oauth/google'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { useAuth } from '@/providers/AuthProvider'
 import { loginOAuth, isApiError } from '@/lib/auth-api'
@@ -20,6 +21,7 @@ export function GoogleSignInButton(props: GoogleSignInButtonProps) {
 
 /** Inner component: safe to call useGoogleLogin — only rendered when provider exists */
 function GoogleSignInButtonInner({ redirectTo }: GoogleSignInButtonProps) {
+  const { t } = useTranslation('auth')
   const navigate = useNavigate()
   const auth = useAuth()
   const [isLoading, setIsLoading] = useState(false)
@@ -37,16 +39,16 @@ function GoogleSignInButtonInner({ redirectTo }: GoogleSignInButtonProps) {
         navigate(redirectTo || '/dashboard')
       } catch (err) {
         if (isApiError(err) && err.status === 429) {
-          toast.error('Слишком много попыток. Попробуй позже.')
+          toast.error(t('login.error.rate_limit'))
         } else {
-          toast.error('Ошибка входа через Google. Попробуй ещё раз.')
+          toast.error(t('google.error'))
         }
       } finally {
         setIsLoading(false)
       }
     },
     onError: () => {
-      toast.error('Ошибка входа через Google. Попробуй ещё раз.')
+      toast.error(t('google.error'))
     },
   })
 
@@ -77,12 +79,12 @@ function GoogleSignInButtonInner({ redirectTo }: GoogleSignInButtonProps) {
             fill="#EA4335"
           />
         </svg>
-        {isLoading ? 'Подключаем...' : 'Продолжить с Google'}
+        {isLoading ? t('google.connecting') : t('google.continue')}
       </button>
 
       <div className="flex items-center gap-3">
         <Separator className="flex-1" />
-        <span className="text-xs text-text-tertiary">или</span>
+        <span className="text-xs text-text-tertiary">{t('or')}</span>
         <Separator className="flex-1" />
       </div>
     </>
