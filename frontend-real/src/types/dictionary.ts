@@ -13,8 +13,8 @@ export type PartOfSpeech =
   | 'IDIOM'
   | 'OTHER'
 
-export type SortBy = 'TEXT' | 'CREATED_AT' | 'UPDATED_AT'
-export type SortDir = 'ASC' | 'DESC'
+export type EntrySortField = 'TEXT' | 'CREATED_AT' | 'UPDATED_AT'
+export type SortDirection = 'ASC' | 'DESC'
 
 export interface Translation {
   id: UUID
@@ -35,10 +35,17 @@ export interface Sense {
   examples: Example[]
 }
 
-export interface Image {
+export interface CatalogImage {
   id: UUID
   url: string
   caption?: string
+}
+
+export interface UserImage {
+  id: UUID
+  url: string
+  caption?: string
+  createdAt: string
 }
 
 export interface Pronunciation {
@@ -60,18 +67,40 @@ export interface DictionaryEntry {
   textNormalized: string
   notes?: string
   senses: Sense[]
-  images: Image[]
+  catalogImages: CatalogImage[]
+  userImages: UserImage[]
   pronunciations: Pronunciation[]
   topics: Topic[]
   createdAt: string
   updatedAt: string
 }
 
-export interface WordFilter {
+export interface PageInfo {
+  hasNextPage: boolean
+  hasPreviousPage: boolean
+  startCursor?: string
+  endCursor?: string
+}
+
+export interface DictionaryEdge {
+  node: DictionaryEntry
+  cursor: string
+}
+
+export interface DictionaryConnection {
+  edges: DictionaryEdge[]
+  pageInfo: PageInfo
+  totalCount: number
+}
+
+export interface DictionaryFilterInput {
   search?: string
-  topicIDs?: UUID[]
+  topicId?: UUID
   partOfSpeech?: PartOfSpeech
-  sortBy?: SortBy
-  sortDir?: SortDir
+  sortField?: EntrySortField
+  sortDirection?: SortDirection
+  first?: number
+  after?: string
   limit?: number
+  offset?: number
 }

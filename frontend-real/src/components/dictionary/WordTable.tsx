@@ -9,20 +9,20 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu'
-import type { DictionaryEntry, SortBy, SortDir } from '@/types/dictionary'
+import type { DictionaryEntry, EntrySortField, SortDirection } from '@/types/dictionary'
 
 interface WordTableProps {
   entries: DictionaryEntry[]
   loading: boolean
-  sortBy: SortBy
-  sortDir: SortDir
-  onSortChange: (sortBy: SortBy, sortDir: SortDir) => void
+  sortBy: EntrySortField
+  sortDir: SortDirection
+  onSortChange: (sortBy: EntrySortField, sortDir: SortDirection) => void
   onWordClick: (id: string) => void
   onEditClick: (id: string) => void
   onDeleteClick: (entry: DictionaryEntry) => void
 }
 
-function SortIcon({ active, dir }: { active: boolean; dir: SortDir }) {
+function SortIcon({ active, dir }: { active: boolean; dir: SortDirection }) {
   if (!active) return null
   return dir === 'ASC'
     ? <ArrowUp className="h-3.5 w-3.5 inline ml-1" />
@@ -59,7 +59,7 @@ export function WordTable({
 }: WordTableProps) {
   const { t } = useTranslation('dictionary')
 
-  const toggleSort = (column: SortBy) => {
+  const toggleSort = (column: EntrySortField) => {
     if (sortBy === column) {
       onSortChange(column, sortDir === 'ASC' ? 'DESC' : 'ASC')
     } else {

@@ -10,7 +10,7 @@ import { WordSheet } from '@/components/dictionary/WordSheet'
 import { WordEditDialog } from '@/components/dictionary/WordEditDialog'
 import { useDictionary } from '@/hooks/useDictionary'
 import { useDeleteWord } from '@/hooks/useDeleteWord'
-import type { PartOfSpeech, SortBy, SortDir, WordFilter } from '@/types/dictionary'
+import type { PartOfSpeech, EntrySortField, SortDirection, DictionaryFilterInput } from '@/types/dictionary'
 
 export function DictionaryPage() {
   const { t } = useTranslation('dictionary')
@@ -19,10 +19,10 @@ export function DictionaryPage() {
 
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
-  const [selectedTopicIds, setSelectedTopicIds] = useState<string[]>([])
+  const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null)
   const [selectedPOS, setSelectedPOS] = useState<PartOfSpeech | null>(null)
-  const [sortBy, setSortBy] = useState<SortBy>('TEXT')
-  const [sortDir, setSortDir] = useState<SortDir>('ASC')
+  const [sortBy, setSortBy] = useState<EntrySortField>('TEXT')
+  const [sortDir, setSortDir] = useState<SortDirection>('ASC')
   const [viewMode, setViewMode] = useState<'grid' | 'table'>(() =>
     (localStorage.getItem('dictionary-view') as 'grid' | 'table') || 'grid'
   )
@@ -40,19 +40,19 @@ export function DictionaryPage() {
     localStorage.setItem('dictionary-view', viewMode)
   }, [viewMode])
 
-  const filter: WordFilter = {
+  const filter: DictionaryFilterInput = {
     search: debouncedSearch || undefined,
-    topicIDs: selectedTopicIds.length > 0 ? selectedTopicIds : undefined,
+    topicId: selectedTopicId ?? undefined,
     partOfSpeech: selectedPOS ?? undefined,
-    sortBy,
-    sortDir,
+    sortField: sortBy,
+    sortDirection: sortDir,
   }
 
-  const { entries, topics, loading, error } = useDictionary(filter)
+  const { entries, totalCount, topics, loading, error } = useDictionary(filter)
 
-  const hasActiveFilters = selectedTopicIds.length > 0 || selectedPOS !== null || debouncedSearch !== ''
+  const hasActiveFilters = selectedTopicId !== null || selectedPOS !== null || debouncedSearch !== ''
 
-  const handleSortChange = (newSortBy: SortBy, newSortDir: SortDir) => {
+  const handleSortChange = (newSortBy: EntrySortField, newSortDir: SortDirection) => {
     setSortBy(newSortBy)
     setSortDir(newSortDir)
   }
@@ -64,8 +64,8 @@ export function DictionaryPage() {
       <SearchToolbar
         search={search}
         onSearchChange={setSearch}
-        selectedTopicIds={selectedTopicIds}
-        onTopicIdsChange={setSelectedTopicIds}
+        selectedTopicId={selectedTopicId}
+        onTopicIdChange={setSelectedTopicId}
         selectedPartOfSpeech={selectedPOS}
         onPartOfSpeechChange={setSelectedPOS}
         sortBy={sortBy}
@@ -74,7 +74,7 @@ export function DictionaryPage() {
         viewMode={viewMode}
         onViewModeChange={setViewMode}
         topics={topics}
-        resultCount={entries.length}
+        resultCount={totalCount}
       />
 
       {error && (
@@ -119,7 +119,7 @@ export function DictionaryPage() {
               size="sm"
               onClick={() => {
                 setSearch('')
-                setSelectedTopicIds([])
+                setSelectedTopicId(null)
                 setSelectedPOS(null)
               }}
             >

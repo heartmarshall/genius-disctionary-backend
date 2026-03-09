@@ -1,42 +1,59 @@
 import { gql } from '@apollo/client'
 
 export const GET_DICTIONARY = gql`
-  query GetDictionary($filter: WordFilter) {
-    dictionary(filter: $filter) {
-      id
-      text
-      textNormalized
-      senses {
-        id
-        definition
-        partOfSpeech
-        translations {
+  query GetDictionary($input: DictionaryFilterInput!) {
+    dictionary(input: $input) {
+      edges {
+        node {
           id
           text
+          textNormalized
+          senses {
+            id
+            definition
+            partOfSpeech
+            translations {
+              id
+              text
+            }
+            examples {
+              id
+              sentence
+              translation
+            }
+          }
+          catalogImages {
+            id
+            url
+            caption
+          }
+          userImages {
+            id
+            url
+            caption
+          }
+          pronunciations {
+            id
+            audioUrl
+            transcription
+            region
+          }
+          topics {
+            id
+            name
+          }
+          createdAt
+          updatedAt
         }
-        examples {
-          id
-          sentence
-          translation
-        }
+        cursor
       }
-      images {
-        id
-        url
-        caption
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
       }
-      pronunciations {
-        id
-        audioUrl
-        transcription
-        region
-      }
-      topics {
-        id
-        name
-      }
-      createdAt
-      updatedAt
+      totalCount
     }
   }
 `
@@ -62,7 +79,12 @@ export const GET_DICTIONARY_ENTRY = gql`
           translation
         }
       }
-      images {
+      catalogImages {
+        id
+        url
+        caption
+      }
+      userImages {
         id
         url
         caption
@@ -94,50 +116,22 @@ export const GET_TOPICS = gql`
   }
 `
 
-export const UPDATE_WORD = gql`
-  mutation UpdateWord($id: UUID!, $input: UpdateWordInput!) {
-    updateWord(id: $id, input: $input) {
-      id
-      text
-      textNormalized
-      notes
-      senses {
+export const UPDATE_ENTRY_NOTES = gql`
+  mutation UpdateEntryNotes($input: UpdateEntryNotesInput!) {
+    updateEntryNotes(input: $input) {
+      entry {
         id
-        definition
-        partOfSpeech
-        translations {
-          id
-          text
-        }
-        examples {
-          id
-          sentence
-          translation
-        }
+        notes
+        updatedAt
       }
-      images {
-        id
-        url
-        caption
-      }
-      pronunciations {
-        id
-        audioUrl
-        transcription
-        region
-      }
-      topics {
-        id
-        name
-        description
-      }
-      updatedAt
     }
   }
 `
 
-export const DELETE_WORD = gql`
-  mutation DeleteWord($id: UUID!) {
-    deleteWord(id: $id)
+export const DELETE_ENTRY = gql`
+  mutation DeleteEntry($id: UUID!) {
+    deleteEntry(id: $id) {
+      entryId
+    }
   }
 `

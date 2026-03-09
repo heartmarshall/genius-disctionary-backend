@@ -108,9 +108,9 @@ export function WordOverview({ entry, className }: WordOverviewProps) {
       )}
 
       {/* Images */}
-      {entry.images.length > 0 && (
+      {(entry.catalogImages.length > 0 || entry.userImages.length > 0) && (
         <div className="grid grid-cols-2 gap-2">
-          {entry.images.map((img) => (
+          {[...entry.catalogImages, ...entry.userImages].map((img) => (
             <ImageWithFallback key={img.id} src={img.url} caption={img.caption} />
           ))}
         </div>

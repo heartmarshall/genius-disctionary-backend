@@ -7,13 +7,12 @@ import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
-  DropdownMenuCheckboxItem,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu'
-import type { PartOfSpeech, SortBy, SortDir, Topic, UUID } from '@/types/dictionary'
+import type { PartOfSpeech, EntrySortField, SortDirection, Topic, UUID } from '@/types/dictionary'
 
 type ViewMode = 'grid' | 'table'
 
@@ -25,13 +24,13 @@ const PART_OF_SPEECH_VALUES: PartOfSpeech[] = [
 interface SearchToolbarProps {
   search: string
   onSearchChange: (value: string) => void
-  selectedTopicIds: UUID[]
-  onTopicIdsChange: (ids: UUID[]) => void
+  selectedTopicId: UUID | null
+  onTopicIdChange: (id: UUID | null) => void
   selectedPartOfSpeech: PartOfSpeech | null
   onPartOfSpeechChange: (pos: PartOfSpeech | null) => void
-  sortBy: SortBy
-  sortDir: SortDir
-  onSortChange: (sortBy: SortBy, sortDir: SortDir) => void
+  sortBy: EntrySortField
+  sortDir: SortDirection
+  onSortChange: (sortBy: EntrySortField, sortDir: SortDirection) => void
   viewMode: ViewMode
   onViewModeChange: (mode: ViewMode) => void
   topics: Topic[]
@@ -41,8 +40,8 @@ interface SearchToolbarProps {
 export function SearchToolbar({
   search,
   onSearchChange,
-  selectedTopicIds,
-  onTopicIdsChange,
+  selectedTopicId,
+  onTopicIdChange,
   selectedPartOfSpeech,
   onPartOfSpeechChange,
   sortBy,
@@ -55,19 +54,17 @@ export function SearchToolbar({
 }: SearchToolbarProps) {
   const { t } = useTranslation('dictionary')
 
-  const hasActiveFilters = selectedTopicIds.length > 0 || selectedPartOfSpeech !== null
+  const hasActiveFilters = selectedTopicId !== null || selectedPartOfSpeech !== null
 
-  const handleTopicToggle = (topicId: UUID) => {
-    if (selectedTopicIds.includes(topicId)) {
-      onTopicIdsChange(selectedTopicIds.filter((id) => id !== topicId))
-    } else {
-      onTopicIdsChange([...selectedTopicIds, topicId])
-    }
+  const handleTopicSelect = (topicId: string) => {
+    onTopicIdChange(topicId === '' ? null : topicId)
   }
 
   const handlePosSelect = (pos: string) => {
     onPartOfSpeechChange(pos === '' ? null : (pos as PartOfSpeech))
   }
+
+  const selectedTopicName = topics.find((tp) => tp.id === selectedTopicId)?.name
 
   return (
     <div className="flex items-center gap-3 flex-wrap">
@@ -87,28 +84,27 @@ export function SearchToolbar({
           <Button variant="outline" size="sm" className="gap-1.5">
             <Filter className="h-4 w-4" />
             {t('filter.topics')}
-            {selectedTopicIds.length > 0 && (
+            {selectedTopicName && (
               <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-xs">
-                {selectedTopicIds.length}
+                {selectedTopicName}
               </Badge>
             )}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
-          {topics.map((topic) => (
-            <DropdownMenuCheckboxItem
-              key={topic.id}
-              checked={selectedTopicIds.includes(topic.id)}
-              onCheckedChange={() => handleTopicToggle(topic.id)}
-            >
-              {topic.name}
-            </DropdownMenuCheckboxItem>
-          ))}
-          {topics.length === 0 && (
-            <div className="px-2 py-1.5 text-sm text-muted-foreground">
-              {t('filter.topics')}
-            </div>
-          )}
+          <DropdownMenuRadioGroup
+            value={selectedTopicId ?? ''}
+            onValueChange={handleTopicSelect}
+          >
+            <DropdownMenuRadioItem value="">
+              —
+            </DropdownMenuRadioItem>
+            {topics.map((topic) => (
+              <DropdownMenuRadioItem key={topic.id} value={topic.id}>
+                {topic.name}
+              </DropdownMenuRadioItem>
+            ))}
+          </DropdownMenuRadioGroup>
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -155,7 +151,7 @@ export function SearchToolbar({
           <DropdownMenuLabel>{t('sort.alphabetical')}</DropdownMenuLabel>
           <DropdownMenuRadioGroup
             value={sortBy}
-            onValueChange={(v) => onSortChange(v as SortBy, sortDir)}
+            onValueChange={(v) => onSortChange(v as EntrySortField, sortDir)}
           >
             <DropdownMenuRadioItem value="TEXT">
               {t('sort.alphabetical')}
@@ -170,7 +166,7 @@ export function SearchToolbar({
           <DropdownMenuSeparator />
           <DropdownMenuRadioGroup
             value={sortDir}
-            onValueChange={(v) => onSortChange(sortBy, v as SortDir)}
+            onValueChange={(v) => onSortChange(sortBy, v as SortDirection)}
           >
             <DropdownMenuRadioItem value="ASC">
               {t('sort.asc')}
@@ -189,7 +185,7 @@ export function SearchToolbar({
           size="sm"
           className="gap-1.5 text-muted-foreground"
           onClick={() => {
-            onTopicIdsChange([])
+            onTopicIdChange(null)
             onPartOfSpeechChange(null)
           }}
         >
