@@ -1,4 +1,4 @@
-import { useMutation } from '@apollo/client'
+import { useMutation } from '@apollo/client/react'
 import { UPDATE_WORD, GET_DICTIONARY } from '@/graphql/queries/dictionary'
 
 export interface SenseInput {

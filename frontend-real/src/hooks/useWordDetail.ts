@@ -1,4 +1,4 @@
-import { useQuery } from '@apollo/client'
+import { useQuery } from '@apollo/client/react'
 import { GET_DICTIONARY_ENTRY } from '@/graphql/queries/dictionary'
 import type { DictionaryEntry } from '@/types/dictionary'
 

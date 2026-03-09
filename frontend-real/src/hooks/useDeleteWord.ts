@@ -1,7 +1,8 @@
-import { useMutation } from '@apollo/client'
+import { useMutation } from '@apollo/client/react'
+import type { Reference } from '@apollo/client'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
-import { DELETE_WORD, GET_DICTIONARY } from '@/graphql/queries/dictionary'
+import { DELETE_WORD } from '@/graphql/queries/dictionary'
 import type { DictionaryEntry } from '@/types/dictionary'
 
 export function useDeleteWord() {
@@ -17,7 +18,7 @@ export function useDeleteWord() {
       update(cache) {
         cache.modify({
           fields: {
-            dictionary(existingRefs: DictionaryEntry[] = [], { readField }) {
+            dictionary(existingRefs: readonly Reference[] = [], { readField }: { readField: (field: string, ref: Reference) => unknown }) {
               return existingRefs.filter(
                 (ref) => readField('id', ref) !== entry.id
               )
