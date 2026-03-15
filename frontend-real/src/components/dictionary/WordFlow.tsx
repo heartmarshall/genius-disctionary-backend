@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { motion, AnimatePresence } from 'framer-motion'
+import { AnimatePresence } from 'framer-motion'
 import { Skeleton } from '@/components/ui/skeleton'
 import { WordHoverCard } from './WordHoverCard'
 import { getPosColors } from '@/lib/pos-colors'
@@ -96,15 +96,7 @@ export function WordFlow({ entries, loading, onWordClick }: WordFlowProps) {
   return (
     <div ref={containerRef} className="relative">
       {/* Word flow */}
-      <motion.div
-        className="leading-[3] py-2"
-        initial="hidden"
-        animate="visible"
-        variants={{
-          hidden: {},
-          visible: { transition: { staggerChildren: 0.025 } },
-        }}
-      >
+      <div className="leading-[3] py-2">
         {entries.map((entry) => {
           const firstSense = entry.senses[0]
           const pos = firstSense?.partOfSpeech
@@ -112,14 +104,9 @@ export function WordFlow({ entries, loading, onWordClick }: WordFlowProps) {
           const isHovered = hoveredId === entry.id
 
           return (
-            <motion.button
+            <button
               key={entry.id}
               type="button"
-              variants={{
-                hidden: { opacity: 0, y: 12 },
-                visible: { opacity: 1, y: 0 },
-              }}
-              transition={{ duration: 0.3, ease: 'easeOut' }}
               className={cn(
                 'inline-block font-orelega leading-tight mr-5 my-1 rounded-lg py-0.5',
                 'transition-all duration-250 ease-out',
@@ -142,10 +129,10 @@ export function WordFlow({ entries, loading, onWordClick }: WordFlowProps) {
               >
                 {entry.text}
               </span>
-            </motion.button>
+            </button>
           )
         })}
-      </motion.div>
+      </div>
 
 
       {/* Hover card */}
