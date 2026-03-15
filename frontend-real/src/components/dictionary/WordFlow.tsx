@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useMemo } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -13,23 +13,7 @@ interface WordFlowProps {
   onWordClick: (id: string) => void
 }
 
-/** Compute depth level based on word richness */
-function getDepth(entry: DictionaryEntry): 1 | 2 | 3 {
-  const senseCount = entry.senses.length
-  const translationCount = entry.senses.reduce((acc, s) => acc + (s.translations?.length ?? 0), 0)
-  const hasNotes = entry.notes ? 1 : 0
-  const weight = senseCount * 3 + translationCount * 2 + hasNotes * 2
-
-  if (weight >= 6) return 1
-  if (weight >= 3) return 2
-  return 3
-}
-
-const DEPTH_STYLES = {
-  1: 'text-2xl opacity-100',
-  2: 'text-xl opacity-50',
-  3: 'text-lg opacity-25',
-} as const
+const WORD_STYLE = 'text-2xl'
 
 const TOOLTIP_DELAY = 400
 
@@ -57,11 +41,6 @@ export function WordFlow({ entries, loading, onWordClick }: WordFlowProps) {
   const leaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const delayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const shownOnceRef = useRef(false)
-
-  const depths = useMemo(
-    () => new Map(entries.map((e) => [e.id, getDepth(e)])),
-    [entries],
-  )
 
   const clearTimers = useCallback(() => {
     if (leaveTimerRef.current) clearTimeout(leaveTimerRef.current)
@@ -127,7 +106,6 @@ export function WordFlow({ entries, loading, onWordClick }: WordFlowProps) {
         }}
       >
         {entries.map((entry) => {
-          const depth = depths.get(entry.id) ?? 2
           const firstSense = entry.senses[0]
           const pos = firstSense?.partOfSpeech
           const posColors = getPosColors(pos)
@@ -139,7 +117,7 @@ export function WordFlow({ entries, loading, onWordClick }: WordFlowProps) {
               type="button"
               variants={{
                 hidden: { opacity: 0, y: 12 },
-                visible: { opacity: depth === 1 ? 1 : depth === 2 ? 0.55 : 0.3, y: 0 },
+                visible: { opacity: 1, y: 0 },
               }}
               transition={{ duration: 0.3, ease: 'easeOut' }}
               className={cn(
@@ -147,8 +125,7 @@ export function WordFlow({ entries, loading, onWordClick }: WordFlowProps) {
                 'transition-all duration-250 ease-out',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                 'text-text-primary cursor-pointer',
-                DEPTH_STYLES[depth],
-                isHovered && '!opacity-100',
+                WORD_STYLE,
               )}
               onClick={() => onWordClick(entry.id)}
               onMouseEnter={(e) => showCard(entry, e.currentTarget)}
