@@ -62,15 +62,15 @@ export function WordHoverCard({
     <motion.div
       ref={cardRef}
       className="absolute z-20"
-      style={{ left, top, width: CARD_WIDTH }}
-      initial={{ opacity: 0, y: showAbove ? 8 : -8, scale: 0.97 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: showAbove ? 4 : -4, scale: 0.98 }}
+      style={{ width: CARD_WIDTH }}
+      initial={{ left, top, opacity: 0, scale: 0.97 }}
+      animate={{ left, top, opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.97 }}
       transition={{
-        type: 'spring',
-        stiffness: 300,
-        damping: 25,
+        left: { type: 'spring', stiffness: 280, damping: 28, mass: 0.8 },
+        top: { type: 'spring', stiffness: 280, damping: 28, mass: 0.8 },
         opacity: { duration: 0.15 },
+        scale: { type: 'spring', stiffness: 400, damping: 25 },
       }}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}

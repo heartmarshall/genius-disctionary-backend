@@ -177,7 +177,7 @@ export function WordFlow({ entries, loading, onWordClick }: WordFlowProps) {
       <AnimatePresence>
         {visibleEntry && cardVisible && (
           <WordHoverCard
-            key={visibleEntry.id}
+            key="hover-card"
             entry={visibleEntry}
             anchorRect={anchorRect}
             containerWidth={containerWidth}
