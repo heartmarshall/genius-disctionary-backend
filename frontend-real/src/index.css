@@ -1,4 +1,28 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Orelega+One&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Courier+Prime&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orelega+One&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Courier+Prime&display=swap');
+
+@font-face {
+  font-family: 'Neue Montreal';
+  src: url('/fonts/NeueMontreal-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Neue Montreal';
+  src: url('/fonts/NeueMontreal-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Neue Montreal';
+  src: url('/fonts/NeueMontreal-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
 
 @tailwind base;
 @tailwind components;
@@ -71,6 +95,10 @@
     --border: var(--border-default);
     --input: var(--border-default);
     --ring: var(--cornflower);
+
+    /* Hover card */
+    --shadow-hover-card: 0 20px 60px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.04);
+
     --radius: 0.375rem;
   }
 
