@@ -144,7 +144,7 @@ export function WordFlow({ entries, loading, onWordClick }: WordFlowProps) {
               transition={{ duration: 0.3, ease: 'easeOut' }}
               className={cn(
                 'inline-block font-orelega leading-tight mx-2.5 my-1 rounded-lg px-1 py-0.5',
-                'transition-all duration-300 ease-[cubic-bezier(0.2,0,0,1)]',
+                'transition-all duration-300 ease-out',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                 'text-text-primary cursor-pointer',
                 DEPTH_STYLES[depth],
