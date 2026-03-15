@@ -87,33 +87,36 @@ export function DictionaryPage() {
         >
           {/* Header */}
           <div className="flex items-end justify-between gap-4 mb-2">
-            <h1 className="font-serif text-[44px] text-foreground tracking-[-1.5px] leading-none">
+            <h1 className="text-3xl font-bold text-foreground tracking-tight">
               {t('page.title')}
             </h1>
+          </div>
 
-            <div className="flex items-center gap-3">
-              {/* Search input */}
+          {/* Search + filter row */}
+          <div className="flex items-center gap-3 mb-6">
+            <div className="relative flex-1 max-w-md">
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={t('search.placeholder')}
-                className="w-52 pb-1.5 border-b-[1.5px] border-border-default bg-transparent text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-cornflower transition-colors"
+                className="w-full h-10 px-4 rounded-lg border border-border-default bg-surface-secondary text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-cornflower focus:border-transparent transition-all"
               />
-
-              {/* Filter button */}
-              <button
-                type="button"
-                onClick={() => setFiltersOpen(!filtersOpen)}
-                className="relative w-9 h-9 rounded-full border-[1.5px] border-border-default flex items-center justify-center text-text-secondary hover:border-text-primary hover:text-text-primary transition-all"
-                aria-label={t('filter.title')}
-              >
-                <SlidersHorizontal size={16} />
-                {hasActiveFilters && (
-                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-poppy" />
-                )}
-              </button>
             </div>
+
+            {/* Filter button */}
+            <button
+              type="button"
+              onClick={() => setFiltersOpen(!filtersOpen)}
+              className="relative h-10 px-4 rounded-lg border border-border-default flex items-center gap-2 text-sm text-text-secondary hover:border-text-primary hover:text-text-primary transition-all"
+              aria-label={t('filter.title')}
+            >
+              <SlidersHorizontal size={16} />
+              <span className="hidden sm:inline">{t('filter.title')}</span>
+              {hasActiveFilters && (
+                <span className="w-2 h-2 rounded-full bg-poppy" />
+              )}
+            </button>
           </div>
 
           {/* Filter panel */}

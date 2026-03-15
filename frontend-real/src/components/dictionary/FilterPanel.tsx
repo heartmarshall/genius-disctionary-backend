@@ -67,6 +67,9 @@ export function FilterPanel({
     }
   }
 
+  const chipClass = 'px-3 py-1.5 rounded-full text-sm border transition-all duration-150'
+  const inactiveClass = 'border-border-subtle text-text-secondary hover:border-border-default'
+
   return (
     <AnimatePresence>
       {open && (
@@ -77,103 +80,80 @@ export function FilterPanel({
           transition={{ duration: 0.2, ease: 'easeInOut' }}
           className="overflow-hidden"
         >
-          <div className="py-6 space-y-5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium uppercase tracking-[1.5px] text-text-primary">
-                {t('filter.title')}
-              </span>
+          <div className="py-4 space-y-3 border-b border-border-subtle mb-4">
+            {/* POS + Sort in one row */}
+            <div className="flex flex-wrap items-center gap-2">
+              {POS_OPTIONS.slice(0, 8).map((opt) => {
+                const active = selectedPOS.includes(opt.value)
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => togglePOS(opt.value)}
+                    className={cn(chipClass, active ? opt.activeClass : inactiveClass)}
+                  >
+                    {t(`pos.${opt.value}`)}
+                  </button>
+                )
+              })}
+
+              <span className="text-border-default mx-1">|</span>
+
+              {SORT_OPTIONS.map((opt) => {
+                const active = sortBy === opt.field && sortDir === opt.dir
+                return (
+                  <button
+                    key={opt.key}
+                    type="button"
+                    onClick={() => onSortChange(opt.field, opt.dir)}
+                    className={cn(
+                      chipClass,
+                      active
+                        ? 'bg-text-primary text-text-on-accent border-text-primary'
+                        : inactiveClass,
+                    )}
+                  >
+                    {t(opt.key)}
+                  </button>
+                )
+              })}
+
               <button
                 type="button"
                 onClick={onClose}
-                className="text-text-tertiary hover:text-text-primary transition-colors"
+                className="ml-auto text-text-tertiary hover:text-text-primary transition-colors p-1"
                 aria-label={t('filter.close')}
               >
-                <X size={16} />
+                <X size={18} />
               </button>
             </div>
 
-            {/* POS chips - multi-select */}
-            <div className="space-y-2">
-              <span className="text-[11px] uppercase tracking-[1px] text-text-tertiary">
-                {t('filter.partOfSpeech')}
-              </span>
-              <div className="flex flex-wrap gap-2">
-                {POS_OPTIONS.map((opt) => {
-                  const active = selectedPOS.includes(opt.value)
-                  return (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => togglePOS(opt.value)}
-                      className={cn(
-                        'px-3.5 py-1.5 rounded-full text-xs border transition-all duration-150',
-                        active
-                          ? opt.activeClass
-                          : 'border-border-subtle text-text-secondary hover:border-border-default',
-                      )}
-                    >
-                      {t(`pos.${opt.value}`)}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* Topic chips - multi-select */}
+            {/* Topics row — only if topics exist */}
             {topics.length > 0 && (
-              <div className="space-y-2">
-                <span className="text-[11px] uppercase tracking-[1px] text-text-tertiary">
-                  {t('filter.topics')}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs text-text-tertiary uppercase tracking-wide mr-1">
+                  {t('filter.topics')}:
                 </span>
-                <div className="flex flex-wrap gap-2">
-                  {topics.map((topic) => {
-                    const active = selectedTopicIds.includes(topic.id)
-                    return (
-                      <button
-                        key={topic.id}
-                        type="button"
-                        onClick={() => toggleTopic(topic.id)}
-                        className={cn(
-                          'px-3.5 py-1.5 rounded-full text-xs border transition-all duration-150',
-                          active
-                            ? 'bg-text-primary text-text-on-accent border-text-primary'
-                            : 'border-border-subtle text-text-secondary hover:border-border-default',
-                        )}
-                      >
-                        {topic.name}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Sort chips - single-select */}
-            <div className="space-y-2">
-              <span className="text-[11px] uppercase tracking-[1px] text-text-tertiary">
-                {t('filter.sort')}
-              </span>
-              <div className="flex flex-wrap gap-2">
-                {SORT_OPTIONS.map((opt) => {
-                  const active = sortBy === opt.field && sortDir === opt.dir
+                {topics.map((topic) => {
+                  const active = selectedTopicIds.includes(topic.id)
                   return (
                     <button
-                      key={opt.key}
+                      key={topic.id}
                       type="button"
-                      onClick={() => onSortChange(opt.field, opt.dir)}
+                      onClick={() => toggleTopic(topic.id)}
                       className={cn(
-                        'px-3.5 py-1.5 rounded-full text-xs border transition-all duration-150',
+                        chipClass,
                         active
                           ? 'bg-text-primary text-text-on-accent border-text-primary'
-                          : 'border-border-subtle text-text-secondary hover:border-border-default',
+                          : inactiveClass,
                       )}
                     >
-                      {t(opt.key)}
+                      {topic.name}
                     </button>
                   )
                 })}
               </div>
-            </div>
+            )}
           </div>
         </motion.div>
       )}

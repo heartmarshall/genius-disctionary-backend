@@ -9,82 +9,30 @@ interface StatsStripProps {
   loading: boolean
 }
 
-function getPosDistribution(entries: DictionaryEntry[]) {
-  const counts: Record<string, number> = {}
-  for (const entry of entries) {
-    const pos = entry.senses[0]?.partOfSpeech
-    if (pos) counts[pos] = (counts[pos] ?? 0) + 1
-  }
-  return counts
-}
-
-const POS_BAR_COLORS: Record<string, string> = {
-  NOUN: 'bg-cornflower',
-  PRONOUN: 'bg-cornflower',
-  VERB: 'bg-poppy',
-  INTERJECTION: 'bg-poppy',
-  ADJECTIVE: 'bg-goldenrod',
-  PREPOSITION: 'bg-goldenrod',
-  ADVERB: 'bg-thyme',
-  CONJUNCTION: 'bg-thyme',
-}
-
 function StatsStripSkeleton() {
   return (
-    <div className="flex items-center gap-8 py-4 border-y border-border-subtle">
-      <Skeleton className="h-6 w-16" />
-      <Skeleton className="h-6 w-16" />
-      <Skeleton className="h-2 w-40 rounded-full" />
+    <div className="flex items-center gap-6 py-2 mb-4">
+      <Skeleton className="h-5 w-20" />
+      <Skeleton className="h-5 w-20" />
     </div>
   )
 }
 
-export function StatsStrip({ totalCount, topics, entries, loading }: StatsStripProps) {
+export function StatsStrip({ totalCount, topics, loading }: StatsStripProps) {
   const { t } = useTranslation('dictionary')
 
   if (loading) return <StatsStripSkeleton />
 
-  const distribution = getPosDistribution(entries)
-  const total = Object.values(distribution).reduce((a, b) => a + b, 0)
-
   return (
-    <div className="flex items-center gap-8 py-4 border-y border-border-subtle">
-      {/* Word count */}
-      <div className="flex items-baseline gap-1.5">
-        <span className="text-xl font-bold text-text-primary tracking-tight tabular-nums">
-          {totalCount}
-        </span>
-        <span className="text-[10px] uppercase tracking-[1.2px] text-text-tertiary">
-          {t('stats.words')}
-        </span>
-      </div>
-
-      <div className="w-px h-5 bg-border-subtle" />
-
-      {/* Topics count */}
-      <div className="flex items-baseline gap-1.5">
-        <span className="text-xl font-bold text-text-primary tracking-tight tabular-nums">
-          {topics.length}
-        </span>
-        <span className="text-[10px] uppercase tracking-[1.2px] text-text-tertiary">
-          {t('stats.topics')}
-        </span>
-      </div>
-
-      <div className="w-px h-5 bg-border-subtle" />
-
-      {/* POS distribution bar */}
-      {total > 0 && (
-        <div className="flex gap-0.5 h-1.5 rounded-full overflow-hidden flex-1 max-w-40">
-          {Object.entries(distribution).map(([pos, count]) => (
-            <div
-              key={pos}
-              className={`${POS_BAR_COLORS[pos] ?? 'bg-surface-disabled'} rounded-full`}
-              style={{ flex: count }}
-            />
-          ))}
-        </div>
-      )}
+    <div className="flex items-center gap-6 py-2 mb-4">
+      <span className="text-sm text-text-secondary">
+        <span className="font-medium text-text-primary tabular-nums">{totalCount}</span>
+        {' '}{t('stats.words')}
+      </span>
+      <span className="text-sm text-text-secondary">
+        <span className="font-medium text-text-primary tabular-nums">{topics.length}</span>
+        {' '}{t('stats.topics')}
+      </span>
     </div>
   )
 }
