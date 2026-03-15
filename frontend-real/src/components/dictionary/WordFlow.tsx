@@ -26,9 +26,9 @@ function getDepth(entry: DictionaryEntry): 1 | 2 | 3 {
 }
 
 const DEPTH_STYLES = {
-  1: 'text-[28px] opacity-100',
-  2: 'text-2xl opacity-55',
-  3: 'text-xl opacity-30',
+  1: 'text-xl opacity-100',
+  2: 'text-lg opacity-50',
+  3: 'text-base opacity-25',
 } as const
 
 const TOOLTIP_DELAY = 400
@@ -143,7 +143,7 @@ export function WordFlow({ entries, loading, onWordClick }: WordFlowProps) {
               }}
               transition={{ duration: 0.3, ease: 'easeOut' }}
               className={cn(
-                'inline-block leading-tight mx-2.5 my-1 rounded-lg px-1 py-0.5',
+                'inline-block font-orelega leading-tight mx-2.5 my-1 rounded-lg px-1 py-0.5',
                 'transition-all duration-300 ease-out',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                 'text-text-primary cursor-pointer',
