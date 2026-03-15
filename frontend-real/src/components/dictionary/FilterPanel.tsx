@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X } from 'lucide-react'
+import { ArrowDownAZ, Clock, RefreshCw } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { PartOfSpeech, EntrySortField, SortDirection, Topic } from '@/types/dictionary'
 
@@ -17,29 +17,102 @@ interface FilterPanelProps {
   topics: Topic[]
 }
 
-const POS_OPTIONS: { value: PartOfSpeech; activeClass: string }[] = [
-  { value: 'NOUN', activeClass: 'bg-cornflower-light text-cornflower-fg border-cornflower' },
-  { value: 'VERB', activeClass: 'bg-poppy-light text-poppy-fg border-poppy' },
-  { value: 'ADJECTIVE', activeClass: 'bg-goldenrod-light text-goldenrod-fg border-goldenrod' },
-  { value: 'ADVERB', activeClass: 'bg-thyme-light text-thyme-fg border-thyme' },
-  { value: 'PRONOUN', activeClass: 'bg-cornflower-light text-cornflower-fg border-cornflower' },
-  { value: 'PREPOSITION', activeClass: 'bg-goldenrod-light text-goldenrod-fg border-goldenrod' },
-  { value: 'CONJUNCTION', activeClass: 'bg-thyme-light text-thyme-fg border-thyme' },
-  { value: 'INTERJECTION', activeClass: 'bg-poppy-light text-poppy-fg border-poppy' },
-  { value: 'PHRASE', activeClass: 'bg-text-primary text-text-on-accent border-text-primary' },
-  { value: 'IDIOM', activeClass: 'bg-text-primary text-text-on-accent border-text-primary' },
-  { value: 'OTHER', activeClass: 'bg-text-primary text-text-on-accent border-text-primary' },
+const POS_OPTIONS: {
+  value: PartOfSpeech
+  dot: string
+  inactiveBg: string
+  activeBg: string
+  activeText: string
+  activeBorder: string
+  hoverBg: string
+}[] = [
+  {
+    value: 'NOUN',
+    dot: 'bg-cornflower',
+    inactiveBg: 'bg-cornflower-light/50',
+    hoverBg: 'hover:bg-cornflower-light',
+    activeBg: 'bg-cornflower-light',
+    activeText: 'text-cornflower-fg',
+    activeBorder: 'border-cornflower',
+  },
+  {
+    value: 'VERB',
+    dot: 'bg-poppy',
+    inactiveBg: 'bg-poppy-light/50',
+    hoverBg: 'hover:bg-poppy-light',
+    activeBg: 'bg-poppy-light',
+    activeText: 'text-poppy-fg',
+    activeBorder: 'border-poppy',
+  },
+  {
+    value: 'ADJECTIVE',
+    dot: 'bg-goldenrod',
+    inactiveBg: 'bg-goldenrod-light/50',
+    hoverBg: 'hover:bg-goldenrod-light',
+    activeBg: 'bg-goldenrod-light',
+    activeText: 'text-goldenrod-fg',
+    activeBorder: 'border-goldenrod',
+  },
+  {
+    value: 'ADVERB',
+    dot: 'bg-thyme',
+    inactiveBg: 'bg-thyme-light/50',
+    hoverBg: 'hover:bg-thyme-light',
+    activeBg: 'bg-thyme-light',
+    activeText: 'text-thyme-fg',
+    activeBorder: 'border-thyme',
+  },
+  {
+    value: 'PRONOUN',
+    dot: 'bg-cornflower',
+    inactiveBg: 'bg-cornflower-light/50',
+    hoverBg: 'hover:bg-cornflower-light',
+    activeBg: 'bg-cornflower-light',
+    activeText: 'text-cornflower-fg',
+    activeBorder: 'border-cornflower',
+  },
+  {
+    value: 'PREPOSITION',
+    dot: 'bg-goldenrod',
+    inactiveBg: 'bg-goldenrod-light/50',
+    hoverBg: 'hover:bg-goldenrod-light',
+    activeBg: 'bg-goldenrod-light',
+    activeText: 'text-goldenrod-fg',
+    activeBorder: 'border-goldenrod',
+  },
+  {
+    value: 'CONJUNCTION',
+    dot: 'bg-thyme',
+    inactiveBg: 'bg-thyme-light/50',
+    hoverBg: 'hover:bg-thyme-light',
+    activeBg: 'bg-thyme-light',
+    activeText: 'text-thyme-fg',
+    activeBorder: 'border-thyme',
+  },
+  {
+    value: 'INTERJECTION',
+    dot: 'bg-poppy',
+    inactiveBg: 'bg-poppy-light/50',
+    hoverBg: 'hover:bg-poppy-light',
+    activeBg: 'bg-poppy-light',
+    activeText: 'text-poppy-fg',
+    activeBorder: 'border-poppy',
+  },
 ]
 
-const SORT_OPTIONS: { field: EntrySortField; dir: SortDirection; key: string }[] = [
-  { field: 'TEXT', dir: 'ASC', key: 'filter.sort_az' },
-  { field: 'CREATED_AT', dir: 'DESC', key: 'filter.sort_newest' },
-  { field: 'UPDATED_AT', dir: 'DESC', key: 'filter.sort_updated' },
+const SORT_OPTIONS: {
+  field: EntrySortField
+  dir: SortDirection
+  key: string
+  icon: typeof ArrowDownAZ
+}[] = [
+  { field: 'TEXT', dir: 'ASC', key: 'filter.sort_az', icon: ArrowDownAZ },
+  { field: 'CREATED_AT', dir: 'DESC', key: 'filter.sort_newest', icon: Clock },
+  { field: 'UPDATED_AT', dir: 'DESC', key: 'filter.sort_updated', icon: RefreshCw },
 ]
 
 export function FilterPanel({
   open,
-  onClose,
   selectedPOS,
   onPOSChange,
   selectedTopicIds,
@@ -67,9 +140,6 @@ export function FilterPanel({
     }
   }
 
-  const chipClass = 'px-3 py-1.5 rounded-full text-sm border transition-all duration-150'
-  const inactiveClass = 'border-border-subtle text-text-secondary hover:border-border-default'
-
   return (
     <AnimatePresence>
       {open && (
@@ -80,80 +150,86 @@ export function FilterPanel({
           transition={{ duration: 0.2, ease: 'easeInOut' }}
           className="overflow-hidden"
         >
-          <div className="py-4 space-y-3 border-b border-border-subtle mb-4">
-            {/* POS + Sort in one row */}
-            <div className="flex flex-wrap items-center gap-2">
-              {POS_OPTIONS.slice(0, 8).map((opt) => {
+          <div className="py-5 border-b border-border-subtle mb-4 space-y-4">
+            {/* POS chips — each with its own color identity */}
+            <div className="flex flex-wrap gap-2">
+              {POS_OPTIONS.map((opt) => {
                 const active = selectedPOS.includes(opt.value)
                 return (
                   <button
                     key={opt.value}
                     type="button"
                     onClick={() => togglePOS(opt.value)}
-                    className={cn(chipClass, active ? opt.activeClass : inactiveClass)}
+                    className={cn(
+                      'inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm border select-none cursor-pointer',
+                      active
+                        ? `${opt.activeBg} ${opt.activeText} ${opt.activeBorder}`
+                        : `${opt.inactiveBg} border-transparent text-text-secondary ${opt.hoverBg}`,
+                    )}
+                    style={{ transition: 'background-color 150ms, color 150ms, border-color 150ms' }}
                   >
+                    <span className={cn('w-2 h-2 rounded-full shrink-0', opt.dot)} />
                     {t(`pos.${opt.value}`)}
                   </button>
                 )
               })}
-
-              <span className="text-border-default mx-1">|</span>
-
-              {SORT_OPTIONS.map((opt) => {
-                const active = sortBy === opt.field && sortDir === opt.dir
-                return (
-                  <button
-                    key={opt.key}
-                    type="button"
-                    onClick={() => onSortChange(opt.field, opt.dir)}
-                    className={cn(
-                      chipClass,
-                      active
-                        ? 'bg-text-primary text-text-on-accent border-text-primary'
-                        : inactiveClass,
-                    )}
-                  >
-                    {t(opt.key)}
-                  </button>
-                )
-              })}
-
-              <button
-                type="button"
-                onClick={onClose}
-                className="ml-auto text-text-tertiary hover:text-text-primary transition-colors p-1"
-                aria-label={t('filter.close')}
-              >
-                <X size={18} />
-              </button>
             </div>
 
-            {/* Topics row — only if topics exist */}
-            {topics.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs text-text-tertiary uppercase tracking-wide mr-1">
-                  {t('filter.topics')}:
-                </span>
-                {topics.map((topic) => {
-                  const active = selectedTopicIds.includes(topic.id)
+            {/* Sort + Topics row */}
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
+              {/* Sort as icon+text buttons */}
+              <div className="flex items-center gap-1">
+                {SORT_OPTIONS.map((opt) => {
+                  const active = sortBy === opt.field && sortDir === opt.dir
+                  const Icon = opt.icon
                   return (
                     <button
-                      key={topic.id}
+                      key={opt.key}
                       type="button"
-                      onClick={() => toggleTopic(topic.id)}
+                      onClick={() => onSortChange(opt.field, opt.dir)}
                       className={cn(
-                        chipClass,
+                        'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm',
                         active
-                          ? 'bg-text-primary text-text-on-accent border-text-primary'
-                          : inactiveClass,
+                          ? 'bg-surface-secondary text-text-primary font-medium'
+                          : 'text-text-tertiary hover:text-text-secondary hover:bg-surface-secondary/50',
                       )}
+                      style={{ transition: 'background-color 150ms, color 150ms' }}
                     >
-                      {topic.name}
+                      <Icon size={14} />
+                      {t(opt.key)}
                     </button>
                   )
                 })}
               </div>
-            )}
+
+              {/* Topics */}
+              {topics.length > 0 && (
+                <>
+                  <span className="w-px h-5 bg-border-subtle" />
+                  <div className="flex flex-wrap items-center gap-2">
+                    {topics.map((topic) => {
+                      const active = selectedTopicIds.includes(topic.id)
+                      return (
+                        <button
+                          key={topic.id}
+                          type="button"
+                          onClick={() => toggleTopic(topic.id)}
+                          className={cn(
+                            'px-3 py-1.5 rounded-lg text-sm border select-none cursor-pointer',
+                            active
+                              ? 'bg-text-primary text-text-on-accent border-text-primary'
+                              : 'border-border-subtle text-text-secondary hover:border-border-default hover:text-text-primary hover:bg-surface-secondary/50',
+                          )}
+                          style={{ transition: 'background-color 150ms, color 150ms, border-color 150ms' }}
+                        >
+                          {topic.name}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </motion.div>
       )}

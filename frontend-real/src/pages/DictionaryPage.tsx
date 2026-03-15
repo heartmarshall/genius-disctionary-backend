@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
-import { SlidersHorizontal, ChevronDown, BookOpen } from 'lucide-react'
+import { ChevronDown, BookOpen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { StatsStrip } from '@/components/dictionary/StatsStrip'
+import { DictionaryHero } from '@/components/dictionary/DictionaryHero'
 import { FilterPanel } from '@/components/dictionary/FilterPanel'
 import { WordFlow } from '@/components/dictionary/WordFlow'
 import { DictionaryDetailView } from '@/components/dictionary/DictionaryDetailView'
 import { useDictionary } from '@/hooks/useDictionary'
+import type { ViewMode } from '@/components/dictionary/WordFlow'
 import type { PartOfSpeech, EntrySortField, SortDirection, DictionaryFilterInput } from '@/types/dictionary'
 
 export function DictionaryPage() {
@@ -21,6 +22,7 @@ export function DictionaryPage() {
   const [sortBy, setSortBy] = useState<EntrySortField>('TEXT')
   const [sortDir, setSortDir] = useState<SortDirection>('ASC')
   const [filtersOpen, setFiltersOpen] = useState(false)
+  const [viewMode, setViewMode] = useState<ViewMode>('flow')
 
   // Detail view state
   const [selectedWordId, setSelectedWordId] = useState<string | null>(null)
@@ -42,6 +44,14 @@ export function DictionaryPage() {
   const { entries, totalCount, pageInfo, topics, loading, error, loadMore } = useDictionary(filter)
 
   const hasActiveFilters = selectedPOS.length > 0 || selectedTopicIds.length > 0 || debouncedSearch !== ''
+
+  const clearAllFilters = () => {
+    setSearch('')
+    setSelectedPOS([])
+    setSelectedTopicIds([])
+    setSortBy('TEXT')
+    setSortDir('ASC')
+  }
 
   const handleWordClick = (id: string) => {
     setSelectedWordId(id)
@@ -70,54 +80,34 @@ export function DictionaryPage() {
   }, [])
 
   return (
-    <div className="relative overflow-hidden">
+    <div className="relative">
       <AnimatePresence mode="sync">
         {/* Dictionary view */}
         <motion.div
           key="dictionary"
-          animate={{
-            x: selectedWordId ? '-20%' : '0%',
-            scale: selectedWordId ? 0.95 : 1,
-            opacity: selectedWordId ? 0.3 : 1,
-            filter: selectedWordId ? 'blur(2px)' : 'blur(0px)',
-          }}
+          animate={
+            selectedWordId
+              ? { x: '-20%', scale: 0.95, opacity: 0.3, filter: 'blur(2px)' }
+              : { x: '0%', scale: 1, opacity: 1 }
+          }
           transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
           className="min-h-[80vh]"
           style={{ pointerEvents: selectedWordId ? 'none' : 'auto' }}
         >
-          {/* Header */}
-          <div className="flex items-end justify-between gap-4 mb-2">
-            <h1 className="text-3xl font-bold text-foreground tracking-tight">
-              {t('page.title')}
-            </h1>
-          </div>
-
-          {/* Search + filter row */}
-          <div className="flex items-center gap-3 mb-6">
-            <div className="relative flex-1 max-w-md">
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder={t('search.placeholder')}
-                className="w-full h-10 px-4 rounded-lg border border-border-default bg-surface-secondary text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-cornflower focus:border-transparent transition-all"
-              />
-            </div>
-
-            {/* Filter button */}
-            <button
-              type="button"
-              onClick={() => setFiltersOpen(!filtersOpen)}
-              className="relative h-10 px-4 rounded-lg border border-border-default flex items-center gap-2 text-sm text-text-secondary hover:border-text-primary hover:text-text-primary transition-all"
-              aria-label={t('filter.title')}
-            >
-              <SlidersHorizontal size={16} />
-              <span className="hidden sm:inline">{t('filter.title')}</span>
-              {hasActiveFilters && (
-                <span className="w-2 h-2 rounded-full bg-poppy" />
-              )}
-            </button>
-          </div>
+          {/* Hero (title + stats + search + filters) */}
+          <DictionaryHero
+            totalCount={totalCount}
+            topicsCount={topics.length}
+            loading={loading}
+            search={search}
+            onSearchChange={setSearch}
+            filtersOpen={filtersOpen}
+            onFiltersToggle={() => setFiltersOpen(!filtersOpen)}
+            hasActiveFilters={hasActiveFilters}
+            onClearFilters={clearAllFilters}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+          />
 
           {/* Filter panel */}
           <FilterPanel
@@ -131,14 +121,6 @@ export function DictionaryPage() {
             sortDir={sortDir}
             onSortChange={(field, dir) => { setSortBy(field); setSortDir(dir) }}
             topics={topics}
-          />
-
-          {/* Stats strip */}
-          <StatsStrip
-            totalCount={totalCount}
-            topics={topics}
-            entries={entries}
-            loading={loading}
           />
 
           {/* Error */}
@@ -163,6 +145,7 @@ export function DictionaryPage() {
                 entries={entries}
                 loading={loading}
                 onWordClick={handleWordClick}
+                viewMode={viewMode}
               />
             </div>
           )}
