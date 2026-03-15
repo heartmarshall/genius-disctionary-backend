@@ -6,7 +6,6 @@ import { LoginPage } from '@/pages/LoginPage'
 import { RegisterPage } from '@/pages/RegisterPage'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { DictionaryPage } from '@/pages/DictionaryPage'
-import { DictionaryEntryPage } from '@/pages/DictionaryEntryPage'
 import { StudyPage } from '@/pages/StudyPage'
 import { TopicsPage } from '@/pages/TopicsPage'
 import { InboxPage } from '@/pages/InboxPage'
@@ -32,7 +31,7 @@ export const router = createBrowserRouter([
       { index: true, element: <Navigate to="/dashboard" replace /> },
       { path: '/dashboard', element: <DashboardPage /> },
       { path: '/dictionary', element: <DictionaryPage /> },
-      { path: '/dictionary/:id', element: <DictionaryEntryPage /> },
+      { path: '/dictionary/:id', element: <DictionaryPage /> },
       { path: '/study', element: <StudyPage /> },
       { path: '/topics', element: <TopicsPage /> },
       { path: '/inbox', element: <InboxPage /> },
