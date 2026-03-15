@@ -148,10 +148,11 @@ export function WordFlow({ entries, loading, onWordClick }: WordFlowProps) {
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                 'text-text-primary cursor-pointer',
                 DEPTH_STYLES[depth],
-                isHovered && '!opacity-100 -translate-y-0.5',
+                isHovered && '!opacity-100',
               )}
               style={{
                 color: isHovered ? `var(${posColors.cssVar})` : undefined,
+                transform: isHovered ? 'translateY(-3px)' : undefined,
               }}
               onClick={() => onWordClick(entry.id)}
               onMouseEnter={(e) => showCard(entry, e.currentTarget)}
