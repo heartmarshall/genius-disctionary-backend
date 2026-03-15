@@ -26,9 +26,9 @@ function getDepth(entry: DictionaryEntry): 1 | 2 | 3 {
 }
 
 const DEPTH_STYLES = {
-  1: 'text-xl opacity-100',
-  2: 'text-lg opacity-50',
-  3: 'text-base opacity-25',
+  1: 'text-2xl opacity-100',
+  2: 'text-xl opacity-50',
+  3: 'text-lg opacity-25',
 } as const
 
 const TOOLTIP_DELAY = 400
