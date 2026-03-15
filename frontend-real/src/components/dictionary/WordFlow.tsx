@@ -38,17 +38,23 @@ export function WordFlow({ entries, loading, onWordClick }: WordFlowProps) {
   const [cardVisible, setCardVisible] = useState(false)
   const [visibleEntry, setVisibleEntry] = useState<DictionaryEntry | null>(null)
   const [anchorRect, setAnchorRect] = useState({ x: 0, y: 0, bottom: 0, width: 0 })
-  const leaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const delayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const cardVisibleRef = useRef(false)
+  const timersRef = useRef<{ leave?: number; delay?: number }>({})
+  const isShowingRef = useRef(false)
 
-  const clearTimers = () => {
-    if (leaveTimerRef.current) { clearTimeout(leaveTimerRef.current); leaveTimerRef.current = null }
-    if (delayTimerRef.current) { clearTimeout(delayTimerRef.current); delayTimerRef.current = null }
+  // Keep ref in sync with state
+  const setShowing = (v: boolean) => {
+    isShowingRef.current = v
+    setCardVisible(v)
+  }
+
+  const clearAllTimers = () => {
+    clearTimeout(timersRef.current.leave)
+    clearTimeout(timersRef.current.delay)
+    timersRef.current = {}
   }
 
   const showCard = (entry: DictionaryEntry, el: HTMLElement) => {
-    clearTimers()
+    clearAllTimers()
     const rect = el.getBoundingClientRect()
     const containerRect = containerRef.current?.getBoundingClientRect()
     if (!containerRect) return
@@ -62,31 +68,28 @@ export function WordFlow({ entries, loading, onWordClick }: WordFlowProps) {
     setVisibleEntry(entry)
     setHoveredId(entry.id)
 
-    if (cardVisibleRef.current) {
-      setCardVisible(true)
-    } else {
-      delayTimerRef.current = setTimeout(() => {
-        setCardVisible(true)
-        cardVisibleRef.current = true
-      }, TOOLTIP_DELAY)
+    if (isShowingRef.current) {
+      // Card already visible — just update content, no delay
+      return
     }
+
+    timersRef.current.delay = window.setTimeout(() => {
+      setShowing(true)
+    }, TOOLTIP_DELAY)
   }
 
   const startLeave = () => {
-    clearTimers()
-    leaveTimerRef.current = setTimeout(() => {
-      setCardVisible(false)
-      cardVisibleRef.current = false
+    clearAllTimers()
+    timersRef.current.leave = window.setTimeout(() => {
+      setShowing(false)
       setHoveredId(null)
-      setTimeout(() => setVisibleEntry(null), 200)
+      setVisibleEntry(null)
     }, 150)
   }
 
   const cancelLeave = () => {
-    if (leaveTimerRef.current) {
-      clearTimeout(leaveTimerRef.current)
-      leaveTimerRef.current = null
-    }
+    clearTimeout(timersRef.current.leave)
+    timersRef.current.leave = undefined
   }
 
   if (loading) return <WordFlowSkeleton />
