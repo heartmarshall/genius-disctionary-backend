@@ -150,17 +150,21 @@ export function WordFlow({ entries, loading, onWordClick }: WordFlowProps) {
                 DEPTH_STYLES[depth],
                 isHovered && '!opacity-100',
               )}
-              style={{
-                color: isHovered ? `var(${posColors.cssVar})` : undefined,
-                transform: isHovered ? 'translateY(-3px)' : undefined,
-              }}
               onClick={() => onWordClick(entry.id)}
               onMouseEnter={(e) => showCard(entry, e.currentTarget)}
               onMouseLeave={startLeave}
               onFocus={(e) => showCard(entry, e.currentTarget)}
               onBlur={startLeave}
             >
-              {entry.text}
+              <span
+                className="inline-block transition-all duration-250 ease-out"
+                style={{
+                  color: isHovered ? `var(${posColors.cssVar})` : undefined,
+                  transform: isHovered ? 'translateY(-3px)' : 'translateY(0)',
+                }}
+              >
+                {entry.text}
+              </span>
             </motion.button>
           )
         })}
