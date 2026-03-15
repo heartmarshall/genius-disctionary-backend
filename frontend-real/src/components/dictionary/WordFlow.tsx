@@ -111,7 +111,7 @@ export function WordFlow({ entries, loading, onWordClick }: WordFlowProps) {
               key={entry.id}
               type="button"
               className={cn(
-                'inline-block leading-tight mr-5 my-1 rounded-lg py-0.5',
+                'inline-block font-orelega leading-tight mr-5 my-1 rounded-lg py-0.5',
                 'transition-all duration-250 ease-out',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                 'text-text-primary cursor-pointer',
