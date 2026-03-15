@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -40,14 +40,14 @@ export function WordFlow({ entries, loading, onWordClick }: WordFlowProps) {
   const [anchorRect, setAnchorRect] = useState({ x: 0, y: 0, bottom: 0, width: 0 })
   const leaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const delayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const shownOnceRef = useRef(false)
+  const cardVisibleRef = useRef(false)
 
-  const clearTimers = useCallback(() => {
-    if (leaveTimerRef.current) clearTimeout(leaveTimerRef.current)
-    if (delayTimerRef.current) clearTimeout(delayTimerRef.current)
-  }, [])
+  const clearTimers = () => {
+    if (leaveTimerRef.current) { clearTimeout(leaveTimerRef.current); leaveTimerRef.current = null }
+    if (delayTimerRef.current) { clearTimeout(delayTimerRef.current); delayTimerRef.current = null }
+  }
 
-  const showCard = useCallback((entry: DictionaryEntry, el: HTMLElement) => {
+  const showCard = (entry: DictionaryEntry, el: HTMLElement) => {
     clearTimers()
     const rect = el.getBoundingClientRect()
     const containerRect = containerRef.current?.getBoundingClientRect()
@@ -62,36 +62,32 @@ export function WordFlow({ entries, loading, onWordClick }: WordFlowProps) {
     setVisibleEntry(entry)
     setHoveredId(entry.id)
 
-    if (shownOnceRef.current || cardVisible) {
-      // Already shown once or still visible — show immediately
+    if (cardVisibleRef.current) {
       setCardVisible(true)
     } else {
       delayTimerRef.current = setTimeout(() => {
         setCardVisible(true)
-        shownOnceRef.current = true
+        cardVisibleRef.current = true
       }, TOOLTIP_DELAY)
     }
-  }, [clearTimers, cardVisible])
+  }
 
-  const startLeave = useCallback(() => {
+  const startLeave = () => {
     clearTimers()
     leaveTimerRef.current = setTimeout(() => {
       setCardVisible(false)
+      cardVisibleRef.current = false
       setHoveredId(null)
-      // Reset shownOnce after a longer pause — so moving between words stays instant
-      setTimeout(() => {
-        shownOnceRef.current = false
-        setVisibleEntry(null)
-      }, 300)
+      setTimeout(() => setVisibleEntry(null), 200)
     }, 150)
-  }, [clearTimers])
+  }
 
-  const cancelLeave = useCallback(() => {
+  const cancelLeave = () => {
     if (leaveTimerRef.current) {
       clearTimeout(leaveTimerRef.current)
       leaveTimerRef.current = null
     }
-  }, [])
+  }
 
   if (loading) return <WordFlowSkeleton />
 
