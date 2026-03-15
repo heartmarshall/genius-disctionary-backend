@@ -144,11 +144,11 @@ export function WordFlow({ entries, loading, onWordClick }: WordFlowProps) {
               transition={{ duration: 0.3, ease: 'easeOut' }}
               className={cn(
                 'inline-block font-orelega leading-tight mr-5 my-1 rounded-lg py-0.5',
-                'transition-colors duration-200 ease-out',
+                'transition-all duration-250 ease-out',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                 'text-text-primary cursor-pointer',
                 DEPTH_STYLES[depth],
-                isHovered && '!opacity-100',
+                isHovered && '!opacity-100 -translate-y-0.5',
               )}
               style={{
                 color: isHovered ? `var(${posColors.cssVar})` : undefined,
