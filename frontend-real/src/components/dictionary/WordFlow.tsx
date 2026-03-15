@@ -170,8 +170,6 @@ export function WordFlow({ entries, loading, onWordClick }: WordFlowProps) {
         })}
       </motion.div>
 
-      {/* Bottom gradient fade */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-bg-page to-transparent" />
 
       {/* Hover card */}
       <AnimatePresence>
