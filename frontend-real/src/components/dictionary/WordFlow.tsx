@@ -41,11 +41,11 @@ function WordFlowSkeleton() {
 
 function ListViewSkeleton() {
   return (
-    <div className="py-4 columns-3 gap-8">
+    <div className="py-6 columns-3 gap-8">
       {Array.from({ length: 15 }).map((_, i) => (
-        <div key={i} className="py-1.5 flex items-baseline gap-2 break-inside-avoid">
+        <div key={i} className="py-2.5 flex items-baseline gap-2 break-inside-avoid">
           <Skeleton className="h-3 w-4 shrink-0" />
-          <Skeleton className="h-5 rounded" style={{ width: `${50 + Math.random() * 60}px` }} />
+          <Skeleton className="h-6 rounded" style={{ width: `${60 + Math.random() * 80}px` }} />
         </div>
       ))}
     </div>
@@ -85,10 +85,11 @@ function ListPopoverCard({
   const firstExample = firstSense?.examples?.[0]
   const accentColor = `var(${posColors.cssVar})`
 
-  // Position: offset to the side of the word, not directly under it
-  const GAP_Y = 4
-  const GAP_X = 12
+  // Position: center card's arrow on the word's vertical center
+  const GAP_X = 18
+  const ARROW_FROM_TOP = 24
   const wordCenterX = anchorRect.x + anchorRect.width / 2
+  const wordCenterY = anchorRect.y + (anchorRect.bottom - anchorRect.y) / 2
   const goRight = wordCenterX < containerWidth * 0.6
 
   let left: number
@@ -99,13 +100,17 @@ function ListPopoverCard({
   }
   left = Math.max(8, Math.min(left, containerWidth - LIST_CARD_WIDTH - 8))
 
-  const top = anchorRect.y + GAP_Y
+  const top = wordCenterY - ARROW_FROM_TOP
+  const arrowTop = ARROW_FROM_TOP - 6
 
   return (
     <motion.div
         ref={cardRef}
-        className="absolute z-20 rounded-xl bg-bg-card border border-border-subtle"
-        style={{ width: LIST_CARD_WIDTH }}
+        className="absolute z-20"
+        style={{
+          width: LIST_CARD_WIDTH,
+          filter: 'none',
+        }}
         initial={{ left, top, opacity: 0, x: goRight ? -8 : 8 }}
         animate={{ left, top, opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: goRight ? -8 : 8 }}
@@ -119,6 +124,17 @@ function ListPopoverCard({
         onMouseLeave={onMouseLeave}
         role="tooltip"
       >
+      {/* Arrow with border, z-10 to sit above card border */}
+      <div
+        className="absolute w-3 h-3 bg-bg-card rotate-45 z-10 border-border-default"
+        style={{
+          top: arrowTop,
+          ...(goRight
+            ? { left: -6, borderLeft: '1px solid', borderBottom: '1px solid', borderColor: 'var(--border-default)' }
+            : { right: -6, borderRight: '1px solid', borderTop: '1px solid', borderColor: 'var(--border-default)' }),
+        }}
+      />
+      <div className="relative rounded-xl bg-bg-card border border-border-default">
       <div className="px-4 py-3 space-y-2">
         {/* Pronunciation + POS */}
         <div className="flex items-baseline gap-2">
@@ -170,6 +186,7 @@ function ListPopoverCard({
             <ArrowRight size={11} className="transition-transform group-hover:translate-x-0.5" />
           </button>
         </div>
+      </div>
       </div>
     </motion.div>
   )
@@ -285,7 +302,7 @@ export function WordFlow({ entries, loading, onWordClick, viewMode = 'flow' }: W
           })}
         </div>
       ) : (
-        /* ── List view — 3-column, top-to-bottom ── */
+        /* ── List view — 3-column, large text ── */
         <div className="py-6 columns-3 gap-8">
           {entries.map((entry, index) => {
             const firstSense = entry.senses[0]
@@ -294,7 +311,7 @@ export function WordFlow({ entries, loading, onWordClick, viewMode = 'flow' }: W
             const isActive = hoveredId === entry.id
 
             return (
-              <div key={entry.id} className="py-1.5 flex items-baseline gap-2 break-inside-avoid">
+              <div key={entry.id} className="py-2.5 flex items-baseline gap-2 break-inside-avoid">
                 <span className="text-[10px] font-sans text-text-disabled tabular-nums select-none w-4 text-right shrink-0" aria-hidden>
                   {index + 1}
                 </span>
@@ -308,7 +325,7 @@ export function WordFlow({ entries, loading, onWordClick, viewMode = 'flow' }: W
                   onBlur={startLeave}
                 >
                   <span
-                    className="inline-block font-orelega text-[20px] leading-tight border-b-2 pb-px"
+                    className="inline-block font-orelega text-[26px] leading-tight border-b-2 pb-px"
                     style={{
                       color: isActive ? `var(${posColors.cssVar})` : 'var(--text-primary)',
                       borderColor: isActive ? `var(${posColors.cssVar})` : 'transparent',
