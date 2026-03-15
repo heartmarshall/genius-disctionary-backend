@@ -62,7 +62,8 @@ export function WordFlow({ entries, loading, onWordClick }: WordFlowProps) {
     setVisibleEntry(entry)
     setHoveredId(entry.id)
 
-    if (shownOnceRef.current) {
+    if (shownOnceRef.current || cardVisible) {
+      // Already shown once or still visible — show immediately
       setCardVisible(true)
     } else {
       delayTimerRef.current = setTimeout(() => {
@@ -70,15 +71,18 @@ export function WordFlow({ entries, loading, onWordClick }: WordFlowProps) {
         shownOnceRef.current = true
       }, TOOLTIP_DELAY)
     }
-  }, [clearTimers])
+  }, [clearTimers, cardVisible])
 
   const startLeave = useCallback(() => {
     clearTimers()
     leaveTimerRef.current = setTimeout(() => {
       setCardVisible(false)
       setHoveredId(null)
-      shownOnceRef.current = false
-      setTimeout(() => setVisibleEntry(null), 200)
+      // Reset shownOnce after a longer pause — so moving between words stays instant
+      setTimeout(() => {
+        shownOnceRef.current = false
+        setVisibleEntry(null)
+      }, 300)
     }, 150)
   }, [clearTimers])
 
