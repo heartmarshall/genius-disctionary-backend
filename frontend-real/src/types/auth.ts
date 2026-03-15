@@ -27,5 +27,6 @@ export interface ApiError {
   status: number
   error: string
   code?: string
+  field?: string
   fields?: ValidationFieldError[]
 }

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 interface FormFieldProps {
   label: string
-  error?: string
+  error?: ReactNode
   required?: boolean
   id?: string
   children: ReactNode

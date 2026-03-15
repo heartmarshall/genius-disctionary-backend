@@ -58,7 +58,7 @@ function GoogleSignInButtonInner({ redirectTo }: GoogleSignInButtonProps) {
         type="button"
         onClick={() => googleLogin()}
         disabled={isLoading}
-        className="flex w-full items-center justify-center gap-3 rounded-md border border-border-default bg-surface-secondary px-4 py-2 text-sm font-medium text-text-primary transition-colors duration-150 hover:bg-poppy-light disabled:cursor-not-allowed disabled:opacity-50"
+        className="flex h-11 w-full items-center justify-center gap-3 rounded-lg border border-border-subtle bg-surface-secondary px-4 text-sm font-medium text-text-primary transition-colors duration-150 hover:bg-poppy-light disabled:cursor-not-allowed disabled:opacity-50"
       >
         {/* Google brand colors — required by brand guidelines, exempt from Herbarium token rule */}
         <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">

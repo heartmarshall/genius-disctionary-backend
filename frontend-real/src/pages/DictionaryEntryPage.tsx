@@ -8,18 +8,27 @@ import { WordOverview } from '@/components/dictionary/WordOverview'
 import { WordEditDialog } from '@/components/dictionary/WordEditDialog'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 
 export function DictionaryEntryPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { t } = useTranslation('dictionary')
   const { entry, loading, error } = useWordDetail(id)
-  const { deleteWord } = useDeleteWord()
+  const { requestDelete, confirmDelete, cancelDelete, pendingEntry } = useDeleteWord()
   const [editOpen, setEditOpen] = useState(false)
 
-  const handleDelete = () => {
-    if (!entry) return
-    deleteWord(entry)
+  const handleDeleteConfirm = () => {
+    confirmDelete()
     navigate('/dictionary')
   }
 
@@ -29,7 +38,7 @@ export function DictionaryEntryPage() {
         <Button
           variant="ghost"
           size="sm"
-          className="gap-1.5"
+          className="gap-1.5 text-text-secondary hover:text-foreground"
           onClick={() => navigate('/dictionary')}
         >
           <ArrowLeft className="h-4 w-4" />
@@ -50,8 +59,8 @@ export function DictionaryEntryPage() {
             <Button
               variant="ghost"
               size="sm"
-              className="gap-1.5 text-poppy hover:text-poppy"
-              onClick={handleDelete}
+              className="gap-1.5 text-poppy hover:text-poppy-hover hover:bg-poppy-light"
+              onClick={() => requestDelete(entry)}
             >
               <Trash2 className="h-4 w-4" />
               {t('sheet.delete')}
@@ -71,9 +80,14 @@ export function DictionaryEntryPage() {
       )}
 
       {error && (
-        <div className="flex flex-col items-center justify-center gap-3 py-12">
-          <p className="text-sm text-muted-foreground">{t('error.loadFailed')}</p>
-          <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+        <div className="flex flex-col items-center justify-center gap-3 py-12 rounded-md border border-poppy/20 bg-poppy-light">
+          <p className="text-sm text-poppy-fg">{t('error.loadFailed')}</p>
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-poppy/30 text-poppy-fg hover:bg-poppy-light"
+            onClick={() => window.location.reload()}
+          >
             {t('error.tryAgain')}
           </Button>
         </div>
@@ -86,6 +100,31 @@ export function DictionaryEntryPage() {
         open={editOpen}
         onOpenChange={setEditOpen}
       />
+
+      {/* Delete confirmation dialog */}
+      <AlertDialog open={pendingEntry !== null} onOpenChange={(open) => !open && cancelDelete()}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t('delete.confirm')}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('delete.confirmDescription')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={cancelDelete}>
+              {t('delete.confirmCancel')}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-poppy text-white hover:bg-poppy/90"
+              onClick={handleDeleteConfirm}
+            >
+              {t('delete.confirmDelete')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

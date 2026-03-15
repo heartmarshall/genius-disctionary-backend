@@ -28,6 +28,7 @@ function extractApiError(err: unknown): ApiError {
       status,
       error: (data.error as string) || err.message,
       code: data.code as string | undefined,
+      field: data.field as string | undefined,
       fields: data.fields as ApiError['fields'],
     }
   }

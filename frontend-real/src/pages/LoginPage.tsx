@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -18,21 +18,32 @@ interface LoginFormValues {
 }
 
 export function LoginPage() {
-  const { t } = useTranslation('auth')
+  const { t, i18n: { language } } = useTranslation('auth')
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const redirectTo = searchParams.get('redirect') || '/dashboard'
   const auth = useAuth()
-  const [genericError, setGenericError] = useState('')
+
+  // Store error key instead of translated string so it reacts to language changes.
+  const [credentialsError, setCredentialsError] = useState(false)
 
   const {
     register,
     handleSubmit,
+    trigger,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({ mode: 'onBlur' })
 
+  // Re-run client validation on language change so messages update.
+  useEffect(() => {
+    const touched = Object.keys(errors) as (keyof LoginFormValues)[]
+    if (touched.length > 0) {
+      trigger(touched)
+    }
+  }, [language]) // eslint-disable-line react-hooks/exhaustive-deps
+
   const onSubmit = async (data: LoginFormValues) => {
-    setGenericError('')
+    setCredentialsError(false)
     try {
       const response = await loginPassword(data.email, data.password)
       auth.login({ accessToken: response.accessToken, refreshToken: response.refreshToken }, response.user)
@@ -44,7 +55,7 @@ export function LoginPage() {
           return
         }
         if (err.status === 401) {
-          setGenericError(t('login.error.credentials'))
+          setCredentialsError(true)
           return
         }
       }
@@ -59,8 +70,8 @@ export function LoginPage() {
       <GoogleSignInButton redirectTo={redirectTo} />
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        {genericError && (
-          <p className="text-sm text-poppy-fg" role="alert">{genericError}</p>
+        {credentialsError && (
+          <p className="text-sm text-poppy-fg" role="alert">{t('login.error.credentials')}</p>
         )}
 
         <FormField label={t('field.email')} required error={errors.email?.message} id="login-email">

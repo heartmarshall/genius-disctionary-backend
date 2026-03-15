@@ -16,27 +16,10 @@ export const GET_DICTIONARY = gql`
               id
               text
             }
-            examples {
-              id
-              sentence
-              translation
-            }
-          }
-          catalogImages {
-            id
-            url
-            caption
-          }
-          userImages {
-            id
-            url
-            caption
           }
           pronunciations {
             id
-            audioUrl
             transcription
-            region
           }
           topics {
             id
@@ -49,8 +32,6 @@ export const GET_DICTIONARY = gql`
       }
       pageInfo {
         hasNextPage
-        hasPreviousPage
-        startCursor
         endCursor
       }
       totalCount

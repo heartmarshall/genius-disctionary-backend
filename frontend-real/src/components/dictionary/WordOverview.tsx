@@ -1,62 +1,54 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Volume2 } from 'lucide-react'
+import { Volume2, StickyNote } from 'lucide-react'
+import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
+import { getPosColors } from '@/lib/pos-colors'
 import { cn } from '@/lib/utils'
 import type { DictionaryEntry } from '@/types/dictionary'
 
 interface WordOverviewProps {
   entry: DictionaryEntry
   className?: string
+  hideTitle?: boolean
 }
 
-export function WordOverview({ entry, className }: WordOverviewProps) {
+export function WordOverview({ entry, className, hideTitle }: WordOverviewProps) {
   const { t } = useTranslation('dictionary')
 
-  const playAudio = (url: string) => {
-    new Audio(url).play()
+  const playAudio = async (url: string) => {
+    try {
+      await new Audio(url).play()
+    } catch {
+      toast.error(t('error.audioFailed'))
+    }
   }
 
   return (
     <div className={cn('space-y-6', className)}>
       {/* Header */}
-      <div className="space-y-2">
-        <h2 className="font-orelega text-4xl text-foreground">{entry.text}</h2>
-        {entry.pronunciations.length > 0 && (
-          <div className="flex items-center gap-3 flex-wrap">
-            {entry.pronunciations.map((pron) => (
-              <div key={pron.id} className="flex items-center gap-1.5">
-                <span className="font-serif text-muted-foreground">
-                  /{pron.transcription}/
-                </span>
-                {pron.region && (
-                  <Badge variant="outline" className="text-xs">
-                    {pron.region}
-                  </Badge>
-                )}
-                {pron.audioUrl && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7"
-                    onClick={() => playAudio(pron.audioUrl!)}
-                  >
-                    <Volume2 className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      {!hideTitle && (
+        <div className="space-y-2">
+          <h2 className="font-orelega text-4xl text-foreground">{entry.text}</h2>
+          <PronunciationList pronunciations={entry.pronunciations} onPlay={playAudio} />
+        </div>
+      )}
+
+      {/* Pronunciations when title is hidden */}
+      {hideTitle && entry.pronunciations.length > 0 && (
+        <PronunciationList pronunciations={entry.pronunciations} onPlay={playAudio} />
+      )}
 
       {/* Topics */}
       {entry.topics.length > 0 && (
         <div className="flex gap-2 flex-wrap">
           {entry.topics.map((topic) => (
-            <Badge key={topic.id} variant="outline">
+            <Badge
+              key={topic.id}
+              variant="outline"
+              className="font-normal bg-surface-secondary border-border-subtle text-text-secondary"
+            >
               {topic.name}
             </Badge>
           ))}
@@ -65,45 +57,70 @@ export function WordOverview({ entry, className }: WordOverviewProps) {
 
       {/* Senses */}
       {entry.senses.length > 0 && (
-        <div className="space-y-4">
-          {entry.senses.map((sense, index) => (
-            <div key={sense.id} className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-muted-foreground">
-                  {index + 1}.
-                </span>
-                {sense.partOfSpeech && (
-                  <Badge variant="secondary">
-                    {t(`pos.${sense.partOfSpeech}`)}
-                  </Badge>
+        <div className="space-y-5">
+          {entry.senses.map((sense, index) => {
+            const posColors = getPosColors(sense.partOfSpeech)
+
+            return (
+              <div key={sense.id} className="space-y-3">
+                {/* Sense header */}
+                <div className="flex items-center gap-2">
+                  <span className={cn(
+                    'flex items-center justify-center h-6 w-6 rounded-full text-xs font-medium',
+                    posColors.bg,
+                    posColors.text,
+                  )}>
+                    {index + 1}
+                  </span>
+                  {sense.partOfSpeech && (
+                    <Badge
+                      className={cn(
+                        'border text-xs font-medium',
+                        posColors.bg,
+                        posColors.text,
+                        posColors.border,
+                      )}
+                    >
+                      {t(`pos.${sense.partOfSpeech}`)}
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Definition */}
+                {sense.definition && (
+                  <p className="text-foreground leading-relaxed">{sense.definition}</p>
+                )}
+
+                {/* Translations */}
+                {sense.translations.length > 0 && (
+                  <p className="text-text-secondary font-medium">
+                    {sense.translations.map((tr) => tr.text).join(', ')}
+                  </p>
+                )}
+
+                {/* Examples */}
+                {sense.examples.length > 0 && (
+                  <div className="space-y-2 pl-4">
+                    {sense.examples.map((ex) => (
+                      <div key={ex.id}>
+                        <blockquote className={cn(
+                          'font-serif italic text-foreground border-l-2 pl-3',
+                          posColors.dot ? `border-l-current ${posColors.text}` : 'border-l-border-default',
+                        )}>
+                          <span className="text-foreground">{ex.sentence}</span>
+                        </blockquote>
+                        {ex.translation && (
+                          <p className="text-text-secondary text-sm pl-3 mt-0.5">
+                            {ex.translation}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
-              {sense.definition && (
-                <p className="text-foreground">{sense.definition}</p>
-              )}
-              {sense.translations.length > 0 && (
-                <p className="text-muted-foreground">
-                  {sense.translations.map((tr) => tr.text).join(', ')}
-                </p>
-              )}
-              {sense.examples.length > 0 && (
-                <div className="space-y-2 pl-4">
-                  {sense.examples.map((ex) => (
-                    <div key={ex.id}>
-                      <blockquote className="font-serif italic text-foreground border-l-2 border-border pl-3">
-                        {ex.sentence}
-                      </blockquote>
-                      {ex.translation && (
-                        <p className="text-muted-foreground text-sm pl-3 mt-0.5">
-                          {ex.translation}
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
 
@@ -118,14 +135,54 @@ export function WordOverview({ entry, className }: WordOverviewProps) {
 
       {/* Notes */}
       {entry.notes && (
-        <>
-          <Separator />
-          <div className="space-y-1">
-            <p className="text-sm font-medium">{t('edit.notes')}</p>
-            <p className="text-muted-foreground">{entry.notes}</p>
+        <div className="rounded-md bg-goldenrod-light border border-goldenrod/20 p-4 space-y-1.5">
+          <div className="flex items-center gap-2">
+            <StickyNote className="h-4 w-4 text-goldenrod-fg" />
+            <p className="text-sm font-medium text-goldenrod-fg">{t('edit.notes')}</p>
           </div>
-        </>
+          <p className="text-text-primary text-sm">{entry.notes}</p>
+        </div>
       )}
+    </div>
+  )
+}
+
+function PronunciationList({
+  pronunciations,
+  onPlay,
+}: {
+  pronunciations: DictionaryEntry['pronunciations']
+  onPlay: (url: string) => void
+}) {
+  if (pronunciations.length === 0) return null
+
+  return (
+    <div className="flex items-center gap-3 flex-wrap">
+      {pronunciations.map((pron) => (
+        <div
+          key={pron.id}
+          className="flex items-center gap-1.5 bg-cornflower-light rounded-full px-3 py-1"
+        >
+          <span className="font-serif text-cornflower-fg">
+            /{pron.transcription}/
+          </span>
+          {pron.region && (
+            <span className="text-xs text-cornflower-fg/70 uppercase">
+              {pron.region}
+            </span>
+          )}
+          {pron.audioUrl && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 text-cornflower hover:text-cornflower-hover hover:bg-cornflower/10"
+              onClick={() => onPlay(pron.audioUrl!)}
+            >
+              <Volume2 className="h-3.5 w-3.5" />
+            </Button>
+          )}
+        </div>
+      ))}
     </div>
   )
 }
@@ -145,7 +202,7 @@ function ImageWithFallback({ src, caption }: { src: string; caption?: string }) 
         onError={() => setError(true)}
       />
       {caption && (
-        <p className="text-xs text-muted-foreground mt-1">{caption}</p>
+        <p className="text-xs text-text-secondary mt-1">{caption}</p>
       )}
     </div>
   )

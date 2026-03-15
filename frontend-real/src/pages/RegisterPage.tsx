@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -20,21 +21,34 @@ interface RegisterFormValues {
 }
 
 export function RegisterPage() {
-  const { t } = useTranslation('auth')
+  const { t, i18n: { language } } = useTranslation('auth')
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const redirectTo = searchParams.get('redirect') || '/dashboard'
   const auth = useAuth()
+
+  // Store conflict field key so it re-translates on language change.
+  const [conflictField, setConflictField] = useState<'email' | 'username' | null>(null)
 
   const {
     register,
     handleSubmit,
     setError,
     getValues,
+    trigger,
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormValues>({ mode: 'onBlur' })
 
+  // Re-run client validation on language change so messages update.
+  useEffect(() => {
+    const touched = Object.keys(errors) as (keyof RegisterFormValues)[]
+    if (touched.length > 0) {
+      trigger(touched)
+    }
+  }, [language]) // eslint-disable-line react-hooks/exhaustive-deps
+
   const onSubmit = async (data: RegisterFormValues) => {
+    setConflictField(null)
     try {
       const response = await registerUser(data.email, data.username, data.password)
       auth.login({ accessToken: response.accessToken, refreshToken: response.refreshToken }, response.user)
@@ -43,6 +57,14 @@ export function RegisterPage() {
       if (isApiError(err)) {
         if (err.status === 429) {
           toast.error(t('register.error.rate_limit'))
+          return
+        }
+        if (err.status === 409) {
+          if (err.field === 'email' || err.field === 'username') {
+            setConflictField(err.field)
+          } else {
+            toast.error(t('register.error.already_exists'))
+          }
           return
         }
         if (err.code === 'VALIDATION' && err.fields) {
@@ -59,6 +81,14 @@ export function RegisterPage() {
     }
   }
 
+  // Translate conflict error at render time (reacts to language change).
+  const emailError = errors.email?.message
+    || (conflictField === 'email'
+      ? <>{t('register.error.email_exists')}{' '}<Link to="/login" className="text-poppy hover:underline">{t('register.error.email_exists_login')}</Link></>
+      : undefined)
+  const usernameError = errors.username?.message
+    || (conflictField === 'username' ? t('register.error.username_exists') : undefined)
+
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-3xl font-bold text-text-primary">{t('register.title')}</h1>
@@ -66,22 +96,22 @@ export function RegisterPage() {
       <GoogleSignInButton redirectTo={redirectTo} />
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <FormField label={t('field.email')} required error={errors.email?.message} id="register-email">
+        <FormField label={t('field.email')} required error={emailError} id="register-email">
           <Input
             id="register-email"
             type="email"
             autoComplete="email"
             placeholder={t('field.placeholder.email')}
-            {...register('email', { validate: validateEmail })}
+            {...register('email', { validate: validateEmail, onChange: () => setConflictField((v) => v === 'email' ? null : v) })}
           />
         </FormField>
 
-        <FormField label={t('field.username')} required error={errors.username?.message} id="register-username">
+        <FormField label={t('field.username')} required error={usernameError} id="register-username">
           <Input
             id="register-username"
             autoComplete="username"
             placeholder={t('field.placeholder.username')}
-            {...register('username', { validate: validateUsername })}
+            {...register('username', { validate: validateUsername, onChange: () => setConflictField((v) => v === 'username' ? null : v) })}
           />
         </FormField>
 
