@@ -8,7 +8,8 @@ import { FilterPanel } from '@/components/dictionary/FilterPanel'
 import { WordFlow } from '@/components/dictionary/WordFlow'
 import { DictionaryDetailView } from '@/components/dictionary/DictionaryDetailView'
 import { useDictionary } from '@/hooks/useDictionary'
-import type { ViewMode } from '@/components/dictionary/WordFlow'
+import type { ViewMode, ListDisplayOptions } from '@/components/dictionary/WordFlow'
+import { DEFAULT_LIST_DISPLAY } from '@/components/dictionary/WordFlow'
 import type { PartOfSpeech, EntrySortField, SortDirection, DictionaryFilterInput } from '@/types/dictionary'
 
 export function DictionaryPage() {
@@ -23,6 +24,7 @@ export function DictionaryPage() {
   const [sortDir, setSortDir] = useState<SortDirection>('ASC')
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [viewMode, setViewMode] = useState<ViewMode>('flow')
+  const [listDisplay, setListDisplay] = useState<ListDisplayOptions>(DEFAULT_LIST_DISPLAY)
 
   // Detail view state
   const [selectedWordId, setSelectedWordId] = useState<string | null>(null)
@@ -107,6 +109,8 @@ export function DictionaryPage() {
             onClearFilters={clearAllFilters}
             viewMode={viewMode}
             onViewModeChange={setViewMode}
+            listDisplay={listDisplay}
+            onListDisplayChange={setListDisplay}
           />
 
           {/* Filter panel */}
@@ -146,6 +150,7 @@ export function DictionaryPage() {
                 loading={loading}
                 onWordClick={handleWordClick}
                 viewMode={viewMode}
+                listDisplay={listDisplay}
               />
             </div>
           )}

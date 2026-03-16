@@ -10,11 +10,28 @@ import type { DictionaryEntry } from '@/types/dictionary'
 
 export type ViewMode = 'flow' | 'list'
 
+export interface ListDisplayOptions {
+  translation: boolean
+  transcription: boolean
+  partOfSpeech: boolean
+  definition: boolean
+  topic: boolean
+}
+
+export const DEFAULT_LIST_DISPLAY: ListDisplayOptions = {
+  translation: true,
+  transcription: false,
+  partOfSpeech: false,
+  definition: false,
+  topic: false,
+}
+
 interface WordFlowProps {
   entries: DictionaryEntry[]
   loading: boolean
   onWordClick: (id: string) => void
   viewMode?: ViewMode
+  listDisplay?: ListDisplayOptions
 }
 
 const WORD_STYLE = 'text-[22px]'
@@ -41,11 +58,15 @@ function WordFlowSkeleton() {
 
 function ListViewSkeleton() {
   return (
-    <div className="py-6 columns-3 gap-8">
-      {Array.from({ length: 15 }).map((_, i) => (
-        <div key={i} className="py-2.5 flex items-baseline gap-2 break-inside-avoid">
-          <Skeleton className="h-3 w-4 shrink-0" />
-          <Skeleton className="h-6 rounded" style={{ width: `${60 + Math.random() * 80}px` }} />
+    <div className="py-6 space-y-8">
+      {Array.from({ length: 3 }).map((_, groupIdx) => (
+        <div key={groupIdx} className="space-y-1">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="py-2 flex items-baseline gap-2.5">
+              <Skeleton className="h-3 w-5 shrink-0" />
+              <Skeleton className="h-7 rounded" style={{ width: `${80 + Math.random() * 100}px` }} />
+            </div>
+          ))}
         </div>
       ))}
     </div>
@@ -194,7 +215,8 @@ function ListPopoverCard({
 
 /* ── Main component ── */
 
-export function WordFlow({ entries, loading, onWordClick, viewMode = 'flow' }: WordFlowProps) {
+export function WordFlow({ entries, loading, onWordClick, viewMode = 'flow', listDisplay = DEFAULT_LIST_DISPLAY }: WordFlowProps) {
+  const { t } = useTranslation('dictionary')
   const containerRef = useRef<HTMLDivElement>(null)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [cardVisible, setCardVisible] = useState(false)
@@ -302,44 +324,116 @@ export function WordFlow({ entries, loading, onWordClick, viewMode = 'flow' }: W
           })}
         </div>
       ) : (
-        /* ── List view — 3-column, large text ── */
-        <div className="py-6 columns-3 gap-8">
-          {entries.map((entry, index) => {
-            const firstSense = entry.senses[0]
-            const pos = firstSense?.partOfSpeech
-            const posColors = getPosColors(pos)
-            const isActive = hoveredId === entry.id
+        /* ── List view — single column, grouped by 5 ── */
+        <div className="py-6 space-y-8">
+          {Array.from(
+            { length: Math.ceil(entries.length / 5) },
+            (_, groupIdx) => entries.slice(groupIdx * 5, groupIdx * 5 + 5),
+          ).map((group, groupIdx) => (
+            <div key={groupIdx} className="space-y-1">
+              {group.map((entry, i) => {
+                const globalIndex = groupIdx * 5 + i
+                const firstSense = entry.senses[0]
+                const pos = firstSense?.partOfSpeech
+                const posColors = getPosColors(pos)
+                const isActive = hoveredId === entry.id
+                const hasDetails = listDisplay.translation || listDisplay.transcription || listDisplay.partOfSpeech || listDisplay.definition || listDisplay.topic
 
-            return (
-              <div key={entry.id} className="py-2.5 flex items-baseline gap-2 break-inside-avoid">
-                <span className="text-[10px] font-sans text-text-disabled tabular-nums select-none w-4 text-right shrink-0" aria-hidden>
-                  {index + 1}
-                </span>
-                <button
-                  type="button"
-                  className="inline text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  onClick={() => onWordClick(entry.id)}
-                  onMouseEnter={(e) => showCard(entry, e.currentTarget)}
-                  onMouseLeave={startLeave}
-                  onFocus={(e) => showCard(entry, e.currentTarget)}
-                  onBlur={startLeave}
-                >
-                  <span
-                    className="inline-block font-orelega text-[26px] leading-tight border-b-2 pb-px"
-                    style={{
-                      color: isActive ? `var(${posColors.cssVar})` : 'var(--text-primary)',
-                      borderColor: isActive ? `var(${posColors.cssVar})` : 'transparent',
-                      transform: isActive ? 'translateX(4px)' : 'translateX(0)',
-                      transformOrigin: 'left center',
-                      transition: 'color 200ms, border-color 200ms, transform 300ms cubic-bezier(0.23, 1, 0.32, 1)',
-                    }}
-                  >
-                    {entry.text}
-                  </span>
-                </button>
-              </div>
-            )
-          })}
+                const translations = listDisplay.translation
+                  ? firstSense?.translations.map((tr) => tr.text).join(', ')
+                  : undefined
+                const transcription = listDisplay.transcription
+                  ? entry.pronunciations[0]?.transcription
+                  : undefined
+                const posLabel = listDisplay.partOfSpeech && pos
+                  ? t(`pos.${pos}`, pos)
+                  : undefined
+                const definition = listDisplay.definition
+                  ? firstSense?.definition
+                  : undefined
+                const topicNames = listDisplay.topic && entry.topics.length > 0
+                  ? entry.topics.map((tp) => tp.name).join(', ')
+                  : undefined
+
+                return (
+                  <div key={entry.id} className={cn('flex gap-2.5', hasDetails ? 'py-2.5' : 'py-2')}>
+                    <span className="text-[10px] font-sans text-text-disabled tabular-nums select-none w-5 text-right shrink-0 pt-2" aria-hidden>
+                      {globalIndex + 1}
+                    </span>
+                    <div className="min-w-0">
+                      <button
+                        type="button"
+                        className="inline text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        onClick={() => onWordClick(entry.id)}
+                        onMouseEnter={(e) => showCard(entry, e.currentTarget)}
+                        onMouseLeave={startLeave}
+                        onFocus={(e) => showCard(entry, e.currentTarget)}
+                        onBlur={startLeave}
+                      >
+                        <span
+                          className="inline-block font-orelega text-[26px] leading-tight border-b-2 pb-px"
+                          style={{
+                            color: isActive ? `var(${posColors.cssVar})` : 'var(--text-primary)',
+                            borderColor: isActive ? `var(${posColors.cssVar})` : 'transparent',
+                            transform: isActive ? 'translateX(4px)' : 'translateX(0)',
+                            transformOrigin: 'left center',
+                            transition: 'color 200ms, border-color 200ms, transform 300ms cubic-bezier(0.23, 1, 0.32, 1)',
+                          }}
+                        >
+                          {entry.text}
+                        </span>
+                      </button>
+                      <AnimatePresence initial={false}>
+                        {hasDetails && (
+                          <motion.div
+                            key="details"
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ height: { duration: 0.2, ease: [0.4, 0, 0.2, 1] }, opacity: { duration: 0.15 } }}
+                            className="overflow-hidden"
+                          >
+                            <div className="mt-0.5 space-y-px">
+                              {/* Line 1: transcription · POS — translation */}
+                              {(transcription || posLabel || translations) && (
+                                <p className="text-sm leading-snug flex items-baseline gap-1.5 flex-wrap">
+                                  {transcription && (
+                                    <span className="font-serif text-[13px] italic text-text-tertiary">/{transcription}/</span>
+                                  )}
+                                  {posLabel && (
+                                    <span
+                                      className="text-[10px] uppercase tracking-wider font-medium leading-none"
+                                      style={{ color: `var(${posColors.cssVar})` }}
+                                    >
+                                      {posLabel}
+                                    </span>
+                                  )}
+                                  {translations && (transcription || posLabel) && (
+                                    <span className="text-text-disabled" aria-hidden>&mdash;</span>
+                                  )}
+                                  {translations && (
+                                    <span className="text-text-secondary">{translations}</span>
+                                  )}
+                                </p>
+                              )}
+                              {/* Line 2: definition */}
+                              {definition && (
+                                <p className="text-[13px] text-text-tertiary leading-snug line-clamp-1">{definition}</p>
+                              )}
+                              {/* Line 3: topics */}
+                              {topicNames && (
+                                <p className="text-[10px] uppercase tracking-wider text-text-disabled leading-normal">{topicNames}</p>
+                              )}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          ))}
         </div>
       )}
 
