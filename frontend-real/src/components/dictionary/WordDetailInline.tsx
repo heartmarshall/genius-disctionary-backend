@@ -67,7 +67,7 @@ export function WordDetailInline({ wordId, onClose }: WordDetailInlineProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      className="my-4 py-1 border-y border-border-subtle/60 bg-surface-secondary/30"
+      className="my-4 py-1 border-y border-border-subtle bg-surface-secondary"
     >
       {/* Header — word title row with actions */}
       <div className="flex items-start justify-between gap-4 pt-4 md:pt-5">
