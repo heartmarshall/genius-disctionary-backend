@@ -86,7 +86,12 @@ export function WordList({
         return (
           <div key={entry.id} data-word-id={entry.id} style={{ scrollMarginTop: '4rem' }}>
             {isSelected ? (
-              renderDetail?.(entry)
+              <div className="relative">
+                {renderDetail?.(entry)}
+                <span className="absolute top-5 right-0 text-[11px] md:text-xs text-text-tertiary tabular-nums">
+                  {indexLabel}
+                </span>
+              </div>
             ) : (
               <button
                 type="button"
