@@ -1,16 +1,15 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { motion, AnimatePresence } from 'framer-motion'
+import { AnimatePresence } from 'framer-motion'
 import { ChevronDown, BookOpen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { DictionaryHero } from '@/components/dictionary/DictionaryHero'
-import { FilterPanel } from '@/components/dictionary/FilterPanel'
-import { WordFlow } from '@/components/dictionary/WordFlow'
-import { DictionaryDetailView } from '@/components/dictionary/DictionaryDetailView'
+import { DictionaryToolbar } from '@/components/dictionary/DictionaryToolbar'
+import { WordList } from '@/components/dictionary/WordList'
+import { WordDetailInline } from '@/components/dictionary/WordDetailInline'
 import { useDictionary } from '@/hooks/useDictionary'
-import type { ViewMode, ListDisplayOptions } from '@/components/dictionary/WordFlow'
-import { DEFAULT_LIST_DISPLAY } from '@/components/dictionary/WordFlow'
 import type { PartOfSpeech, EntrySortField, SortDirection, DictionaryFilterInput } from '@/types/dictionary'
+import { DEFAULT_DISPLAY } from '@/components/dictionary/DictionaryToolbar'
+import type { DisplayOptions } from '@/components/dictionary/DictionaryToolbar'
 
 export function DictionaryPage() {
   const { t } = useTranslation('dictionary')
@@ -22,9 +21,7 @@ export function DictionaryPage() {
   const [selectedTopicIds, setSelectedTopicIds] = useState<string[]>([])
   const [sortBy, setSortBy] = useState<EntrySortField>('TEXT')
   const [sortDir, setSortDir] = useState<SortDirection>('ASC')
-  const [filtersOpen, setFiltersOpen] = useState(false)
-  const [viewMode, setViewMode] = useState<ViewMode>('flow')
-  const [listDisplay, setListDisplay] = useState<ListDisplayOptions>(DEFAULT_LIST_DISPLAY)
+  const [displayOptions, setDisplayOptions] = useState<DisplayOptions>(DEFAULT_DISPLAY)
 
   // Detail view state
   const [selectedWordId, setSelectedWordId] = useState<string | null>(null)
@@ -49,6 +46,7 @@ export function DictionaryPage() {
 
   const clearAllFilters = () => {
     setSearch('')
+    setDebouncedSearch('')
     setSelectedPOS([])
     setSelectedTopicIds([])
     setSortBy('TEXT')
@@ -56,14 +54,26 @@ export function DictionaryPage() {
   }
 
   const handleWordClick = (id: string) => {
+    // Toggle: click again to close
+    if (selectedWordId === id) {
+      setSelectedWordId(null)
+      window.history.pushState(null, '', '/dictionary')
+      return
+    }
     setSelectedWordId(id)
     window.history.pushState(null, '', `/dictionary/${id}`)
+
+    // Auto-scroll to word
+    requestAnimationFrame(() => {
+      const el = document.querySelector(`[data-word-id="${id}"]`)
+      el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
   }
 
-  const handleBack = () => {
+  const handleClose = useCallback(() => {
     setSelectedWordId(null)
     window.history.pushState(null, '', '/dictionary')
-  }
+  }, [])
 
   // Handle browser back/forward
   useEffect(() => {
@@ -75,88 +85,107 @@ export function DictionaryPage() {
     return () => window.removeEventListener('popstate', handlePopState)
   }, [])
 
-  // Handle direct URL access to /dictionary/:id
+  // Handle direct URL access
   useEffect(() => {
     const match = window.location.pathname.match(/^\/dictionary\/(.+)$/)
     if (match) setSelectedWordId(match[1])
   }, [])
 
+  // Keyboard navigation: arrow up/down when detail is open
+  useEffect(() => {
+    if (!selectedWordId) return
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleClose()
+        return
+      }
+      if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return
+
+      e.preventDefault()
+      const currentIndex = entries.findIndex((entry) => entry.id === selectedWordId)
+      if (currentIndex === -1) return
+
+      const nextIndex = e.key === 'ArrowDown'
+        ? Math.min(currentIndex + 1, entries.length - 1)
+        : Math.max(currentIndex - 1, 0)
+
+      if (nextIndex === currentIndex) return
+
+      const nextEntry = entries[nextIndex]
+      setSelectedWordId(nextEntry.id)
+      window.history.replaceState(null, '', `/dictionary/${nextEntry.id}`)
+
+      requestAnimationFrame(() => {
+        const el = document.querySelector(`[data-word-id="${nextEntry.id}"]`)
+        el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [selectedWordId, entries, handleClose])
+
   return (
-    <div className="relative">
-      <AnimatePresence mode="sync">
-        {/* Dictionary view */}
-        <motion.div
-          key="dictionary"
-          animate={
-            selectedWordId
-              ? { x: '-20%', scale: 0.95, opacity: 0.3, filter: 'blur(2px)' }
-              : { x: '0%', scale: 1, opacity: 1 }
-          }
-          transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-          className="min-h-[80vh]"
-          style={{ pointerEvents: selectedWordId ? 'none' : 'auto' }}
-        >
-          {/* Hero (title + stats + search + filters) */}
-          <DictionaryHero
-            totalCount={totalCount}
-            topicsCount={topics.length}
+    <div>
+      {/* Toolbar */}
+      <DictionaryToolbar
+        totalCount={totalCount}
+        topicsCount={topics.length}
+        loading={loading}
+        search={search}
+        onSearchChange={setSearch}
+        selectedPOS={selectedPOS}
+        onPOSChange={setSelectedPOS}
+        sortBy={sortBy}
+        sortDir={sortDir}
+        onSortChange={(field, dir) => { setSortBy(field); setSortDir(dir) }}
+        topics={topics}
+        selectedTopicIds={selectedTopicIds}
+        onTopicIdsChange={setSelectedTopicIds}
+        displayOptions={displayOptions}
+        onDisplayOptionsChange={setDisplayOptions}
+      />
+
+      {/* Error */}
+      {error && (
+        <div className="flex flex-col items-center justify-center gap-3 py-12 mt-6 rounded-xl border border-poppy/20 bg-poppy-light">
+          <p className="text-sm text-poppy-fg">{t('error.loadFailed')}</p>
+          <Button
+            variant="outline"
+            size="sm"
+            className="rounded-full border-poppy/30 text-poppy-fg hover:bg-poppy-light"
+            onClick={() => window.location.reload()}
+          >
+            {t('error.tryAgain')}
+          </Button>
+        </div>
+      )}
+
+      {/* Word list */}
+      {!error && (
+        <div className="max-w-[900px] mx-auto px-6 mt-4">
+          <WordList
+            entries={entries}
             loading={loading}
-            search={search}
-            onSearchChange={setSearch}
-            filtersOpen={filtersOpen}
-            onFiltersToggle={() => setFiltersOpen(!filtersOpen)}
-            hasActiveFilters={hasActiveFilters}
-            onClearFilters={clearAllFilters}
-            viewMode={viewMode}
-            onViewModeChange={setViewMode}
-            listDisplay={listDisplay}
-            onListDisplayChange={setListDisplay}
+            selectedWordId={selectedWordId}
+            onWordClick={handleWordClick}
+            displayOptions={displayOptions}
+            renderDetail={(entry) => (
+              <AnimatePresence>
+                {selectedWordId === entry.id && (
+                  <WordDetailInline
+                    key={entry.id}
+                    wordId={entry.id}
+                    onClose={handleClose}
+                  />
+                )}
+              </AnimatePresence>
+            )}
           />
-
-          {/* Filter panel */}
-          <FilterPanel
-            open={filtersOpen}
-            onClose={() => setFiltersOpen(false)}
-            selectedPOS={selectedPOS}
-            onPOSChange={setSelectedPOS}
-            selectedTopicIds={selectedTopicIds}
-            onTopicIdsChange={setSelectedTopicIds}
-            sortBy={sortBy}
-            sortDir={sortDir}
-            onSortChange={(field, dir) => { setSortBy(field); setSortDir(dir) }}
-            topics={topics}
-          />
-
-          {/* Error */}
-          {error && (
-            <div className="flex flex-col items-center justify-center gap-3 py-12 mt-6 rounded-xl border border-poppy/20 bg-poppy-light">
-              <p className="text-sm text-poppy-fg">{t('error.loadFailed')}</p>
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-full border-poppy/30 text-poppy-fg hover:bg-poppy-light"
-                onClick={() => window.location.reload()}
-              >
-                {t('error.tryAgain')}
-              </Button>
-            </div>
-          )}
-
-          {/* Word flow */}
-          {!error && (
-            <div className="mt-6">
-              <WordFlow
-                entries={entries}
-                loading={loading}
-                onWordClick={handleWordClick}
-                viewMode={viewMode}
-                listDisplay={listDisplay}
-              />
-            </div>
-          )}
 
           {/* Empty state */}
-          {!error && !loading && entries.length === 0 && (
+          {!loading && entries.length === 0 && (
             <div className="flex flex-col items-center justify-center gap-4 py-20">
               <div className="flex items-center justify-center h-20 w-20 rounded-2xl bg-cornflower-light">
                 <BookOpen className="h-10 w-10 text-cornflower" />
@@ -169,11 +198,7 @@ export function DictionaryPage() {
                   variant="outline"
                   size="sm"
                   className="rounded-full"
-                  onClick={() => {
-                    setSearch('')
-                    setSelectedPOS([])
-                    setSelectedTopicIds([])
-                  }}
+                  onClick={clearAllFilters}
                 >
                   {t('filter.clearAll')}
                 </Button>
@@ -182,7 +207,7 @@ export function DictionaryPage() {
           )}
 
           {/* Load more */}
-          {!error && !loading && entries.length > 0 && pageInfo?.hasNextPage && (
+          {!loading && entries.length > 0 && pageInfo?.hasNextPage && (
             <div className="flex flex-col items-center gap-3 pt-2 pb-4">
               <p className="text-sm text-text-tertiary">
                 {t('pagination.showing', { count: entries.length, total: totalCount })}
@@ -197,25 +222,8 @@ export function DictionaryPage() {
               </Button>
             </div>
           )}
-        </motion.div>
-
-        {/* Detail view — slides in from right */}
-        {selectedWordId && (
-          <motion.div
-            key="detail"
-            className="absolute inset-0 bg-bg-page overflow-y-auto"
-            initial={{ x: '100%' }}
-            animate={{ x: '0%' }}
-            exit={{ x: '100%' }}
-            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-          >
-            <DictionaryDetailView
-              wordId={selectedWordId}
-              onBack={handleBack}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+        </div>
+      )}
     </div>
   )
 }
