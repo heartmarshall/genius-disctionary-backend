@@ -1,0 +1,191 @@
+<h2>Dictionary Page — 3 подхода</h2>
+<p class="subtitle">Минималистичный поток слов с расширением на месте. Выберите подход, который ближе.</p>
+
+<div class="cards">
+
+  <!-- Approach A -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#fafafa; padding:24px; font-family:system-ui;">
+      <!-- Mockup A -->
+      <div style="max-width:560px; margin:0 auto;">
+        <!-- Header -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+          <div>
+            <div style="font-size:24px; font-weight:700; color:#1a1a1a; letter-spacing:-0.5px;">Dictionary</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div style="width:200px; height:36px; border:1px solid #e8e8e8; border-radius:8px; display:flex; align-items:center; padding:0 12px; color:#999; font-size:13px;">Search words...</div>
+            <div style="width:36px; height:36px; border:1px solid #e8e8e8; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px; color:#999;">⚙</div>
+          </div>
+        </div>
+        <!-- Mini stats -->
+        <div style="display:flex; gap:24px; padding:12px 0; border-bottom:1px solid #f0f0f0; margin-bottom:28px; font-size:12px; color:#999;">
+          <span><strong style="color:#1a1a1a;">247</strong> words</span>
+          <span><strong style="color:#1a1a1a;">+5</strong> this week</span>
+          <span style="display:flex; gap:4px; align-items:center;">
+            <span style="width:6px;height:6px;border-radius:50%;background:#55698a;display:inline-block;"></span>nouns
+            <span style="width:6px;height:6px;border-radius:50%;background:#a14832;display:inline-block;margin-left:4px;"></span>verbs
+          </span>
+        </div>
+        <!-- Word flow -->
+        <div style="line-height:2.4; font-size:16px; color:#1a1a1a;">
+          <span style="display:inline-block; padding:4px 12px; margin:2px 4px; cursor:pointer; border-radius:6px; transition:all 0.2s;">abandon</span>
+          <span style="display:inline-block; padding:4px 12px; margin:2px 4px; cursor:pointer; border-radius:6px; transition:all 0.2s;">benevolent</span>
+          <span style="display:inline-block; padding:4px 12px; margin:2px 4px; cursor:pointer; border-radius:6px; background:#f5f5f5; box-shadow:0 0 0 1px #e0e0e0; font-weight:500;">cascade</span>
+          <span style="display:inline-block; padding:4px 12px; margin:2px 4px; cursor:pointer; border-radius:6px;">diligent</span>
+          <span style="display:inline-block; padding:4px 12px; margin:2px 4px; cursor:pointer; border-radius:6px;">ephemeral</span>
+          <span style="display:inline-block; padding:4px 12px; margin:2px 4px; cursor:pointer; border-radius:6px;">flourish</span>
+          <span style="display:inline-block; padding:4px 12px; margin:2px 4px; cursor:pointer; border-radius:6px;">gratitude</span>
+        </div>
+        <!-- Expanded word -->
+        <div style="margin:8px 0; padding:20px; background:#fafafa; border-radius:12px; border:1px solid #e8e8e8;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <div style="font-size:22px; font-weight:400; color:#1a1a1a; font-family:Georgia,serif;">cascade</div>
+              <div style="font-size:13px; color:#999; margin-top:2px; font-style:italic; font-family:Georgia,serif;">/kæˈskeɪd/</div>
+            </div>
+            <span style="font-size:11px; color:#a14832; background:#f5ebe7; padding:2px 8px; border-radius:4px;">verb</span>
+          </div>
+          <div style="margin-top:12px; font-size:14px; color:#666; line-height:1.6;">
+            to fall or hang in a large quantity
+          </div>
+          <div style="margin-top:8px; font-size:13px; color:#1a1a1a; font-weight:500;">каскад, литься</div>
+          <div style="margin-top:12px; padding-left:12px; border-left:2px solid #e8e8e8; font-size:13px; color:#666; font-style:italic; font-family:Georgia,serif;">
+            "Water cascaded down the rocks."
+          </div>
+        </div>
+        <!-- More words -->
+        <div style="line-height:2.4; font-size:16px; color:#1a1a1a;">
+          <span style="display:inline-block; padding:4px 12px; margin:2px 4px; border-radius:6px;">harmony</span>
+          <span style="display:inline-block; padding:4px 12px; margin:2px 4px; border-radius:6px;">immerse</span>
+          <span style="display:inline-block; padding:4px 12px; margin:2px 4px; border-radius:6px;">jubilant</span>
+          <span style="display:inline-block; padding:4px 12px; margin:2px 4px; border-radius:6px;">kindle</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. Чистый поток</h3>
+      <p>Слова идут единым потоком без разделителей. Раскрытое слово — минималистичная карточка с мягким фоном. Статистика — тонкая строка под заголовком. Максимум воздуха, минимум границ.</p>
+    </div>
+  </div>
+
+  <!-- Approach B -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#fafafa; padding:24px; font-family:system-ui;">
+      <div style="max-width:560px; margin:0 auto;">
+        <!-- Header - centered -->
+        <div style="text-align:center; margin-bottom:32px;">
+          <div style="font-size:28px; font-weight:700; color:#1a1a1a; letter-spacing:-0.5px;">Dictionary</div>
+          <div style="margin:16px auto 0; width:280px; height:40px; border:1px solid #e8e8e8; border-radius:20px; display:flex; align-items:center; padding:0 16px; color:#999; font-size:14px; background:white;">🔍 Search words...</div>
+        </div>
+        <!-- Stats as pills -->
+        <div style="display:flex; justify-content:center; gap:8px; margin-bottom:32px;">
+          <span style="font-size:12px; color:#666; background:#f5f5f5; padding:4px 12px; border-radius:12px;">247 words</span>
+          <span style="font-size:12px; color:#666; background:#f5f5f5; padding:4px 12px; border-radius:12px;">+5 new</span>
+          <span style="font-size:12px; color:#666; background:#f5f5f5; padding:4px 12px; border-radius:12px;">12 topics</span>
+        </div>
+        <!-- Word flow - centered -->
+        <div style="text-align:center; line-height:2.6; font-size:17px; color:#1a1a1a;">
+          <span style="display:inline-block; padding:4px 14px; margin:3px 5px; border-radius:6px;">abandon</span>
+          <span style="display:inline-block; padding:4px 14px; margin:3px 5px; border-radius:6px;">benevolent</span>
+          <span style="display:inline-block; padding:4px 14px; margin:3px 5px; border-radius:6px;">cascade</span>
+          <span style="display:inline-block; padding:4px 14px; margin:3px 5px; border-radius:6px;">diligent</span>
+        </div>
+        <!-- Expanded - centered card -->
+        <div style="margin:12px auto; max-width:400px; padding:24px; background:white; border-radius:16px; border:1px solid #e8e8e8; text-align:left;">
+          <div style="text-align:center;">
+            <div style="font-size:26px; color:#1a1a1a; font-family:Georgia,serif;">ephemeral</div>
+            <div style="font-size:13px; color:#999; margin-top:4px; font-style:italic; font-family:Georgia,serif;">/ɪˈfem.ər.əl/</div>
+            <span style="display:inline-block; font-size:11px; color:#b9983d; background:#f3f0e5; padding:2px 10px; border-radius:4px; margin-top:8px;">adjective</span>
+          </div>
+          <div style="margin-top:16px; text-align:center;">
+            <div style="font-size:14px; color:#666;">lasting for a very short time</div>
+            <div style="font-size:14px; color:#1a1a1a; font-weight:500; margin-top:6px;">мимолётный, эфемерный</div>
+          </div>
+          <div style="margin-top:16px; padding:12px; background:#fafafa; border-radius:8px; font-size:13px; color:#666; font-style:italic; font-family:Georgia,serif; text-align:center;">
+            "Fame is ephemeral in the modern world."
+          </div>
+        </div>
+        <!-- More words -->
+        <div style="text-align:center; line-height:2.6; font-size:17px; color:#1a1a1a;">
+          <span style="display:inline-block; padding:4px 14px; margin:3px 5px; border-radius:6px;">flourish</span>
+          <span style="display:inline-block; padding:4px 14px; margin:3px 5px; border-radius:6px;">gratitude</span>
+          <span style="display:inline-block; padding:4px 14px; margin:3px 5px; border-radius:6px;">harmony</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. Центрированный дзен</h3>
+      <p>Всё выровнено по центру: заголовок, поиск (pill-shaped), статистика как пилюли, слова по центру. Раскрытая карточка — элегантная по центру страницы. Медитативное, спокойное ощущение.</p>
+    </div>
+  </div>
+
+  <!-- Approach C -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#fafafa; padding:24px; font-family:system-ui;">
+      <div style="max-width:560px; margin:0 auto;">
+        <!-- Header - asymmetric -->
+        <div style="margin-bottom:28px;">
+          <div style="display:flex; justify-content:space-between; align-items:baseline;">
+            <div style="font-size:24px; font-weight:700; color:#1a1a1a; letter-spacing:-0.5px;">Dictionary</div>
+            <div style="font-size:13px; color:#999;">247 words</div>
+          </div>
+          <div style="margin-top:16px; display:flex; gap:8px; align-items:center;">
+            <div style="flex:1; height:36px; border-bottom:1.5px solid #d4d4d4; display:flex; align-items:center; padding:0 4px; color:#999; font-size:14px;">Search...</div>
+            <div style="font-size:12px; color:#999; cursor:pointer; padding:6px 12px; border:1px solid #e8e8e8; border-radius:6px;">Filters</div>
+          </div>
+          <!-- Subtle stats bar -->
+          <div style="display:flex; gap:16px; margin-top:12px; font-size:11px; color:#b8b8b8; text-transform:uppercase; letter-spacing:0.5px;">
+            <span>+5 this week</span>
+            <span>·</span>
+            <span>mostly nouns</span>
+          </div>
+        </div>
+        <!-- Word flow - left aligned, spacious -->
+        <div style="line-height:2.8; font-size:17px; color:#1a1a1a; letter-spacing:0.2px;">
+          <span style="display:inline-block; padding:4px 0; margin:2px 16px 2px 0; cursor:pointer; border-bottom:1.5px solid transparent;">abandon</span>
+          <span style="display:inline-block; padding:4px 0; margin:2px 16px 2px 0; cursor:pointer; border-bottom:1.5px solid transparent;">benevolent</span>
+          <span style="display:inline-block; padding:4px 0; margin:2px 16px 2px 0; cursor:pointer; border-bottom:1.5px solid transparent;">cascade</span>
+          <span style="display:inline-block; padding:4px 0; margin:2px 16px 2px 0; cursor:pointer; border-bottom:1.5px solid transparent;">diligent</span>
+        </div>
+        <!-- Expanded - full width, editorial -->
+        <div style="margin:4px 0 16px; padding:20px 0; border-top:1px solid #e8e8e8; border-bottom:1px solid #e8e8e8;">
+          <div style="display:flex; justify-content:space-between; align-items:baseline;">
+            <div style="font-size:28px; color:#1a1a1a; font-family:Georgia,serif; letter-spacing:-0.5px;">ephemeral</div>
+            <span style="font-size:11px; color:#b9983d; text-transform:uppercase; letter-spacing:1px;">adj</span>
+          </div>
+          <div style="font-size:14px; color:#999; margin-top:4px; font-style:italic; font-family:Georgia,serif;">/ɪˈfem.ər.əl/</div>
+          <div style="display:flex; gap:32px; margin-top:16px;">
+            <div style="flex:1;">
+              <div style="font-size:13px; color:#666; line-height:1.6;">lasting for a very short time</div>
+              <div style="font-size:14px; color:#1a1a1a; font-weight:500; margin-top:8px;">мимолётный, эфемерный</div>
+            </div>
+            <div style="flex:1; padding-left:16px; border-left:1px solid #e8e8e8;">
+              <div style="font-size:13px; color:#666; font-style:italic; font-family:Georgia,serif; line-height:1.6;">
+                "Fame is ephemeral in the modern world."
+              </div>
+              <div style="font-size:12px; color:#999; margin-top:4px;">«Слава мимолётна в современном мире.»</div>
+            </div>
+          </div>
+        </div>
+        <!-- More words -->
+        <div style="line-height:2.8; font-size:17px; color:#1a1a1a; letter-spacing:0.2px;">
+          <span style="display:inline-block; padding:4px 0; margin:2px 16px 2px 0;">flourish</span>
+          <span style="display:inline-block; padding:4px 0; margin:2px 16px 2px 0;">gratitude</span>
+          <span style="display:inline-block; padding:4px 0; margin:2px 16px 2px 0;">harmony</span>
+          <span style="display:inline-block; padding:4px 0; margin:2px 16px 2px 0;">immerse</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C. Редакционный стиль</h3>
+      <p>Вдохновлён журнальной вёрсткой. Поиск с нижним подчёркиванием вместо рамки. Слова без фонов — только текст с широкими отступами. Раскрытая карточка — двухколоночная с разделителем-линией. Типографический, строгий.</p>
+    </div>
+  </div>
+
+</div>
+
+<div style="margin-top:24px; padding:16px; background:#f8f8f8; border-radius:8px;">
+  <h3 style="margin:0 0 8px;">Моя рекомендация: C (Редакционный стиль)</h3>
+  <p style="margin:0; font-size:14px; color:#666;">Лучше всего подходит к дизайн-системе Herbarium с её акцентом на типографику. Двухколоночная раскрытая карточка позволяет показать больше информации без перехода на отдельную страницу. Нижнее подчёркивание поиска и отсутствие фонов у слов создают самое «воздушное» ощущение из трёх вариантов.</p>
+</div>

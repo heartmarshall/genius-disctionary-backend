@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dictionary — Editorial Herbarium (Full Vision)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Space+Grotesk:wght@400;500;700&display=swap');
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    background: #0e0e10;
+    color: #e8e8e8;
+    min-height: 100vh;
+    padding: 32px 40px;
+  }
+
+  .page-title { font-size: 28px; font-weight: 700; color: #fff; letter-spacing: -0.5px; margin-bottom: 6px; }
+  .page-sub { font-size: 14px; color: #666; margin-bottom: 40px; }
+
+  .sections { display: flex; flex-direction: column; gap: 56px; }
+
+  .section-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #555;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #2a2a2e;
+  }
+
+  /* ===== THE MOCKUP ===== */
+  .mockup-frame {
+    background: #ffffff;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #2a2a2e;
+  }
+
+  /* Sidebar sliver */
+  .app-layout {
+    display: flex;
+    min-height: 600px;
+  }
+  .sidebar-hint {
+    width: 56px;
+    background: #f8f8f8;
+    border-right: 1px solid #e8e8e8;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+    gap: 20px;
+  }
+  .sidebar-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: #999;
+  }
+  .sidebar-icon.active {
+    background: #f5ebe7;
+    color: #a14832;
+  }
+
+  .main-content {
+    flex: 1;
+    padding: 36px 48px;
+    position: relative;
+  }
+
+  /* Header */
+  .dict-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+  }
+  .dict-title {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 44px;
+    color: #1a1a1a;
+    letter-spacing: -1.5px;
+    line-height: 1;
+  }
+  .dict-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .search-field {
+    width: 200px;
+    padding: 8px 0;
+    border: none;
+    border-bottom: 1.5px solid #d4d4d4;
+    font-size: 13px;
+    color: #999;
+    font-family: 'Space Grotesk', system-ui;
+    background: transparent;
+    transition: border-color 0.2s;
+  }
+  .filter-circle {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1.5px solid #d4d4d4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #999;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: transparent;
+  }
+
+  /* Side label */
+  .side-label {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: rotate(-90deg) translateX(-50%);
+    transform-origin: left center;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: #d4d4d4;
+    white-space: nowrap;
+  }
+
+  /* Stats strip */
+  .stats-strip {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    padding: 16px 0;
+    margin-bottom: 36px;
+    border-top: 1px solid #e8e8e8;
+    border-bottom: 1px solid #e8e8e8;
+  }
+  .stat {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .stat-num {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a1a;
+    letter-spacing: -0.5px;
+  }
+  .stat-text {
+    font-size: 10px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+  }
+  .stat-divider {
+    width: 1px;
+    height: 20px;
+    background: #e8e8e8;
+  }
+  /* POS bar in stats */
+  .pos-bar {
+    display: flex;
+    gap: 2px;
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
+    flex: 1;
+    max-width: 160px;
+  }
+  .pos-bar .seg-noun { flex: 4; background: #55698a; border-radius: 3px 0 0 3px; }
+  .pos-bar .seg-verb { flex: 3; background: #a14832; }
+  .pos-bar .seg-adj { flex: 2; background: #b9983d; }
+  .pos-bar .seg-other { flex: 1; background: #4c7458; border-radius: 0 3px 3px 0; }
+
+  /* ===== WORD FLOW ===== */
+  .word-flow {
+    line-height: 3;
+    padding-left: 20px;
+  }
+  .word {
+    display: inline-block;
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 22px;
+    color: #1a1a1a;
+    margin-right: 20px;
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.2, 0, 0, 1);
+    position: relative;
+    letter-spacing: 0.3px;
+  }
+  /* Depth layers - words fade by "distance" */
+  .word.depth-1 { opacity: 1; }
+  .word.depth-2 { opacity: 0.55; font-size: 20px; }
+  .word.depth-3 { opacity: 0.3; font-size: 18px; }
+
+  .word-hovered {
+    color: #a14832;
+    letter-spacing: 1px;
+    opacity: 1 !important;
+  }
+
+  /* ===== HOVER CARD ===== */
+  .hover-card-anchor { position: relative; display: inline-block; }
+
+  .hover-card {
+    position: absolute;
+    top: calc(100% + 12px);
+    left: -16px;
+    width: 380px;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 0;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
+    z-index: 100;
+    overflow: hidden;
+  }
+  .hc-accent {
+    height: 3px;
+    background: #b9983d;
+  }
+  .hc-body {
+    padding: 20px 24px;
+  }
+  .hc-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 4px;
+  }
+  .hc-word {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 26px;
+    color: #1a1a1a;
+  }
+  .hc-pos {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #b9983d;
+    padding-top: 6px;
+  }
+  .hc-ipa {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 14px;
+    font-style: italic;
+    color: #999;
+    margin-bottom: 14px;
+  }
+  .hc-translation {
+    font-size: 15px;
+    font-weight: 500;
+    color: #1a1a1a;
+    margin-bottom: 6px;
+  }
+  .hc-definition {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 14px;
+  }
+  .hc-divider { height: 1px; background: #f0f0f0; margin-bottom: 14px; }
+  .hc-example {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 14px;
+    font-style: italic;
+    color: #666;
+    line-height: 1.5;
+    padding-left: 12px;
+    border-left: 2px solid #e8e8e8;
+  }
+  .hc-example-tr {
+    font-size: 12px;
+    color: #999;
+    margin-top: 3px;
+    font-style: normal;
+    font-family: 'Space Grotesk', system-ui;
+  }
+  .hc-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+  }
+  .hc-topics {
+    display: flex;
+    gap: 6px;
+  }
+  .hc-topic {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid #e8e8e8;
+    color: #999;
+  }
+  .hc-open {
+    font-size: 12px;
+    color: #a14832;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 500;
+  }
+
+  /* ===== FILTER PANEL (expanded) ===== */
+  .filter-panel-section { margin-top: 32px; }
+
+  .mockup-frame-filters {
+    background: #ffffff;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #2a2a2e;
+    padding: 36px 48px;
+    position: relative;
+  }
+  .fp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  .fp-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: #1a1a1a;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+  .fp-close {
+    font-size: 12px;
+    color: #999;
+    cursor: pointer;
+  }
+  .fp-row {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 20px;
+  }
+  .fp-group { flex: 1; }
+  .fp-label {
+    font-size: 11px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .fp-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .fp-chip {
+    font-size: 12px;
+    padding: 6px 14px;
+    border-radius: 100px;
+    border: 1px solid #e8e8e8;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .fp-chip.active {
+    background: #1a1a1a;
+    color: #fff;
+    border-color: #1a1a1a;
+  }
+  .fp-chip.active-poppy {
+    background: #f5ebe7;
+    color: #a14832;
+    border-color: #a14832;
+  }
+  .fp-chip.active-cornflower {
+    background: #e8ecf2;
+    color: #55698a;
+    border-color: #55698a;
+  }
+
+  /* ===== PAGE TRANSITION ===== */
+  .transition-section { margin-top: 32px; }
+
+  .transition-frame {
+    background: #ffffff;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #2a2a2e;
+    position: relative;
+  }
+  .transition-layout {
+    display: flex;
+    min-height: 500px;
+  }
+  /* Dictionary sliding left */
+  .dict-leaving {
+    width: 35%;
+    padding: 36px 24px;
+    opacity: 0.3;
+    transform: scale(0.95);
+    filter: blur(1px);
+    border-right: 1px solid #e8e8e8;
+  }
+  .dict-leaving .dl-title {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 28px;
+    color: #1a1a1a;
+    margin-bottom: 16px;
+    letter-spacing: -1px;
+    opacity: 0.5;
+  }
+  .dict-leaving .dl-words {
+    line-height: 2.4;
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 16px;
+    color: #ccc;
+  }
+  .dict-leaving .dl-words .active-word {
+    color: #a14832;
+    opacity: 0.6;
+  }
+
+  /* Word page entering */
+  .word-entering {
+    flex: 1;
+    padding: 48px;
+  }
+  .we-back {
+    font-size: 12px;
+    color: #999;
+    cursor: pointer;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .we-word {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 52px;
+    color: #1a1a1a;
+    letter-spacing: -2px;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .we-ipa {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 18px;
+    font-style: italic;
+    color: #999;
+    margin-bottom: 4px;
+  }
+  .we-pronunciation {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    align-items: center;
+  }
+  .we-region {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: #e8ecf2;
+    color: #55698a;
+  }
+  .we-audio {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1.5px solid #d4d4d4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #999;
+    cursor: pointer;
+  }
+
+  .we-sense {
+    margin-bottom: 24px;
+    padding-left: 20px;
+    position: relative;
+  }
+  .we-sense-num {
+    position: absolute;
+    left: 0;
+    top: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+  }
+  .we-sense-num.noun { background: #e8ecf2; color: #55698a; }
+  .we-sense-num.verb { background: #f5ebe7; color: #a14832; }
+  .we-sense-num.adj { background: #f3f0e5; color: #b9983d; }
+
+  .we-pos-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 6px;
+  }
+  .we-pos-label.noun { color: #55698a; }
+  .we-pos-label.verb { color: #a14832; }
+
+  .we-definition {
+    font-size: 15px;
+    color: #1a1a1a;
+    line-height: 1.5;
+    margin-bottom: 4px;
+  }
+  .we-translation {
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+    margin-bottom: 12px;
+  }
+  .we-example {
+    padding-left: 14px;
+    border-left: 2px solid #e8e8e8;
+    margin-bottom: 8px;
+  }
+  .we-example-en {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 15px;
+    font-style: italic;
+    color: #666;
+    line-height: 1.5;
+  }
+  .we-example-ru {
+    font-size: 12px;
+    color: #999;
+    margin-top: 2px;
+  }
+  .we-notes {
+    margin-top: 24px;
+    padding: 16px;
+    background: #f3f0e5;
+    border-radius: 10px;
+    display: flex;
+    gap: 10px;
+  }
+  .we-notes-icon { font-size: 16px; color: #b9983d; }
+  .we-notes-text { font-size: 13px; color: #666; line-height: 1.5; }
+
+  .we-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 24px;
+  }
+  .we-btn {
+    font-size: 12px;
+    padding: 8px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Space Grotesk', system-ui;
+    font-weight: 500;
+    border: 1.5px solid #e8e8e8;
+    background: transparent;
+    color: #666;
+    transition: all 0.2s;
+  }
+  .we-btn-primary {
+    background: #1a1a1a;
+    color: #fff;
+    border-color: #1a1a1a;
+  }
+
+  /* ===== ANNOTATIONS ===== */
+  .annotation {
+    margin-top: 20px;
+    padding: 16px 20px;
+    border-left: 3px solid #a14832;
+    background: #18181b;
+    border-radius: 0 8px 8px 0;
+    font-size: 13px;
+    color: #999;
+    line-height: 1.6;
+  }
+  .annotation strong {
+    color: #e8e8e8;
+    font-weight: 500;
+  }
+
+  /* Transition arrow */
+  .transition-arrow {
+    position: absolute;
+    top: 50%;
+    left: 35%;
+    transform: translate(-50%, -50%);
+    width: 48px;
+    height: 48px;
+    background: #1a1a1a;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 18px;
+    z-index: 10;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  }
+
+  .section-note {
+    font-size: 12px;
+    color: #555;
+    margin-top: 12px;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-title">Dictionary — Editorial Herbarium</div>
+<div class="page-sub">Полное видение страницы: поток слов, hover-карточка, фильтры и переход на страницу слова</div>
+
+<div class="sections">
+
+  <!-- ===== SECTION 1: MAIN PAGE ===== -->
+  <div>
+    <div class="section-label">01 — Основная страница Dictionary</div>
+    <div class="mockup-frame">
+      <div class="app-layout">
+        <div class="sidebar-hint">
+          <div class="sidebar-icon">☰</div>
+          <div class="sidebar-icon">▦</div>
+          <div class="sidebar-icon active">📖</div>
+          <div class="sidebar-icon">🎓</div>
+          <div class="sidebar-icon">🏷</div>
+        </div>
+        <div class="main-content">
+          <div class="side-label">MyEnglish · Dictionary</div>
+
+          <div class="dict-header">
+            <div class="dict-title">Dictionary</div>
+            <div class="dict-controls">
+              <div class="search-field">search...</div>
+              <div class="filter-circle">⊕</div>
+            </div>
+          </div>
+
+          <div class="stats-strip">
+            <div class="stat">
+              <div class="stat-num">247</div>
+              <div class="stat-text">words</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat">
+              <div class="stat-num">+12</div>
+              <div class="stat-text">this week</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat">
+              <div class="stat-num">8</div>
+              <div class="stat-text">topics</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="pos-bar">
+              <div class="seg-noun"></div>
+              <div class="seg-verb"></div>
+              <div class="seg-adj"></div>
+              <div class="seg-other"></div>
+            </div>
+          </div>
+
+          <div class="word-flow">
+            <span class="word depth-1">abandon</span>
+            <span class="word depth-2">abyss</span>
+            <span class="word depth-1">benevolent</span>
+            <span class="word depth-3">bliss</span>
+            <span class="word depth-1">cascade</span>
+            <span class="word depth-2">clandestine</span>
+            <span class="word depth-1">diligent</span>
+
+            <span class="hover-card-anchor">
+              <span class="word depth-1 word-hovered">ephemeral</span>
+              <div class="hover-card">
+                <div class="hc-accent"></div>
+                <div class="hc-body">
+                  <div class="hc-top-row">
+                    <div class="hc-word">ephemeral</div>
+                    <div class="hc-pos">adjective</div>
+                  </div>
+                  <div class="hc-ipa">/ɪˈfem.ər.əl/</div>
+                  <div class="hc-translation">мимолётный, эфемерный</div>
+                  <div class="hc-definition">lasting for a very short time</div>
+                  <div class="hc-divider"></div>
+                  <div class="hc-example">
+                    "Fame is ephemeral in the modern world."
+                    <div class="hc-example-tr">«Слава мимолётна в современном мире.»</div>
+                  </div>
+                  <div class="hc-footer">
+                    <div class="hc-topics">
+                      <span class="hc-topic">abstract</span>
+                      <span class="hc-topic">literature</span>
+                    </div>
+                    <div class="hc-open">Open →</div>
+                  </div>
+                </div>
+              </div>
+            </span>
+
+            <span class="word depth-2">eloquent</span>
+            <span class="word depth-1">flourish</span>
+            <span class="word depth-3">fathom</span>
+            <span class="word depth-1">gratitude</span>
+            <span class="word depth-2">gossamer</span>
+            <span class="word depth-1">harmony</span>
+            <span class="word depth-1">immerse</span>
+            <span class="word depth-3">iridescent</span>
+            <span class="word depth-1">jubilant</span>
+            <span class="word depth-2">juxtapose</span>
+            <span class="word depth-1">kindle</span>
+            <span class="word depth-1">luminous</span>
+            <span class="word depth-3">labyrinth</span>
+            <span class="word depth-2">meander</span>
+            <span class="word depth-1">nuance</span>
+            <span class="word depth-1">obscure</span>
+            <span class="word depth-2">paradox</span>
+            <span class="word depth-1">pristine</span>
+            <span class="word depth-3">quench</span>
+            <span class="word depth-1">resilient</span>
+            <span class="word depth-2">serendipity</span>
+            <span class="word depth-1">tenacious</span>
+            <span class="word depth-3">ubiquitous</span>
+            <span class="word depth-1">vivid</span>
+            <span class="word depth-2">whimsical</span>
+            <span class="word depth-1">zenith</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="annotation">
+      <strong>Поток слов:</strong> Слова идут inline серифным шрифтом (EB Garamond). Три уровня «глубины» — яркие, приглушённые и почти туманные — создают ощущение пространства и объёма. При hover слово окрашивается в цвет POS и получает letter-spacing. Hover-карточка с цветной полоской сверху (цвет = POS) плавно появляется снизу.<br><br>
+      <strong>Боковая подпись</strong> «MyEnglish · Dictionary» вертикально слева — фирменный элемент, повторяется на всех страницах.<br><br>
+      <strong>Мини-панель статистики</strong> между заголовком и потоком: счётчик, прирост за неделю, темы, визуальная полоска распределения POS.
+    </div>
+  </div>
+
+  <!-- ===== SECTION 2: FILTERS EXPANDED ===== -->
+  <div class="filter-panel-section">
+    <div class="section-label">02 — Фильтры (раскрытые)</div>
+    <div class="mockup-frame-filters">
+      <div class="fp-header">
+        <div class="fp-title">Filters</div>
+        <div class="fp-close">✕ close</div>
+      </div>
+      <div class="fp-row">
+        <div class="fp-group">
+          <div class="fp-label">Part of speech</div>
+          <div class="fp-chips">
+            <span class="fp-chip active-cornflower">Noun</span>
+            <span class="fp-chip active-poppy">Verb</span>
+            <span class="fp-chip">Adjective</span>
+            <span class="fp-chip">Adverb</span>
+            <span class="fp-chip">Phrase</span>
+            <span class="fp-chip">Idiom</span>
+            <span class="fp-chip">Other</span>
+          </div>
+        </div>
+        <div class="fp-group">
+          <div class="fp-label">Topics</div>
+          <div class="fp-chips">
+            <span class="fp-chip active">Travel</span>
+            <span class="fp-chip">Business</span>
+            <span class="fp-chip">Nature</span>
+            <span class="fp-chip">Emotions</span>
+            <span class="fp-chip">Food</span>
+            <span class="fp-chip">Abstract</span>
+          </div>
+        </div>
+      </div>
+      <div class="fp-row">
+        <div class="fp-group">
+          <div class="fp-label">Sort by</div>
+          <div class="fp-chips">
+            <span class="fp-chip active">A → Z</span>
+            <span class="fp-chip">Newest</span>
+            <span class="fp-chip">Updated</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="annotation">
+      <strong>Фильтры:</strong> Выезжают под заголовком при клике на ⊕. Chip-based выбор: POS-чипы окрашены в цвет соответствующей категории (Cornflower для Noun, Poppy для Verb). Темы и сортировка — нейтральные чипы с тёмной заливкой при активации. Панель закрывается по ✕ или повторному клику на ⊕.
+    </div>
+  </div>
+
+  <!-- ===== SECTION 3: PAGE TRANSITION ===== -->
+  <div class="transition-section">
+    <div class="section-label">03 — Переход на страницу слова (click → slide)</div>
+    <div class="transition-frame">
+      <div class="transition-arrow">→</div>
+      <div class="transition-layout">
+        <div class="dict-leaving">
+          <div class="dl-title">Dictionary</div>
+          <div class="dl-words">
+            abandon  abyss  benevolent  bliss  cascade  clandestine  diligent
+            <span class="active-word">ephemeral</span>
+            eloquent  flourish  fathom  gratitude  gossamer  harmony  immerse
+            iridescent  jubilant  juxtapose  kindle  luminous  labyrinth
+          </div>
+        </div>
+
+        <div class="word-entering">
+          <div class="we-back">← Dictionary</div>
+
+          <div class="we-word">ephemeral</div>
+
+          <div class="we-pronunciation">
+            <div class="we-ipa">/ɪˈfem.ər.əl/</div>
+            <div class="we-region">US</div>
+            <div class="we-region">UK</div>
+            <div class="we-audio">▶</div>
+          </div>
+
+          <div class="we-sense">
+            <div class="we-sense-num adj">1</div>
+            <div class="we-pos-label noun" style="color:#b9983d;">adjective</div>
+            <div class="we-definition">lasting for a very short time</div>
+            <div class="we-translation">мимолётный, эфемерный</div>
+            <div class="we-example">
+              <div class="we-example-en">"Fame is ephemeral in the modern world."</div>
+              <div class="we-example-ru">«Слава мимолётна в современном мире.»</div>
+            </div>
+          </div>
+
+          <div class="we-sense">
+            <div class="we-sense-num noun">2</div>
+            <div class="we-pos-label noun">noun</div>
+            <div class="we-definition">an ephemeral plant or insect</div>
+            <div class="we-translation">однодневка, эфемер</div>
+            <div class="we-example">
+              <div class="we-example-en">"Mayflies are classic ephemerals."</div>
+              <div class="we-example-ru">«Подёнки — классические эфемеры.»</div>
+            </div>
+          </div>
+
+          <div class="we-notes">
+            <div class="we-notes-icon">📝</div>
+            <div class="we-notes-text">Запомнить через ассоциацию: ephemeral → "a femoral" → кость бедра, хрупкая вещь → недолговечный</div>
+          </div>
+
+          <div class="we-actions">
+            <button class="we-btn we-btn-primary">Edit</button>
+            <button class="we-btn">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="annotation">
+      <strong>Page transition:</strong> При клике на слово (или «Open →» в hover-карточке) — страница словаря уезжает влево, уменьшается и блюрится. Страница слова выезжает справа. Словарь остаётся виден как «тень» слева — навигационный якорь. Кнопка «← Dictionary» возвращает обратно с обратной анимацией. Framer Motion: layoutId для слова обеспечивает плавный морф из потока в заголовок страницы.
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -85,6 +85,16 @@ func (r *Repo) Create(ctx context.Context, u *domain.User) (*domain.User, error)
 		UpdatedAt: u.UpdatedAt,
 	})
 	if err != nil {
+		// Map unique constraint violations to field-specific errors.
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			switch pgErr.ConstraintName {
+			case "ux_users_email":
+				return nil, fmt.Errorf("user %s: %w", u.ID, domain.ErrEmailExists)
+			case "ux_users_username":
+				return nil, fmt.Errorf("user %s: %w", u.ID, domain.ErrUsernameExists)
+			}
+		}
 		return nil, mapError(err, "user", u.ID)
 	}
 

@@ -26,9 +26,6 @@ export function WordOverview({ entry, className, hideTitle, hideHeader }: WordOv
     }
   }
 
-  const primaryPos = entry.senses[0]?.partOfSpeech
-  const posColors = getPosColors(primaryPos)
-
   return (
     <div className={cn('space-y-5', className)}>
       {/* Word title */}

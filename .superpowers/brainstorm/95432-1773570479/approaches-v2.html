@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dictionary Page — Design Approaches v2</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Space+Grotesk:wght@400;500;700&display=swap');
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    background: #0e0e10;
+    color: #e8e8e8;
+    min-height: 100vh;
+    padding: 40px;
+  }
+
+  h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+    letter-spacing: -1px;
+  }
+  .page-subtitle {
+    font-size: 15px;
+    color: #888;
+    margin-bottom: 48px;
+  }
+
+  .approaches {
+    display: flex;
+    flex-direction: column;
+    gap: 64px;
+  }
+
+  .approach {
+    border: 1px solid #2a2a2e;
+    border-radius: 20px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.3s;
+  }
+  .approach:hover {
+    border-color: #555;
+  }
+  .approach.selected {
+    border-color: #a14832;
+    box-shadow: 0 0 40px rgba(161,72,50,0.15);
+  }
+
+  .approach-mockup {
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .approach-info {
+    padding: 24px 32px;
+    background: #18181b;
+    border-top: 1px solid #2a2a2e;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 32px;
+  }
+  .approach-info h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+    letter-spacing: -0.5px;
+  }
+  .approach-info p {
+    font-size: 14px;
+    color: #888;
+    line-height: 1.6;
+    max-width: 520px;
+  }
+  .approach-tag {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #a14832;
+    white-space: nowrap;
+    padding-top: 4px;
+  }
+
+  /* ===== MOCKUP A: Typographic Garden ===== */
+  .mockup-a {
+    background: #faf9f7;
+    padding: 48px;
+    min-height: 520px;
+    position: relative;
+  }
+  .mockup-a .bg-number {
+    position: absolute;
+    top: -40px;
+    right: 40px;
+    font-size: 280px;
+    font-weight: 700;
+    color: rgba(0,0,0,0.03);
+    line-height: 1;
+    pointer-events: none;
+    font-family: 'EB Garamond', Georgia, serif;
+  }
+  .mockup-a .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 40px;
+    position: relative;
+    z-index: 1;
+  }
+  .mockup-a .title {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 48px;
+    font-weight: 400;
+    color: #1a1a1a;
+    letter-spacing: -1px;
+  }
+  .mockup-a .search-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .mockup-a .search-input {
+    width: 220px;
+    padding: 10px 16px;
+    border: none;
+    border-bottom: 2px solid #1a1a1a;
+    background: transparent;
+    font-size: 14px;
+    color: #1a1a1a;
+    font-family: 'Space Grotesk', system-ui;
+  }
+  .mockup-a .filter-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1.5px solid #1a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    background: transparent;
+    cursor: pointer;
+  }
+  .mockup-a .stats-bar {
+    display: flex;
+    gap: 32px;
+    margin-bottom: 48px;
+    position: relative;
+    z-index: 1;
+  }
+  .mockup-a .stat {
+    display: flex;
+    flex-direction: column;
+  }
+  .mockup-a .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a1a1a;
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+  .mockup-a .stat-label {
+    font-size: 11px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-top: 4px;
+  }
+  .mockup-a .word-flow {
+    position: relative;
+    z-index: 1;
+    line-height: 3.2;
+  }
+  .mockup-a .word {
+    display: inline-block;
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 22px;
+    color: #1a1a1a;
+    margin-right: 24px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+    position: relative;
+  }
+  .mockup-a .word:hover {
+    color: #a14832;
+  }
+  .mockup-a .word-active {
+    font-size: 32px;
+    color: #a14832;
+    font-weight: 500;
+  }
+  .mockup-a .word-active::after {
+    content: '/ɪˈfem.ər.əl/';
+    display: block;
+    font-size: 14px;
+    font-style: italic;
+    color: #999;
+    font-weight: 400;
+    margin-top: -8px;
+  }
+
+  /* Hover card for A */
+  .mockup-a .hover-card {
+    position: absolute;
+    top: 340px;
+    left: 180px;
+    width: 320px;
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
+    z-index: 10;
+  }
+  .hover-card .hc-word {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 28px;
+    color: #1a1a1a;
+  }
+  .hover-card .hc-pos {
+    display: inline-block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #b9983d;
+    background: #f3f0e5;
+    padding: 3px 10px;
+    border-radius: 4px;
+    margin-top: 4px;
+  }
+  .hover-card .hc-translation {
+    font-size: 16px;
+    font-weight: 500;
+    color: #1a1a1a;
+    margin-top: 12px;
+  }
+  .hover-card .hc-definition {
+    font-size: 13px;
+    color: #666;
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+  .hover-card .hc-example {
+    margin-top: 12px;
+    padding: 12px;
+    background: #faf9f7;
+    border-radius: 8px;
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 14px;
+    font-style: italic;
+    color: #666;
+  }
+  .hover-card .hc-arrow {
+    font-size: 12px;
+    color: #a14832;
+    margin-top: 12px;
+    cursor: pointer;
+    font-family: 'Space Grotesk', system-ui;
+    font-style: normal;
+  }
+
+  /* ===== MOCKUP B: Bold Blocks ===== */
+  .mockup-b {
+    background: #111113;
+    padding: 48px;
+    min-height: 520px;
+    color: #e8e8e8;
+  }
+  .mockup-b .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .mockup-b .title {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: #666;
+  }
+  .mockup-b .search-pill {
+    padding: 10px 20px;
+    border: 1px solid #2a2a2e;
+    border-radius: 100px;
+    font-size: 13px;
+    color: #666;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .mockup-b .search-pill .dot { width:4px; height:4px; border-radius:50%; background:#a14832; }
+  .mockup-b .big-count {
+    font-size: 120px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -6px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .mockup-b .count-label {
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 40px;
+    display: flex;
+    gap: 24px;
+  }
+  .mockup-b .count-label span { color: #888; }
+  .mockup-b .stats-row {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 40px;
+    height: 4px;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .mockup-b .stats-row .bar-noun { flex: 4; background: #55698a; }
+  .mockup-b .stats-row .bar-verb { flex: 3; background: #a14832; }
+  .mockup-b .stats-row .bar-adj { flex: 2; background: #b9983d; }
+  .mockup-b .stats-row .bar-other { flex: 1; background: #4c7458; }
+
+  .mockup-b .word-flow {
+    line-height: 3;
+  }
+  .mockup-b .word {
+    display: inline-block;
+    font-size: 18px;
+    color: #888;
+    margin-right: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .mockup-b .word:hover { color: #fff; }
+  .mockup-b .word-active {
+    color: #fff;
+    font-size: 24px;
+    font-weight: 700;
+    position: relative;
+  }
+  .mockup-b .word-active::before {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #a14832;
+    border-radius: 2px;
+  }
+
+  /* Hover card for B */
+  .mockup-b .hover-card {
+    position: absolute;
+    width: 340px;
+    background: #1e1e22;
+    border: 1px solid #2a2a2e;
+    border-radius: 16px;
+    padding: 24px;
+    margin-top: 12px;
+    margin-left: 160px;
+  }
+  .mockup-b .hover-card .hc-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .mockup-b .hover-card .hc-word {
+    font-size: 24px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .mockup-b .hover-card .hc-pos {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #a14832;
+  }
+  .mockup-b .hover-card .hc-translation {
+    font-size: 15px;
+    color: #e8e8e8;
+    margin-bottom: 8px;
+  }
+  .mockup-b .hover-card .hc-definition {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+  .mockup-b .hover-card .hc-divider {
+    height: 1px;
+    background: #2a2a2e;
+    margin-bottom: 16px;
+  }
+  .mockup-b .hover-card .hc-example {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 15px;
+    font-style: italic;
+    color: #888;
+    line-height: 1.5;
+  }
+  .mockup-b .hover-card .hc-arrow {
+    font-size: 12px;
+    color: #a14832;
+    margin-top: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* ===== MOCKUP C: Kinetic Typography ===== */
+  .mockup-c {
+    background: #f2f0ec;
+    padding: 48px;
+    min-height: 520px;
+    position: relative;
+    overflow: hidden;
+  }
+  .mockup-c .side-label {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: rotate(-90deg) translateX(-50%);
+    transform-origin: left center;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: #b8b8b8;
+  }
+  .mockup-c .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    margin-left: 32px;
+  }
+  .mockup-c .title-area {}
+  .mockup-c .title {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 56px;
+    color: #1a1a1a;
+    letter-spacing: -2px;
+    line-height: 1;
+  }
+  .mockup-c .title-sub {
+    font-size: 12px;
+    color: #999;
+    margin-top: 8px;
+    letter-spacing: 0.5px;
+  }
+  .mockup-c .controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .mockup-c .search-line {
+    width: 180px;
+    padding: 8px 0;
+    border: none;
+    border-bottom: 1.5px solid #ccc;
+    background: transparent;
+    font-size: 13px;
+    color: #1a1a1a;
+  }
+  .mockup-c .icon-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #1a1a1a;
+    color: #f2f0ec;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+
+  .mockup-c .stats-strip {
+    display: flex;
+    gap: 24px;
+    margin-left: 32px;
+    margin-bottom: 48px;
+    padding: 16px 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+  }
+  .mockup-c .stat {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .mockup-c .stat-num {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1a1a;
+    letter-spacing: -0.5px;
+  }
+  .mockup-c .stat-text {
+    font-size: 11px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .mockup-c .word-flow {
+    margin-left: 32px;
+    position: relative;
+  }
+  .mockup-c .word-line {
+    display: flex;
+    align-items: baseline;
+    gap: 32px;
+    margin-bottom: 16px;
+  }
+  .mockup-c .word {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 26px;
+    color: #1a1a1a;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+  }
+  .mockup-c .word:hover {
+    letter-spacing: 2px;
+  }
+  .mockup-c .word-active {
+    font-size: 40px;
+    color: #a14832;
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+  }
+  .mockup-c .word-active .ipa {
+    font-size: 16px;
+    font-style: italic;
+    color: #999;
+  }
+  .mockup-c .word-ghost {
+    font-size: 20px;
+    color: #ccc;
+  }
+
+  /* Hover card for C */
+  .mockup-c .hover-card {
+    margin-top: 8px;
+    margin-left: 32px;
+    width: 400px;
+    padding: 24px;
+    background: #fff;
+    border-radius: 20px;
+    position: relative;
+  }
+  .mockup-c .hover-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: #a14832;
+    border-radius: 4px 0 0 4px;
+  }
+  .mockup-c .hover-card .hc-row {
+    display: flex;
+    gap: 24px;
+  }
+  .mockup-c .hover-card .hc-left { flex: 1; }
+  .mockup-c .hover-card .hc-right {
+    flex: 1;
+    padding-left: 24px;
+    border-left: 1px solid #eee;
+  }
+  .mockup-c .hover-card .hc-translation {
+    font-size: 18px;
+    font-weight: 500;
+    color: #1a1a1a;
+    margin-bottom: 8px;
+  }
+  .mockup-c .hover-card .hc-definition {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.5;
+  }
+  .mockup-c .hover-card .hc-example {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 15px;
+    font-style: italic;
+    color: #666;
+    line-height: 1.5;
+  }
+  .mockup-c .hover-card .hc-example-tr {
+    font-size: 12px;
+    color: #999;
+    margin-top: 6px;
+    font-style: normal;
+  }
+  .mockup-c .hover-card .hc-topics {
+    display: flex;
+    gap: 6px;
+    margin-top: 12px;
+  }
+  .mockup-c .hover-card .hc-topic {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    background: #f2f0ec;
+    color: #999;
+  }
+
+  .recommendation {
+    margin-top: 48px;
+    padding: 24px 32px;
+    border: 1px solid #2a2a2e;
+    border-radius: 16px;
+    background: #18181b;
+  }
+  .recommendation h3 {
+    font-size: 16px;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+  .recommendation p {
+    font-size: 14px;
+    color: #888;
+    line-height: 1.6;
+  }
+  .recommendation .rec-highlight {
+    color: #a14832;
+  }
+
+  /* Selection */
+  .approach { position: relative; }
+  .approach .select-indicator {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid #2a2a2e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: transparent;
+    transition: all 0.3s;
+    z-index: 20;
+    background: #18181b;
+  }
+  .approach.selected .select-indicator {
+    border-color: #a14832;
+    background: #a14832;
+    color: #fff;
+  }
+</style>
+</head>
+<body>
+
+<h1>Dictionary Page — Redesign</h1>
+<p class="page-subtitle">Три подхода с характером. Кликните на понравившийся.</p>
+
+<div class="approaches">
+
+  <!-- ===== APPROACH A ===== -->
+  <div class="approach" onclick="select(this, 'a')">
+    <div class="select-indicator">✓</div>
+    <div class="approach-mockup mockup-a">
+      <div class="bg-number">247</div>
+      <div class="header">
+        <div class="title">Dictionary</div>
+        <div class="search-area">
+          <div class="search-input">search...</div>
+          <div class="filter-btn">⊕</div>
+        </div>
+      </div>
+      <div class="stats-bar">
+        <div class="stat">
+          <div class="stat-value">247</div>
+          <div class="stat-label">Words</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">+12</div>
+          <div class="stat-label">This week</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">8</div>
+          <div class="stat-label">Topics</div>
+        </div>
+      </div>
+      <div class="word-flow">
+        <span class="word">abandon</span>
+        <span class="word">benevolent</span>
+        <span class="word">cascade</span>
+        <span class="word">diligent</span>
+        <span class="word word-active">ephemeral</span>
+        <span class="word">flourish</span>
+        <span class="word">gratitude</span>
+        <span class="word">harmony</span>
+        <span class="word">immerse</span>
+        <span class="word">jubilant</span>
+        <span class="word">kindle</span>
+        <span class="word">luminous</span>
+        <span class="word">meander</span>
+        <span class="word">nuance</span>
+        <span class="word">obscure</span>
+        <span class="word">pristine</span>
+        <span class="word">quench</span>
+        <span class="word">resilient</span>
+      </div>
+      <div class="hover-card">
+        <div class="hc-word">ephemeral</div>
+        <div class="hc-pos">adjective</div>
+        <div class="hc-translation">мимолётный, эфемерный</div>
+        <div class="hc-definition">lasting for a very short time</div>
+        <div class="hc-example">"Fame is ephemeral in the modern world."</div>
+        <div class="hc-arrow">Open full page →</div>
+      </div>
+    </div>
+    <div class="approach-info">
+      <div>
+        <h2>A. Typographic Garden</h2>
+        <p>Тёплый светлый фон. Заголовок Dictionary крупным сериф-шрифтом. Слова как в книжном указателе — все серифом, при ховере увеличиваются и окрашиваются. Гигантское число «247» как фоновый элемент. Hover-карточка с мягкой тенью, кнопка перехода на полную страницу.</p>
+      </div>
+      <div class="approach-tag">Light · Serif · Warm</div>
+    </div>
+  </div>
+
+  <!-- ===== APPROACH B ===== -->
+  <div class="approach" onclick="select(this, 'b')">
+    <div class="select-indicator">✓</div>
+    <div class="approach-mockup mockup-b">
+      <div class="header">
+        <div class="title">Dictionary</div>
+        <div class="search-pill">
+          <div class="dot"></div>
+          Search words...
+        </div>
+      </div>
+      <div class="big-count">247</div>
+      <div class="count-label">
+        words in your collection
+        <span>+12 this week</span>
+        <span>8 topics</span>
+      </div>
+      <div class="stats-row">
+        <div class="bar-noun"></div>
+        <div class="bar-verb"></div>
+        <div class="bar-adj"></div>
+        <div class="bar-other"></div>
+      </div>
+      <div class="word-flow" style="position:relative;">
+        <span class="word">abandon</span>
+        <span class="word">benevolent</span>
+        <span class="word">cascade</span>
+        <span class="word">diligent</span>
+        <span class="word word-active">ephemeral</span>
+        <span class="word">flourish</span>
+        <span class="word">gratitude</span>
+        <span class="word">harmony</span>
+        <span class="word">immerse</span>
+        <span class="word">jubilant</span>
+        <span class="word">kindle</span>
+        <span class="word">luminous</span>
+        <span class="word">meander</span>
+        <span class="word">nuance</span>
+        <span class="word">obscure</span>
+        <span class="word">pristine</span>
+        <div class="hover-card">
+          <div class="hc-top">
+            <div class="hc-word">ephemeral</div>
+            <div class="hc-pos">adjective</div>
+          </div>
+          <div class="hc-translation">мимолётный, эфемерный</div>
+          <div class="hc-definition">lasting for a very short time</div>
+          <div class="hc-divider"></div>
+          <div class="hc-example">"Fame is ephemeral in the modern world."</div>
+          <div class="hc-arrow">
+            <span>→</span> Open full page
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="approach-info">
+      <div>
+        <h2>B. Dark Dashboard</h2>
+        <p>Тёмный фон, как у Chromia. Гигантский счётчик «247» как hero-элемент. Цветная полоска-индикатор распределения по частям речи. Слова серым — при ховере вспыхивают белым. Активное слово с подчёркиванием Poppy. Hover-карточка на тёмном фоне с тонкой рамкой.</p>
+      </div>
+      <div class="approach-tag">Dark · Bold · Kinetic</div>
+    </div>
+  </div>
+
+  <!-- ===== APPROACH C ===== -->
+  <div class="approach" onclick="select(this, 'c')">
+    <div class="select-indicator">✓</div>
+    <div class="approach-mockup mockup-c">
+      <div class="side-label">My English · Dictionary</div>
+      <div class="header">
+        <div class="title-area">
+          <div class="title">Dictionary</div>
+          <div class="title-sub">your word collection</div>
+        </div>
+        <div class="controls">
+          <div class="search-line">search...</div>
+          <div class="icon-btn">⊕</div>
+        </div>
+      </div>
+      <div class="stats-strip">
+        <div class="stat">
+          <div class="stat-num">247</div>
+          <div class="stat-text">words</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">+12</div>
+          <div class="stat-text">this week</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">8</div>
+          <div class="stat-text">topics</div>
+        </div>
+      </div>
+      <div class="word-flow">
+        <div class="word-line">
+          <span class="word">abandon</span>
+          <span class="word">benevolent</span>
+          <span class="word">cascade</span>
+          <span class="word word-ghost">diligent</span>
+        </div>
+        <div class="word-line">
+          <span class="word word-active">ephemeral <span class="ipa">/ɪˈfem.ər.əl/</span></span>
+        </div>
+        <div class="hover-card">
+          <div class="hc-row">
+            <div class="hc-left">
+              <div class="hc-translation">мимолётный, эфемерный</div>
+              <div class="hc-definition">lasting for a very short time</div>
+              <div class="hc-topics">
+                <span class="hc-topic">abstract</span>
+                <span class="hc-topic">literature</span>
+              </div>
+            </div>
+            <div class="hc-right">
+              <div class="hc-example">"Fame is ephemeral in the modern world."</div>
+              <div class="hc-example-tr">«Слава мимолётна в современном мире.»</div>
+            </div>
+          </div>
+        </div>
+        <div class="word-line" style="margin-top: 16px;">
+          <span class="word">flourish</span>
+          <span class="word">gratitude</span>
+          <span class="word">harmony</span>
+          <span class="word word-ghost">immerse</span>
+        </div>
+        <div class="word-line">
+          <span class="word">jubilant</span>
+          <span class="word">kindle</span>
+          <span class="word">luminous</span>
+          <span class="word word-ghost">meander</span>
+        </div>
+      </div>
+    </div>
+    <div class="approach-info">
+      <div>
+        <h2>C. Editorial Herbarium</h2>
+        <p>Тёплый пергаментный фон (#f2f0ec). Вертикальная подпись сбоку. Крупный серифный заголовок. Слова строками с вариацией прозрачности — дальние слова «уходят в туман». Активное слово увеличивается и окрашивается с IPA. Hover-карточка двухколоночная с цветным акцентом-полоской слева.</p>
+      </div>
+      <div class="approach-tag">Warm · Editorial · Layered</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="recommendation">
+  <h3>💡 Моя рекомендация: <span class="rec-highlight">C — Editorial Herbarium</span></h3>
+  <p>Лучше всего вписывается в название дизайн-системы «Herbarium» и вашу палитру шрифтов. Вертикальная подпись и «туманные» слова дают тот самый характер, которого не хватало. Двухколоночная hover-карточка показывает максимум информации. При этом сохраняет лёгкость и не перегружает интерфейс. Можно комбинировать с элементами B (гигантский счётчик, цветная полоска POS).</p>
+</div>
+
+<script>
+  function select(el, choice) {
+    document.querySelectorAll('.approach').forEach(a => a.classList.remove('selected'));
+    el.classList.add('selected');
+    // Record event
+    if (window.__recordEvent) window.__recordEvent({ type: 'click', choice, text: el.querySelector('h2').textContent });
+  }
+</script>
+
+</body>
+</html>

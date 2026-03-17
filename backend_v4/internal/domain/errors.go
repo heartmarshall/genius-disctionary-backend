@@ -13,6 +13,11 @@ var (
 	ErrUnauthorized  = errors.New("unauthorized")
 	ErrForbidden     = errors.New("forbidden")
 	ErrConflict      = errors.New("conflict")
+
+	// Field-specific "already exists" errors. Wrap ErrAlreadyExists so
+	// errors.Is(err, ErrAlreadyExists) still works for generic handling.
+	ErrEmailExists    = fmt.Errorf("email: %w", ErrAlreadyExists)
+	ErrUsernameExists = fmt.Errorf("username: %w", ErrAlreadyExists)
 )
 
 // FieldError describes a validation error for a specific field.

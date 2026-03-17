@@ -11,15 +11,17 @@ interface TopicsData {
 }
 
 export function useDictionary(filter: DictionaryFilterInput) {
-  const { data, loading, error, fetchMore } = useQuery<DictionaryData>(GET_DICTIONARY, {
+  const { data, previousData, loading, error, fetchMore } = useQuery<DictionaryData>(GET_DICTIONARY, {
     variables: { input: filter },
   })
 
   const { data: topicsData } = useQuery<TopicsData>(GET_TOPICS)
 
-  const entries = data?.dictionary.edges.map((e) => e.node) ?? []
-  const pageInfo = data?.dictionary.pageInfo
-  const totalCount = data?.dictionary.totalCount ?? 0
+  // Use previous data while loading to prevent UI flicker
+  const currentData = data ?? previousData
+  const entries = currentData?.dictionary.edges.map((e) => e.node) ?? []
+  const pageInfo = currentData?.dictionary.pageInfo
+  const totalCount = currentData?.dictionary.totalCount ?? 0
 
   const loadMore = () => {
     if (!pageInfo?.hasNextPage || !pageInfo.endCursor) return

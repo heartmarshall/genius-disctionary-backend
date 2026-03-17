@@ -2,7 +2,6 @@ package auth
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"strings"
@@ -72,9 +71,6 @@ func (s *Service) Register(ctx context.Context, input RegisterInput) (*AuthResul
 	})
 
 	if err != nil {
-		if errors.Is(err, domain.ErrAlreadyExists) {
-			return nil, fmt.Errorf("auth.Register: %w", domain.ErrAlreadyExists)
-		}
 		return nil, fmt.Errorf("auth.Register: %w", err)
 	}
 

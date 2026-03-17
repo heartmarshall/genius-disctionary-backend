@@ -191,12 +191,21 @@ func (h *AuthHandler) handleError(w http.ResponseWriter, r *http.Request, err er
 		}
 	case errors.Is(err, domain.ErrUnauthorized):
 		writeError(w, http.StatusUnauthorized, "unauthorized")
+	case errors.Is(err, domain.ErrEmailExists):
+		writeJSON(w, http.StatusConflict, conflictErrorResponse{Error: "already exists", Field: "email"})
+	case errors.Is(err, domain.ErrUsernameExists):
+		writeJSON(w, http.StatusConflict, conflictErrorResponse{Error: "already exists", Field: "username"})
 	case errors.Is(err, domain.ErrAlreadyExists):
 		writeError(w, http.StatusConflict, "already exists")
 	default:
 		h.log.ErrorContext(r.Context(), "internal error", slog.String("error", err.Error()))
 		writeError(w, http.StatusInternalServerError, "internal server error")
 	}
+}
+
+type conflictErrorResponse struct {
+	Error string `json:"error"`
+	Field string `json:"field"`
 }
 
 type validationErrorResponse struct {
