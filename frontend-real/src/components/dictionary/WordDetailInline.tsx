@@ -67,10 +67,10 @@ export function WordDetailInline({ wordId, onClose }: WordDetailInlineProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      className="my-4 py-1 border-y border-border-subtle bg-surface-secondary"
+      className="my-4 py-1 rounded-2xl border border-border-subtle shadow-sm"
     >
       {/* Header — word title row with actions */}
-      <div className="flex items-start justify-between gap-4 pt-4 md:pt-5">
+      <div className="flex items-start justify-between gap-4 pt-4 md:pt-5 px-5 md:px-6">
         <div className="flex-1 min-w-0">
           {loading && <HeaderSkeleton />}
 
@@ -168,7 +168,7 @@ export function WordDetailInline({ wordId, onClose }: WordDetailInlineProps) {
       </div>
 
       {/* Content zone */}
-      <div className="pt-10 pb-12">
+      <div className="pt-10 pb-12 px-5 md:px-6">
         {loading && <ContentSkeleton />}
 
         {error && (
