@@ -67,10 +67,10 @@ export function WordDetailInline({ wordId, onClose }: WordDetailInlineProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      className="border-b border-border-subtle/60"
+      className="my-3 rounded-2xl bg-surface-secondary/40 border border-border-subtle/60 shadow-sm"
     >
       {/* Header — word title row with actions */}
-      <div className="flex items-start justify-between gap-4 pt-5 md:pt-6">
+      <div className="flex items-start justify-between gap-4 pt-5 md:pt-6 px-6 md:px-8">
         <div className="flex-1 min-w-0">
           {loading && <HeaderSkeleton />}
 
@@ -135,40 +135,40 @@ export function WordDetailInline({ wordId, onClose }: WordDetailInlineProps) {
         </div>
 
         {/* Actions — right side */}
-        <div className="flex items-center gap-0.5 shrink-0 pt-1">
+        <div className="flex items-center gap-1 shrink-0 pt-1">
           {entry && (
             <>
               <button
                 type="button"
                 onClick={() => setEditWordId(entry.id)}
-                className="text-text-tertiary hover:text-text-primary transition-colors duration-200 p-2"
+                className="text-text-tertiary hover:text-text-primary hover:bg-surface-secondary transition-colors duration-200 p-2.5 rounded-lg"
                 aria-label={t('actions.edit')}
               >
-                <Pencil size={15} />
+                <Pencil size={16} />
               </button>
               <button
                 type="button"
                 onClick={() => requestDelete(entry)}
-                className="text-text-tertiary hover:text-poppy transition-colors duration-200 p-2"
+                className="text-text-tertiary hover:text-poppy hover:bg-poppy-light transition-colors duration-200 p-2.5 rounded-lg"
                 aria-label={t('actions.delete')}
               >
-                <Trash2 size={15} />
+                <Trash2 size={16} />
               </button>
             </>
           )}
           <button
             type="button"
             onClick={onClose}
-            className="text-text-tertiary hover:text-text-primary transition-colors duration-200 p-2 ml-1"
+            className="text-text-tertiary hover:text-text-primary hover:bg-surface-secondary transition-colors duration-200 p-2.5 rounded-lg ml-1"
             aria-label="Close"
           >
-            <X size={16} />
+            <X size={17} />
           </button>
         </div>
       </div>
 
       {/* Content zone */}
-      <div className="pt-10 pb-12">
+      <div className="pt-10 pb-12 px-6 md:px-8">
         {loading && <ContentSkeleton />}
 
         {error && (

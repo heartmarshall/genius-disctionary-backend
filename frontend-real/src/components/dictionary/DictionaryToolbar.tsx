@@ -412,25 +412,34 @@ export function DictionaryToolbar({
           </div>
         </div>
 
-        {/* Row 2: POS chips + sort (mobile) + topic filters */}
-        <div className="flex flex-wrap items-center gap-2 mt-4 pb-5 border-b border-border-subtle/60">
-          <POSChips selectedPOS={selectedPOS} onPOSChange={onPOSChange} />
+        {/* Row 2: POS chips + topic filters — grouped with labels */}
+        <div className="flex flex-col gap-3 mt-4 pb-5 border-b border-border-subtle/60">
+          {/* Part of Speech group */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[10px] uppercase tracking-widest text-text-tertiary font-medium mr-1 select-none">
+              {t('filter.pos_label', 'Part of speech')}
+            </span>
+            <POSChips selectedPOS={selectedPOS} onPOSChange={onPOSChange} />
 
-          {/* Sort chips — mobile only */}
-          <div className="flex md:hidden items-center gap-2">
-            <span className="w-px h-5 bg-border-subtle shrink-0" />
-            <SortChips sortBy={sortBy} sortDir={sortDir} onSortChange={onSortChange} />
+            {/* Sort chips — mobile only */}
+            <div className="flex md:hidden items-center gap-2">
+              <span className="w-px h-5 bg-border-subtle shrink-0" />
+              <SortChips sortBy={sortBy} sortDir={sortDir} onSortChange={onSortChange} />
+            </div>
           </div>
 
+          {/* Topics group */}
           {hasTopicFilters && (
-            <>
-              <span className="w-px h-5 bg-border-subtle shrink-0" />
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[10px] uppercase tracking-widest text-text-tertiary font-medium mr-1 select-none">
+                {t('filter.topics_label', 'Topics')}
+              </span>
               <TopicChips
                 topics={topics}
                 selectedTopicIds={selectedTopicIds}
                 onTopicIdsChange={onTopicIdsChange}
               />
-            </>
+            </div>
           )}
         </div>
       </div>

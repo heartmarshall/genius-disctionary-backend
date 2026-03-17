@@ -71,72 +71,61 @@ export function WordOverview({ entry, className, hideTitle, hideHeader }: WordOv
       {!hideHeader && !hideTitle && <div className="h-px bg-border-subtle/60" />}
 
       {entry.senses.length > 0 && (
-        <div className="w-full overflow-x-auto">
-          <table className="w-full border-collapse text-sm">
-            <thead>
-              <tr className="border-b border-border-subtle/40">
-                <th className="text-left text-[10px] uppercase tracking-widest text-text-tertiary font-medium py-2 pr-3 w-6">#</th>
-                <th className="text-left text-[10px] uppercase tracking-widest text-text-tertiary font-medium py-2 px-3 w-20">{t('table.pos', 'POS')}</th>
-                <th className="text-left text-[10px] uppercase tracking-widest text-text-tertiary font-medium py-2 px-3">{t('table.definition', 'Definition')}</th>
-                <th className="text-left text-[10px] uppercase tracking-widest text-text-tertiary font-medium py-2 px-3 w-[160px]">{t('table.translation', 'Translation')}</th>
-                <th className="text-left text-[10px] uppercase tracking-widest text-text-tertiary font-medium py-2 pl-3">{t('table.example', 'Example')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {entry.senses.map((sense, index) => {
-                const sensePos = sense.partOfSpeech
-                const senseColors = getPosColors(sensePos)
+        <div className="space-y-6">
+          {entry.senses.map((sense, index) => {
+            const sensePos = sense.partOfSpeech
+            const senseColors = getPosColors(sensePos)
 
-                return (
-                  <tr
-                    key={sense.id}
-                    className="border-b border-border-subtle/20 last:border-b-0 align-top"
-                  >
-                    <td className="py-3 pr-3">
-                      <span className="text-[11px] text-text-disabled tabular-nums">{index + 1}</span>
-                    </td>
+            return (
+              <div
+                key={sense.id}
+                className={cn(
+                  'space-y-3',
+                  index > 0 && 'pt-6 border-t border-border-subtle/40',
+                )}
+              >
+                {/* Sense header: number + POS */}
+                <div className="flex items-center gap-2.5">
+                  <span className="text-xs text-text-disabled tabular-nums font-medium">
+                    {index + 1}
+                  </span>
+                  {sensePos && (
+                    <span className={cn('text-[11px] uppercase tracking-widest font-medium', senseColors.text)}>
+                      {t(`pos.${sensePos}`)}
+                    </span>
+                  )}
+                </div>
 
-                    <td className="py-3 px-3">
-                      {sensePos && (
-                        <span className={cn('text-[11px] uppercase tracking-widest font-medium whitespace-nowrap', senseColors.text)}>
-                          {t(`pos.${sensePos}`)}
-                        </span>
-                      )}
-                    </td>
+                {/* Definition */}
+                {sense.definition && (
+                  <p className="text-base text-text-primary leading-relaxed">
+                    {sense.definition}
+                  </p>
+                )}
 
-                    <td className="py-3 px-3">
-                      {sense.definition && (
-                        <p className="text-sm text-text-primary leading-snug">{sense.definition}</p>
-                      )}
-                    </td>
+                {/* Translation */}
+                {sense.translations.length > 0 && (
+                  <p className="text-sm text-text-secondary">
+                    {sense.translations.map((tr) => tr.text).join(', ')}
+                  </p>
+                )}
 
-                    <td className="py-3 px-3">
-                      {sense.translations.length > 0 && (
-                        <p className="text-sm text-text-secondary leading-snug">
-                          {sense.translations.map((tr) => tr.text).join(', ')}
-                        </p>
-                      )}
-                    </td>
-
-                    <td className="py-3 pl-3">
-                      {sense.examples.length > 0 && (
-                        <div className="space-y-2">
-                          {sense.examples.map((ex) => (
-                            <div key={ex.id}>
-                              <p className="italic text-sm text-text-primary leading-snug">{ex.sentence}</p>
-                              {ex.translation && (
-                                <p className="text-xs text-text-tertiary mt-0.5">{ex.translation}</p>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+                {/* Examples */}
+                {sense.examples.length > 0 && (
+                  <div className="space-y-2 pl-4 border-l-2 border-border-subtle/60">
+                    {sense.examples.map((ex) => (
+                      <div key={ex.id}>
+                        <p className="italic text-sm text-text-primary leading-snug">{ex.sentence}</p>
+                        {ex.translation && (
+                          <p className="text-xs text-text-tertiary mt-0.5">{ex.translation}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </div>
       )}
 

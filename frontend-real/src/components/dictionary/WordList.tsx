@@ -80,8 +80,6 @@ export function WordList({
           }
         }
 
-        const indexLabel = String(index + 1).padStart(3, '0')
-
         return (
           <div key={entry.id} data-word-id={entry.id} style={{ scrollMarginTop: '4rem' }}>
             {isSelected ? (
@@ -91,8 +89,8 @@ export function WordList({
                 type="button"
                 onClick={() => onWordClick(entry.id)}
                 className={cn(
-                  'w-full flex items-baseline justify-between gap-4 md:gap-8 py-4 md:py-5 text-left cursor-pointer',
-                  'transition-opacity duration-300 ease-out',
+                  'w-full flex items-baseline gap-4 md:gap-8 py-4 md:py-5 text-left cursor-pointer',
+                  'transition-all duration-300 ease-out',
                   'hover:opacity-60',
                   'border-b border-border-subtle/60',
                 )}
@@ -107,10 +105,6 @@ export function WordList({
                     </span>
                   )}
                 </div>
-
-                <span className="text-[11px] md:text-xs text-text-tertiary tabular-nums shrink-0 pt-1">
-                  {indexLabel}
-                </span>
               </button>
             )}
           </div>
