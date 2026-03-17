@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Search, SlidersHorizontal, ArrowDownAZ, Clock, RefreshCw } from 'lucide-react'
+import { Search, SlidersHorizontal, ArrowDownAZ, Clock, RefreshCw, Filter, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useScrollCompact } from '@/hooks/useScrollCompact'
@@ -325,6 +325,103 @@ function TopicChips({ topics, selectedTopicIds, onTopicIdsChange, compact }: Top
   )
 }
 
+// ─── Filter dropdown ─────────────────────────────────────────────────────────
+
+interface FilterDropdownProps {
+  selectedPOS: PartOfSpeech[]
+  onPOSChange: (pos: PartOfSpeech[]) => void
+  topics: Topic[]
+  selectedTopicIds: string[]
+  onTopicIdsChange: (ids: string[]) => void
+}
+
+function FilterDropdown({ selectedPOS, onPOSChange, topics, selectedTopicIds, onTopicIdsChange }: FilterDropdownProps) {
+  const { t } = useTranslation('dictionary')
+  const [open, setOpen] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    const handler = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [open])
+
+  const activeCount = selectedPOS.length + selectedTopicIds.length
+  const hasTopics = topics.length > 0
+
+  return (
+    <div ref={containerRef} className="relative shrink-0">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className={cn(
+          'h-9 inline-flex items-center gap-1.5 px-3 rounded-lg text-sm transition-colors duration-150',
+          activeCount > 0
+            ? 'bg-cornflower-light text-cornflower-fg border border-cornflower font-medium'
+            : 'text-text-tertiary hover:text-text-secondary hover:bg-surface-secondary border border-transparent',
+        )}
+        aria-label="Filter"
+      >
+        <Filter size={14} />
+        <span className="hidden sm:inline">{t('filter.label', 'Filter')}</span>
+        {activeCount > 0 && (
+          <span className="ml-0.5 text-xs bg-cornflower text-white rounded-full w-4.5 h-4.5 inline-flex items-center justify-center leading-none font-medium">
+            {activeCount}
+          </span>
+        )}
+      </button>
+
+      {open && (
+        <div className="absolute left-0 top-full mt-1.5 z-20 w-[340px] rounded-xl bg-bg-page border border-border-subtle shadow-lg py-3">
+          {/* POS section */}
+          <div className="px-3 pb-3">
+            <span className="text-[10px] uppercase tracking-widest text-text-tertiary font-medium select-none">
+              {t('filter.pos_label', 'Part of speech')}
+            </span>
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              <POSChips selectedPOS={selectedPOS} onPOSChange={onPOSChange} />
+            </div>
+          </div>
+
+          {/* Topics section */}
+          {hasTopics && (
+            <div className="px-3 pt-3 border-t border-border-subtle/60">
+              <span className="text-[10px] uppercase tracking-widest text-text-tertiary font-medium select-none">
+                {t('filter.topics_label', 'Topics')}
+              </span>
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                <TopicChips
+                  topics={topics}
+                  selectedTopicIds={selectedTopicIds}
+                  onTopicIdsChange={onTopicIdsChange}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Clear all */}
+          {activeCount > 0 && (
+            <div className="px-3 pt-3 mt-1 border-t border-border-subtle/60">
+              <button
+                type="button"
+                onClick={() => { onPOSChange([]); onTopicIdsChange([]) }}
+                className="text-xs text-text-tertiary hover:text-text-primary transition-colors duration-150"
+              >
+                {t('filter.clearAll', 'Clear all filters')}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function DictionaryToolbar({
@@ -349,8 +446,6 @@ export function DictionaryToolbar({
 
   const isInitialLoad = loading && totalCount === 0
 
-  const hasTopicFilters = topics.length > 0
-
   return (
     <>
       {/* Sentinel for IntersectionObserver */}
@@ -358,7 +453,7 @@ export function DictionaryToolbar({
 
       {/* ═══ EXPANDED ═══════════════════════════════════════════════════════ */}
       <div className={isCompact ? 'hidden' : 'block'}>
-        {/* Row 1: Search + display options + stats */}
+        {/* Row 1: Search + filter + display options + stats */}
         <div className="flex items-center gap-2.5">
           <SearchInput
             value={search}
@@ -366,6 +461,14 @@ export function DictionaryToolbar({
             placeholder={t('search.placeholder')}
             className="flex-1 max-w-[400px]"
             inputClassName="h-9"
+          />
+
+          <FilterDropdown
+            selectedPOS={selectedPOS}
+            onPOSChange={onPOSChange}
+            topics={topics}
+            selectedTopicIds={selectedTopicIds}
+            onTopicIdsChange={onTopicIdsChange}
           />
 
           <DisplayDropdown
@@ -412,36 +515,55 @@ export function DictionaryToolbar({
           </div>
         </div>
 
-        {/* Row 2: POS chips + topic filters — grouped with labels */}
-        <div className="flex flex-col gap-3 mt-4 pb-5 border-b border-border-subtle/60">
-          {/* Part of Speech group */}
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[10px] uppercase tracking-widest text-text-tertiary font-medium mr-1 select-none">
-              {t('filter.pos_label', 'Part of speech')}
-            </span>
-            <POSChips selectedPOS={selectedPOS} onPOSChange={onPOSChange} />
-
-            {/* Sort chips — mobile only */}
-            <div className="flex md:hidden items-center gap-2">
-              <span className="w-px h-5 bg-border-subtle shrink-0" />
-              <SortChips sortBy={sortBy} sortDir={sortDir} onSortChange={onSortChange} />
-            </div>
+        {/* Row 2: Active filter pills (only shown when filters are active) */}
+        {(selectedPOS.length > 0 || selectedTopicIds.length > 0) && (
+          <div className="flex flex-wrap items-center gap-1.5 mt-3 pb-4 border-b border-border-subtle/60">
+            {selectedPOS.map((pos) => {
+              const opt = POS_OPTIONS.find((o) => o.value === pos)
+              return (
+                <button
+                  key={pos}
+                  type="button"
+                  onClick={() => onPOSChange(selectedPOS.filter((p) => p !== pos))}
+                  className={cn(
+                    'inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors duration-150',
+                    opt ? `${opt.activeBg} ${opt.activeText} ${opt.activeBorder}` : '',
+                  )}
+                >
+                  {t(`pos.${pos}`)}
+                  <X size={12} />
+                </button>
+              )
+            })}
+            {selectedTopicIds.map((id) => {
+              const topic = topics.find((t) => t.id === id)
+              if (!topic) return null
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => onTopicIdsChange(selectedTopicIds.filter((tid) => tid !== id))}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium border bg-text-primary text-text-on-accent border-text-primary transition-colors duration-150"
+                >
+                  {topic.name}
+                  <X size={12} />
+                </button>
+              )
+            })}
           </div>
+        )}
 
-          {/* Topics group */}
-          {hasTopicFilters && (
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[10px] uppercase tracking-widest text-text-tertiary font-medium mr-1 select-none">
-                {t('filter.topics_label', 'Topics')}
-              </span>
-              <TopicChips
-                topics={topics}
-                selectedTopicIds={selectedTopicIds}
-                onTopicIdsChange={onTopicIdsChange}
-              />
-            </div>
-          )}
-        </div>
+        {/* Sort chips — mobile only (when no filters) */}
+        {selectedPOS.length === 0 && selectedTopicIds.length === 0 && (
+          <div className="flex md:hidden flex-wrap items-center gap-2 mt-3 pb-4 border-b border-border-subtle/60">
+            <SortChips sortBy={sortBy} sortDir={sortDir} onSortChange={onSortChange} />
+          </div>
+        )}
+
+        {/* Bottom border when no active filters on desktop */}
+        {selectedPOS.length === 0 && selectedTopicIds.length === 0 && (
+          <div className="hidden md:block pb-4 border-b border-border-subtle/60" />
+        )}
       </div>
 
       {/* ═══ COMPACT STICKY ══════════════════════════════════════════════════ */}
@@ -461,6 +583,14 @@ export function DictionaryToolbar({
             iconSize={15}
           />
 
+          <FilterDropdown
+            selectedPOS={selectedPOS}
+            onPOSChange={onPOSChange}
+            topics={topics}
+            selectedTopicIds={selectedTopicIds}
+            onTopicIdsChange={onTopicIdsChange}
+          />
+
           <DisplayDropdown
             displayOptions={displayOptions}
             onDisplayOptionsChange={onDisplayOptionsChange}
@@ -477,16 +607,38 @@ export function DictionaryToolbar({
 
         {(selectedPOS.length > 0 || selectedTopicIds.length > 0) && (
           <div className="flex flex-wrap items-center gap-1.5 mt-2">
-            <POSChips selectedPOS={selectedPOS} onPOSChange={onPOSChange} compact />
-            {selectedPOS.length > 0 && selectedTopicIds.length > 0 && (
-              <span className="w-px h-4 bg-border-subtle shrink-0" />
-            )}
-            <TopicChips
-              topics={topics}
-              selectedTopicIds={selectedTopicIds}
-              onTopicIdsChange={onTopicIdsChange}
-              compact
-            />
+            {selectedPOS.map((pos) => {
+              const opt = POS_OPTIONS.find((o) => o.value === pos)
+              return (
+                <button
+                  key={pos}
+                  type="button"
+                  onClick={() => onPOSChange(selectedPOS.filter((p) => p !== pos))}
+                  className={cn(
+                    'inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium border transition-colors duration-150',
+                    opt ? `${opt.activeBg} ${opt.activeText} ${opt.activeBorder}` : '',
+                  )}
+                >
+                  {t(`pos.${pos}`)}
+                  <X size={10} />
+                </button>
+              )
+            })}
+            {selectedTopicIds.map((id) => {
+              const topic = topics.find((t) => t.id === id)
+              if (!topic) return null
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => onTopicIdsChange(selectedTopicIds.filter((tid) => tid !== id))}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium border bg-text-primary text-text-on-accent border-text-primary transition-colors duration-150"
+                >
+                  {topic.name}
+                  <X size={10} />
+                </button>
+              )
+            })}
           </div>
         )}
       </div>

@@ -80,6 +80,10 @@ export function WordList({
           }
         }
 
+        // Check if neighbours are the selected card
+        const prevIsSelected = index > 0 && selectedWordId === entries[index - 1].id
+        const nextIsSelected = index < entries.length - 1 && selectedWordId === entries[index + 1].id
+
         return (
           <div key={entry.id} data-word-id={entry.id} style={{ scrollMarginTop: '4rem' }}>
             {isSelected ? (
@@ -92,7 +96,8 @@ export function WordList({
                   'w-full flex items-baseline gap-4 md:gap-8 py-4 md:py-5 text-left cursor-pointer',
                   'transition-all duration-300 ease-out',
                   'hover:opacity-60',
-                  'border-b border-border-subtle/60',
+                  // Hide border when adjacent to the open card
+                  !nextIsSelected && 'border-b border-border-subtle/60',
                 )}
               >
                 <div className="flex flex-col min-w-0">
