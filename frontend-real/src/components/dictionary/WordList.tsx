@@ -80,27 +80,21 @@ export function WordList({
           }
         }
 
-        const nextIsSelected = index < entries.length - 1 && selectedWordId === entries[index + 1].id
-        const indexLabel = String(index + 1).padStart(3, '0')
-
         return (
           <div key={entry.id} data-word-id={entry.id} style={{ scrollMarginTop: '4rem' }}>
             {isSelected ? (
-              <div className="relative">
+              <div className="border-b border-border-subtle/60">
                 {renderDetail?.(entry)}
-                <span className="absolute top-5 right-0 text-[11px] md:text-xs text-text-tertiary tabular-nums">
-                  {indexLabel}
-                </span>
               </div>
             ) : (
               <button
                 type="button"
                 onClick={() => onWordClick(entry.id)}
                 className={cn(
-                  'w-full flex items-baseline justify-between gap-4 md:gap-8 py-4 md:py-5 text-left cursor-pointer',
-                  'transition-all duration-300 ease-out',
-                  'hover:opacity-60',
-                  !nextIsSelected && !isSelected && 'border-b border-border-subtle/60',
+                  'w-full flex items-baseline gap-4 md:gap-8 py-4 md:py-5 text-left cursor-pointer',
+                  'transition-all duration-200 ease-out',
+                  'hover:bg-surface-secondary/60',
+                  'border-b border-border-subtle/60',
                 )}
               >
                 <div className="flex flex-col min-w-0">
@@ -113,10 +107,6 @@ export function WordList({
                     </span>
                   )}
                 </div>
-
-                <span className="text-[11px] md:text-xs text-text-tertiary tabular-nums shrink-0 pt-1">
-                  {indexLabel}
-                </span>
               </button>
             )}
           </div>

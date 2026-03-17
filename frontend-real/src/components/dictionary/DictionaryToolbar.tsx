@@ -163,7 +163,8 @@ function DisplayDropdown({ displayOptions, onDisplayOptionsChange }: DisplayDrop
                 key={key}
                 type="button"
                 onClick={() => onDisplayOptionsChange({ ...displayOptions, [key]: !checked })}
-                className="w-full flex items-center gap-2.5 px-3 py-2 hover:bg-surface-secondary transition-colors duration-100 text-sm text-text-primary"
+                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg mx-1 transition-colors duration-100 text-sm text-text-primary hover:bg-surface-secondary"
+                style={{ width: 'calc(100% - 0.5rem)' }}
               >
                 <span
                   className={cn(
@@ -479,8 +480,8 @@ export function DictionaryToolbar({
           <div className="flex-1" />
 
           {/* Sort options inline */}
-          <div className="hidden md:flex items-center gap-1.5">
-            <span className="text-xs text-text-tertiary mr-1">Sort by:</span>
+          <div className="hidden md:flex items-center gap-1">
+            <span className="text-xs text-text-tertiary mr-1.5">Sort by:</span>
             {SORT_OPTIONS.map((opt) => {
               const active = sortBy === opt.field && sortDir === opt.dir
               return (
@@ -489,10 +490,10 @@ export function DictionaryToolbar({
                   type="button"
                   onClick={() => onSortChange(opt.field, opt.dir)}
                   className={cn(
-                    'text-xs transition-colors duration-150 px-1',
+                    'text-xs transition-colors duration-150 px-2.5 py-1 rounded-md',
                     active
-                      ? 'text-text-primary font-medium'
-                      : 'text-text-tertiary hover:text-text-secondary',
+                      ? 'text-text-primary font-medium bg-surface-secondary'
+                      : 'text-text-tertiary hover:text-text-secondary hover:bg-surface-secondary/50',
                   )}
                 >
                   {t(opt.key)}

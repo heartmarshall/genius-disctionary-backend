@@ -135,40 +135,44 @@ export function WordDetailInline({ wordId, onClose }: WordDetailInlineProps) {
         </div>
 
         {/* Actions — right side */}
-        <div className="flex items-center gap-1 shrink-0 pt-1">
+        <div className="flex items-center shrink-0 pt-1">
           {entry && (
-            <>
+            <div className="flex items-center gap-1">
               <button
                 type="button"
                 onClick={() => setEditWordId(entry.id)}
-                className="text-text-tertiary hover:text-text-primary hover:bg-surface-secondary transition-colors duration-200 p-2.5 rounded-lg"
+                className="text-text-tertiary hover:text-text-primary hover:bg-surface-secondary transition-colors duration-200 p-3 rounded-xl"
                 aria-label={t('actions.edit')}
               >
-                <Pencil size={16} />
+                <Pencil size={18} />
               </button>
               <button
                 type="button"
                 onClick={() => requestDelete(entry)}
-                className="text-text-tertiary hover:text-poppy hover:bg-poppy-light transition-colors duration-200 p-2.5 rounded-lg"
+                className="text-text-tertiary hover:text-poppy hover:bg-poppy-light transition-colors duration-200 p-3 rounded-xl"
                 aria-label={t('actions.delete')}
               >
-                <Trash2 size={16} />
+                <Trash2 size={18} />
               </button>
-            </>
+            </div>
           )}
+          <div className="w-px h-6 bg-border-subtle/60 mx-2" />
           <button
             type="button"
             onClick={onClose}
-            className="text-text-tertiary hover:text-text-primary hover:bg-surface-secondary transition-colors duration-200 p-2.5 rounded-lg ml-1"
+            className="text-text-tertiary hover:text-text-primary hover:bg-surface-secondary transition-colors duration-200 p-3 rounded-xl"
             aria-label="Close"
           >
-            <X size={17} />
+            <X size={18} />
           </button>
         </div>
       </div>
 
+      {/* Divider between header and content */}
+      {entry && <div className="mx-5 md:mx-6 mt-8 h-px bg-border-subtle/60" />}
+
       {/* Content zone */}
-      <div className="pt-10 pb-12 px-5 md:px-6">
+      <div className="pt-6 pb-12 px-5 md:px-6">
         {loading && <ContentSkeleton />}
 
         {error && (
@@ -185,7 +189,7 @@ export function WordDetailInline({ wordId, onClose }: WordDetailInlineProps) {
           </div>
         )}
 
-        {entry && <WordOverview entry={entry} hideHeader />}
+        {entry && <WordOverview entry={entry} hideHeader primaryPosShownInHeader={primaryPos} />}
       </div>
 
       {/* Edit dialog */}

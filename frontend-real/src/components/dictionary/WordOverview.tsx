@@ -12,9 +12,11 @@ interface WordOverviewProps {
   className?: string
   hideTitle?: boolean
   hideHeader?: boolean
+  /** POS already visible in parent header — skip it in single-sense cards to reduce redundancy */
+  primaryPosShownInHeader?: string
 }
 
-export function WordOverview({ entry, className, hideTitle, hideHeader }: WordOverviewProps) {
+export function WordOverview({ entry, className, hideTitle, hideHeader, primaryPosShownInHeader }: WordOverviewProps) {
   const { t } = useTranslation('dictionary')
 
   const playAudio = async (url: string) => {
@@ -76,6 +78,9 @@ export function WordOverview({ entry, className, hideTitle, hideHeader }: WordOv
             const sensePos = sense.partOfSpeech
             const senseColors = getPosColors(sensePos)
 
+            // Skip redundant POS label when it matches the one already shown in parent header
+            const skipPosLabel = primaryPosShownInHeader && sensePos === primaryPosShownInHeader && entry.senses.length === 1
+
             return (
               <div
                 key={sense.id}
@@ -86,10 +91,12 @@ export function WordOverview({ entry, className, hideTitle, hideHeader }: WordOv
               >
                 {/* Sense header: number + POS */}
                 <div className="flex items-center gap-2.5">
-                  <span className="text-xs text-text-disabled tabular-nums font-medium">
-                    {index + 1}
-                  </span>
-                  {sensePos && (
+                  {entry.senses.length > 1 && (
+                    <span className="text-xs text-text-disabled tabular-nums font-medium">
+                      {index + 1}
+                    </span>
+                  )}
+                  {sensePos && !skipPosLabel && (
                     <span className={cn('text-[11px] uppercase tracking-widest font-medium', senseColors.text)}>
                       {t(`pos.${sensePos}`)}
                     </span>
