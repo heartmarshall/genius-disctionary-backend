@@ -68,7 +68,7 @@ export function WordDetailInline({ wordId, onClose }: WordDetailInlineProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      className="my-4 py-1 -mx-5 md:-mx-6 rounded-2xl border border-border-subtle shadow-sm"
+      className="my-4 py-1 -mx-5 md:-mx-6 rounded-2xl border border-cornflower/25 shadow-sm bg-cornflower-light/15"
     >
       {/* Header — word title row with actions */}
       <div className="flex items-start justify-between gap-4 pt-3 md:pt-4 px-4 md:px-5">
@@ -80,7 +80,7 @@ export function WordDetailInline({ wordId, onClose }: WordDetailInlineProps) {
               {/* Meta — POS (matching list style) + topics */}
               <div className="flex items-center gap-2 flex-wrap mb-2">
                 {primaryPos && (
-                  <span className={cn('text-xs font-medium', posColors.text)}>
+                  <span className={cn('text-xs font-medium uppercase tracking-wide', posColors.text)}>
                     {t(`pos.${primaryPos}`)}
                   </span>
                 )}

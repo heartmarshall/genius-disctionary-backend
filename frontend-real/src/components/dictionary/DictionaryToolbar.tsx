@@ -34,6 +34,7 @@ interface DictionaryToolbarProps {
   onSearchChange: (value: string) => void
   selectedPOS: PartOfSpeech[]
   onPOSChange: (pos: PartOfSpeech[]) => void
+  posCounts: Partial<Record<PartOfSpeech, number>>
   sortBy: EntrySortField
   sortDir: SortDirection
   onSortChange: (field: EntrySortField, dir: SortDirection) => void
@@ -195,10 +196,11 @@ function DisplayDropdown({ displayOptions, onDisplayOptionsChange }: DisplayDrop
 interface POSChipsProps {
   selectedPOS: PartOfSpeech[]
   onPOSChange: (pos: PartOfSpeech[]) => void
+  posCounts?: Partial<Record<PartOfSpeech, number>>
   compact?: boolean
 }
 
-function POSChips({ selectedPOS, onPOSChange, compact }: POSChipsProps) {
+function POSChips({ selectedPOS, onPOSChange, posCounts, compact }: POSChipsProps) {
   const { t } = useTranslation('dictionary')
 
   const togglePOS = (pos: PartOfSpeech) => {
@@ -217,20 +219,32 @@ function POSChips({ selectedPOS, onPOSChange, compact }: POSChipsProps) {
     <>
       {visibleOptions.map((opt) => {
         const active = selectedPOS.includes(opt.value)
+        const count = posCounts?.[opt.value]
+        const hasWords = !posCounts || (count ?? 0) > 0
         return (
           <button
             key={opt.value}
             type="button"
             onClick={() => togglePOS(opt.value)}
             className={cn(
-              'inline-flex items-center px-3 py-1.5 rounded-lg text-sm border select-none cursor-pointer transition-colors duration-150',
+              'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm border select-none cursor-pointer transition-colors duration-150',
               compact ? 'py-1 text-xs' : '',
               active
                 ? `${opt.activeBg} ${opt.activeText} ${opt.activeBorder} font-medium`
-                : `bg-transparent border-border-subtle text-text-secondary ${opt.hoverBg}`,
+                : hasWords
+                  ? `bg-transparent border-border-subtle text-text-secondary ${opt.hoverBg}`
+                  : `bg-transparent border-border-subtle/40 text-text-disabled ${opt.hoverBg} opacity-45`,
             )}
           >
             {t(`pos.${opt.value}`)}
+            {count != null && (
+              <span className={cn(
+                'text-[11px] tabular-nums',
+                active ? 'opacity-70' : '',
+              )}>
+                {count}
+              </span>
+            )}
           </button>
         )
       })}
@@ -331,12 +345,13 @@ function TopicChips({ topics, selectedTopicIds, onTopicIdsChange, compact }: Top
 interface FilterDropdownProps {
   selectedPOS: PartOfSpeech[]
   onPOSChange: (pos: PartOfSpeech[]) => void
+  posCounts: Partial<Record<PartOfSpeech, number>>
   topics: Topic[]
   selectedTopicIds: string[]
   onTopicIdsChange: (ids: string[]) => void
 }
 
-function FilterDropdown({ selectedPOS, onPOSChange, topics, selectedTopicIds, onTopicIdsChange }: FilterDropdownProps) {
+function FilterDropdown({ selectedPOS, onPOSChange, posCounts, topics, selectedTopicIds, onTopicIdsChange }: FilterDropdownProps) {
   const { t } = useTranslation('dictionary')
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -385,7 +400,7 @@ function FilterDropdown({ selectedPOS, onPOSChange, topics, selectedTopicIds, on
               {t('filter.pos_label', 'Part of speech')}
             </span>
             <div className="flex flex-wrap gap-1.5 mt-2">
-              <POSChips selectedPOS={selectedPOS} onPOSChange={onPOSChange} />
+              <POSChips selectedPOS={selectedPOS} onPOSChange={onPOSChange} posCounts={posCounts} />
             </div>
           </div>
 
@@ -433,6 +448,7 @@ export function DictionaryToolbar({
   onSearchChange,
   selectedPOS,
   onPOSChange,
+  posCounts,
   sortBy,
   sortDir,
   onSortChange,
@@ -469,6 +485,7 @@ export function DictionaryToolbar({
             <FilterDropdown
               selectedPOS={selectedPOS}
               onPOSChange={onPOSChange}
+              posCounts={posCounts}
               topics={topics}
               selectedTopicIds={selectedTopicIds}
               onTopicIdsChange={onTopicIdsChange}
@@ -482,8 +499,8 @@ export function DictionaryToolbar({
 
           <div className="flex-1" />
 
-          {/* Sort group — visually contained */}
-          <div className="hidden md:flex items-center gap-0.5 px-1.5 py-0.5 rounded-lg bg-surface-secondary/50">
+          {/* Sort group */}
+          <div className="hidden md:flex items-center gap-1">
             {SORT_OPTIONS.map((opt) => {
               const active = sortBy === opt.field && sortDir === opt.dir
               return (
@@ -492,9 +509,9 @@ export function DictionaryToolbar({
                   type="button"
                   onClick={() => onSortChange(opt.field, opt.dir)}
                   className={cn(
-                    'text-xs transition-colors duration-150 px-2.5 py-1.5 rounded-md',
+                    'text-xs transition-colors duration-150 px-1.5 py-1',
                     active
-                      ? 'text-text-primary font-medium bg-bg-page shadow-sm'
+                      ? 'text-text-primary font-semibold'
                       : 'text-text-tertiary hover:text-text-secondary',
                   )}
                 >
@@ -505,7 +522,7 @@ export function DictionaryToolbar({
           </div>
 
           {/* Word/topic count — separated from sort */}
-          <div className="hidden md:block w-px h-4 bg-border-subtle/60 mx-1" />
+          <div className="hidden md:block w-px h-5 bg-border-default mx-2" />
           <div className="shrink-0 text-xs text-text-tertiary tabular-nums">
             {isInitialLoad ? (
               <Skeleton className="h-4 w-28" />

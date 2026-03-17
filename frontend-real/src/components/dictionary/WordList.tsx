@@ -12,7 +12,7 @@ interface WordListProps {
   onWordClick: (id: string) => void
   displayOptions: DisplayOptions
   sortedAlphabetically?: boolean
-  renderDetail?: (entry: DictionaryEntry) => React.ReactNode
+  renderDetail?: (entry: DictionaryEntry, index: number) => React.ReactNode
 }
 
 function WordListSkeleton() {
@@ -55,7 +55,7 @@ export function WordList({
 
   return (
     <div className="flex flex-col">
-      {entries.map((entry) => {
+      {entries.map((entry, index) => {
         const isSelected = selectedWordId === entry.id
 
         // Build second-line metadata
@@ -105,7 +105,7 @@ export function WordList({
             <div data-word-id={entry.id} style={{ scrollMarginTop: '4rem' }}>
               {isSelected ? (
                 <div className="border-b border-border-subtle/60">
-                  {renderDetail?.(entry)}
+                  {renderDetail?.(entry, index)}
                 </div>
               ) : (
                 <button
@@ -118,7 +118,7 @@ export function WordList({
                     'border-b border-border-subtle/60',
                   )}
                 >
-                  <div className="flex flex-col min-w-0">
+                  <div className="flex flex-col min-w-0 flex-1">
                     <span className="text-[1.75rem] md:text-[2.25rem] font-medium leading-tight tracking-[-0.02em] text-text-primary">
                       {entry.text}
                     </span>
@@ -126,7 +126,7 @@ export function WordList({
                       <span className="flex items-center gap-1.5 mt-1 text-sm text-text-tertiary line-clamp-1">
                         {showPos && posColors && (
                           <>
-                            <span className={cn('text-xs font-medium', posColors.text)}>
+                            <span className={cn('text-xs font-medium uppercase tracking-wide', posColors.text)}>
                               {t(`pos.${primaryPos}`)}
                             </span>
                             {textParts.length > 0 && (
@@ -138,6 +138,9 @@ export function WordList({
                       </span>
                     )}
                   </div>
+                  <span className="text-xs text-text-tertiary tabular-nums shrink-0 self-center">
+                    {index + 1}
+                  </span>
                 </button>
               )}
             </div>

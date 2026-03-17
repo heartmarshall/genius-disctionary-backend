@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ChevronDown, BookOpen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -60,6 +60,24 @@ export function DictionaryPage() {
   }
 
   const { entries, totalCount, pageInfo, topics, loading, error, loadMore } = useDictionary(filter)
+
+  // Separate unfiltered query to count POS across the whole dictionary
+  const baseFilter: DictionaryFilterInput = {
+    search: debouncedSearch || undefined,
+    topicId: selectedTopicIds[0] ?? undefined,
+    sortField: sortBy,
+    sortDirection: sortDir,
+  }
+  const { entries: allEntries } = useDictionary(baseFilter)
+
+  const posCounts = useMemo(() => {
+    const counts: Partial<Record<PartOfSpeech, number>> = {}
+    for (const entry of allEntries) {
+      const pos = entry.senses[0]?.partOfSpeech
+      if (pos) counts[pos] = (counts[pos] ?? 0) + 1
+    }
+    return counts
+  }, [allEntries])
 
   const hasActiveFilters = selectedPOS.length > 0 || selectedTopicIds.length > 0 || debouncedSearch !== ''
 
@@ -205,7 +223,7 @@ export function DictionaryPage() {
     <div className="min-h-full">
       {/* Hero header — compact per Parkinson's Law */}
       <div className="px-8 md:px-16 pt-8 pb-4 md:pt-12 md:pb-6">
-        <h1 className="text-[clamp(2rem,5vw,3.5rem)] font-medium leading-[0.95] tracking-[-0.03em] text-text-primary">
+        <h1 className="text-[clamp(2.5rem,6vw,4.5rem)] font-medium leading-[0.95] tracking-[-0.03em] text-text-primary">
           Dictionary
         </h1>
         <p className="mt-2 md:mt-3 max-w-2xl text-sm text-text-secondary leading-relaxed">
@@ -223,6 +241,7 @@ export function DictionaryPage() {
           onSearchChange={setSearch}
           selectedPOS={selectedPOS}
           onPOSChange={setSelectedPOS}
+          posCounts={posCounts}
           sortBy={sortBy}
           sortDir={sortDir}
           onSortChange={(field, dir) => { setSortBy(field); setSortDir(dir) }}

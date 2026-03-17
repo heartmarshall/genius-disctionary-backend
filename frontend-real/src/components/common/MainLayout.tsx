@@ -75,7 +75,7 @@ export function MainLayout() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-bg-page">
-      <SideLabel />
+      {/* <SideLabel /> */}
       {/* Desktop sidebar */}
       <div className="hidden md:flex">
         <Sidebar collapsed={collapsed} onToggle={() => setCollapsed((v) => !v)} />
