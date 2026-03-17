@@ -67,7 +67,7 @@ export function WordDetailInline({ wordId, onClose }: WordDetailInlineProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      className="my-5 rounded-2xl bg-surface-secondary/40 border border-border-subtle/60 shadow-sm"
+      className="my-3 rounded-2xl bg-surface-secondary/40 border border-border-subtle/60 shadow-sm"
     >
       {/* Header — word title row with actions */}
       <div className="flex items-start justify-between gap-4 pt-5 md:pt-6 px-6 md:px-8">

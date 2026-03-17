@@ -96,8 +96,10 @@ export function WordList({
                   'w-full flex items-baseline gap-4 md:gap-8 py-4 md:py-5 text-left cursor-pointer',
                   'transition-all duration-300 ease-out',
                   'hover:opacity-60',
-                  // Hide border when adjacent to the open card
-                  !nextIsSelected && 'border-b border-border-subtle/60',
+                  // Softer dashed border next to the open card
+                  nextIsSelected || prevIsSelected
+                    ? 'border-b border-dashed border-border-subtle/30'
+                    : 'border-b border-border-subtle/60',
                 )}
               >
                 <div className="flex flex-col min-w-0">
