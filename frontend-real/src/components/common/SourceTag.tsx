@@ -5,19 +5,19 @@ const sourceConfig = {
     label: 'Book',
     bg: 'bg-source-book-light',
     text: 'text-source-book',
-    font: 'font-serif',
+    font: '',
   },
   screen: {
     label: 'Screen',
     bg: 'bg-source-screen-light',
     text: 'text-source-screen',
-    font: 'font-mono',
+    font: 'tracking-wide uppercase',
   },
   music: {
     label: 'Music',
     bg: 'bg-source-music-light',
     text: 'text-source-music',
-    font: 'font-serif italic',
+    font: 'italic',
   },
 } as const
 

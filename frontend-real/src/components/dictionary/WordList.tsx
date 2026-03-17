@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next'
 import { Skeleton } from '@/components/ui/skeleton'
-import { getPosColors } from '@/lib/pos-colors'
 import { cn } from '@/lib/utils'
 import type { DictionaryEntry } from '@/types/dictionary'
 import type { DisplayOptions } from './DictionaryToolbar'
@@ -15,13 +14,13 @@ interface WordListProps {
 }
 
 function WordListSkeleton() {
-  const widths = [140, 200, 120, 180, 160, 220, 100, 170]
+  const widths = [280, 360, 200, 320, 240, 400, 180, 300]
   return (
     <div className="flex flex-col">
       {widths.map((w, i) => (
-        <div key={i} className="flex items-center gap-3 px-4 py-3 border-b border-border-subtle">
-          <Skeleton className="w-[3px] h-8 rounded-full flex-shrink-0" />
-          <Skeleton className="h-7 rounded" style={{ width: w }} />
+        <div key={i} className="flex items-center justify-between py-5 border-b border-border-subtle/60">
+          <Skeleton className="h-8 rounded" style={{ width: w }} />
+          <Skeleton className="h-3 w-10 rounded" />
         </div>
       ))}
     </div>
@@ -36,7 +35,7 @@ export function WordList({
   displayOptions,
   renderDetail,
 }: WordListProps) {
-  const { t } = useTranslation()
+  const { t } = useTranslation('dictionary')
 
   if (loading) {
     return <WordListSkeleton />
@@ -51,12 +50,9 @@ export function WordList({
 
   return (
     <div className="flex flex-col">
-      {entries.map((entry) => {
+      {entries.map((entry, index) => {
         const isSelected = selectedWordId === entry.id
-        const primaryPos = entry.senses[0]?.partOfSpeech
-        const posColors = getPosColors(primaryPos)
 
-        // Build second-line parts
         let secondLineParts: string[] = []
         if (hasAnyDisplayOption) {
           if (displayOptions.translation) {
@@ -65,10 +61,14 @@ export function WordList({
           }
           if (displayOptions.transcription) {
             const ipa = entry.pronunciations[0]?.transcription
-            if (ipa) secondLineParts.push(`/${ipa}/`)
+            if (ipa) {
+              const clean = ipa.replace(/^\/+|\/+$/g, '')
+              secondLineParts.push(`/${clean}/`)
+            }
           }
-          if (displayOptions.partOfSpeech && primaryPos) {
-            secondLineParts.push(t(`pos.${primaryPos}`))
+          if (displayOptions.partOfSpeech) {
+            const primaryPos = entry.senses[0]?.partOfSpeech
+            if (primaryPos) secondLineParts.push(t(`pos.${primaryPos}`))
           }
           if (displayOptions.definition) {
             const definition = entry.senses[0]?.definition
@@ -80,44 +80,39 @@ export function WordList({
           }
         }
 
+        const indexLabel = String(index + 1).padStart(3, '0')
+
         return (
-          <div key={entry.id}>
-            <button
-              type="button"
-              data-word-id={entry.id}
-              onClick={() => onWordClick(entry.id)}
-              style={{ scrollMarginTop: '4rem' }}
-              className={cn(
-                'w-full flex items-stretch gap-3 px-4 py-3 text-left cursor-pointer',
-                'transition-colors duration-150',
-                'hover:bg-surface-secondary',
-                isSelected ? 'bg-surface-secondary' : 'border-b border-border-subtle',
-              )}
-            >
-              {/* POS color bar */}
-              <div
+          <div key={entry.id} data-word-id={entry.id} style={{ scrollMarginTop: '4rem' }}>
+            {isSelected ? (
+              renderDetail?.(entry)
+            ) : (
+              <button
+                type="button"
+                onClick={() => onWordClick(entry.id)}
                 className={cn(
-                  'w-[3px] rounded-full self-stretch flex-shrink-0 transition-opacity duration-150',
-                  isSelected ? 'opacity-100' : 'opacity-60',
+                  'w-full flex items-baseline justify-between gap-4 md:gap-8 py-4 md:py-5 text-left cursor-pointer',
+                  'transition-opacity duration-300 ease-out',
+                  'hover:opacity-60',
+                  'border-b border-border-subtle/60',
                 )}
-                style={{ backgroundColor: `var(${posColors.cssVar})` }}
-              />
-
-              {/* Word content */}
-              <div className="flex flex-col min-w-0">
-                <span className="font-orelega text-[24px] leading-tight text-text-primary">
-                  {entry.text}
-                </span>
-                {hasAnyDisplayOption && secondLineParts.length > 0 && (
-                  <span className="text-sm text-text-secondary mt-0.5 line-clamp-1">
-                    {secondLineParts.join(' · ')}
+              >
+                <div className="flex flex-col min-w-0">
+                  <span className="text-[1.75rem] md:text-[2.25rem] font-medium leading-tight tracking-[-0.02em] text-text-primary">
+                    {entry.text}
                   </span>
-                )}
-              </div>
-            </button>
+                  {hasAnyDisplayOption && secondLineParts.length > 0 && (
+                    <span className="text-sm text-text-tertiary mt-1 line-clamp-1">
+                      {secondLineParts.join(' · ')}
+                    </span>
+                  )}
+                </div>
 
-            {/* Inline detail slot */}
-            {isSelected && renderDetail?.(entry)}
+                <span className="text-[11px] md:text-xs text-text-tertiary tabular-nums shrink-0 pt-1">
+                  {indexLabel}
+                </span>
+              </button>
+            )}
           </div>
         )
       })}

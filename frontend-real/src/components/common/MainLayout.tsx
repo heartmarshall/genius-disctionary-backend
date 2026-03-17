@@ -135,13 +135,11 @@ export function MainLayout() {
           >
             <Menu size={24} />
           </button>
-          <span className="ml-3 font-orelega text-lg text-text-primary">MyEnglish</span>
+          <span className="ml-3 text-lg font-semibold tracking-tight text-text-primary">MyEnglish</span>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-6">
-          <div className="mx-auto max-w-7xl">
-            <Outlet />
-          </div>
+        <main className="flex-1 overflow-y-auto">
+          <Outlet />
         </main>
       </div>
     </div>

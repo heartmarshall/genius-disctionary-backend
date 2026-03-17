@@ -101,7 +101,7 @@ export function Sidebar({ collapsed, onToggle, onClose }: SidebarProps) {
           <span
             aria-hidden={collapsed || undefined}
             className={cn(
-              'font-orelega text-lg text-text-primary',
+              'text-lg font-semibold tracking-tight text-text-primary',
               textTransition,
               collapsed ? textCollapsed : textExpanded
             )}

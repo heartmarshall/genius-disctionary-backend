@@ -65,10 +65,7 @@ export default {
         'source-music': { DEFAULT: 'var(--source-music)', light: 'var(--source-music-light)', fg: 'var(--source-music)' },
       },
       fontFamily: {
-        sans: ['Neue Montreal', 'system-ui', 'sans-serif'],
-        serif: ['EB Garamond', 'Georgia', 'serif'],
-        mono: ['Courier Prime', 'ui-monospace', 'monospace'],
-        orelega: ['Orelega One', 'Georgia', 'serif'],
+        sans: ['Overused Grotesk', 'system-ui', 'sans-serif'],
       },
     },
   },

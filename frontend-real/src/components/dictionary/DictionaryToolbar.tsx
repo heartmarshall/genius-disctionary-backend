@@ -165,7 +165,6 @@ function DisplayDropdown({ displayOptions, onDisplayOptionsChange }: DisplayDrop
                 onClick={() => onDisplayOptionsChange({ ...displayOptions, [key]: !checked })}
                 className="w-full flex items-center gap-2.5 px-3 py-2 hover:bg-surface-secondary transition-colors duration-100 text-sm text-text-primary"
               >
-                {/* Custom checkbox */}
                 <span
                   className={cn(
                     'w-4 h-4 rounded flex items-center justify-center border shrink-0 transition-colors duration-100',
@@ -209,7 +208,6 @@ function POSChips({ selectedPOS, onPOSChange, compact }: POSChipsProps) {
     }
   }
 
-  // In compact mode show only active chips, or all if none active
   const visibleOptions = compact && selectedPOS.length > 0
     ? POS_OPTIONS.filter((o) => selectedPOS.includes(o.value))
     : POS_OPTIONS
@@ -296,7 +294,6 @@ function TopicChips({ topics, selectedTopicIds, onTopicIdsChange, compact }: Top
     }
   }
 
-  // In compact mode show only active topics
   const visibleTopics = compact && selectedTopicIds.length > 0
     ? topics.filter((t) => selectedTopicIds.includes(t.id))
     : topics
@@ -362,27 +359,47 @@ export function DictionaryToolbar({
       {/* ═══ EXPANDED ═══════════════════════════════════════════════════════ */}
       <div className={isCompact ? 'hidden' : 'block'}>
         {/* Row 1: Search + display options + stats */}
-        <div className="flex items-center gap-2.5 pt-6">
-          {/* Search */}
+        <div className="flex items-center gap-2.5">
           <SearchInput
             value={search}
             onChange={onSearchChange}
             placeholder={t('search.placeholder')}
-            className="flex-1 max-w-[55%]"
+            className="flex-1 max-w-[400px]"
             inputClassName="h-9"
           />
 
-          {/* Display options dropdown */}
           <DisplayDropdown
             displayOptions={displayOptions}
             onDisplayOptionsChange={onDisplayOptionsChange}
           />
 
-          {/* Spacer */}
           <div className="flex-1" />
 
+          {/* Sort options inline */}
+          <div className="hidden md:flex items-center gap-1.5">
+            <span className="text-xs text-text-tertiary mr-1">Sort by:</span>
+            {SORT_OPTIONS.map((opt) => {
+              const active = sortBy === opt.field && sortDir === opt.dir
+              return (
+                <button
+                  key={opt.key}
+                  type="button"
+                  onClick={() => onSortChange(opt.field, opt.dir)}
+                  className={cn(
+                    'text-xs transition-colors duration-150 px-1',
+                    active
+                      ? 'text-text-primary font-medium'
+                      : 'text-text-tertiary hover:text-text-secondary',
+                  )}
+                >
+                  {t(opt.key)}
+                </button>
+              )
+            })}
+          </div>
+
           {/* Word/topic count */}
-          <div className="shrink-0 text-sm text-text-tertiary tabular-nums">
+          <div className="shrink-0 text-xs text-text-tertiary tabular-nums">
             {isInitialLoad ? (
               <Skeleton className="h-4 w-28" />
             ) : (
@@ -395,18 +412,16 @@ export function DictionaryToolbar({
           </div>
         </div>
 
-        {/* Row 2: POS chips + sort + topic filters */}
-        <div className="flex flex-wrap items-center gap-2 mt-3 pb-4 border-b border-border-subtle">
-          {/* POS chips */}
+        {/* Row 2: POS chips + sort (mobile) + topic filters */}
+        <div className="flex flex-wrap items-center gap-2 mt-4 pb-5 border-b border-border-subtle/60">
           <POSChips selectedPOS={selectedPOS} onPOSChange={onPOSChange} />
 
-          {/* Separator */}
-          <span className="w-px h-5 bg-border-subtle shrink-0" />
+          {/* Sort chips — mobile only */}
+          <div className="flex md:hidden items-center gap-2">
+            <span className="w-px h-5 bg-border-subtle shrink-0" />
+            <SortChips sortBy={sortBy} sortDir={sortDir} onSortChange={onSortChange} />
+          </div>
 
-          {/* Sort chips */}
-          <SortChips sortBy={sortBy} sortDir={sortDir} onSortChange={onSortChange} />
-
-          {/* Topics separator + chips */}
           {hasTopicFilters && (
             <>
               <span className="w-px h-5 bg-border-subtle shrink-0" />
@@ -423,17 +438,16 @@ export function DictionaryToolbar({
       {/* ═══ COMPACT STICKY ══════════════════════════════════════════════════ */}
       <div
         className={cn(
-          'sticky -top-6 z-10 bg-bg-page pt-4 pb-3 -mx-6 px-6 border-b border-border-subtle',
+          'sticky top-0 z-10 bg-bg-page/95 backdrop-blur-sm pt-4 pb-3 border-b border-border-subtle/60',
           isCompact ? 'block' : 'hidden',
         )}
       >
-        {/* Row 1 compact: search + display options + stats */}
         <div className="flex items-center gap-2">
           <SearchInput
             value={search}
             onChange={onSearchChange}
             placeholder={t('search.placeholder')}
-            className="flex-1 max-w-[55%]"
+            className="flex-1 max-w-[400px]"
             inputClassName="h-8"
             iconSize={15}
           />
@@ -452,7 +466,6 @@ export function DictionaryToolbar({
           </span>
         </div>
 
-        {/* Row 2 compact: active filters only */}
         {(selectedPOS.length > 0 || selectedTopicIds.length > 0) && (
           <div className="flex flex-wrap items-center gap-1.5 mt-2">
             <POSChips selectedPOS={selectedPOS} onPOSChange={onPOSChange} compact />

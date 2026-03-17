@@ -1,24 +1,46 @@
-@import url('https://fonts.googleapis.com/css2?family=Orelega+One&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Courier+Prime&display=swap');
+@font-face {
+  font-family: 'Overused Grotesk';
+  src: url('/fonts/OverusedGrotesk-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
 
 @font-face {
-  font-family: 'Neue Montreal';
-  src: url('/fonts/NeueMontreal-Regular.woff2') format('woff2');
+  font-family: 'Overused Grotesk';
+  src: url('/fonts/OverusedGrotesk-Roman.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Neue Montreal';
-  src: url('/fonts/NeueMontreal-Medium.woff2') format('woff2');
+  font-family: 'Overused Grotesk';
+  src: url('/fonts/OverusedGrotesk-Book.woff2') format('woff2');
+  font-weight: 450;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Overused Grotesk';
+  src: url('/fonts/OverusedGrotesk-Medium.woff2') format('woff2');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Neue Montreal';
-  src: url('/fonts/NeueMontreal-Bold.woff2') format('woff2');
+  font-family: 'Overused Grotesk';
+  src: url('/fonts/OverusedGrotesk-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Overused Grotesk';
+  src: url('/fonts/OverusedGrotesk-Bold.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -31,15 +53,15 @@
 @layer base {
   :root {
     /* Layer 1 — Interface */
-    --bg-page: #ffffff;
+    --bg-page: #EDEDEC;
     --bg-card: #ffffff;
-    --surface-secondary: #f8f8f8;
-    --surface-disabled: #e8e8e8;
-    --border-default: #d4d4d4;
-    --border-subtle: #e8e8e8;
+    --surface-secondary: #E3E3E1;
+    --surface-disabled: #d8d8d6;
+    --border-default: #c8c8c6;
+    --border-subtle: #d8d8d6;
     --text-primary: #1a1a1a;
-    --text-secondary: #666666;
-    --text-tertiary: #999999;
+    --text-secondary: #555555;
+    --text-tertiary: #888888;
     --text-disabled: #b8b8b8;
     --text-on-accent: #ffffff;
 
@@ -107,6 +129,6 @@
   }
 
   body {
-    @apply bg-bg-page text-text-primary font-sans;
+    @apply bg-bg-page text-text-primary font-sans antialiased;
   }
 }

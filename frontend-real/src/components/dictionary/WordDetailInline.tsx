@@ -28,23 +28,19 @@ interface WordDetailInlineProps {
 
 function HeaderSkeleton() {
   return (
-    <div className="space-y-3">
-      <Skeleton className="h-10 w-48" />
-      <Skeleton className="h-5 w-32" />
-      <div className="flex gap-2">
-        <Skeleton className="h-6 w-28 rounded-full" />
-        <Skeleton className="h-6 w-28 rounded-full" />
-      </div>
+    <div className="space-y-5">
+      <Skeleton className="h-12 w-64" />
+      <Skeleton className="h-4 w-40" />
     </div>
   )
 }
 
 function ContentSkeleton() {
   return (
-    <div className="space-y-3">
-      <Skeleton className="h-4 w-full" />
-      <Skeleton className="h-4 w-3/4" />
-      <Skeleton className="h-4 w-1/2" />
+    <div className="space-y-4 mt-10">
+      <Skeleton className="h-4 w-full max-w-xl" />
+      <Skeleton className="h-4 w-3/4 max-w-md" />
+      <Skeleton className="h-4 w-1/2 max-w-sm" />
     </div>
   )
 }
@@ -68,163 +64,157 @@ export function WordDetailInline({ wordId, onClose }: WordDetailInlineProps) {
 
   return (
     <motion.div
-      initial={{ height: 0, opacity: 0 }}
-      animate={{ height: 'auto', opacity: 1 }}
-      exit={{ height: 0, opacity: 0 }}
-      transition={{
-        height: { type: 'spring', stiffness: 300, damping: 30, mass: 0.8 },
-        opacity: { duration: 0.2 },
-      }}
-      className="overflow-hidden"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      className="border-b border-border-subtle/60"
     >
-      <div className="border-x border-b border-border-default rounded-b-xl bg-bg-card">
-        {/* ── Hero header zone — POS-colored background ── */}
-        <div
-          className="px-8 pt-5 pb-6"
-          style={{
-            backgroundColor: entry
-              ? `color-mix(in srgb, var(${posColors.cssVar}) 22%, white)`
-              : 'var(--surface-secondary)',
-          }}
-        >
-          {/* Action bar */}
-          <div className="flex items-center justify-between mb-5">
-            {entry && (
-              <div className="flex items-center gap-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setEditWordId(entry.id)}
-                  className="h-7 px-2 text-xs text-text-secondary hover:text-text-primary gap-1"
-                >
-                  <Pencil size={12} />
-                  {t('actions.edit')}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => requestDelete(entry)}
-                  className="h-7 px-2 text-xs text-text-tertiary hover:text-poppy gap-1"
-                >
-                  <Trash2 size={12} />
-                  {t('actions.delete')}
-                </Button>
-              </div>
-            )}
-            {!entry && <div />}
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex items-center justify-center h-7 w-7 rounded-md text-text-tertiary hover:text-text-primary transition-colors"
-              aria-label="Close"
-            >
-              <X size={16} />
-            </button>
-          </div>
-
+      {/* Header — word title row with actions */}
+      <div className="flex items-start justify-between gap-4 pt-5 md:pt-6">
+        <div className="flex-1 min-w-0">
           {loading && <HeaderSkeleton />}
 
           {entry && (
-            <div className="space-y-3">
-              {/* Word — hero size */}
-              <h2 className="font-orelega text-4xl text-text-primary leading-tight">
+            <>
+              {/* Meta — POS + topics */}
+              <div className="flex items-center gap-3 flex-wrap mb-4">
+                {primaryPos && (
+                  <span
+                    className="text-xs uppercase tracking-widest font-medium"
+                    style={{ color: `var(${posColors.cssVar})` }}
+                  >
+                    {t(`pos.${primaryPos}`)}
+                  </span>
+                )}
+                {entry.topics.length > 0 && primaryPos && (
+                  <span className="text-text-disabled">/</span>
+                )}
+                {entry.topics.map((topic, i) => (
+                  <span key={topic.id} className="text-xs uppercase tracking-widest text-text-tertiary">
+                    {topic.name}{i < entry.topics.length - 1 ? ',' : ''}
+                  </span>
+                ))}
+              </div>
+
+              {/* Word — click to collapse back */}
+              <h2
+                onClick={onClose}
+                className="text-[clamp(2.5rem,5vw,4.5rem)] font-medium tracking-[-0.04em] text-text-primary leading-[0.95] cursor-pointer hover:opacity-70 transition-opacity duration-300"
+              >
                 {entry.text}
               </h2>
 
-              {/* IPA pronunciations — inline, no pills */}
+              {/* IPA pronunciations */}
               {entry.pronunciations.length > 0 && (
-                <div className="flex items-center gap-3 flex-wrap">
+                <div className="flex items-center gap-5 flex-wrap mt-4">
                   {entry.pronunciations.map((pron) => (
-                    <div key={pron.id} className="inline-flex items-center gap-1.5">
-                      <span className="font-serif text-base text-text-secondary">
-                        /{pron.transcription}/
+                    <div key={pron.id} className="inline-flex items-center gap-2">
+                      <span className="text-base text-text-secondary">
+                        /{pron.transcription.replace(/^\/+|\/+$/g, '')}/
                       </span>
                       {pron.region && (
-                        <span className="text-[10px] font-medium uppercase tracking-wider text-text-tertiary">
+                        <span className="text-[10px] font-medium uppercase tracking-widest text-text-tertiary">
                           {pron.region}
                         </span>
                       )}
                       {pron.audioUrl && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-5 w-5 text-text-tertiary hover:text-text-primary"
+                        <button
+                          type="button"
+                          className="text-text-tertiary hover:text-text-primary transition-colors duration-200"
                           onClick={() => playAudio(pron.audioUrl!)}
                         >
-                          <Volume2 className="h-3.5 w-3.5" />
-                        </Button>
+                          <Volume2 className="h-4 w-4" />
+                        </button>
                       )}
                     </div>
                   ))}
                 </div>
               )}
-
-              {/* Topics */}
-              {entry.topics.length > 0 && (
-                <div className="flex gap-1.5 flex-wrap pt-1">
-                  {entry.topics.map((topic) => (
-                    <span
-                      key={topic.id}
-                      className="text-[10px] uppercase tracking-wider text-text-tertiary border border-border-subtle rounded-full px-2.5 py-0.5"
-                    >
-                      {topic.name}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
+            </>
           )}
         </div>
 
-        {/* ── Content zone — clean white ── */}
-        <div className="px-8 py-5">
-          {loading && <ContentSkeleton />}
-
-          {error && (
-            <div className="flex flex-col items-center gap-3 py-10 rounded-lg border border-poppy/20 bg-poppy-light">
-              <p className="text-sm text-poppy-fg">{t('error.loadFailed')}</p>
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-full border-poppy/30 text-poppy-fg hover:bg-poppy-light"
-                onClick={() => window.location.reload()}
+        {/* Actions — right side */}
+        <div className="flex items-center gap-0.5 shrink-0 pt-1">
+          {entry && (
+            <>
+              <button
+                type="button"
+                onClick={() => setEditWordId(entry.id)}
+                className="text-text-tertiary hover:text-text-primary transition-colors duration-200 p-2"
+                aria-label={t('actions.edit')}
               >
-                {t('error.tryAgain')}
-              </Button>
-            </div>
+                <Pencil size={15} />
+              </button>
+              <button
+                type="button"
+                onClick={() => requestDelete(entry)}
+                className="text-text-tertiary hover:text-poppy transition-colors duration-200 p-2"
+                aria-label={t('actions.delete')}
+              >
+                <Trash2 size={15} />
+              </button>
+            </>
           )}
-
-          {entry && <WordOverview entry={entry} hideHeader />}
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-text-tertiary hover:text-text-primary transition-colors duration-200 p-2 ml-1"
+            aria-label="Close"
+          >
+            <X size={16} />
+          </button>
         </div>
-
-        {/* Edit dialog */}
-        <WordEditDialog
-          wordId={editWordId}
-          open={editWordId !== null}
-          onOpenChange={(open) => !open && setEditWordId(null)}
-        />
-
-        {/* Delete confirmation */}
-        <AlertDialog open={pendingEntry !== null} onOpenChange={(open) => !open && cancelDelete()}>
-          <AlertDialogContent className="rounded-xl">
-            <AlertDialogHeader>
-              <AlertDialogTitle>{t('delete.confirm')}</AlertDialogTitle>
-              <AlertDialogDescription>{t('delete.confirmDescription')}</AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel className="rounded-full" onClick={cancelDelete}>
-                {t('delete.confirmCancel')}
-              </AlertDialogCancel>
-              <AlertDialogAction
-                className="rounded-full bg-poppy text-white hover:bg-poppy/90"
-                onClick={() => { confirmDelete(); onClose() }}
-              >
-                {t('delete.confirmDelete')}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
       </div>
+
+      {/* Content zone */}
+      <div className="pt-10 pb-12">
+        {loading && <ContentSkeleton />}
+
+        {error && (
+          <div className="flex flex-col items-center gap-3 py-12">
+            <p className="text-sm text-poppy-fg">{t('error.loadFailed')}</p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="rounded-full border-poppy/30 text-poppy-fg hover:bg-poppy-light"
+              onClick={() => window.location.reload()}
+            >
+              {t('error.tryAgain')}
+            </Button>
+          </div>
+        )}
+
+        {entry && <WordOverview entry={entry} hideHeader />}
+      </div>
+
+      {/* Edit dialog */}
+      <WordEditDialog
+        wordId={editWordId}
+        open={editWordId !== null}
+        onOpenChange={(open) => !open && setEditWordId(null)}
+      />
+
+      {/* Delete confirmation */}
+      <AlertDialog open={pendingEntry !== null} onOpenChange={(open) => !open && cancelDelete()}>
+        <AlertDialogContent className="rounded-xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('delete.confirm')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('delete.confirmDescription')}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-full" onClick={cancelDelete}>
+              {t('delete.confirmCancel')}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="rounded-full bg-poppy text-white hover:bg-poppy/90"
+              onClick={() => { confirmDelete(); onClose() }}
+            >
+              {t('delete.confirmDelete')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </motion.div>
   )
 }
