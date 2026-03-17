@@ -203,12 +203,12 @@ export function DictionaryPage() {
 
   return (
     <div className="min-h-full">
-      {/* Hero header */}
-      <div className="px-8 md:px-16 pt-12 pb-6 md:pt-20 md:pb-10">
-        <h1 className="text-[clamp(3rem,8vw,8rem)] font-medium leading-[0.9] tracking-[-0.04em] text-text-primary">
+      {/* Hero header — compact per Parkinson's Law */}
+      <div className="px-8 md:px-16 pt-8 pb-4 md:pt-12 md:pb-6">
+        <h1 className="text-[clamp(2rem,5vw,3.5rem)] font-medium leading-[0.95] tracking-[-0.03em] text-text-primary">
           Dictionary
         </h1>
-        <p className="mt-4 md:mt-6 max-w-2xl text-sm md:text-base text-text-secondary leading-relaxed">
+        <p className="mt-2 md:mt-3 max-w-2xl text-sm text-text-secondary leading-relaxed">
           {t('hero.subtitle', { defaultValue: 'Your personal vocabulary collection. Browse, search, and study the words you\'ve saved.' })}
         </p>
       </div>
@@ -292,12 +292,21 @@ export function DictionaryPage() {
             </div>
           )}
 
-          {/* Load more */}
+          {/* Load more with progress (Goal-Gradient + Peak-End) */}
           {!loading && entries.length > 0 && pageInfo?.hasNextPage && (
             <div className="flex flex-col items-center gap-3 pt-8 pb-16">
-              <p className="text-sm text-text-tertiary">
-                {t('pagination.showing', { count: entries.length, total: totalCount })}
-              </p>
+              {/* Progress bar */}
+              <div className="w-48 flex flex-col items-center gap-1.5">
+                <div className="w-full h-1 rounded-full bg-surface-secondary overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-cornflower transition-all duration-500 ease-out"
+                    style={{ width: `${Math.round((entries.length / totalCount) * 100)}%` }}
+                  />
+                </div>
+                <p className="text-xs text-text-tertiary tabular-nums">
+                  {t('pagination.showing', { count: entries.length, total: totalCount })}
+                </p>
+              </div>
               <Button
                 variant="outline"
                 onClick={loadMore}

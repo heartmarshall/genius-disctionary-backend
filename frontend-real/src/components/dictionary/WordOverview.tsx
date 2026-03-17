@@ -17,13 +17,13 @@ interface WordOverviewProps {
 
 function ColLabel({ children }: { children: React.ReactNode }) {
   return (
-    <th className="text-[10px] uppercase tracking-[0.1em] font-medium text-text-tertiary text-left align-bottom pb-2 select-none">
+    <th className="text-[10px] uppercase tracking-[0.1em] font-medium text-text-tertiary text-left align-bottom pb-3 select-none">
       {children}
     </th>
   )
 }
 
-export function WordOverview({ entry, className, hideTitle, hideHeader, primaryPosShownInHeader }: WordOverviewProps) {
+export function WordOverview({ entry, className, hideTitle, hideHeader }: WordOverviewProps) {
   const { t } = useTranslation('dictionary')
 
   const playAudio = async (url: string) => {
@@ -108,6 +108,7 @@ export function WordOverview({ entry, className, hideTitle, hideHeader, primaryP
                   className={cn(
                     'align-top',
                     index > 0 && 'border-t border-border-subtle/40',
+                    index % 2 === 1 && 'bg-surface-secondary/30',
                   )}
                 >
                   {/* Number + POS column — only when multiple senses */}
@@ -118,7 +119,7 @@ export function WordOverview({ entry, className, hideTitle, hideHeader, primaryP
                           {index + 1}
                         </span>
                         {sensePos && (
-                          <span className={cn('text-[11px] uppercase tracking-widest font-medium whitespace-nowrap', senseColors.text)}>
+                          <span className={cn('text-xs font-medium whitespace-nowrap', senseColors.text)}>
                             {t(`pos.${sensePos}`)}
                           </span>
                         )}

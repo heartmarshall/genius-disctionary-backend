@@ -55,7 +55,7 @@ export function WordList({
 
   return (
     <div className="flex flex-col">
-      {entries.map((entry, index) => {
+      {entries.map((entry) => {
         const isSelected = selectedWordId === entry.id
 
         // Build second-line metadata

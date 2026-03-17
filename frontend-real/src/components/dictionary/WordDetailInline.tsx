@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { X, Pencil, Trash2, Volume2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
   AlertDialog,
@@ -76,19 +77,16 @@ export function WordDetailInline({ wordId, onClose }: WordDetailInlineProps) {
 
           {entry && (
             <>
-              {/* Meta — POS + topics */}
-              <div className="flex items-center gap-2.5 flex-wrap mb-2">
+              {/* Meta — POS (matching list style) + topics */}
+              <div className="flex items-center gap-2 flex-wrap mb-2">
                 {primaryPos && (
-                  <span
-                    className="text-[11px] uppercase tracking-widest font-medium"
-                    style={{ color: `var(${posColors.cssVar})` }}
-                  >
+                  <span className={cn('text-xs font-medium', posColors.text)}>
                     {t(`pos.${primaryPos}`)}
                   </span>
                 )}
-                {entry.topics.length > 0 && primaryPos && (
-                  <span className="text-text-disabled text-xs">/</span>
-                )}
+                {entry.topics.length > 0 && (primaryPos ? (
+                  <span className="text-text-disabled">·</span>
+                ) : null)}
                 {entry.topics.map((topic, i) => (
                   <span key={topic.id} className="text-[11px] uppercase tracking-widest text-text-tertiary">
                     {topic.name}{i < entry.topics.length - 1 ? ',' : ''}
@@ -134,36 +132,36 @@ export function WordDetailInline({ wordId, onClose }: WordDetailInlineProps) {
           )}
         </div>
 
-        {/* Actions — right side */}
-        <div className="flex items-center shrink-0">
+        {/* Actions — right side, larger touch targets (Fitts's Law) */}
+        <div className="flex items-center shrink-0 gap-1">
           {entry && (
-            <div className="flex items-center">
+            <div className="flex items-center gap-0.5">
               <button
                 type="button"
                 onClick={() => setEditWordId(entry.id)}
-                className="text-text-tertiary hover:text-text-primary hover:bg-surface-secondary transition-colors duration-200 p-2 rounded-lg"
+                className="text-text-tertiary hover:text-text-primary hover:bg-surface-secondary transition-colors duration-200 p-2.5 rounded-lg"
                 aria-label={t('actions.edit')}
               >
-                <Pencil size={15} />
+                <Pencil size={18} />
               </button>
               <button
                 type="button"
                 onClick={() => requestDelete(entry)}
-                className="text-text-tertiary hover:text-poppy hover:bg-poppy-light transition-colors duration-200 p-2 rounded-lg"
+                className="text-text-tertiary hover:text-poppy hover:bg-poppy-light transition-colors duration-200 p-2.5 rounded-lg"
                 aria-label={t('actions.delete')}
               >
-                <Trash2 size={15} />
+                <Trash2 size={18} />
               </button>
             </div>
           )}
-          <div className="w-px h-4 bg-border-subtle/60 mx-1.5" />
+          <div className="w-px h-5 bg-border-subtle/60 mx-1" />
           <button
             type="button"
             onClick={onClose}
-            className="text-text-tertiary hover:text-text-primary hover:bg-surface-secondary transition-colors duration-200 p-2 rounded-lg"
+            className="text-text-tertiary hover:text-text-primary hover:bg-surface-secondary transition-colors duration-200 p-2.5 rounded-lg"
             aria-label="Close"
           >
-            <X size={15} />
+            <X size={18} />
           </button>
         </div>
       </div>

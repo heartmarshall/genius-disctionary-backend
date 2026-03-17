@@ -454,34 +454,36 @@ export function DictionaryToolbar({
 
       {/* ═══ EXPANDED ═══════════════════════════════════════════════════════ */}
       <div className={isCompact ? 'hidden' : 'block'}>
-        {/* Row 1: Search + filter + display options + stats */}
+        {/* Row 1: Search/Filter group | Sort group | Stats — visually separated (Law of Common Region + Proximity) */}
         <div className="flex items-center gap-2.5">
-          <SearchInput
-            value={search}
-            onChange={onSearchChange}
-            placeholder={t('search.placeholder')}
-            className="flex-1 max-w-[400px]"
-            inputClassName="h-9"
-          />
+          {/* Search & filter group */}
+          <div className="flex items-center gap-2 flex-1 max-w-[500px]">
+            <SearchInput
+              value={search}
+              onChange={onSearchChange}
+              placeholder={t('search.placeholder')}
+              className="flex-1"
+              inputClassName="h-9"
+            />
 
-          <FilterDropdown
-            selectedPOS={selectedPOS}
-            onPOSChange={onPOSChange}
-            topics={topics}
-            selectedTopicIds={selectedTopicIds}
-            onTopicIdsChange={onTopicIdsChange}
-          />
+            <FilterDropdown
+              selectedPOS={selectedPOS}
+              onPOSChange={onPOSChange}
+              topics={topics}
+              selectedTopicIds={selectedTopicIds}
+              onTopicIdsChange={onTopicIdsChange}
+            />
 
-          <DisplayDropdown
-            displayOptions={displayOptions}
-            onDisplayOptionsChange={onDisplayOptionsChange}
-          />
+            <DisplayDropdown
+              displayOptions={displayOptions}
+              onDisplayOptionsChange={onDisplayOptionsChange}
+            />
+          </div>
 
           <div className="flex-1" />
 
-          {/* Sort options inline */}
-          <div className="hidden md:flex items-center gap-1">
-            <span className="text-xs text-text-tertiary mr-1.5">Sort by:</span>
+          {/* Sort group — visually contained */}
+          <div className="hidden md:flex items-center gap-0.5 px-1.5 py-0.5 rounded-lg bg-surface-secondary/50">
             {SORT_OPTIONS.map((opt) => {
               const active = sortBy === opt.field && sortDir === opt.dir
               return (
@@ -490,10 +492,10 @@ export function DictionaryToolbar({
                   type="button"
                   onClick={() => onSortChange(opt.field, opt.dir)}
                   className={cn(
-                    'text-xs transition-colors duration-150 px-2.5 py-1 rounded-md',
+                    'text-xs transition-colors duration-150 px-2.5 py-1.5 rounded-md',
                     active
-                      ? 'text-text-primary font-medium bg-surface-secondary'
-                      : 'text-text-tertiary hover:text-text-secondary hover:bg-surface-secondary/50',
+                      ? 'text-text-primary font-medium bg-bg-page shadow-sm'
+                      : 'text-text-tertiary hover:text-text-secondary',
                   )}
                 >
                   {t(opt.key)}
@@ -502,18 +504,16 @@ export function DictionaryToolbar({
             })}
           </div>
 
-          {/* Divider between sort and stats */}
-          <div className="hidden md:block w-px h-4 bg-border-subtle/60" />
-
-          {/* Word/topic count */}
+          {/* Word/topic count — separated from sort */}
+          <div className="hidden md:block w-px h-4 bg-border-subtle/60 mx-1" />
           <div className="shrink-0 text-xs text-text-tertiary tabular-nums">
             {isInitialLoad ? (
               <Skeleton className="h-4 w-28" />
             ) : (
               <>
-                {totalCount} {t('stats.words')}
-                <span className="mx-1.5">&middot;</span>
-                {topicsCount} {t('stats.topics')}
+                <span className="font-medium text-text-secondary">{totalCount}</span> {t('stats.words')}
+                <span className="mx-1.5 text-border-subtle">&middot;</span>
+                <span className="font-medium text-text-secondary">{topicsCount}</span> {t('stats.topics')}
               </>
             )}
           </div>
