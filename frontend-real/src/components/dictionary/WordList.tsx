@@ -88,7 +88,7 @@ export function WordList({
             {isSelected ? (
               <div className="relative">
                 {renderDetail?.(entry)}
-                <span className="absolute top-5 right-0 text-[11px] md:text-xs text-text-tertiary tabular-nums">
+                <span className="absolute top-0 -translate-y-1/2 right-3 text-[11px] md:text-xs text-text-tertiary tabular-nums bg-bg-page px-1.5">
                   {indexLabel}
                 </span>
               </div>
