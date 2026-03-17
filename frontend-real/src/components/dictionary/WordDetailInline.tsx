@@ -70,109 +70,106 @@ export function WordDetailInline({ wordId, onClose }: WordDetailInlineProps) {
       className="my-4 py-1 -mx-5 md:-mx-6 rounded-2xl border border-border-subtle shadow-sm"
     >
       {/* Header — word title row with actions */}
-      <div className="flex items-start justify-between gap-4 pt-4 md:pt-5 px-5 md:px-6">
+      <div className="flex items-start justify-between gap-4 pt-3 md:pt-4 px-4 md:px-5">
         <div className="flex-1 min-w-0">
           {loading && <HeaderSkeleton />}
 
           {entry && (
             <>
               {/* Meta — POS + topics */}
-              <div className="flex items-center gap-3 flex-wrap mb-4">
+              <div className="flex items-center gap-2.5 flex-wrap mb-2">
                 {primaryPos && (
                   <span
-                    className="text-xs uppercase tracking-widest font-medium"
+                    className="text-[11px] uppercase tracking-widest font-medium"
                     style={{ color: `var(${posColors.cssVar})` }}
                   >
                     {t(`pos.${primaryPos}`)}
                   </span>
                 )}
                 {entry.topics.length > 0 && primaryPos && (
-                  <span className="text-text-disabled">/</span>
+                  <span className="text-text-disabled text-xs">/</span>
                 )}
                 {entry.topics.map((topic, i) => (
-                  <span key={topic.id} className="text-xs uppercase tracking-widest text-text-tertiary">
+                  <span key={topic.id} className="text-[11px] uppercase tracking-widest text-text-tertiary">
                     {topic.name}{i < entry.topics.length - 1 ? ',' : ''}
                   </span>
                 ))}
               </div>
 
-              {/* Word — click to collapse back */}
-              <h2
-                onClick={onClose}
-                className="text-[clamp(2.5rem,5vw,4.5rem)] font-medium tracking-[-0.04em] text-text-primary leading-[0.95] cursor-pointer hover:opacity-70 transition-opacity duration-300"
-              >
-                {entry.text}
-              </h2>
-
-              {/* IPA pronunciations */}
-              {entry.pronunciations.length > 0 && (
-                <div className="flex items-center gap-5 flex-wrap mt-4">
-                  {entry.pronunciations.map((pron) => (
-                    <div key={pron.id} className="inline-flex items-center gap-2">
-                      <span className="text-base text-text-secondary">
-                        /{pron.transcription.replace(/^\/+|\/+$/g, '')}/
-                      </span>
-                      {pron.region && (
-                        <span className="text-[10px] font-medium uppercase tracking-widest text-text-tertiary">
-                          {pron.region}
+              {/* Word + IPA inline */}
+              <div className="flex items-baseline gap-4 flex-wrap">
+                <h2
+                  onClick={onClose}
+                  className="text-2xl md:text-3xl font-medium tracking-[-0.03em] text-text-primary leading-tight cursor-pointer hover:opacity-70 transition-opacity duration-200"
+                >
+                  {entry.text}
+                </h2>
+                {entry.pronunciations.length > 0 && (
+                  <div className="flex items-center gap-4 flex-wrap">
+                    {entry.pronunciations.map((pron) => (
+                      <div key={pron.id} className="inline-flex items-center gap-1.5">
+                        <span className="text-sm text-text-secondary">
+                          /{pron.transcription.replace(/^\/+|\/+$/g, '')}/
                         </span>
-                      )}
-                      {pron.audioUrl && (
-                        <button
-                          type="button"
-                          className="text-text-tertiary hover:text-text-primary transition-colors duration-200"
-                          onClick={() => playAudio(pron.audioUrl!)}
-                        >
-                          <Volume2 className="h-4 w-4" />
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
+                        {pron.region && (
+                          <span className="text-[9px] font-medium uppercase tracking-widest text-text-tertiary">
+                            {pron.region}
+                          </span>
+                        )}
+                        {pron.audioUrl && (
+                          <button
+                            type="button"
+                            className="text-text-tertiary hover:text-text-primary transition-colors duration-200"
+                            onClick={() => playAudio(pron.audioUrl!)}
+                          >
+                            <Volume2 className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </>
           )}
         </div>
 
         {/* Actions — right side */}
-        <div className="flex items-center shrink-0 pt-1">
+        <div className="flex items-center shrink-0">
           {entry && (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center">
               <button
                 type="button"
                 onClick={() => setEditWordId(entry.id)}
-                className="text-text-tertiary hover:text-text-primary hover:bg-surface-secondary transition-colors duration-200 p-3 rounded-xl"
+                className="text-text-tertiary hover:text-text-primary hover:bg-surface-secondary transition-colors duration-200 p-2 rounded-lg"
                 aria-label={t('actions.edit')}
               >
-                <Pencil size={18} />
+                <Pencil size={15} />
               </button>
               <button
                 type="button"
                 onClick={() => requestDelete(entry)}
-                className="text-text-tertiary hover:text-poppy hover:bg-poppy-light transition-colors duration-200 p-3 rounded-xl"
+                className="text-text-tertiary hover:text-poppy hover:bg-poppy-light transition-colors duration-200 p-2 rounded-lg"
                 aria-label={t('actions.delete')}
               >
-                <Trash2 size={18} />
+                <Trash2 size={15} />
               </button>
             </div>
           )}
-          <div className="w-px h-6 bg-border-subtle/60 mx-2" />
+          <div className="w-px h-4 bg-border-subtle/60 mx-1.5" />
           <button
             type="button"
             onClick={onClose}
-            className="text-text-tertiary hover:text-text-primary hover:bg-surface-secondary transition-colors duration-200 p-3 rounded-xl"
+            className="text-text-tertiary hover:text-text-primary hover:bg-surface-secondary transition-colors duration-200 p-2 rounded-lg"
             aria-label="Close"
           >
-            <X size={18} />
+            <X size={15} />
           </button>
         </div>
       </div>
 
-      {/* Divider between header and content */}
-      {entry && <div className="mx-5 md:mx-6 mt-8 h-px bg-border-subtle/60" />}
-
       {/* Content zone */}
-      <div className="pt-6 pb-12 px-5 md:px-6">
+      <div className="pt-3 pb-5 px-4 md:px-5">
         {loading && <ContentSkeleton />}
 
         {error && (

@@ -12,8 +12,15 @@ interface WordOverviewProps {
   className?: string
   hideTitle?: boolean
   hideHeader?: boolean
-  /** POS already visible in parent header — skip it in single-sense cards to reduce redundancy */
   primaryPosShownInHeader?: string
+}
+
+function ColLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <th className="text-[10px] uppercase tracking-[0.1em] font-medium text-text-tertiary text-left align-bottom pb-2 select-none">
+      {children}
+    </th>
+  )
 }
 
 export function WordOverview({ entry, className, hideTitle, hideHeader, primaryPosShownInHeader }: WordOverviewProps) {
@@ -27,10 +34,15 @@ export function WordOverview({ entry, className, hideTitle, hideHeader, primaryP
     }
   }
 
+  // Determine which columns the table needs across all senses
+  const hasAnyDefinition = entry.senses.some((s) => s.definition)
+  const hasAnyTranslation = entry.senses.some((s) => s.translations.length > 0)
+  const hasAnyExamples = entry.senses.some((s) => s.examples.length > 0)
+
   return (
-    <div className={cn('space-y-8', className)}>
+    <div className={cn('space-y-4', className)}>
       {!hideTitle && !hideHeader && (
-        <h2 className="text-4xl font-medium tracking-[-0.03em] text-text-primary leading-tight">{entry.text}</h2>
+        <h2 className="text-2xl font-medium tracking-[-0.03em] text-text-primary leading-tight">{entry.text}</h2>
       )}
 
       {!hideHeader && entry.pronunciations.length > 0 && (
@@ -72,90 +84,122 @@ export function WordOverview({ entry, className, hideTitle, hideHeader, primaryP
 
       {!hideHeader && !hideTitle && <div className="h-px bg-border-subtle/60" />}
 
-      {entry.senses.length > 0 && (
-        <div className="space-y-6">
-          {entry.senses.map((sense, index) => {
-            const sensePos = sense.partOfSpeech
-            const senseColors = getPosColors(sensePos)
+      {/* Single table for all senses */}
+      {entry.senses.length > 0 && (() => {
+        const multipleSenses = entry.senses.length > 1
+        return (
+        <table className="w-full border-collapse table-fixed">
+          <thead>
+            <tr>
+              {multipleSenses && <ColLabel>&nbsp;</ColLabel>}
+              {hasAnyDefinition && <ColLabel>{t('sense.definition', 'Definition')}</ColLabel>}
+              {hasAnyTranslation && <ColLabel>{t('sense.translation', 'Translation')}</ColLabel>}
+              {hasAnyExamples && <ColLabel>{t('sense.examples', 'Examples')}</ColLabel>}
+            </tr>
+          </thead>
+          <tbody>
+            {entry.senses.map((sense, index) => {
+              const sensePos = sense.partOfSpeech
+              const senseColors = getPosColors(sensePos)
 
-            // Skip redundant POS label when it matches the one already shown in parent header
-            const skipPosLabel = primaryPosShownInHeader && sensePos === primaryPosShownInHeader && entry.senses.length === 1
-
-            return (
-              <div
-                key={sense.id}
-                className={cn(
-                  'space-y-3',
-                  index > 0 && 'pt-6 border-t border-border-subtle/40',
-                )}
-              >
-                {/* Sense header: number + POS */}
-                <div className="flex items-center gap-2.5">
-                  {entry.senses.length > 1 && (
-                    <span className="text-xs text-text-disabled tabular-nums font-medium">
-                      {index + 1}
-                    </span>
+              return (
+                <tr
+                  key={sense.id}
+                  className={cn(
+                    'align-top',
+                    index > 0 && 'border-t border-border-subtle/40',
                   )}
-                  {sensePos && !skipPosLabel && (
-                    <span className={cn('text-[11px] uppercase tracking-widest font-medium', senseColors.text)}>
-                      {t(`pos.${sensePos}`)}
-                    </span>
-                  )}
-                </div>
-
-                {/* Definition */}
-                {sense.definition && (
-                  <p className="text-base text-text-primary leading-relaxed">
-                    {sense.definition}
-                  </p>
-                )}
-
-                {/* Translation */}
-                {sense.translations.length > 0 && (
-                  <p className="text-sm text-text-secondary">
-                    {sense.translations.map((tr) => tr.text).join(', ')}
-                  </p>
-                )}
-
-                {/* Examples */}
-                {sense.examples.length > 0 && (
-                  <div className="space-y-2 pl-4 border-l-2 border-border-subtle/60">
-                    {sense.examples.map((ex) => (
-                      <div key={ex.id}>
-                        <p className="italic text-sm text-text-primary leading-snug">{ex.sentence}</p>
-                        {ex.translation && (
-                          <p className="text-xs text-text-tertiary mt-0.5">{ex.translation}</p>
+                >
+                  {/* Number + POS column — only when multiple senses */}
+                  {multipleSenses && (
+                    <td className="pr-3 pt-3 pb-3 w-0 whitespace-nowrap">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs text-text-disabled tabular-nums font-medium">
+                          {index + 1}
+                        </span>
+                        {sensePos && (
+                          <span className={cn('text-[11px] uppercase tracking-widest font-medium whitespace-nowrap', senseColors.text)}>
+                            {t(`pos.${sensePos}`)}
+                          </span>
                         )}
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )
-          })}
-        </div>
-      )}
+                    </td>
+                  )}
 
+                  {/* Definition */}
+                  {hasAnyDefinition && (
+                    <td className="pr-4 md:pr-6 pt-3 pb-3">
+                      {sense.definition && (
+                        <p className="text-sm text-text-primary leading-relaxed">
+                          {sense.definition}
+                        </p>
+                      )}
+                    </td>
+                  )}
+
+                  {/* Translation */}
+                  {hasAnyTranslation && (
+                    <td className="pr-4 md:pr-6 pt-3 pb-3">
+                      {sense.translations.length > 0 && (
+                        <p className="text-sm text-text-primary leading-relaxed">
+                          {sense.translations.map((tr) => tr.text).join(', ')}
+                        </p>
+                      )}
+                    </td>
+                  )}
+
+                  {/* Examples */}
+                  {hasAnyExamples && (
+                    <td className="pt-3 pb-3">
+                      {sense.examples.length > 0 && (
+                        <div className="space-y-2 pl-3 border-l-2 border-border-subtle/60">
+                          {sense.examples.map((ex) => (
+                            <div key={ex.id}>
+                              <p className="italic text-xs text-text-primary leading-snug">{ex.sentence}</p>
+                              {ex.translation && (
+                                <p className="text-[11px] text-text-tertiary mt-0.5">{ex.translation}</p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </td>
+                  )}
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+        )
+      })()}
+
+      {/* Images */}
       {(entry.catalogImages.length > 0 || entry.userImages.length > 0) && (
         <>
           <div className="h-px bg-border-subtle/60" />
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {[...entry.catalogImages, ...entry.userImages].map((img) => (
-              <ImageWithFallback key={img.id} src={img.url} caption={img.caption} />
-            ))}
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.1em] font-medium text-text-tertiary pb-1.5 select-none">
+              {t('sense.images', 'Images')}
+            </p>
+            <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
+              {[...entry.catalogImages, ...entry.userImages].map((img) => (
+                <ImageWithFallback key={img.id} src={img.url} caption={img.caption} />
+              ))}
+            </div>
           </div>
         </>
       )}
 
+      {/* Notes */}
       {entry.notes && (
         <>
           <div className="h-px bg-border-subtle/60" />
-          <div className="max-w-2xl space-y-2">
-            <div className="flex items-center gap-2">
-              <StickyNote className="h-3.5 w-3.5 text-goldenrod" />
-              <span className="text-xs uppercase tracking-widest font-medium text-goldenrod-fg">{t('edit.notes')}</span>
-            </div>
-            <p className="text-base text-text-primary leading-relaxed">{entry.notes}</p>
+          <div className="max-w-2xl">
+            <p className="text-[10px] uppercase tracking-[0.1em] font-medium text-text-tertiary pb-1.5 select-none inline-flex items-center gap-1.5">
+              <StickyNote className="h-2.5 w-2.5 text-goldenrod" />
+              {t('edit.notes')}
+            </p>
+            <p className="text-sm text-text-primary leading-relaxed">{entry.notes}</p>
           </div>
         </>
       )}
@@ -175,7 +219,7 @@ function ImageWithFallback({ src, caption }: { src: string; caption?: string }) 
         className="rounded-lg object-cover aspect-square w-full"
         onError={() => setError(true)}
       />
-      {caption && <p className="text-xs text-text-tertiary mt-2">{caption}</p>}
+      {caption && <p className="text-xs text-text-tertiary mt-1">{caption}</p>}
     </div>
   )
 }
