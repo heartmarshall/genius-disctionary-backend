@@ -204,11 +204,11 @@ export function DictionaryPage() {
   return (
     <div className="min-h-full">
       {/* Hero header */}
-      <div className="px-8 md:px-16 pt-12 pb-6 md:pt-20 md:pb-10">
-        <h1 className="text-[clamp(3rem,8vw,8rem)] font-medium leading-[0.9] tracking-[-0.04em] text-text-primary">
+      <div className="px-8 md:px-16 pt-8 pb-4 md:pt-10 md:pb-6">
+        <h1 className="text-3xl md:text-4xl font-medium leading-tight tracking-[-0.03em] text-text-primary">
           Dictionary
         </h1>
-        <p className="mt-4 md:mt-6 max-w-2xl text-sm md:text-base text-text-secondary leading-relaxed">
+        <p className="mt-2 md:mt-3 max-w-2xl text-sm text-text-secondary leading-relaxed">
           {t('hero.subtitle', { defaultValue: 'Your personal vocabulary collection. Browse, search, and study the words you\'ve saved.' })}
         </p>
       </div>
@@ -260,6 +260,7 @@ export function DictionaryPage() {
             selectedWordId={selectedWordId}
             onWordClick={handleWordClick}
             displayOptions={displayOptions}
+            sortedAlphabetically={sortBy === 'TEXT' && sortDir === 'ASC'}
             renderDetail={(entry) => (
               <WordDetailInline
                 key={entry.id}

@@ -17,9 +17,9 @@ export interface DisplayOptions {
 }
 
 export const DEFAULT_DISPLAY: DisplayOptions = {
-  translation: false,
+  translation: true,
   transcription: false,
-  partOfSpeech: false,
+  partOfSpeech: true,
   definition: false,
   topic: false,
 }
@@ -501,6 +501,9 @@ export function DictionaryToolbar({
               )
             })}
           </div>
+
+          {/* Divider between sort and stats */}
+          <div className="hidden md:block w-px h-4 bg-border-subtle/60" />
 
           {/* Word/topic count */}
           <div className="shrink-0 text-xs text-text-tertiary tabular-nums">
