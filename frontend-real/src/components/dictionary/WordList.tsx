@@ -80,9 +80,8 @@ export function WordList({
           }
         }
 
-        // Check if neighbours are the selected card
-        const prevIsSelected = index > 0 && selectedWordId === entries[index - 1].id
         const nextIsSelected = index < entries.length - 1 && selectedWordId === entries[index + 1].id
+        const indexLabel = String(index + 1).padStart(3, '0')
 
         return (
           <div key={entry.id} data-word-id={entry.id} style={{ scrollMarginTop: '4rem' }}>
@@ -93,13 +92,10 @@ export function WordList({
                 type="button"
                 onClick={() => onWordClick(entry.id)}
                 className={cn(
-                  'w-full flex items-baseline gap-4 md:gap-8 py-4 md:py-5 text-left cursor-pointer',
+                  'w-full flex items-baseline justify-between gap-4 md:gap-8 py-4 md:py-5 text-left cursor-pointer',
                   'transition-all duration-300 ease-out',
                   'hover:opacity-60',
-                  // Softer dashed border next to the open card
-                  nextIsSelected || prevIsSelected
-                    ? 'border-b border-dashed border-border-subtle/30'
-                    : 'border-b border-border-subtle/60',
+                  !nextIsSelected && !isSelected && 'border-b border-border-subtle/60',
                 )}
               >
                 <div className="flex flex-col min-w-0">
@@ -112,6 +108,10 @@ export function WordList({
                     </span>
                   )}
                 </div>
+
+                <span className="text-[11px] md:text-xs text-text-tertiary tabular-nums shrink-0 pt-1">
+                  {indexLabel}
+                </span>
               </button>
             )}
           </div>
