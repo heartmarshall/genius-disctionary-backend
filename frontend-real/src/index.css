@@ -157,29 +157,17 @@
   /* Word row hover */
   .term-word-row {
     transition: background 0.1s ease;
+    border-radius: 6px;
   }
   .term-word-row:hover {
     background: var(--term-bg-hover);
-  }
-
-  /* Detail card — left accent border, clean terminal look */
-  .term-detail-card {
-    border-left: 3px solid var(--term-accent, var(--term-green));
-  }
-
-  /* Sense block — interactive left border */
-  .term-sense-block {
-    border-left: 1px solid var(--term-border);
-    transition: border-color 0.15s ease;
-  }
-  .term-sense-block:hover {
-    border-left-color: var(--term-green);
   }
 
   /* Dropdown panel */
   .term-dropdown {
     background: var(--bg-card);
     border: 1px solid var(--term-border);
+    border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   }
 
@@ -187,11 +175,13 @@
   .term-progress-track {
     height: 3px;
     background: var(--term-border-subtle);
+    border-radius: 2px;
     overflow: hidden;
   }
   .term-progress-fill {
     height: 100%;
     background: var(--term-green);
+    border-radius: 2px;
     opacity: 0.5;
     transition: width 0.3s ease;
   }
@@ -199,10 +189,11 @@
   /* Keyboard hint — subtle, monospace */
   .term-kbd {
     display: inline-block;
-    padding: 0 3px;
+    padding: 0 4px;
     font-size: 10px;
     font-family: inherit;
     border: 1px solid var(--term-border);
+    border-radius: 3px;
     color: var(--term-text-dim);
     line-height: 1.4;
   }

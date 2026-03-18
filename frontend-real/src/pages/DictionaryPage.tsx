@@ -218,7 +218,6 @@ export function DictionaryPage() {
       <div className="px-5 md:px-8 pt-5 pb-0">
         <div className="flex items-baseline gap-2 flex-wrap text-sm">
           <span className="font-bold" style={{ color: 'var(--term-green)' }}>dict://</span>
-          <span style={{ color: 'var(--term-text-dim)' }}>//</span>
           <span className="tabular-nums" style={{ color: 'var(--term-text-muted)' }}>{filterDesc}</span>
           <span style={{ color: 'var(--term-text-dim)' }}>&middot;</span>
           <span style={{ color: 'var(--term-text-muted)' }}>{topics.length} topics</span>
@@ -263,7 +262,7 @@ export function DictionaryPage() {
         <div className="px-5 md:px-8 mt-4">
           <div className="py-4" style={{ borderTop: '1px dashed var(--term-border)' }}>
             <p className="text-sm" style={{ color: 'var(--term-red)' }}>
-              stderr: {t('error.loadFailed')}
+              {t('error.loadFailed')}
             </p>
             <button
               type="button"
@@ -301,7 +300,7 @@ export function DictionaryPage() {
           {!loading && entries.length === 0 && (
             <div className="py-12">
               <p className="text-sm" style={{ color: 'var(--term-text-muted)' }}>
-                {hasActiveFilters ? '// 0 results — no entries match current filters' : '// dictionary is empty'}
+                {hasActiveFilters ? '0 results — no entries match current filters' : 'dictionary is empty'}
               </p>
               {hasActiveFilters && (
                 <button
@@ -346,7 +345,7 @@ export function DictionaryPage() {
           {!loading && entries.length > 0 && !pageInfo?.hasNextPage && (
             <div className="py-4 mt-2" style={{ borderTop: '1px dashed var(--term-border)' }}>
               <span className="text-xs" style={{ color: 'var(--term-text-dim)' }}>
-                // EOF — {totalCount} entries total
+                {totalCount} entries total
               </span>
             </div>
           )}

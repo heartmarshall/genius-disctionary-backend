@@ -14,103 +14,82 @@ const TERM_POS_COLORS: Record<string, string> = {
   INTERJECTION: 'var(--term-purple)',
 }
 
-// ─── Tree drawing primitives ─────────────────────────────────────────────────
+const C = {
+  bright: 'var(--term-text-bright)',
+  text: 'var(--term-text)',
+  muted: 'var(--term-text-muted)',
+  dim: 'var(--term-text-dim)',
+  cyan: 'var(--term-cyan)',
+  yellow: 'var(--term-yellow)',
+  border: 'var(--term-border)',
+} as const
 
-/** Tree connector character — ├ or └ */
-function TreeConn({ last }: { last: boolean }) {
-  return (
-    <span className="text-xs shrink-0 select-none w-4 inline-block" style={{ color: 'var(--term-border)' }}>
-      {last ? '└─' : '├─'}
-    </span>
-  )
-}
+// ─── Tree line: prefix char + content ────────────────────────────────────────
 
-/** Vertical continuation line for nested content under a non-last branch */
-function TreeIndent({ last, children }: { last: boolean; children: React.ReactNode }) {
+function TL({ c, children }: { c: string; children: React.ReactNode }) {
   return (
-    <div
-      className="ml-[7px] pl-[13px]"
-      style={last ? undefined : { borderLeft: '1px solid var(--term-border)' }}
-    >
-      {children}
+    <div className="flex leading-[1.7]">
+      <span className="shrink-0 select-none whitespace-pre" style={{ color: C.dim }}>{c}</span>
+      <div className="flex-1 min-w-0">{children}</div>
     </div>
   )
 }
 
-// ─── Sense subtree ───────────────────────────────────────────────────────────
+// ─── Sense content (within tree) ─────────────────────────────────────────────
 
-function SenseTree({ sense, index, isLast, totalSenses }: { sense: Sense; index: number; isLast: boolean; totalSenses: number }) {
+function SenseContent({ sense, tc }: { sense: Sense; tc: string }) {
   const { t } = useTranslation('dictionary')
   const posColor = sense.partOfSpeech
-    ? (TERM_POS_COLORS[sense.partOfSpeech] ?? 'var(--term-text-muted)')
+    ? (TERM_POS_COLORS[sense.partOfSpeech] ?? C.muted)
     : undefined
 
-  // Collect inner branches: def, trans, examples...
-  const innerBranches: React.ReactNode[] = []
-
-  if (sense.definition) {
-    innerBranches.push(
-      <div key="def" className="flex items-baseline leading-[1.7]">
-        <span className="text-xs shrink-0 mr-2 select-none" style={{ color: 'var(--term-cyan)' }}>def</span>
-        <span className="text-sm" style={{ color: 'var(--term-text-bright)' }}>{sense.definition}</span>
-      </div>
-    )
-  }
-
-  if (sense.translations.length > 0) {
-    innerBranches.push(
-      <div key="trans" className="flex items-baseline leading-[1.7]">
-        <span className="text-xs shrink-0 mr-2 select-none" style={{ color: 'var(--term-cyan)' }}>trans</span>
-        <span className="text-sm" style={{ color: 'var(--term-text)' }}>{sense.translations.map(tr => tr.text).join(', ')}</span>
-      </div>
-    )
-  }
-
-  sense.examples.forEach((ex, ei) => {
-    innerBranches.push(
-      <div key={ex.id}>
-        <div className="flex items-baseline leading-[1.7]">
-          <span className="text-sm italic" style={{ color: 'var(--term-text-bright)' }}>
-            &quot;{ex.sentence}&quot;
-          </span>
-        </div>
-        {ex.translation && (
-          <div className="text-xs mt-0.5 ml-0.5" style={{ color: 'var(--term-text-muted)' }}>
-            {ex.translation}
-          </div>
-        )}
-      </div>
-    )
-  })
-
   return (
-    <div>
-      {/* Sense connector + label */}
-      <div className="flex items-baseline gap-1">
-        <TreeConn last={isLast} />
-        {totalSenses > 1 && (
-          <span className="text-xs" style={{ color: 'var(--term-text-dim)' }}>[{index}]</span>
-        )}
-        {sense.partOfSpeech && (
-          <span className="text-xs font-bold" style={{ color: posColor }}>{t(`pos.${sense.partOfSpeech}`)}</span>
-        )}
-      </div>
+    <>
+      {sense.partOfSpeech && (
+        <TL c={tc}>
+          <span style={{ color: C.muted }}>-pos:</span>{' '}
+          <span style={{ color: posColor }}>{t(`pos.${sense.partOfSpeech}`)}</span>
+        </TL>
+      )}
 
-      {/* Inner branches under tree indent */}
-      <TreeIndent last={isLast}>
-        {innerBranches.map((branch, bi) => {
-          const isLastInner = bi === innerBranches.length - 1
-          return (
-            <div key={bi} className={isLastInner ? 'mb-0.5' : 'mb-1.5'}>
-              <div className="flex items-baseline gap-1">
-                <TreeConn last={isLastInner} />
-                <div className="min-w-0 flex-1">{branch}</div>
-              </div>
+      {sense.definition && (
+        <TL c={tc}>
+          <span style={{ color: C.muted }}>-def:</span>{' '}
+          <span style={{ color: C.bright }}>{sense.definition}</span>
+        </TL>
+      )}
+
+      {sense.translations.length > 0 && (
+        <TL c={tc}>
+          <span style={{ color: C.muted }}>-trans:</span>{' '}
+          <span style={{ color: C.text }}>
+            {sense.translations.map(tr => tr.text).join(', ')}
+          </span>
+        </TL>
+      )}
+
+      {sense.examples.length > 0 && (
+        <>
+          {sense.examples.map((ex, ei) => (
+            <div key={ex.id}>
+              <TL c={tc}>
+                <span style={{ color: C.muted }}>-ex[{ei}]:</span>{' '}
+                <span className="italic" style={{ color: C.bright }}>
+                  &ldquo;{ex.sentence}&rdquo;
+                </span>
+              </TL>
+              {ex.translation && (
+                <TL c={tc}>
+                  <span style={{ color: C.muted, marginLeft: `${7 + String(ei).length}ch` }}>
+                    // {ex.translation}
+                  </span>
+                </TL>
+              )}
             </div>
-          )
-        })}
-      </TreeIndent>
-    </div>
+          ))}
+        </>
+      )}
+    </>
   )
 }
 
@@ -121,7 +100,6 @@ interface WordOverviewProps {
   className?: string
   hideTitle?: boolean
   hideHeader?: boolean
-  primaryPosShownInHeader?: string
 }
 
 export function WordOverview({ entry, className, hideTitle, hideHeader }: WordOverviewProps) {
@@ -137,149 +115,116 @@ export function WordOverview({ entry, className, hideTitle, hideHeader }: WordOv
 
   const allImages = [...entry.catalogImages, ...entry.userImages]
 
-  // Collect top-level branches to correctly assign ├─ / └─
-  type Branch = { key: string; node: React.ReactNode; nested?: React.ReactNode }
-  const branches: Branch[] = []
-
-  if (!hideHeader && entry.pronunciations.length > 0) {
-    branches.push({
-      key: 'ipa',
-      node: (
-        <div className="flex items-baseline leading-[1.7]">
-          <span className="text-xs shrink-0 mr-2 select-none" style={{ color: 'var(--term-cyan)' }}>ipa</span>
-          <span className="inline-flex items-center gap-2 flex-wrap">
-            {entry.pronunciations.map((pron) => (
-              <span key={pron.id} className="inline-flex items-baseline gap-1">
-                <span className="text-sm" style={{ color: 'var(--term-text)' }}>
-                  /{pron.transcription.replace(/^\/+|\/+$/g, '')}/
-                </span>
-                {pron.region && (
-                  <span className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--term-text-dim)' }}>
-                    {pron.region}
-                  </span>
-                )}
-                {pron.audioUrl && (
-                  <button
-                    type="button"
-                    className="text-xs hover:underline"
-                    style={{ color: 'var(--term-cyan)' }}
-                    onClick={() => playAudio(pron.audioUrl!)}
-                  >
-                    [play]
-                  </button>
-                )}
-              </span>
-            ))}
-          </span>
-        </div>
-      ),
-    })
-  }
-
-  if (!hideHeader && entry.topics.length > 0) {
-    branches.push({
-      key: 'topic',
-      node: (
-        <div className="flex items-baseline leading-[1.7]">
-          <span className="text-xs shrink-0 mr-2 select-none" style={{ color: 'var(--term-cyan)' }}>topic</span>
-          <span className="text-sm" style={{ color: 'var(--term-text-muted)' }}>
-            {entry.topics.map(t => t.name).join(', ')}
-          </span>
-        </div>
-      ),
-    })
-  }
-
-  // Senses are branches with their own sub-trees
-  if (entry.senses.length > 0) {
-    // If senses is the only section or the last, each sense handles its own └─
-    entry.senses.forEach((sense, si) => {
-      const hasMore = allImages.length > 0 || entry.notes
-      const isLastSense = si === entry.senses.length - 1
-      branches.push({
-        key: `sense-${sense.id}`,
-        node: null, // rendered directly as SenseTree
-        nested: (
-          <SenseTree
-            sense={sense}
-            index={si}
-            isLast={isLastSense && !hasMore}
-            totalSenses={entry.senses.length}
-          />
-        ),
-      })
-    })
-  }
-
-  if (allImages.length > 0) {
-    const isLast = !entry.notes
-    branches.push({
-      key: 'images',
-      node: (
-        <div className="flex items-baseline leading-[1.7]">
-          <span className="text-xs shrink-0 mr-2 select-none" style={{ color: 'var(--term-cyan)' }}>img</span>
-          <span className="text-xs" style={{ color: 'var(--term-text-dim)' }}>{allImages.length} attached</span>
-        </div>
-      ),
-      nested: (
-        <>
-          <div className="flex items-baseline gap-1">
-            <TreeConn last={isLast} />
-            <div className="flex items-baseline leading-[1.7]">
-              <span className="text-xs shrink-0 mr-2 select-none" style={{ color: 'var(--term-cyan)' }}>img</span>
-              <span className="text-xs" style={{ color: 'var(--term-text-dim)' }}>{allImages.length} attached</span>
-            </div>
-          </div>
-          <TreeIndent last={isLast}>
-            <div className="py-1">
-              <div className="grid grid-cols-4 md:grid-cols-6 gap-1.5">
-                {allImages.map(img => (
-                  <ImageWithFallback key={img.id} src={img.url} caption={img.caption} />
-                ))}
-              </div>
-            </div>
-          </TreeIndent>
-        </>
-      ),
-    })
-  }
-
-  if (entry.notes) {
-    branches.push({
-      key: 'note',
-      node: (
-        <div className="flex items-baseline leading-[1.7]">
-          <span className="text-xs shrink-0 mr-2 select-none" style={{ color: 'var(--term-cyan)' }}>note</span>
-          <span className="text-sm" style={{ color: 'var(--term-yellow)' }}>{entry.notes}</span>
-        </div>
-      ),
-    })
-  }
-
   return (
-    <div className={`font-mono ${className ?? ''}`}>
+    <div className={`font-mono text-sm flex flex-col ${className ?? ''}`}>
+      {/* Title — full-page only */}
       {!hideTitle && !hideHeader && (
-        <div className="leading-[1.6] mb-1">
-          <span className="text-base font-bold" style={{ color: 'var(--term-text-bright)' }}>{entry.text}</span>
+        <div className="mb-3">
+          <span className="font-bold" style={{ color: C.bright }}>{entry.text}</span>
+          {entry.senses[0]?.partOfSpeech && (
+            <span className="ml-2 uppercase tracking-wider" style={{
+              color: TERM_POS_COLORS[entry.senses[0].partOfSpeech] ?? C.muted,
+            }}>
+              {t(`pos.${entry.senses[0].partOfSpeech}`)}
+            </span>
+          )}
         </div>
       )}
 
-      {branches.map((branch, bi) => {
-        const isLast = bi === branches.length - 1
+      {/* -ipa: */}
+      {entry.pronunciations.length > 0 && (
+        <div className="leading-[1.7]">
+          <span style={{ color: C.muted }}>-ipa:</span>{' '}
+          {entry.pronunciations.map((pron, pi) => (
+            <span key={pron.id}>
+              {pi > 0 && ', '}
+              <span style={{ color: C.text }}>
+                /{pron.transcription.replace(/^\/+|\/+$/g, '')}/
+              </span>
+              {pron.region && (
+                <span className="ml-1 text-[10px] uppercase tracking-wider" style={{ color: C.dim }}>
+                  {pron.region}
+                </span>
+              )}
+              {pron.audioUrl && (
+                <button
+                  type="button"
+                  className="ml-1 hover:underline"
+                  style={{ color: C.cyan }}
+                  onClick={() => playAudio(pron.audioUrl!)}
+                >
+                  ▸
+                </button>
+              )}
+            </span>
+          ))}
+        </div>
+      )}
 
-        // SenseTree renders its own connector
-        if (branch.nested) {
-          return <div key={branch.key}>{branch.nested}</div>
-        }
+      {/* -topics: */}
+      {entry.topics.length > 0 && (
+        <div className="leading-[1.7]">
+          <span style={{ color: C.muted }}>-topics:</span>{' '}
+          <span style={{ color: C.text }}>{entry.topics.map(tp => tp.name).join(', ')}</span>
+        </div>
+      )}
 
-        // Simple branch with ├─ / └─ connector
-        return (
-          <div key={branch.key} className="flex items-baseline gap-1">
-            <TreeConn last={isLast} />
-            <div className="min-w-0 flex-1">{branch.node}</div>
+      {/* Senses — always tree */}
+      {entry.senses.length > 0 && (
+        <div className="mt-1">
+          {/* -senses (N) */}
+          <div className="leading-[1.7]">
+            <span style={{ color: C.muted }}>-senses</span>
           </div>
-        )
-      })}
+
+          {/* Tree */}
+          <div className="ml-2">
+            {entry.senses.map((sense, si) => {
+              const isLast = si === entry.senses.length - 1
+
+              return (
+                <div key={sense.id}>
+                  {/* ├─[n] or └─[n] */}
+                  <div className="flex leading-[1.7]">
+                    <span className="shrink-0 select-none whitespace-pre" style={{ color: C.dim }}>
+                      {isLast ? '└─' : '├─'}
+                    </span>
+                    <span className="font-bold" style={{ color: C.dim }}>[{si}]</span>
+                  </div>
+
+                  {/* Content with tree continuation: "│  " or "   " */}
+                  <SenseContent sense={sense} tc={isLast ? '   ' : '│  '} />
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* -img: */}
+      {allImages.length > 0 && (
+        <div className="mt-2">
+          <div className="leading-[1.7]">
+            <span style={{ color: C.muted }}>-img:</span>{' '}
+            <span style={{ color: C.text }}>{allImages.length}</span>
+          </div>
+          <div className="mt-1 ml-2">
+            <div className="grid grid-cols-4 md:grid-cols-6 gap-1.5">
+              {allImages.map(img => (
+                <ImageWithFallback key={img.id} src={img.url} caption={img.caption} />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* -note: */}
+      {entry.notes && (
+        <div className="leading-[1.7] mt-1">
+          <span style={{ color: C.muted }}>-note:</span>{' '}
+          <span style={{ color: C.yellow }}>{entry.notes}</span>
+        </div>
+      )}
     </div>
   )
 }
@@ -298,9 +243,7 @@ function ImageWithFallback({ src, caption }: { src: string; caption?: string }) 
         onError={() => setError(true)}
       />
       {caption && (
-        <p className="text-[10px] mt-0.5 truncate" style={{ color: 'var(--term-text-dim)' }}>
-          {caption}
-        </p>
+        <p className="text-[10px] mt-0.5 truncate" style={{ color: C.dim }}>{caption}</p>
       )}
     </div>
   )
