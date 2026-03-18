@@ -77,18 +77,18 @@ export function WordDetailInline({ wordId, onClose }: WordDetailInlineProps) {
           <button
             type="button"
             onClick={onClose}
-            className="text-[13px] font-bold font-mono hover:underline shrink-0"
+            className="text-base font-bold font-mono hover:underline shrink-0"
             style={{ color: 'var(--term-text-bright)' }}
           >
             {entry?.text ?? '...'}
           </button>
           {primaryPos && (
-            <span className="text-[10px] shrink-0" style={{ color: posColor }}>
+            <span className="text-xs shrink-0" style={{ color: posColor }}>
               {t(`pos.${primaryPos}`)}
             </span>
           )}
           {entry && (
-            <span className="text-[10px] shrink-0" style={{ color: 'var(--term-text-dim)' }}>
+            <span className="text-xs shrink-0" style={{ color: 'var(--term-text-dim)' }}>
               {entry.senses.length}s {entry.senses.reduce((n, s) => n + s.examples.length, 0)}ex
             </span>
           )}
@@ -99,7 +99,7 @@ export function WordDetailInline({ wordId, onClose }: WordDetailInlineProps) {
               <button
                 type="button"
                 onClick={() => setEditWordId(entry.id)}
-                className="text-[11px] hover:underline"
+                className="text-xs hover:underline"
                 style={{ color: 'var(--term-yellow)' }}
               >
                 [edit]
@@ -107,7 +107,7 @@ export function WordDetailInline({ wordId, onClose }: WordDetailInlineProps) {
               <button
                 type="button"
                 onClick={() => requestDelete(entry)}
-                className="text-[11px] hover:underline"
+                className="text-xs hover:underline"
                 style={{ color: 'var(--term-red)' }}
               >
                 [del]
@@ -117,7 +117,7 @@ export function WordDetailInline({ wordId, onClose }: WordDetailInlineProps) {
           <button
             type="button"
             onClick={onClose}
-            className="text-[11px] hover:underline"
+            className="text-xs hover:underline"
             style={{ color: 'var(--term-text-muted)' }}
           >
             [x]
@@ -131,12 +131,12 @@ export function WordDetailInline({ wordId, onClose }: WordDetailInlineProps) {
 
         {error && (
           <div className="py-2">
-            <p className="text-[11px]" style={{ color: 'var(--term-red)' }}>
+            <p className="text-xs" style={{ color: 'var(--term-red)' }}>
               stderr: {t('error.loadFailed')}
             </p>
             <button
               type="button"
-              className="mt-1 text-[11px] hover:underline"
+              className="mt-1 text-xs hover:underline"
               style={{ color: 'var(--term-yellow)' }}
               onClick={() => window.location.reload()}
             >
@@ -151,15 +151,15 @@ export function WordDetailInline({ wordId, onClose }: WordDetailInlineProps) {
 
             {/* Metadata footer */}
             <div className="mt-3 pt-2 flex flex-wrap items-baseline gap-x-4 gap-y-0.5" style={{ borderTop: '1px dotted var(--term-border)' }}>
-              <span className="text-[10px]" style={{ color: 'var(--term-text-dim)' }}>
+              <span className="text-xs" style={{ color: 'var(--term-text-dim)' }}>
                 created {formatDate(entry.createdAt)}
               </span>
               {entry.updatedAt !== entry.createdAt && (
-                <span className="text-[10px]" style={{ color: 'var(--term-text-dim)' }}>
+                <span className="text-xs" style={{ color: 'var(--term-text-dim)' }}>
                   updated {formatDate(entry.updatedAt)}
                 </span>
               )}
-              <span className="text-[10px]" style={{ color: 'var(--term-text-dim)' }}>
+              <span className="text-xs" style={{ color: 'var(--term-text-dim)' }}>
                 id:{entry.id.slice(0, 8)}
               </span>
             </div>

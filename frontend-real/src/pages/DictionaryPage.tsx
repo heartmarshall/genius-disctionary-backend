@@ -216,7 +216,7 @@ export function DictionaryPage() {
     <div className="terminal-theme min-h-full font-mono" style={{ background: 'var(--term-bg)', color: 'var(--term-text)' }}>
       {/* Status line */}
       <div className="px-5 md:px-8 pt-5 pb-0">
-        <div className="flex items-baseline gap-2 flex-wrap text-xs">
+        <div className="flex items-baseline gap-2 flex-wrap text-sm">
           <span className="font-bold" style={{ color: 'var(--term-green)' }}>dict://</span>
           <span style={{ color: 'var(--term-text-dim)' }}>//</span>
           <span className="tabular-nums" style={{ color: 'var(--term-text-muted)' }}>{filterDesc}</span>
@@ -262,13 +262,13 @@ export function DictionaryPage() {
       {error && (
         <div className="px-5 md:px-8 mt-4">
           <div className="py-4" style={{ borderTop: '1px dashed var(--term-border)' }}>
-            <p className="text-xs" style={{ color: 'var(--term-red)' }}>
+            <p className="text-sm" style={{ color: 'var(--term-red)' }}>
               stderr: {t('error.loadFailed')}
             </p>
             <button
               type="button"
               onClick={() => window.location.reload()}
-              className="mt-2 text-xs hover:underline"
+              className="mt-2 text-sm hover:underline"
               style={{ color: 'var(--term-yellow)' }}
             >
               [retry]
@@ -299,14 +299,14 @@ export function DictionaryPage() {
           {/* Empty state */}
           {!loading && entries.length === 0 && (
             <div className="py-12">
-              <p className="text-xs" style={{ color: 'var(--term-text-muted)' }}>
+              <p className="text-sm" style={{ color: 'var(--term-text-muted)' }}>
                 {hasActiveFilters ? '// 0 results — no entries match current filters' : '// dictionary is empty'}
               </p>
               {hasActiveFilters && (
                 <button
                   type="button"
                   onClick={clearAllFilters}
-                  className="mt-2 text-xs hover:underline"
+                  className="mt-2 text-sm hover:underline"
                   style={{ color: 'var(--term-yellow)' }}
                 >
                   [clear filters]
@@ -318,7 +318,7 @@ export function DictionaryPage() {
           {/* Load more */}
           {!loading && entries.length > 0 && pageInfo?.hasNextPage && (
             <div className="flex items-center gap-3 py-4 mt-2" style={{ borderTop: '1px dashed var(--term-border)' }}>
-              <span className="text-[11px] tabular-nums" style={{ color: 'var(--term-text-dim)' }}>
+              <span className="text-xs tabular-nums" style={{ color: 'var(--term-text-dim)' }}>
                 loaded {entries.length}/{totalCount}
               </span>
               <div className="flex-1 term-progress-track">
@@ -327,13 +327,13 @@ export function DictionaryPage() {
                   style={{ width: `${Math.round((entries.length / totalCount) * 100)}%` }}
                 />
               </div>
-              <span className="text-[11px] tabular-nums" style={{ color: 'var(--term-text-dim)' }}>
+              <span className="text-xs tabular-nums" style={{ color: 'var(--term-text-dim)' }}>
                 {Math.round((entries.length / totalCount) * 100)}%
               </span>
               <button
                 type="button"
                 onClick={loadMore}
-                className="text-xs hover:underline"
+                className="text-sm hover:underline"
                 style={{ color: 'var(--term-green)' }}
               >
                 [more]
@@ -344,7 +344,7 @@ export function DictionaryPage() {
           {/* EOF marker */}
           {!loading && entries.length > 0 && !pageInfo?.hasNextPage && (
             <div className="py-4 mt-2" style={{ borderTop: '1px dashed var(--term-border)' }}>
-              <span className="text-[10px]" style={{ color: 'var(--term-text-dim)' }}>
+              <span className="text-xs" style={{ color: 'var(--term-text-dim)' }}>
                 // EOF — {totalCount} entries total
               </span>
             </div>

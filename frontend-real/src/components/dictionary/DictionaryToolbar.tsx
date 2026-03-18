@@ -101,7 +101,7 @@ function DisplayDropdown({
       <button
         type="button"
         onClick={() => setOpen(v => !v)}
-        className="text-[11px] hover:underline"
+        className="text-xs hover:underline"
         style={{ color: 'var(--term-text-muted)' }}
       >
         [cols]
@@ -115,7 +115,7 @@ function DisplayDropdown({
                 key={key}
                 type="button"
                 onClick={() => onDisplayOptionsChange({ ...displayOptions, [key]: !checked })}
-                className="w-full text-left px-3 py-1 text-[11px] flex items-center gap-1.5 hover:underline"
+                className="w-full text-left px-3 py-1 text-xs flex items-center gap-1.5 hover:underline"
                 style={{ color: checked ? 'var(--term-green)' : 'var(--term-text-dim)' }}
               >
                 <span className="w-3 text-center font-mono">{checked ? '+' : '-'}</span>
@@ -161,7 +161,7 @@ function TopicDropdown({
       <button
         type="button"
         onClick={() => setOpen(v => !v)}
-        className="text-[11px] hover:underline"
+        className="text-xs hover:underline"
         style={{ color: activeCount > 0 ? 'var(--term-green)' : 'var(--term-text-muted)' }}
       >
         [topic{activeCount > 0 ? `:${activeCount}` : ''}]
@@ -178,7 +178,7 @@ function TopicDropdown({
                   if (active) onTopicIdsChange(selectedTopicIds.filter(tid => tid !== topic.id))
                   else onTopicIdsChange([...selectedTopicIds, topic.id])
                 }}
-                className="w-full text-left px-3 py-1 text-[11px] flex items-center gap-1.5 hover:underline"
+                className="w-full text-left px-3 py-1 text-xs flex items-center gap-1.5 hover:underline"
                 style={{ color: active ? 'var(--term-green)' : 'var(--term-text-muted)' }}
               >
                 <span className="w-3 text-center font-mono">{active ? '+' : '-'}</span>
@@ -192,7 +192,7 @@ function TopicDropdown({
               <button
                 type="button"
                 onClick={() => onTopicIdsChange([])}
-                className="w-full text-left px-3 py-1 text-[11px] hover:underline"
+                className="w-full text-left px-3 py-1 text-xs hover:underline"
                 style={{ color: 'var(--term-text-muted)' }}
               >
                 [clear]
@@ -239,7 +239,7 @@ export function DictionaryToolbar({
   const searchInput = (compact: boolean) => (
     <div className="relative flex-1" style={{ maxWidth: compact ? 200 : 280 }}>
       <span
-        className="absolute left-0 top-1/2 -translate-y-1/2 text-[11px] select-none pointer-events-none font-mono"
+        className="absolute left-0 top-1/2 -translate-y-1/2 text-xs select-none pointer-events-none font-mono"
         style={{ color: 'var(--term-text-dim)' }}
       >
         $&gt;
@@ -249,7 +249,7 @@ export function DictionaryToolbar({
         value={search}
         onChange={(e) => onSearchChange(e.target.value)}
         placeholder={t('search.placeholder')}
-        className="w-full bg-transparent border-none outline-none text-[12px] pl-5 py-1 font-mono"
+        className="w-full bg-transparent border-none outline-none text-sm pl-5 py-1 font-mono"
         style={{
           color: 'var(--term-text-bright)',
           borderBottom: '1px solid var(--term-border)',
@@ -261,7 +261,7 @@ export function DictionaryToolbar({
   // Sort buttons
   const sortBtns = (
     <div className="flex items-baseline gap-0.5">
-      <span className="text-[10px]" style={{ color: 'var(--term-text-dim)' }}>sort:</span>
+      <span className="text-xs" style={{ color: 'var(--term-text-dim)' }}>sort:</span>
       {SORT_OPTIONS.map(opt => {
         const active = sortBy === opt.field && sortDir === opt.dir
         return (
@@ -269,7 +269,7 @@ export function DictionaryToolbar({
             key={opt.label}
             type="button"
             onClick={() => onSortChange(opt.field, opt.dir)}
-            className="text-[11px] hover:underline"
+            className="text-xs hover:underline"
             style={{ color: active ? 'var(--term-green)' : 'var(--term-text-muted)' }}
           >
             [{opt.label}]
@@ -293,7 +293,7 @@ export function DictionaryToolbar({
             key={pos}
             type="button"
             onClick={() => togglePOS(pos)}
-            className="text-[10px] hover:underline tabular-nums"
+            className="text-xs hover:underline tabular-nums"
             style={{
               color: active ? color : 'var(--term-text-dim)',
             }}
@@ -350,7 +350,7 @@ export function DictionaryToolbar({
           />
           <DisplayDropdown displayOptions={displayOptions} onDisplayOptionsChange={onDisplayOptionsChange} />
           <div className="flex-1" />
-          <span className="text-[10px] tabular-nums" style={{ color: 'var(--term-text-dim)' }}>
+          <span className="text-xs tabular-nums" style={{ color: 'var(--term-text-dim)' }}>
             {totalCount}w/{topicsCount}t
           </span>
         </div>

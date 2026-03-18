@@ -15,11 +15,11 @@ const TERM_POS_COLORS: Record<string, string> = {
 }
 
 function K({ children }: { children: React.ReactNode }) {
-  return <span className="text-[10px] inline-block w-[52px] shrink-0 text-right mr-2" style={{ color: 'var(--term-text-dim)' }}>{children}</span>
+  return <span className="text-xs inline-block w-[56px] shrink-0 text-right mr-2" style={{ color: 'var(--term-cyan)' }}>{children}</span>
 }
 
 function V({ children, color }: { children: React.ReactNode; color?: string }) {
-  return <span className="text-[12px]" style={{ color: color ?? 'var(--term-text-bright)' }}>{children}</span>
+  return <span className="text-sm" style={{ color: color ?? 'var(--term-text-bright)' }}>{children}</span>
 }
 
 // ─── Sense subtree ───────────────────────────────────────────────────────────
@@ -30,57 +30,55 @@ function SenseTree({ sense, index, isLast }: { sense: Sense; index: number; isLa
     ? (TERM_POS_COLORS[sense.partOfSpeech] ?? 'var(--term-text-muted)')
     : undefined
 
-  const prefix = isLast ? '└' : '├'
-  const lineChar = isLast ? ' ' : '│'
-
   return (
-    <div className="ml-3">
+    <div
+      className={`ml-3 pl-3 ${isLast ? 'pb-0' : 'pb-3'}`}
+      style={{ borderLeft: '1px solid var(--term-border)' }}
+    >
       {/* Sense header */}
-      <div className="flex items-baseline leading-[1.6]">
-        <span className="text-[10px] w-3 shrink-0 select-none" style={{ color: 'var(--term-text-dim)' }}>{prefix}</span>
-        <span className="text-[11px] font-bold" style={{ color: 'var(--term-green)' }}>[{index}]</span>
+      <div className="flex items-baseline gap-2 mb-1">
+        <span className="text-sm font-bold" style={{ color: 'var(--term-green)' }}>[{index}]</span>
         {sense.partOfSpeech && (
-          <span className="text-[10px] ml-2" style={{ color: posColor }}>{t(`pos.${sense.partOfSpeech}`)}</span>
+          <span className="text-xs" style={{ color: posColor }}>{t(`pos.${sense.partOfSpeech}`)}</span>
         )}
       </div>
 
-      {/* Fields */}
-      <div className="ml-3">
-        {sense.definition && (
-          <div className="flex items-baseline leading-[1.6]">
-            <span className="text-[10px] w-3 shrink-0 select-none" style={{ color: 'var(--term-text-dim)' }}>{lineChar}</span>
-            <K>def</K>
-            <V>{sense.definition}</V>
-          </div>
-        )}
-        {sense.translations.length > 0 && (
-          <div className="flex items-baseline leading-[1.6]">
-            <span className="text-[10px] w-3 shrink-0 select-none" style={{ color: 'var(--term-text-dim)' }}>{lineChar}</span>
-            <K>trans</K>
-            <V color="var(--term-text)">{sense.translations.map(tr => tr.text).join(', ')}</V>
-          </div>
-        )}
-        {sense.examples.map((ex, ei) => (
-          <div key={ex.id}>
-            <div className="flex items-baseline leading-[1.6]">
-              <span className="text-[10px] w-3 shrink-0 select-none" style={{ color: 'var(--term-text-dim)' }}>{lineChar}</span>
+      {/* Definition */}
+      {sense.definition && (
+        <div className="flex items-baseline leading-[1.7] mb-0.5">
+          <K>def</K>
+          <V>{sense.definition}</V>
+        </div>
+      )}
+
+      {/* Translations */}
+      {sense.translations.length > 0 && (
+        <div className="flex items-baseline leading-[1.7] mb-0.5">
+          <K>trans</K>
+          <V color="var(--term-text)">{sense.translations.map(tr => tr.text).join(', ')}</V>
+        </div>
+      )}
+
+      {/* Examples */}
+      {sense.examples.length > 0 && (
+        <div className="mt-1.5 space-y-1.5">
+          {sense.examples.map((ex, ei) => (
+            <div key={ex.id} className="flex items-baseline leading-[1.7]">
               <K>ex[{ei}]</K>
-              <span className="text-[11px] italic" style={{ color: 'var(--term-text-bright)' }}>
-                "{ex.sentence}"
-              </span>
-            </div>
-            {ex.translation && (
-              <div className="flex items-baseline leading-[1.6]">
-                <span className="text-[10px] w-3 shrink-0 select-none" style={{ color: 'var(--term-text-dim)' }}>{lineChar}</span>
-                <K></K>
-                <span className="text-[10px]" style={{ color: 'var(--term-text-muted)' }}>
-                  {ex.translation}
-                </span>
+              <div className="min-w-0">
+                <div className="text-sm italic" style={{ color: 'var(--term-text-bright)' }}>
+                  "{ex.sentence}"
+                </div>
+                {ex.translation && (
+                  <div className="text-xs mt-0.5" style={{ color: 'var(--term-text-muted)' }}>
+                    {ex.translation}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        ))}
-      </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -112,7 +110,7 @@ export function WordOverview({ entry, className, hideTitle, hideHeader }: WordOv
     <div className={`font-mono ${className ?? ''}`}>
       {!hideTitle && !hideHeader && (
         <div className="leading-[1.6] mb-0.5">
-          <span className="text-[13px] font-bold" style={{ color: 'var(--term-text-bright)' }}>{entry.text}</span>
+          <span className="text-base font-bold" style={{ color: 'var(--term-text-bright)' }}>{entry.text}</span>
         </div>
       )}
 
@@ -127,14 +125,14 @@ export function WordOverview({ entry, className, hideTitle, hideHeader }: WordOv
                   /{pron.transcription.replace(/^\/+|\/+$/g, '')}/
                 </V>
                 {pron.region && (
-                  <span className="text-[9px] uppercase tracking-wider" style={{ color: 'var(--term-text-dim)' }}>
+                  <span className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--term-text-dim)' }}>
                     {pron.region}
                   </span>
                 )}
                 {pron.audioUrl && (
                   <button
                     type="button"
-                    className="text-[10px] hover:underline"
+                    className="text-xs hover:underline"
                     style={{ color: 'var(--term-cyan)' }}
                     onClick={() => playAudio(pron.audioUrl!)}
                   >
@@ -159,9 +157,9 @@ export function WordOverview({ entry, className, hideTitle, hideHeader }: WordOv
 
       {/* Senses */}
       {entry.senses.length > 0 && (
-        <div className="mt-1.5">
-          <div className="flex items-baseline leading-[1.6]">
-            <span className="text-[10px]" style={{ color: 'var(--term-text-dim)' }}>
+        <div className="mt-3">
+          <div className="flex items-baseline leading-[1.6] mb-1">
+            <span className="text-xs" style={{ color: 'var(--term-text-dim)' }}>
               senses: {entry.senses.length}
             </span>
           </div>
@@ -175,7 +173,7 @@ export function WordOverview({ entry, className, hideTitle, hideHeader }: WordOv
       {allImages.length > 0 && (
         <div className="mt-2">
           <div className="flex items-baseline leading-[1.6]">
-            <span className="text-[10px]" style={{ color: 'var(--term-text-dim)' }}>
+            <span className="text-xs" style={{ color: 'var(--term-text-dim)' }}>
               images: {allImages.length}
             </span>
           </div>
@@ -214,7 +212,7 @@ function ImageWithFallback({ src, caption }: { src: string; caption?: string }) 
         onError={() => setError(true)}
       />
       {caption && (
-        <p className="text-[9px] mt-0.5 truncate" style={{ color: 'var(--term-text-dim)' }}>
+        <p className="text-[10px] mt-0.5 truncate" style={{ color: 'var(--term-text-dim)' }}>
           {caption}
         </p>
       )}

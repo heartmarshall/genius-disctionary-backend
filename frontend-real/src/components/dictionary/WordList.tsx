@@ -28,7 +28,7 @@ function WordListSkeleton() {
     <div className="flex flex-col">
       {Array.from({ length: 12 }).map((_, i) => (
         <div key={i} className="flex items-center gap-3 py-1.5">
-          <span className="text-[11px] tabular-nums w-5 text-right" style={{ color: 'var(--term-text-dim)' }}>
+          <span className="text-xs tabular-nums w-6 text-right" style={{ color: 'var(--term-text-dim)' }}>
             {i + 1}
           </span>
           <div
@@ -108,7 +108,7 @@ export function WordList({
             lastLetter = firstChar
             letterHeader = (
               <div className="sticky top-0 z-[5] flex items-center gap-2 pt-5 pb-1" style={{ background: 'var(--term-bg)' }}>
-                <span className="text-xs font-bold uppercase" style={{ color: 'var(--term-green)' }}>
+                <span className="text-sm font-bold uppercase" style={{ color: 'var(--term-green)' }}>
                   {firstChar}
                 </span>
                 <div className="flex-1" style={{ borderBottom: '1px dotted var(--term-border)' }} />
@@ -134,39 +134,39 @@ export function WordList({
                   className="term-word-row w-full flex items-baseline gap-2 py-1.5 text-left cursor-pointer group"
                 >
                   {/* Index */}
-                  <span className="text-[10px] tabular-nums w-5 text-right shrink-0 select-none" style={{ color: 'var(--term-text-dim)' }}>
+                  <span className="text-xs tabular-nums w-6 text-right shrink-0 select-none" style={{ color: 'var(--term-text-dim)' }}>
                     {index + 1}
                   </span>
 
                   {/* Word */}
-                  <span className="text-[13px] font-bold shrink-0" style={{ color: 'var(--term-text-bright)' }}>
+                  <span className="text-sm font-bold shrink-0" style={{ color: 'var(--term-text-bright)' }}>
                     {entry.text}
                   </span>
 
                   {/* POS short */}
                   {showPos && (
-                    <span className="text-[10px] shrink-0" style={{ color: posColor }}>
+                    <span className="text-xs shrink-0" style={{ color: posColor }}>
                       {posShort(primaryPos)}
                     </span>
                   )}
 
                   {/* Senses count if > 1 */}
                   {sensesCount > 1 && (
-                    <span className="text-[10px] shrink-0" style={{ color: 'var(--term-text-dim)' }}>
+                    <span className="text-xs shrink-0" style={{ color: 'var(--term-text-dim)' }}>
                       {sensesCount}s
                     </span>
                   )}
 
                   {/* IPA */}
                   {cleanIpa && (
-                    <span className="text-[10px] shrink-0" style={{ color: 'var(--term-text-dim)' }}>
+                    <span className="text-xs shrink-0" style={{ color: 'var(--term-text-dim)' }}>
                       {cleanIpa}
                     </span>
                   )}
 
                   {/* Translation / definition */}
                   {infoParts.length > 0 && (
-                    <span className="text-[11px] truncate min-w-0 flex-1" style={{ color: 'var(--term-text-muted)' }}>
+                    <span className="text-xs truncate min-w-0 flex-1" style={{ color: 'var(--term-text-muted)' }}>
                       — {infoParts.join(' · ')}
                     </span>
                   )}
@@ -176,7 +176,7 @@ export function WordList({
 
                   {/* Topics */}
                   {topicNames.length > 0 && (
-                    <span className="text-[10px] shrink-0 hidden md:inline" style={{ color: 'var(--term-text-dim)' }}>
+                    <span className="text-xs shrink-0 hidden md:inline" style={{ color: 'var(--term-text-dim)' }}>
                       [{topicNames.join(',')}]
                     </span>
                   )}
