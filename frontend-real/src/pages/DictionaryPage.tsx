@@ -287,10 +287,11 @@ export function DictionaryPage() {
             onWordClick={handleWordClick}
             displayOptions={displayOptions}
             sortedAlphabetically={sortBy === 'TEXT' && sortDir === 'ASC'}
-            renderDetail={(entry) => (
+            renderDetail={(entry, index) => (
               <WordDetailInline
                 key={entry.id}
                 wordId={entry.id}
+                index={index}
                 onClose={handleClose}
               />
             )}

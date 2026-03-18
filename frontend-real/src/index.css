@@ -162,10 +162,18 @@
     background: var(--term-bg-hover);
   }
 
-  /* Detail card */
+  /* Detail card — left accent border, clean terminal look */
   .term-detail-card {
-    background: var(--term-bg-raised);
-    border-left: 2px solid var(--term-border);
+    border-left: 3px solid var(--term-accent, var(--term-green));
+  }
+
+  /* Sense block — interactive left border */
+  .term-sense-block {
+    border-left: 1px solid var(--term-border);
+    transition: border-color 0.15s ease;
+  }
+  .term-sense-block:hover {
+    border-left-color: var(--term-green);
   }
 
   /* Dropdown panel */
@@ -177,7 +185,7 @@
 
   /* Progress track */
   .term-progress-track {
-    height: 2px;
+    height: 3px;
     background: var(--term-border-subtle);
     overflow: hidden;
   }
@@ -186,6 +194,17 @@
     background: var(--term-green);
     opacity: 0.5;
     transition: width 0.3s ease;
+  }
+
+  /* Keyboard hint — subtle, monospace */
+  .term-kbd {
+    display: inline-block;
+    padding: 0 3px;
+    font-size: 10px;
+    font-family: inherit;
+    border: 1px solid var(--term-border);
+    color: var(--term-text-dim);
+    line-height: 1.4;
   }
 }
 

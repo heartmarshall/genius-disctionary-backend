@@ -279,7 +279,7 @@ export function DictionaryToolbar({
     </div>
   )
 
-  // POS inline filter — always visible
+  // POS inline filter — terminal [bracket] style
   const posInline = (
     <div className="flex items-baseline gap-0.5 flex-wrap">
       {POS_OPTIONS.map(pos => {
