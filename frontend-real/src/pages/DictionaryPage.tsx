@@ -1,7 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ChevronDown, BookOpen } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { DictionaryToolbar } from '@/components/dictionary/DictionaryToolbar'
 import { WordList } from '@/components/dictionary/WordList'
 import { WordDetailInline } from '@/components/dictionary/WordDetailInline'
@@ -90,14 +88,6 @@ export function DictionaryPage() {
     setSortDir('ASC')
   }
 
-  /**
-   * Before changing selectedWordId, snapshot the target element's position
-   * relative to the viewport so we can restore it after render.
-   */
-  /**
-   * Close: snapshot the closing card's position → instant fix after render (no jump).
-   * Open/switch: just set state, then smooth-scroll to the new card after render.
-   */
   const closeWord = useCallback((closingId: string) => {
     const el = document.querySelector(`[data-word-id="${closingId}"]`)
     if (el) {
@@ -136,14 +126,11 @@ export function DictionaryPage() {
       const targetScrollTop = scroller.scrollTop + (elRect.top - scrollerRect.top) - margin
 
       if (fix.mode === 'close') {
-        // Instant correction — keep the collapsed row at same viewport position
         const delta = elRect.top - fix.viewportY
         if (Math.abs(delta) > 1) {
           scroller.scrollTop += delta
         }
       } else {
-        // Open or switch — scroll if card top is outside viewport
-        // or too close to the bottom (less than 200px of space to see content)
         const isAboveViewport = elRect.top < scrollerRect.top + margin
         const isBelowViewport = elRect.top > scrollerRect.bottom - margin
         const notEnoughRoom = elRect.top > scrollerRect.bottom - 200
@@ -219,20 +206,38 @@ export function DictionaryPage() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [selectedWordId, entries, handleClose, openWord])
 
+  // Build status line parts
+  const filterDesc = hasActiveFilters
+    ? `${entries.length} matches`
+    : `${totalCount} entries`
+  const sortDesc = sortBy === 'TEXT' ? 'a→z' : sortBy === 'CREATED_AT' ? 'newest' : 'updated'
+
   return (
-    <div className="min-h-full">
-      {/* Hero header — compact per Parkinson's Law */}
-      <div className="px-8 md:px-16 pt-8 pb-4 md:pt-12 md:pb-6">
-        <h1 className="text-[clamp(2.5rem,6vw,4.5rem)] font-medium leading-[0.95] tracking-[-0.03em] text-text-primary">
-          Dictionary
-        </h1>
-        <p className="mt-2 md:mt-3 max-w-2xl text-sm text-text-secondary leading-relaxed">
-          {t('hero.subtitle', { defaultValue: 'Your personal vocabulary collection. Browse, search, and study the words you\'ve saved.' })}
-        </p>
+    <div className="terminal-theme min-h-full font-mono" style={{ background: 'var(--term-bg)', color: 'var(--term-text)' }}>
+      {/* Status line */}
+      <div className="px-5 md:px-8 pt-5 pb-0">
+        <div className="flex items-baseline gap-2 flex-wrap text-xs">
+          <span className="font-bold" style={{ color: 'var(--term-green)' }}>dict://</span>
+          <span style={{ color: 'var(--term-text-dim)' }}>//</span>
+          <span className="tabular-nums" style={{ color: 'var(--term-text-muted)' }}>{filterDesc}</span>
+          <span style={{ color: 'var(--term-text-dim)' }}>&middot;</span>
+          <span style={{ color: 'var(--term-text-muted)' }}>{topics.length} topics</span>
+          <span style={{ color: 'var(--term-text-dim)' }}>&middot;</span>
+          <span style={{ color: 'var(--term-text-muted)' }}>sort:{sortDesc}</span>
+          {selectedPOS.length > 0 && (
+            <>
+              <span style={{ color: 'var(--term-text-dim)' }}>&middot;</span>
+              <span style={{ color: 'var(--term-blue)' }}>pos:{selectedPOS.map(p => t(`pos.${p}`).toLowerCase()).join(',')}</span>
+            </>
+          )}
+          {loading && (
+            <span className="animate-pulse" style={{ color: 'var(--term-text-dim)' }}>loading...</span>
+          )}
+        </div>
       </div>
 
       {/* Toolbar */}
-      <div className="px-8 md:px-16">
+      <div className="px-5 md:px-8 mt-2">
         <DictionaryToolbar
           totalCount={totalCount}
           topicsCount={topics.length}
@@ -255,24 +260,26 @@ export function DictionaryPage() {
 
       {/* Error */}
       {error && (
-        <div className="px-8 md:px-16 mt-6">
-          <div className="flex flex-col items-center justify-center gap-3 py-12 rounded-xl border border-poppy/20 bg-poppy-light">
-            <p className="text-sm text-poppy-fg">{t('error.loadFailed')}</p>
-            <Button
-              variant="outline"
-              size="sm"
-              className="rounded-full border-poppy/30 text-poppy-fg hover:bg-poppy-light"
+        <div className="px-5 md:px-8 mt-4">
+          <div className="py-4" style={{ borderTop: '1px dashed var(--term-border)' }}>
+            <p className="text-xs" style={{ color: 'var(--term-red)' }}>
+              stderr: {t('error.loadFailed')}
+            </p>
+            <button
+              type="button"
               onClick={() => window.location.reload()}
+              className="mt-2 text-xs hover:underline"
+              style={{ color: 'var(--term-yellow)' }}
             >
-              {t('error.tryAgain')}
-            </Button>
+              [retry]
+            </button>
           </div>
         </div>
       )}
 
       {/* Word list */}
       {!error && (
-        <div className="px-8 md:px-16 mt-2">
+        <div className="px-5 md:px-8 mt-1">
           <WordList
             entries={entries}
             loading={loading}
@@ -291,51 +298,59 @@ export function DictionaryPage() {
 
           {/* Empty state */}
           {!loading && entries.length === 0 && (
-            <div className="flex flex-col items-center justify-center gap-4 py-32">
-              <div className="flex items-center justify-center h-20 w-20 rounded-2xl bg-surface-secondary">
-                <BookOpen className="h-10 w-10 text-text-tertiary" />
-              </div>
-              <p className="text-lg text-text-secondary">
-                {hasActiveFilters ? t('empty.noResults') : t('empty.title')}
+            <div className="py-12">
+              <p className="text-xs" style={{ color: 'var(--term-text-muted)' }}>
+                {hasActiveFilters ? '// 0 results — no entries match current filters' : '// dictionary is empty'}
               </p>
               {hasActiveFilters && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="rounded-full"
+                <button
+                  type="button"
                   onClick={clearAllFilters}
+                  className="mt-2 text-xs hover:underline"
+                  style={{ color: 'var(--term-yellow)' }}
                 >
-                  {t('filter.clearAll')}
-                </Button>
+                  [clear filters]
+                </button>
               )}
             </div>
           )}
 
-          {/* Load more with progress (Goal-Gradient + Peak-End) */}
+          {/* Load more */}
           {!loading && entries.length > 0 && pageInfo?.hasNextPage && (
-            <div className="flex flex-col items-center gap-3 pt-8 pb-16">
-              {/* Progress bar */}
-              <div className="w-48 flex flex-col items-center gap-1.5">
-                <div className="w-full h-1 rounded-full bg-surface-secondary overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-cornflower transition-all duration-500 ease-out"
-                    style={{ width: `${Math.round((entries.length / totalCount) * 100)}%` }}
-                  />
-                </div>
-                <p className="text-xs text-text-tertiary tabular-nums">
-                  {t('pagination.showing', { count: entries.length, total: totalCount })}
-                </p>
+            <div className="flex items-center gap-3 py-4 mt-2" style={{ borderTop: '1px dashed var(--term-border)' }}>
+              <span className="text-[11px] tabular-nums" style={{ color: 'var(--term-text-dim)' }}>
+                loaded {entries.length}/{totalCount}
+              </span>
+              <div className="flex-1 term-progress-track">
+                <div
+                  className="term-progress-fill"
+                  style={{ width: `${Math.round((entries.length / totalCount) * 100)}%` }}
+                />
               </div>
-              <Button
-                variant="outline"
+              <span className="text-[11px] tabular-nums" style={{ color: 'var(--term-text-dim)' }}>
+                {Math.round((entries.length / totalCount) * 100)}%
+              </span>
+              <button
+                type="button"
                 onClick={loadMore}
-                className="gap-2 rounded-full px-6 border-border-default hover:bg-surface-secondary transition-all duration-200"
+                className="text-xs hover:underline"
+                style={{ color: 'var(--term-green)' }}
               >
-                <ChevronDown className="h-4 w-4" />
-                {t('pagination.loadMore')}
-              </Button>
+                [more]
+              </button>
             </div>
           )}
+
+          {/* EOF marker */}
+          {!loading && entries.length > 0 && !pageInfo?.hasNextPage && (
+            <div className="py-4 mt-2" style={{ borderTop: '1px dashed var(--term-border)' }}>
+              <span className="text-[10px]" style={{ color: 'var(--term-text-dim)' }}>
+                // EOF — {totalCount} entries total
+              </span>
+            </div>
+          )}
+
+          <div className="h-4" />
         </div>
       )}
     </div>

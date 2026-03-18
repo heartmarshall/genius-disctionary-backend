@@ -124,6 +124,72 @@
     --radius: 0.375rem;
   }
 
+  /* ─── Terminal theme for Dictionary page ──────────────────────────── */
+  .terminal-theme {
+    --term-bg: var(--bg-page);
+    --term-bg-raised: #e6e6e4;
+    --term-bg-hover: rgba(0, 0, 0, 0.03);
+    --term-border: var(--border-default);
+    --term-border-subtle: var(--border-subtle);
+    --term-text: var(--text-secondary);
+    --term-text-bright: var(--text-primary);
+    --term-text-muted: var(--text-tertiary);
+    --term-text-dim: var(--text-disabled);
+    --term-green: var(--poppy);
+    --term-yellow: var(--goldenrod-fg);
+    --term-blue: var(--cornflower);
+    --term-red: var(--poppy);
+    --term-purple: var(--source-book);
+    --term-cyan: var(--source-screen);
+    --term-orange: var(--goldenrod);
+  }
+
+  .terminal-theme input {
+    caret-color: var(--poppy);
+  }
+
+  .terminal-theme ::selection {
+    background: var(--poppy-light);
+  }
+}
+
+@layer components {
+  /* Word row hover */
+  .term-word-row {
+    transition: background 0.1s ease;
+  }
+  .term-word-row:hover {
+    background: var(--term-bg-hover);
+  }
+
+  /* Detail card */
+  .term-detail-card {
+    background: var(--term-bg-raised);
+    border-left: 2px solid var(--term-border);
+  }
+
+  /* Dropdown panel */
+  .term-dropdown {
+    background: var(--bg-card);
+    border: 1px solid var(--term-border);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  /* Progress track */
+  .term-progress-track {
+    height: 2px;
+    background: var(--term-border-subtle);
+    overflow: hidden;
+  }
+  .term-progress-fill {
+    height: 100%;
+    background: var(--term-green);
+    opacity: 0.5;
+    transition: width 0.3s ease;
+  }
+}
+
+@layer base {
   * {
     @apply border-border;
   }

@@ -1,7 +1,4 @@
 import { useTranslation } from 'react-i18next'
-import { Skeleton } from '@/components/ui/skeleton'
-import { cn } from '@/lib/utils'
-import { getPosColors } from '@/lib/pos-colors'
 import type { DictionaryEntry } from '@/types/dictionary'
 import type { DisplayOptions } from './DictionaryToolbar'
 
@@ -15,18 +12,47 @@ interface WordListProps {
   renderDetail?: (entry: DictionaryEntry, index: number) => React.ReactNode
 }
 
+const TERM_POS_COLORS: Record<string, string> = {
+  NOUN: 'var(--term-blue)',
+  VERB: 'var(--term-red)',
+  ADJECTIVE: 'var(--term-yellow)',
+  ADVERB: 'var(--term-cyan)',
+  PRONOUN: 'var(--term-blue)',
+  PREPOSITION: 'var(--term-orange)',
+  CONJUNCTION: 'var(--term-cyan)',
+  INTERJECTION: 'var(--term-purple)',
+}
+
 function WordListSkeleton() {
-  const widths = [280, 360, 200, 320, 240, 400, 180, 300]
   return (
     <div className="flex flex-col">
-      {widths.map((w, i) => (
-        <div key={i} className="flex items-center justify-between py-5 border-b border-border-subtle/60">
-          <Skeleton className="h-8 rounded" style={{ width: w }} />
-          <Skeleton className="h-3 w-10 rounded" />
+      {Array.from({ length: 12 }).map((_, i) => (
+        <div key={i} className="flex items-center gap-3 py-1.5">
+          <span className="text-[11px] tabular-nums w-5 text-right" style={{ color: 'var(--term-text-dim)' }}>
+            {i + 1}
+          </span>
+          <div
+            className="h-3 animate-pulse"
+            style={{ width: 60 + Math.random() * 100, background: 'var(--term-border)', opacity: 0.6 }}
+          />
+          <div
+            className="h-3 animate-pulse"
+            style={{ width: 30 + Math.random() * 20, background: 'var(--term-text-dim)', opacity: 0.2 }}
+          />
         </div>
       ))}
     </div>
   )
+}
+
+/** Format short POS label */
+function posShort(pos: string): string {
+  const map: Record<string, string> = {
+    NOUN: 'n', VERB: 'v', ADJECTIVE: 'adj', ADVERB: 'adv',
+    PRONOUN: 'pron', PREPOSITION: 'prep', CONJUNCTION: 'conj',
+    INTERJECTION: 'interj', PHRASE: 'phr', IDIOM: 'idiom', OTHER: '?',
+  }
+  return map[pos] ?? pos.toLowerCase()
 }
 
 export function WordList({
@@ -44,21 +70,13 @@ export function WordList({
     return <WordListSkeleton />
   }
 
-  const hasAnyDisplayOption =
-    displayOptions.translation ||
-    displayOptions.transcription ||
-    displayOptions.partOfSpeech ||
-    displayOptions.definition ||
-    displayOptions.topic
-
   let lastLetter = ''
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col font-mono">
       {entries.map((entry, index) => {
         const isSelected = selectedWordId === entry.id
 
-        // Build second-line metadata
         const translation = displayOptions.translation
           ? entry.senses[0]?.translations[0]?.text
           : undefined
@@ -75,72 +93,93 @@ export function WordList({
           ? entry.topics.map((topic) => topic.name)
           : []
 
-        const textParts: string[] = []
-        if (translation) textParts.push(translation)
-        if (cleanIpa) textParts.push(cleanIpa)
-        if (definition) textParts.push(definition)
-        if (topicNames.length > 0) textParts.push(topicNames.join(', '))
+        // Build the right-side info fragments
+        const infoParts: string[] = []
+        if (translation) infoParts.push(translation)
+        if (definition && !translation) infoParts.push(definition)
 
-        const hasSecondLine = showPos || textParts.length > 0
+        const sensesCount = entry.senses.length
 
-        // Alphabetical section headers (Chunking)
+        // Alphabetical section headers
         let letterHeader: React.ReactNode = null
         if (sortedAlphabetically) {
           const firstChar = entry.text[0]?.toUpperCase() ?? ''
           if (firstChar !== lastLetter) {
             lastLetter = firstChar
             letterHeader = (
-              <div className="sticky top-0 z-[5] pt-6 pb-2 text-xs font-medium text-text-tertiary uppercase tracking-widest bg-bg-page">
-                {firstChar}
+              <div className="sticky top-0 z-[5] flex items-center gap-2 pt-5 pb-1" style={{ background: 'var(--term-bg)' }}>
+                <span className="text-xs font-bold uppercase" style={{ color: 'var(--term-green)' }}>
+                  {firstChar}
+                </span>
+                <div className="flex-1" style={{ borderBottom: '1px dotted var(--term-border)' }} />
               </div>
             )
           }
         }
 
-        const posColors = showPos ? getPosColors(primaryPos) : null
+        const posColor = showPos ? (TERM_POS_COLORS[primaryPos] ?? 'var(--term-text-muted)') : undefined
 
         return (
           <div key={entry.id}>
             {letterHeader}
             <div data-word-id={entry.id} style={{ scrollMarginTop: '4rem' }}>
               {isSelected ? (
-                <div className="border-b border-border-subtle/60">
+                <div className="my-0.5">
                   {renderDetail?.(entry, index)}
                 </div>
               ) : (
                 <button
                   type="button"
                   onClick={() => onWordClick(entry.id)}
-                  className={cn(
-                    'w-full flex items-baseline gap-4 md:gap-8 py-4 md:py-5 text-left cursor-pointer',
-                    'transition-all duration-200 ease-out',
-                    'hover:bg-surface-secondary/60',
-                    'border-b border-border-subtle/60',
-                  )}
+                  className="term-word-row w-full flex items-baseline gap-2 py-1.5 text-left cursor-pointer group"
                 >
-                  <div className="flex flex-col min-w-0 flex-1">
-                    <span className="text-[1.75rem] md:text-[2.25rem] font-medium leading-tight tracking-[-0.02em] text-text-primary">
-                      {entry.text}
-                    </span>
-                    {hasAnyDisplayOption && hasSecondLine && (
-                      <span className="flex items-center gap-1.5 mt-1 text-sm text-text-tertiary line-clamp-1">
-                        {showPos && posColors && (
-                          <>
-                            <span className={cn('text-xs font-medium uppercase tracking-wide', posColors.text)}>
-                              {t(`pos.${primaryPos}`)}
-                            </span>
-                            {textParts.length > 0 && (
-                              <span className="text-text-disabled">·</span>
-                            )}
-                          </>
-                        )}
-                        {textParts.join(' · ')}
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-xs text-text-tertiary tabular-nums shrink-0 self-center">
+                  {/* Index */}
+                  <span className="text-[10px] tabular-nums w-5 text-right shrink-0 select-none" style={{ color: 'var(--term-text-dim)' }}>
                     {index + 1}
                   </span>
+
+                  {/* Word */}
+                  <span className="text-[13px] font-bold shrink-0" style={{ color: 'var(--term-text-bright)' }}>
+                    {entry.text}
+                  </span>
+
+                  {/* POS short */}
+                  {showPos && (
+                    <span className="text-[10px] shrink-0" style={{ color: posColor }}>
+                      {posShort(primaryPos)}
+                    </span>
+                  )}
+
+                  {/* Senses count if > 1 */}
+                  {sensesCount > 1 && (
+                    <span className="text-[10px] shrink-0" style={{ color: 'var(--term-text-dim)' }}>
+                      {sensesCount}s
+                    </span>
+                  )}
+
+                  {/* IPA */}
+                  {cleanIpa && (
+                    <span className="text-[10px] shrink-0" style={{ color: 'var(--term-text-dim)' }}>
+                      {cleanIpa}
+                    </span>
+                  )}
+
+                  {/* Translation / definition */}
+                  {infoParts.length > 0 && (
+                    <span className="text-[11px] truncate min-w-0 flex-1" style={{ color: 'var(--term-text-muted)' }}>
+                      — {infoParts.join(' · ')}
+                    </span>
+                  )}
+
+                  {/* Spacer when no info */}
+                  {infoParts.length === 0 && <span className="flex-1" />}
+
+                  {/* Topics */}
+                  {topicNames.length > 0 && (
+                    <span className="text-[10px] shrink-0 hidden md:inline" style={{ color: 'var(--term-text-dim)' }}>
+                      [{topicNames.join(',')}]
+                    </span>
+                  )}
                 </button>
               )}
             </div>

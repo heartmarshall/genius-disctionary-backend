@@ -1,10 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { X, Pencil, Trash2, Volume2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,33 +14,44 @@ import {
 } from '@/components/ui/alert-dialog'
 import { WordOverview } from './WordOverview'
 import { WordEditDialog } from './WordEditDialog'
-import { Skeleton } from '@/components/ui/skeleton'
 import { useWordDetail } from '@/hooks/useWordDetail'
 import { useDeleteWord } from '@/hooks/useDeleteWord'
-import { getPosColors } from '@/lib/pos-colors'
+
+const TERM_POS_COLORS: Record<string, string> = {
+  NOUN: 'var(--term-blue)',
+  VERB: 'var(--term-red)',
+  ADJECTIVE: 'var(--term-yellow)',
+  ADVERB: 'var(--term-cyan)',
+  PRONOUN: 'var(--term-blue)',
+  PREPOSITION: 'var(--term-orange)',
+  CONJUNCTION: 'var(--term-cyan)',
+  INTERJECTION: 'var(--term-purple)',
+}
 
 interface WordDetailInlineProps {
   wordId: string
   onClose: () => void
 }
 
-function HeaderSkeleton() {
+function ContentSkeleton() {
   return (
-    <div className="space-y-5">
-      <Skeleton className="h-12 w-64" />
-      <Skeleton className="h-4 w-40" />
+    <div className="space-y-1.5 py-1">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div key={i} className="flex items-center gap-2">
+          <div
+            className="h-3 animate-pulse"
+            style={{ width: 50 + Math.random() * 180, background: 'var(--term-border)', opacity: 0.4 }}
+          />
+        </div>
+      ))}
     </div>
   )
 }
 
-function ContentSkeleton() {
-  return (
-    <div className="space-y-4 mt-10">
-      <Skeleton className="h-4 w-full max-w-xl" />
-      <Skeleton className="h-4 w-3/4 max-w-md" />
-      <Skeleton className="h-4 w-1/2 max-w-sm" />
-    </div>
-  )
+function formatDate(iso: string): string {
+  const d = new Date(iso)
+  const pad = (n: number) => n.toString().padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 }
 
 export function WordDetailInline({ wordId, onClose }: WordDetailInlineProps) {
@@ -53,138 +61,110 @@ export function WordDetailInline({ wordId, onClose }: WordDetailInlineProps) {
   const [editWordId, setEditWordId] = useState<string | null>(null)
 
   const primaryPos = entry?.senses[0]?.partOfSpeech
-  const posColors = getPosColors(primaryPos)
-
-  const playAudio = async (url: string) => {
-    try {
-      await new Audio(url).play()
-    } catch {
-      toast.error(t('error.audioFailed'))
-    }
-  }
+  const posColor = primaryPos ? (TERM_POS_COLORS[primaryPos] ?? 'var(--term-text-muted)') : 'var(--term-border)'
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      className="my-4 py-1 -mx-5 md:-mx-6 rounded-2xl border border-cornflower/25 shadow-sm bg-cornflower-light/15"
+      transition={{ duration: 0.12 }}
+      className="term-detail-card"
+      style={{ borderLeftColor: posColor }}
     >
-      {/* Header — word title row with actions */}
-      <div className="flex items-start justify-between gap-4 pt-3 md:pt-4 px-4 md:px-5">
-        <div className="flex-1 min-w-0">
-          {loading && <HeaderSkeleton />}
-
+      {/* Header line */}
+      <div className="flex items-baseline justify-between gap-3 px-4 py-2.5">
+        <div className="flex items-baseline gap-2 min-w-0 flex-wrap">
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-[13px] font-bold font-mono hover:underline shrink-0"
+            style={{ color: 'var(--term-text-bright)' }}
+          >
+            {entry?.text ?? '...'}
+          </button>
+          {primaryPos && (
+            <span className="text-[10px] shrink-0" style={{ color: posColor }}>
+              {t(`pos.${primaryPos}`)}
+            </span>
+          )}
           {entry && (
-            <>
-              {/* Meta — POS (matching list style) + topics */}
-              <div className="flex items-center gap-2 flex-wrap mb-2">
-                {primaryPos && (
-                  <span className={cn('text-xs font-medium uppercase tracking-wide', posColors.text)}>
-                    {t(`pos.${primaryPos}`)}
-                  </span>
-                )}
-                {entry.topics.length > 0 && (primaryPos ? (
-                  <span className="text-text-disabled">·</span>
-                ) : null)}
-                {entry.topics.map((topic, i) => (
-                  <span key={topic.id} className="text-[11px] uppercase tracking-widest text-text-tertiary">
-                    {topic.name}{i < entry.topics.length - 1 ? ',' : ''}
-                  </span>
-                ))}
-              </div>
-
-              {/* Word + IPA inline */}
-              <div className="flex items-baseline gap-4 flex-wrap">
-                <h2
-                  onClick={onClose}
-                  className="text-2xl md:text-3xl font-medium tracking-[-0.03em] text-text-primary leading-tight cursor-pointer hover:opacity-70 transition-opacity duration-200"
-                >
-                  {entry.text}
-                </h2>
-                {entry.pronunciations.length > 0 && (
-                  <div className="flex items-center gap-4 flex-wrap">
-                    {entry.pronunciations.map((pron) => (
-                      <div key={pron.id} className="inline-flex items-center gap-1.5">
-                        <span className="text-sm text-text-secondary">
-                          /{pron.transcription.replace(/^\/+|\/+$/g, '')}/
-                        </span>
-                        {pron.region && (
-                          <span className="text-[9px] font-medium uppercase tracking-widest text-text-tertiary">
-                            {pron.region}
-                          </span>
-                        )}
-                        {pron.audioUrl && (
-                          <button
-                            type="button"
-                            className="text-text-tertiary hover:text-text-primary transition-colors duration-200"
-                            onClick={() => playAudio(pron.audioUrl!)}
-                          >
-                            <Volume2 className="h-3.5 w-3.5" />
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </>
+            <span className="text-[10px] shrink-0" style={{ color: 'var(--term-text-dim)' }}>
+              {entry.senses.length}s {entry.senses.reduce((n, s) => n + s.examples.length, 0)}ex
+            </span>
           )}
         </div>
-
-        {/* Actions — right side, larger touch targets (Fitts's Law) */}
-        <div className="flex items-center shrink-0 gap-1">
+        <div className="flex items-baseline shrink-0 gap-2">
           {entry && (
-            <div className="flex items-center gap-0.5">
+            <>
               <button
                 type="button"
                 onClick={() => setEditWordId(entry.id)}
-                className="text-text-tertiary hover:text-text-primary hover:bg-surface-secondary transition-colors duration-200 p-2.5 rounded-lg"
-                aria-label={t('actions.edit')}
+                className="text-[11px] hover:underline"
+                style={{ color: 'var(--term-yellow)' }}
               >
-                <Pencil size={18} />
+                [edit]
               </button>
               <button
                 type="button"
                 onClick={() => requestDelete(entry)}
-                className="text-text-tertiary hover:text-poppy hover:bg-poppy-light transition-colors duration-200 p-2.5 rounded-lg"
-                aria-label={t('actions.delete')}
+                className="text-[11px] hover:underline"
+                style={{ color: 'var(--term-red)' }}
               >
-                <Trash2 size={18} />
+                [del]
               </button>
-            </div>
+            </>
           )}
-          <div className="w-px h-5 bg-border-subtle/60 mx-1" />
           <button
             type="button"
             onClick={onClose}
-            className="text-text-tertiary hover:text-text-primary hover:bg-surface-secondary transition-colors duration-200 p-2.5 rounded-lg"
-            aria-label="Close"
+            className="text-[11px] hover:underline"
+            style={{ color: 'var(--term-text-muted)' }}
           >
-            <X size={18} />
+            [x]
           </button>
         </div>
       </div>
 
-      {/* Content zone */}
-      <div className="pt-3 pb-5 px-4 md:px-5">
+      {/* Content */}
+      <div className="px-4 pb-3">
         {loading && <ContentSkeleton />}
 
         {error && (
-          <div className="flex flex-col items-center gap-3 py-12">
-            <p className="text-sm text-poppy-fg">{t('error.loadFailed')}</p>
-            <Button
-              variant="outline"
-              size="sm"
-              className="rounded-full border-poppy/30 text-poppy-fg hover:bg-poppy-light"
+          <div className="py-2">
+            <p className="text-[11px]" style={{ color: 'var(--term-red)' }}>
+              stderr: {t('error.loadFailed')}
+            </p>
+            <button
+              type="button"
+              className="mt-1 text-[11px] hover:underline"
+              style={{ color: 'var(--term-yellow)' }}
               onClick={() => window.location.reload()}
             >
-              {t('error.tryAgain')}
-            </Button>
+              [retry]
+            </button>
           </div>
         )}
 
-        {entry && <WordOverview entry={entry} hideHeader primaryPosShownInHeader={primaryPos} />}
+        {entry && (
+          <>
+            <WordOverview entry={entry} hideHeader primaryPosShownInHeader={primaryPos} />
+
+            {/* Metadata footer */}
+            <div className="mt-3 pt-2 flex flex-wrap items-baseline gap-x-4 gap-y-0.5" style={{ borderTop: '1px dotted var(--term-border)' }}>
+              <span className="text-[10px]" style={{ color: 'var(--term-text-dim)' }}>
+                created {formatDate(entry.createdAt)}
+              </span>
+              {entry.updatedAt !== entry.createdAt && (
+                <span className="text-[10px]" style={{ color: 'var(--term-text-dim)' }}>
+                  updated {formatDate(entry.updatedAt)}
+                </span>
+              )}
+              <span className="text-[10px]" style={{ color: 'var(--term-text-dim)' }}>
+                id:{entry.id.slice(0, 8)}
+              </span>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Edit dialog */}
@@ -196,17 +176,17 @@ export function WordDetailInline({ wordId, onClose }: WordDetailInlineProps) {
 
       {/* Delete confirmation */}
       <AlertDialog open={pendingEntry !== null} onOpenChange={(open) => !open && cancelDelete()}>
-        <AlertDialogContent className="rounded-xl">
+        <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{t('delete.confirm')}</AlertDialogTitle>
             <AlertDialogDescription>{t('delete.confirmDescription')}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="rounded-full" onClick={cancelDelete}>
+            <AlertDialogCancel onClick={cancelDelete}>
               {t('delete.confirmCancel')}
             </AlertDialogCancel>
             <AlertDialogAction
-              className="rounded-full bg-poppy text-white hover:bg-poppy/90"
+              className="bg-poppy text-white hover:bg-poppy/90"
               onClick={() => { confirmDelete(); onClose() }}
             >
               {t('delete.confirmDelete')}
