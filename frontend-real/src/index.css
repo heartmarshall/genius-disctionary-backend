@@ -1,116 +1,69 @@
-@font-face {
-  font-family: 'Overused Grotesk';
-  src: url('/fonts/OverusedGrotesk-Light.woff2') format('woff2');
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Overused Grotesk';
-  src: url('/fonts/OverusedGrotesk-Roman.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Overused Grotesk';
-  src: url('/fonts/OverusedGrotesk-Book.woff2') format('woff2');
-  font-weight: 450;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Overused Grotesk';
-  src: url('/fonts/OverusedGrotesk-Medium.woff2') format('woff2');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Overused Grotesk';
-  src: url('/fonts/OverusedGrotesk-SemiBold.woff2') format('woff2');
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Overused Grotesk';
-  src: url('/fonts/OverusedGrotesk-Bold.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    /* Layer 1 — Interface */
-    --bg-page: #EDEDEC;
+    /* Layer 1 — Interface (cool blue-gray) */
+    --bg-page: #D8DCE5;
     --bg-card: #ffffff;
-    --surface-secondary: #E3E3E1;
-    --surface-disabled: #d8d8d6;
-    --border-default: #c8c8c6;
-    --border-subtle: #d8d8d6;
-    --text-primary: #1a1a1a;
-    --text-secondary: #555555;
-    --text-tertiary: #888888;
-    --text-disabled: #b8b8b8;
+    --surface-secondary: #EDF0F5;
+    --surface-footer: #E4E7ED;
+    --surface-disabled: #E4E7ED;
+    --border-default: #C6CBD6;
+    --border-subtle: #D8DCE5;
+    --text-primary: #14161E;
+    --text-secondary: #4A5068;
+    --text-tertiary: #788094;
+    --text-disabled: #A4AAB8;
     --text-on-accent: #ffffff;
 
-    /* Layer 2 — Poppy */
-    --poppy: #a14832;
-    --poppy-hover: #8a3b28;
-    --poppy-light: #f5ebe7;
-    --poppy-fg: #7d3e2b;
+    /* Layer 2 — Poppy (danger/red) */
+    --poppy: #B06068;
+    --poppy-hover: #9A4F56;
+    --poppy-light: #F4E8EA;
+    --poppy-fg: #B06068;
 
-    /* Layer 2 — Goldenrod */
-    --goldenrod: #b9983d;
-    --goldenrod-hover: #766536;
-    --goldenrod-light: #f3f0e5;
-    --goldenrod-fg: #6b5e34;
+    /* Layer 2 — Goldenrod (warning/orange) */
+    --goldenrod: #9E7E4A;
+    --goldenrod-hover: #8A6D3E;
+    --goldenrod-light: #F2ECE0;
+    --goldenrod-fg: #9E7E4A;
 
-    /* Layer 2 — Cornflower */
-    --cornflower: #55698a;
-    --cornflower-hover: #475a78;
-    --cornflower-light: #e8ecf2;
-    --cornflower-fg: #3f526d;
+    /* Layer 2 — Cornflower (accent/blue) */
+    --cornflower: #5872A8;
+    --cornflower-hover: #4A6190;
+    --cornflower-light: #E8ECF4;
+    --cornflower-fg: #5872A8;
 
-    /* Layer 2 — Thyme */
-    --thyme: #4c7458;
-    --thyme-hover: #40654b;
-    --thyme-light: #eff5f0;
-    --thyme-fg: #3a6146;
+    /* Layer 2 — Thyme (success/green) */
+    --thyme: #4D8A6F;
+    --thyme-hover: #3E7560;
+    --thyme-light: #E4EFE9;
+    --thyme-fg: #4D8A6F;
 
     /* Layer 3 — Content sources */
-    --source-book: #7a6898;
-    --source-book-light: #f0ecf5;
-    --source-screen: #4e7385;
-    --source-screen-light: #e8eff3;
+    --source-book: #7E6DA0;
+    --source-book-light: #EDEAF4;
+    --source-screen: #4E8585;
+    --source-screen-light: #E4EEEE;
     --source-music: #8a6482;
     --source-music-light: #f3ecf1;
 
-    /* shadcn/ui mappings → Herbarium tokens */
+    /* shadcn/ui mappings */
     --background: var(--bg-page);
     --foreground: var(--text-primary);
     --card: var(--bg-card);
     --card-foreground: var(--text-primary);
     --popover: var(--bg-card);
     --popover-foreground: var(--text-primary);
-    --primary: var(--poppy);
+    --primary: var(--cornflower);
     --primary-foreground: var(--text-on-accent);
     --secondary: var(--surface-secondary);
     --secondary-foreground: var(--text-primary);
     --muted: var(--surface-secondary);
     --muted-foreground: var(--text-secondary);
-    --accent: var(--poppy-light);
+    --accent: var(--cornflower-light);
     --accent-foreground: var(--text-primary);
     --destructive: var(--poppy);
     --destructive-foreground: var(--text-on-accent);
@@ -118,84 +71,83 @@
     --input: var(--border-default);
     --ring: var(--cornflower);
 
-    /* Hover card */
-    --shadow-hover-card: 0 20px 60px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.04);
-
-    --radius: 0.375rem;
-  }
-
-  /* ─── Terminal theme for Dictionary page ──────────────────────────── */
-  .terminal-theme {
-    --term-bg: var(--bg-page);
-    --term-bg-raised: #e6e6e4;
-    --term-bg-hover: rgba(0, 0, 0, 0.03);
-    --term-border: var(--border-default);
-    --term-border-subtle: var(--border-subtle);
-    --term-text: var(--text-secondary);
-    --term-text-bright: var(--text-primary);
-    --term-text-muted: var(--text-tertiary);
-    --term-text-dim: var(--text-disabled);
-    --term-green: var(--poppy);
-    --term-yellow: var(--goldenrod-fg);
-    --term-blue: var(--cornflower);
-    --term-red: var(--poppy);
-    --term-purple: var(--source-book);
-    --term-cyan: var(--source-screen);
-    --term-orange: var(--goldenrod);
-  }
-
-  .terminal-theme input {
-    caret-color: var(--poppy);
-  }
-
-  .terminal-theme ::selection {
-    background: var(--poppy-light);
+    --radius: 0.5rem;
   }
 }
 
 @layer components {
   /* Word row hover */
-  .term-word-row {
-    transition: background 0.1s ease;
-    border-radius: 6px;
-  }
-  .term-word-row:hover {
-    background: var(--term-bg-hover);
-  }
-
-  /* Dropdown panel */
-  .term-dropdown {
-    background: var(--bg-card);
-    border: 1px solid var(--term-border);
+  .dict-word-row {
+    transition: all 0.1s ease;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid transparent;
+  }
+  .dict-word-row:hover {
+    background: var(--bg-card);
+    box-shadow: 0 1px 4px rgba(20, 22, 30, 0.06);
+    border-color: var(--border-default);
   }
 
   /* Progress track */
-  .term-progress-track {
+  .dict-progress-track {
     height: 3px;
-    background: var(--term-border-subtle);
+    background: var(--border-subtle);
     border-radius: 2px;
     overflow: hidden;
   }
-  .term-progress-fill {
+  .dict-progress-fill {
     height: 100%;
-    background: var(--term-green);
+    background: var(--cornflower);
     border-radius: 2px;
     opacity: 0.5;
     transition: width 0.3s ease;
   }
 
-  /* Keyboard hint — subtle, monospace */
-  .term-kbd {
-    display: inline-block;
+  /* Keyboard hint */
+  .dict-kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
     padding: 0 4px;
-    font-size: 10px;
+    font-size: 11px;
     font-family: inherit;
-    border: 1px solid var(--term-border);
-    border-radius: 3px;
-    color: var(--term-text-dim);
-    line-height: 1.4;
+    border: 1px solid var(--border-default);
+    border-radius: 4px;
+    color: var(--text-tertiary);
+    line-height: 1;
+  }
+
+  /* Bento section label */
+  .dict-section-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-disabled);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  /* Bento cell */
+  .dict-cell {
+    background: var(--surface-secondary);
+    border-radius: 10px;
+    padding: 14px 16px;
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  /* Card entrance */
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-card-in {
+    animation: cardIn 0.2s ease-out;
   }
 }
 
@@ -206,5 +158,19 @@
 
   body {
     @apply bg-bg-page text-text-primary font-sans antialiased;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(164, 170, 184, 0.25);
+    border-radius: 3px;
+  }
+  ::selection {
+    background: rgba(88, 114, 168, 0.15);
   }
 }

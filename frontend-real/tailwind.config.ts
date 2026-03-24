@@ -24,10 +24,11 @@ export default {
         input: 'var(--input)',
         ring: 'var(--ring)',
 
-        /* Herbarium Layer 1 — Interface */
+        /* Layer 1 — Interface */
         'bg-page': 'var(--bg-page)',
         'bg-card': 'var(--bg-card)',
         'surface-secondary': 'var(--surface-secondary)',
+        'surface-footer': 'var(--surface-footer)',
         'surface-disabled': 'var(--surface-disabled)',
         'border-default': 'var(--border-default)',
         'border-subtle': 'var(--border-subtle)',
@@ -65,7 +66,14 @@ export default {
         'source-music': { DEFAULT: 'var(--source-music)', light: 'var(--source-music-light)', fg: 'var(--source-music)' },
       },
       fontFamily: {
-        sans: ['Overused Grotesk', 'system-ui', 'sans-serif'],
+        sans: ['"DM Sans"', 'system-ui', 'sans-serif'],
+        serif: ['"Source Serif 4"', 'Georgia', 'serif'],
+        mono: ['"JetBrains Mono"', 'monospace'],
+        display: ['"Source Serif 4"', 'Georgia', 'serif'],
+      },
+      boxShadow: {
+        bento: '0 6px 28px rgba(20,22,30,0.10), 0 2px 6px rgba(20,22,30,0.06)',
+        toolbar: '0 2px 8px rgba(20,22,30,0.06)',
       },
     },
   },

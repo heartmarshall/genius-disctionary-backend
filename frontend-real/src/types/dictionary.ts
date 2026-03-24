@@ -61,6 +61,46 @@ export interface Topic {
   description?: string
 }
 
+export type CardState = 'NEW' | 'LEARNING' | 'REVIEW' | 'RELEARNING'
+export type ReviewGrade = 'AGAIN' | 'HARD' | 'GOOD' | 'EASY'
+
+export interface Card {
+  id: UUID
+  entryId: UUID
+  state: CardState
+  due: string
+  lastReview?: string
+  reps: Int
+  lapses: Int
+  scheduledDays: Int
+  createdAt: string
+  updatedAt: string
+}
+
+type Int = number
+
+export interface GradeCounts {
+  again: number
+  hard: number
+  good: number
+  easy: number
+}
+
+export interface CardStats {
+  totalReviews: number
+  accuracy: number
+  currentState: CardState
+  scheduledDays: number
+  gradeDistribution?: GradeCounts
+}
+
+export interface ReviewLog {
+  id: UUID
+  cardId: UUID
+  grade: ReviewGrade
+  reviewedAt: string
+}
+
 export interface DictionaryEntry {
   id: UUID
   text: string
@@ -71,6 +111,7 @@ export interface DictionaryEntry {
   userImages: UserImage[]
   pronunciations: Pronunciation[]
   topics: Topic[]
+  card?: Card
   createdAt: string
   updatedAt: string
 }

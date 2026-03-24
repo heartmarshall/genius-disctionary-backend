@@ -19,7 +19,14 @@ export function useDictionary(filter: DictionaryFilterInput) {
 
   // Use previous data while loading to prevent UI flicker
   const currentData = data ?? previousData
-  const entries = currentData?.dictionary.edges.map((e) => e.node) ?? []
+  const rawEntries = currentData?.dictionary.edges.map((e) => e.node) ?? []
+  // Deduplicate — Apollo cache merges + loadMore can produce duplicate edges
+  const seen = new Set<string>()
+  const entries = rawEntries.filter((e) => {
+    if (seen.has(e.id)) return false
+    seen.add(e.id)
+    return true
+  })
   const pageInfo = currentData?.dictionary.pageInfo
   const totalCount = currentData?.dictionary.totalCount ?? 0
 
@@ -35,10 +42,12 @@ export function useDictionary(filter: DictionaryFilterInput) {
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev
+        const existingIds = new Set(prev.dictionary.edges.map((e) => e.node.id))
+        const newEdges = fetchMoreResult.dictionary.edges.filter((e) => !existingIds.has(e.node.id))
         return {
           dictionary: {
             ...fetchMoreResult.dictionary,
-            edges: [...prev.dictionary.edges, ...fetchMoreResult.dictionary.edges],
+            edges: [...prev.dictionary.edges, ...newEdges],
           },
         }
       },

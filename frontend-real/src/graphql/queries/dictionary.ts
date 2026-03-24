@@ -81,8 +81,51 @@ export const GET_DICTIONARY_ENTRY = gql`
         name
         description
       }
+      card {
+        id
+        entryId
+        state
+        due
+        lastReview
+        reps
+        lapses
+        scheduledDays
+        createdAt
+        updatedAt
+      }
       createdAt
       updatedAt
+    }
+  }
+`
+
+export const GET_CARD_STATS = gql`
+  query GetCardStats($cardId: UUID!) {
+    cardStats(cardId: $cardId) {
+      totalReviews
+      accuracy
+      currentState
+      scheduledDays
+      gradeDistribution {
+        again
+        hard
+        good
+        easy
+      }
+    }
+  }
+`
+
+export const GET_CARD_HISTORY = gql`
+  query GetCardHistory($input: GetCardHistoryInput!) {
+    cardHistory(input: $input) {
+      logs {
+        id
+        cardId
+        grade
+        reviewedAt
+      }
+      totalCount
     }
   }
 `
@@ -103,6 +146,25 @@ export const UPDATE_ENTRY_NOTES = gql`
       entry {
         id
         notes
+        updatedAt
+      }
+    }
+  }
+`
+
+export const CREATE_CARD = gql`
+  mutation CreateCard($entryId: UUID!) {
+    createCard(entryId: $entryId) {
+      card {
+        id
+        entryId
+        state
+        due
+        lastReview
+        reps
+        lapses
+        scheduledDays
+        createdAt
         updatedAt
       }
     }

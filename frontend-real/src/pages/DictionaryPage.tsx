@@ -31,7 +31,18 @@ export function DictionaryPage() {
   const [selectedTopicIds, setSelectedTopicIds] = useState<string[]>([])
   const [sortBy, setSortBy] = useState<EntrySortField>('TEXT')
   const [sortDir, setSortDir] = useState<SortDirection>('ASC')
-  const [displayOptions, setDisplayOptions] = useState<DisplayOptions>(DEFAULT_DISPLAY)
+  const [displayOptions, setDisplayOptions] = useState<DisplayOptions>(() => {
+    try {
+      const saved = localStorage.getItem('dict-display')
+      if (saved) return { ...DEFAULT_DISPLAY, ...JSON.parse(saved) }
+    } catch {}
+    return DEFAULT_DISPLAY
+  })
+
+  const updateDisplayOptions = (opts: DisplayOptions) => {
+    setDisplayOptions(opts)
+    try { localStorage.setItem('dict-display', JSON.stringify(opts)) } catch {}
+  }
 
   // Detail view state
   const [selectedWordId, setSelectedWordId] = useState<string | null>(null)
@@ -206,37 +217,50 @@ export function DictionaryPage() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [selectedWordId, entries, handleClose, openWord])
 
-  // Build status line parts
-  const filterDesc = hasActiveFilters
-    ? `${entries.length} matches`
-    : `${totalCount} entries`
-  const sortDesc = sortBy === 'TEXT' ? 'a→z' : sortBy === 'CREATED_AT' ? 'newest' : 'updated'
+  // Stats — count from filtered entries
+  const filteredPosCounts = useMemo(() => {
+    const counts: Partial<Record<PartOfSpeech, number>> = {}
+    for (const entry of entries) {
+      const pos = entry.senses[0]?.partOfSpeech
+      if (pos) counts[pos] = (counts[pos] ?? 0) + 1
+    }
+    return counts
+  }, [entries])
+  const nounCount = filteredPosCounts['NOUN'] ?? 0
+  const adjCount = filteredPosCounts['ADJECTIVE'] ?? 0
+  const uniqueTopicsCount = topics.length
 
   return (
-    <div className="terminal-theme min-h-full font-mono" style={{ background: 'var(--term-bg)', color: 'var(--term-text)' }}>
-      {/* Status line */}
-      <div className="px-5 md:px-8 pt-5 pb-0">
-        <div className="flex items-baseline gap-2 flex-wrap text-sm">
-          <span className="font-bold" style={{ color: 'var(--term-green)' }}>dict://</span>
-          <span className="tabular-nums" style={{ color: 'var(--term-text-muted)' }}>{filterDesc}</span>
-          <span style={{ color: 'var(--term-text-dim)' }}>&middot;</span>
-          <span style={{ color: 'var(--term-text-muted)' }}>{topics.length} topics</span>
-          <span style={{ color: 'var(--term-text-dim)' }}>&middot;</span>
-          <span style={{ color: 'var(--term-text-muted)' }}>sort:{sortDesc}</span>
-          {selectedPOS.length > 0 && (
-            <>
-              <span style={{ color: 'var(--term-text-dim)' }}>&middot;</span>
-              <span style={{ color: 'var(--term-blue)' }}>pos:{selectedPOS.map(p => t(`pos.${p}`).toLowerCase()).join(',')}</span>
-            </>
-          )}
-          {loading && (
-            <span className="animate-pulse" style={{ color: 'var(--term-text-dim)' }}>loading...</span>
-          )}
+    <div className="min-h-full bg-bg-page">
+      <div className="max-w-[960px] mx-auto px-5 md:px-12 pt-10">
+      {/* Page header */}
+      <div className="pb-0">
+        <div className="mb-6">
+          <h1 className="text-[30px] font-bold text-text-primary font-serif tracking-tight mb-2.5">
+            Dictionary
+          </h1>
+          <div className="flex items-center gap-3.5 text-[14px] text-text-tertiary">
+            <span>
+              <strong className="text-text-secondary font-semibold">{totalCount}</strong> words
+            </span>
+            <span className="w-[3px] h-[3px] rounded-full bg-text-disabled" />
+            <span>
+              <strong className="text-text-secondary font-semibold">{nounCount}</strong> nouns
+            </span>
+            <span>
+              <strong className="text-text-secondary font-semibold">{adjCount}</strong> adj
+            </span>
+            <span className="w-[3px] h-[3px] rounded-full bg-text-disabled" />
+            <span>{uniqueTopicsCount} topics</span>
+            {loading && (
+              <span className="animate-pulse text-text-disabled">loading...</span>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Toolbar */}
-      <div className="px-5 md:px-8 mt-2">
+      <div className="mt-3">
         <DictionaryToolbar
           totalCount={totalCount}
           topicsCount={topics.length}
@@ -253,24 +277,23 @@ export function DictionaryPage() {
           selectedTopicIds={selectedTopicIds}
           onTopicIdsChange={setSelectedTopicIds}
           displayOptions={displayOptions}
-          onDisplayOptionsChange={setDisplayOptions}
+          onDisplayOptionsChange={updateDisplayOptions}
         />
       </div>
 
       {/* Error */}
       {error && (
-        <div className="px-5 md:px-8 mt-4">
-          <div className="py-4" style={{ borderTop: '1px dashed var(--term-border)' }}>
-            <p className="text-sm" style={{ color: 'var(--term-red)' }}>
+        <div className="mt-4">
+          <div className="py-4 border-t border-border-subtle">
+            <p className="text-sm text-poppy">
               {t('error.loadFailed')}
             </p>
             <button
               type="button"
               onClick={() => window.location.reload()}
-              className="mt-2 text-sm hover:underline"
-              style={{ color: 'var(--term-yellow)' }}
+              className="mt-2 text-sm text-cornflower hover:underline"
             >
-              [retry]
+              {t('error.tryAgain')}
             </button>
           </div>
         </div>
@@ -278,7 +301,7 @@ export function DictionaryPage() {
 
       {/* Word list */}
       {!error && (
-        <div className="px-5 md:px-8 mt-1">
+        <div className="mt-1">
           <WordList
             entries={entries}
             loading={loading}
@@ -298,18 +321,17 @@ export function DictionaryPage() {
 
           {/* Empty state */}
           {!loading && entries.length === 0 && (
-            <div className="py-12">
-              <p className="text-sm" style={{ color: 'var(--term-text-muted)' }}>
-                {hasActiveFilters ? '0 results — no entries match current filters' : 'dictionary is empty'}
+            <div className="py-16 text-center">
+              <p className="text-sm text-text-tertiary">
+                {hasActiveFilters ? 'No words match your current filters' : 'Your dictionary is empty'}
               </p>
               {hasActiveFilters && (
                 <button
                   type="button"
                   onClick={clearAllFilters}
-                  className="mt-2 text-sm hover:underline"
-                  style={{ color: 'var(--term-yellow)' }}
+                  className="mt-3 text-sm text-cornflower hover:underline"
                 >
-                  [clear filters]
+                  Clear all filters
                 </button>
               )}
             </div>
@@ -317,34 +339,32 @@ export function DictionaryPage() {
 
           {/* Load more */}
           {!loading && entries.length > 0 && pageInfo?.hasNextPage && (
-            <div className="flex items-center gap-3 py-4 mt-2" style={{ borderTop: '1px dashed var(--term-border)' }}>
-              <span className="text-xs tabular-nums" style={{ color: 'var(--term-text-dim)' }}>
-                loaded {entries.length}/{totalCount}
-              </span>
-              <div className="flex-1 term-progress-track">
-                <div
-                  className="term-progress-fill"
-                  style={{ width: `${Math.round((entries.length / totalCount) * 100)}%` }}
-                />
+            <div className="py-4 mt-3 border-t border-border-subtle">
+              <div className="flex items-center gap-3">
+                <div className="flex-1 dict-progress-track">
+                  <div
+                    className="dict-progress-fill"
+                    style={{ width: `${Math.round((entries.length / totalCount) * 100)}%` }}
+                  />
+                </div>
+                <span className="text-xs tabular-nums text-text-disabled shrink-0">
+                  {entries.length} of {totalCount}
+                </span>
               </div>
-              <span className="text-xs tabular-nums" style={{ color: 'var(--term-text-dim)' }}>
-                {Math.round((entries.length / totalCount) * 100)}%
-              </span>
               <button
                 type="button"
                 onClick={loadMore}
-                className="text-sm hover:underline"
-                style={{ color: 'var(--term-green)' }}
+                className="mt-2 w-full py-2 rounded-lg text-sm font-medium text-cornflower hover:bg-cornflower-light transition-colors duration-150"
               >
-                [more]
+                Load more
               </button>
             </div>
           )}
 
-          {/* EOF marker */}
+          {/* EOF */}
           {!loading && entries.length > 0 && !pageInfo?.hasNextPage && (
-            <div className="py-4 mt-2" style={{ borderTop: '1px dashed var(--term-border)' }}>
-              <span className="text-xs" style={{ color: 'var(--term-text-dim)' }}>
+            <div className="py-4 mt-3 border-t border-border-subtle">
+              <span className="text-xs text-text-disabled">
                 {totalCount} entries total
               </span>
             </div>
@@ -353,6 +373,7 @@ export function DictionaryPage() {
           <div className="h-4" />
         </div>
       )}
+      </div>
     </div>
   )
 }

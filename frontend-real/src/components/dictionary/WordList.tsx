@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+
 import type { DictionaryEntry } from '@/types/dictionary'
 import type { DisplayOptions } from './DictionaryToolbar'
 
@@ -12,47 +13,34 @@ interface WordListProps {
   renderDetail?: (entry: DictionaryEntry, index: number) => React.ReactNode
 }
 
-const TERM_POS_COLORS: Record<string, string> = {
-  NOUN: 'var(--term-blue)',
-  VERB: 'var(--term-red)',
-  ADJECTIVE: 'var(--term-yellow)',
-  ADVERB: 'var(--term-cyan)',
-  PRONOUN: 'var(--term-blue)',
-  PREPOSITION: 'var(--term-orange)',
-  CONJUNCTION: 'var(--term-cyan)',
-  INTERJECTION: 'var(--term-purple)',
+const POS_SHORT: Record<string, string> = {
+  NOUN: 'n', VERB: 'v', ADJECTIVE: 'adj', ADVERB: 'adv',
+  PRONOUN: 'pron', PREPOSITION: 'prep', CONJUNCTION: 'conj',
+  INTERJECTION: 'interj', PHRASE: 'phr', IDIOM: 'idiom', OTHER: '?',
 }
 
 function WordListSkeleton() {
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col gap-0.5">
       {Array.from({ length: 12 }).map((_, i) => (
-        <div key={i} className="flex items-center gap-3 py-1.5">
-          <span className="text-xs tabular-nums w-6 text-right" style={{ color: 'var(--term-text-dim)' }}>
-            {i + 1}
-          </span>
+        <div key={i} className="flex items-center gap-3 py-2.5 px-3">
           <div
-            className="h-3 animate-pulse"
-            style={{ width: 60 + Math.random() * 100, background: 'var(--term-border)', opacity: 0.6 }}
+            className="h-4 rounded bg-surface-disabled animate-pulse"
+            style={{ width: 60 + Math.random() * 100 }}
           />
           <div
-            className="h-3 animate-pulse"
-            style={{ width: 30 + Math.random() * 20, background: 'var(--term-text-dim)', opacity: 0.2 }}
+            className="h-3 rounded bg-surface-disabled animate-pulse opacity-50"
+            style={{ width: 30 + Math.random() * 60 }}
+          />
+          <div className="flex-1" />
+          <div
+            className="h-3 rounded bg-surface-disabled animate-pulse opacity-30"
+            style={{ width: 40 + Math.random() * 80 }}
           />
         </div>
       ))}
     </div>
   )
-}
-
-/** Format short POS label */
-function posShort(pos: string): string {
-  const map: Record<string, string> = {
-    NOUN: 'n', VERB: 'v', ADJECTIVE: 'adj', ADVERB: 'adv',
-    PRONOUN: 'pron', PREPOSITION: 'prep', CONJUNCTION: 'conj',
-    INTERJECTION: 'interj', PHRASE: 'phr', IDIOM: 'idiom', OTHER: '?',
-  }
-  return map[pos] ?? pos.toLowerCase()
 }
 
 export function WordList({
@@ -73,7 +61,7 @@ export function WordList({
   let lastLetter = ''
 
   return (
-    <div className="flex flex-col font-mono">
+    <div className="flex flex-col">
       {entries.map((entry, index) => {
         const isSelected = selectedWordId === entry.id
 
@@ -86,19 +74,6 @@ export function WordList({
         const cleanIpa = ipa ? `/${ipa.replace(/^\/+|\/+$/g, '')}/` : undefined
         const primaryPos = entry.senses[0]?.partOfSpeech
         const showPos = displayOptions.partOfSpeech && primaryPos
-        const definition = displayOptions.definition
-          ? entry.senses[0]?.definition
-          : undefined
-        const topicNames = displayOptions.topic
-          ? entry.topics.map((topic) => topic.name)
-          : []
-
-        // Build the right-side info fragments
-        const infoParts: string[] = []
-        if (translation) infoParts.push(translation)
-        if (definition && !translation) infoParts.push(definition)
-
-        const sensesCount = entry.senses.length
 
         // Alphabetical section headers
         let letterHeader: React.ReactNode = null
@@ -107,17 +82,15 @@ export function WordList({
           if (firstChar !== lastLetter) {
             lastLetter = firstChar
             letterHeader = (
-              <div className="sticky top-0 z-[5] flex items-center gap-2 pt-5 pb-1" style={{ background: 'var(--term-bg)' }}>
-                <span className="text-sm font-bold uppercase" style={{ color: 'var(--term-green)' }}>
+              <div className="sticky top-0 z-[5] flex items-center gap-3 pt-5 pb-1.5 bg-bg-page">
+                <span className="text-sm font-bold tracking-wider text-cornflower">
                   {firstChar}
                 </span>
-                <div className="flex-1" style={{ borderBottom: '1px dotted var(--term-border)' }} />
+                <div className="flex-1 h-px bg-border-default" />
               </div>
             )
           }
         }
-
-        const posColor = showPos ? (TERM_POS_COLORS[primaryPos] ?? 'var(--term-text-muted)') : undefined
 
         return (
           <div key={entry.id}>
@@ -131,55 +104,41 @@ export function WordList({
                 <button
                   type="button"
                   onClick={() => onWordClick(entry.id)}
-                  className="term-word-row w-full flex items-baseline gap-2 py-1.5 text-left cursor-pointer group"
+                  className="dict-word-row w-full grid items-center gap-3 py-2.5 px-3.5 text-left cursor-pointer"
+                  style={{ gridTemplateColumns: '32px 1fr' }}
                 >
                   {/* Index */}
-                  <span className="text-xs tabular-nums w-6 text-right shrink-0 select-none" style={{ color: 'var(--term-text-dim)' }}>
+                  <span className="text-[12px] font-mono font-medium text-text-disabled select-none">
                     {index + 1}
                   </span>
 
-                  {/* Word */}
-                  <span className="text-sm font-bold shrink-0" style={{ color: 'var(--term-text-bright)' }}>
-                    {entry.text}
-                  </span>
-
-                  {/* POS short */}
-                  {showPos && (
-                    <span className="text-xs shrink-0" style={{ color: posColor }}>
-                      {posShort(primaryPos)}
+                  {/* Word + meta */}
+                  <div className="flex items-baseline gap-3.5 min-w-0">
+                    <span className="text-[16.5px] font-semibold text-text-primary shrink-0">
+                      {entry.text}
                     </span>
-                  )}
 
-                  {/* Senses count if > 1 */}
-                  {sensesCount > 1 && (
-                    <span className="text-xs shrink-0" style={{ color: 'var(--term-text-dim)' }}>
-                      {sensesCount}s
-                    </span>
-                  )}
+                    {showPos && (
+                      <span className="text-[11.5px] font-medium uppercase tracking-wide text-text-disabled shrink-0">
+                        {POS_SHORT[primaryPos] ?? primaryPos.toLowerCase()}
+                      </span>
+                    )}
 
-                  {/* IPA */}
-                  {cleanIpa && (
-                    <span className="text-xs shrink-0" style={{ color: 'var(--term-text-dim)' }}>
-                      {cleanIpa}
-                    </span>
-                  )}
+                    {cleanIpa && (
+                      <span className="font-mono text-[12.5px] text-text-disabled shrink-0">
+                        {cleanIpa}
+                      </span>
+                    )}
 
-                  {/* Translation / definition */}
-                  {infoParts.length > 0 && (
-                    <span className="text-xs truncate min-w-0 flex-1" style={{ color: 'var(--term-text-muted)' }}>
-                      — {infoParts.join(' · ')}
-                    </span>
-                  )}
+                    {translation && (
+                      <span className="text-[14.5px] text-text-secondary truncate min-w-0">
+                        {translation}
+                      </span>
+                    )}
 
-                  {/* Spacer when no info */}
-                  {infoParts.length === 0 && <span className="flex-1" />}
+                    {!translation && <span className="flex-1" />}
+                  </div>
 
-                  {/* Topics */}
-                  {topicNames.length > 0 && (
-                    <span className="text-xs shrink-0 hidden md:inline" style={{ color: 'var(--term-text-dim)' }}>
-                      [{topicNames.join(',')}]
-                    </span>
-                  )}
                 </button>
               )}
             </div>
