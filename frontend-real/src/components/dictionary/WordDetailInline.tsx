@@ -19,6 +19,7 @@ import { useWordDetail } from '@/hooks/useWordDetail'
 import { useDeleteWord } from '@/hooks/useDeleteWord'
 import { CREATE_CARD, GET_DICTIONARY_ENTRY } from '@/graphql/queries/dictionary'
 import type { Sense, CardStats, ReviewLog } from '@/types/dictionary'
+import { getPosColors, getPosAccentBorder } from '@/lib/pos-colors'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -87,13 +88,15 @@ function IconBtn({
 function SenseBlock({ sense, index, isFirst }: { sense: Sense; index: number; isFirst: boolean }) {
   const { t } = useTranslation('dictionary')
   const posLabel = sense.partOfSpeech ? t(`pos.${sense.partOfSpeech}`) : undefined
+  const posC = getPosColors(sense.partOfSpeech)
+  const borderC = getPosAccentBorder(sense.partOfSpeech)
 
   return (
-    <div className={`pl-3 ${isFirst ? 'border-l-[3px] border-l-cornflower' : 'border-l-[3px] border-l-border-default'}`}>
+    <div className={`pl-3 border-l-[3px] ${borderC}`}>
       <div className="flex items-center gap-1.5 mb-1">
-        <span className="text-[11px] font-bold text-cornflower">{index + 1}</span>
+        <span className={`text-[11px] font-bold ${posC.text}`}>{index + 1}</span>
         {posLabel && (
-          <span className="text-[10px] font-semibold uppercase text-text-disabled">{posLabel}</span>
+          <span className={`text-[10px] font-semibold uppercase ${posC.text} opacity-70`}>{posLabel}</span>
         )}
       </div>
 
@@ -102,7 +105,7 @@ function SenseBlock({ sense, index, isFirst }: { sense: Sense; index: number; is
       )}
 
       {sense.translations.length > 0 && (
-        <p className="text-xs text-cornflower font-medium mb-2">
+        <p className={`text-xs font-medium mb-2 ${posC.text}`}>
           {sense.translations.map(tr => tr.text).join(', ')}
         </p>
       )}
@@ -339,14 +342,23 @@ export function WordDetailInline({ wordId, index, onClose }: WordDetailInlinePro
 
         {/* Row 2: Metadata — tags + date (visually separated from word) */}
         <div className="flex items-center gap-1.5 mt-3 flex-wrap">
-          {entry.topics.map(tp => (
-            <span
-              key={tp.id}
-              className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-cornflower-light text-cornflower-fg border border-cornflower/20"
-            >
-              {tp.name}
-            </span>
-          ))}
+          {entry.topics.map((tp, i) => {
+            const tagStyles = [
+              'bg-cornflower-light text-cornflower-fg border-cornflower/20',
+              'bg-thyme-light text-thyme-fg border-thyme/20',
+              'bg-goldenrod-light text-goldenrod-fg border-goldenrod/20',
+              'bg-source-book-light text-source-book border-source-book/20',
+              'bg-source-screen-light text-source-screen border-source-screen/20',
+            ]
+            return (
+              <span
+                key={tp.id}
+                className={`px-1.5 py-0.5 rounded text-[10px] font-medium border ${tagStyles[i % tagStyles.length]}`}
+              >
+                {tp.name}
+              </span>
+            )
+          })}
           <span className="text-[10px] text-text-disabled ml-1">
             added {formatDate(entry.createdAt)}
             {entry.updatedAt !== entry.createdAt && ` · updated ${formatDate(entry.updatedAt)}`}

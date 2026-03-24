@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 
 import type { DictionaryEntry } from '@/types/dictionary'
 import type { DisplayOptions } from './DictionaryToolbar'
+import { getPosColors } from '@/lib/pos-colors'
 
 interface WordListProps {
   entries: DictionaryEntry[]
@@ -119,7 +120,7 @@ export function WordList({
                     </span>
 
                     {showPos && (
-                      <span className="text-[11.5px] font-medium uppercase tracking-wide text-text-disabled shrink-0">
+                      <span className={`text-[11.5px] font-medium uppercase tracking-wide shrink-0 ${getPosColors(primaryPos).text}`}>
                         {POS_SHORT[primaryPos] ?? primaryPos.toLowerCase()}
                       </span>
                     )}

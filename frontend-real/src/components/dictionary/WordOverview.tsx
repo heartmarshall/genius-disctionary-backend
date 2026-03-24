@@ -3,24 +3,26 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { Volume2 } from 'lucide-react'
 import type { DictionaryEntry, Sense } from '@/types/dictionary'
+import { getPosColors } from '@/lib/pos-colors'
 
 // ─── Sense block ─────────────────────────────────────────────────────────────
 
 function SenseBlock({ sense, index, total }: { sense: Sense; index: number; total: number }) {
   const { t } = useTranslation('dictionary')
   const posLabel = sense.partOfSpeech ? t(`pos.${sense.partOfSpeech}`) : undefined
+  const posC = getPosColors(sense.partOfSpeech)
 
   return (
     <div className="py-3 first:pt-0">
       {/* Sense header: number + POS */}
       <div className="flex items-center gap-2 mb-1.5">
         {total > 1 && (
-          <span className="w-5 h-5 rounded-full bg-surface-secondary flex items-center justify-center text-[11px] font-semibold text-text-secondary tabular-nums">
+          <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-semibold tabular-nums ${posC.bg} ${posC.text}`}>
             {index + 1}
           </span>
         )}
         {posLabel && (
-          <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-px rounded border border-border-default text-text-tertiary">
+          <span className={`text-[10px] font-semibold uppercase tracking-wider ${posC.text} opacity-70`}>
             {posLabel}
           </span>
         )}
@@ -35,7 +37,7 @@ function SenseBlock({ sense, index, total }: { sense: Sense; index: number; tota
 
       {/* Translations */}
       {sense.translations.length > 0 && (
-        <p className="text-sm text-cornflower font-medium mt-1">
+        <p className={`text-sm font-medium mt-1 ${posC.text}`}>
           {sense.translations.map(tr => tr.text).join(', ')}
         </p>
       )}
@@ -124,14 +126,23 @@ export function WordOverview({ entry, className, hideTitle, hideHeader }: WordOv
       {/* Topic chips */}
       {entry.topics.length > 0 && (
         <div className="flex items-center gap-1.5 flex-wrap mt-2.5">
-          {entry.topics.map(tp => (
-            <span
-              key={tp.id}
-              className="inline-flex items-center rounded px-2 py-0.5 text-[11px] font-medium bg-cornflower-light text-cornflower-fg border border-cornflower/20"
-            >
-              {tp.name}
-            </span>
-          ))}
+          {entry.topics.map((tp, i) => {
+            const tagStyles = [
+              'bg-cornflower-light text-cornflower-fg border-cornflower/20',
+              'bg-thyme-light text-thyme-fg border-thyme/20',
+              'bg-goldenrod-light text-goldenrod-fg border-goldenrod/20',
+              'bg-source-book-light text-source-book border-source-book/20',
+              'bg-source-screen-light text-source-screen border-source-screen/20',
+            ]
+            return (
+              <span
+                key={tp.id}
+                className={`inline-flex items-center rounded px-2 py-0.5 text-[11px] font-medium border ${tagStyles[i % tagStyles.length]}`}
+              >
+                {tp.name}
+              </span>
+            )
+          })}
         </div>
       )}
 
