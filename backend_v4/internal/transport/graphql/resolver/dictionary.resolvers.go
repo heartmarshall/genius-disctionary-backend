@@ -430,12 +430,18 @@ func (r *queryResolver) Dictionary(ctx context.Context, input generated.Dictiona
 		return nil, err
 	}
 
+	// Determine effective sort column for cursor encoding.
+	sortBy := serviceInput.SortBy
+	if sortBy == "" {
+		sortBy = "created_at"
+	}
+
 	// Build Connection (edges, pageInfo, totalCount)
 	edges := make([]*generated.DictionaryEdge, len(result.Entries))
 	for i := range result.Entries {
 		edges[i] = &generated.DictionaryEdge{
 			Node:   &result.Entries[i],
-			Cursor: encodeCursor(result.Entries[i].ID.String()),
+			Cursor: cursorFromEntry(result.Entries[i], sortBy),
 		}
 	}
 

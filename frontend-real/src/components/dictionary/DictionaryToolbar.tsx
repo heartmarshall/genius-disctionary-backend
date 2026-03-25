@@ -232,9 +232,9 @@ function SortControl({
             key={opt.key}
             type="button"
             onClick={() => onSortChange(opt.field, opt.dir)}
-            className={`px-3.5 py-1 rounded text-xs font-semibold transition-all duration-150 ${
+            className={`px-3.5 py-1.5 rounded-md text-xs font-semibold transition-all duration-150 ${
               active
-                ? 'bg-bg-card text-text-primary shadow-sm'
+                ? 'bg-text-primary text-bg-page'
                 : 'text-text-tertiary hover:text-text-secondary'
             }`}
           >
@@ -428,7 +428,7 @@ export function DictionaryToolbar({
       <div className={isCompact ? 'hidden' : 'block'}>
         {/* Search row: card + action icons on the same line */}
         <div className="relative z-20 flex items-center gap-2">
-          <div className="flex-1 flex items-center gap-3.5 px-4 py-3 bg-bg-card rounded-[12px] border border-border-default shadow-toolbar">
+          <div className="flex-1 flex items-center gap-3.5 px-4 py-3 bg-island shadow-island rounded-[12px]">
             <Search size={18} className="text-text-tertiary shrink-0" />
             <input
               type="text"
@@ -471,7 +471,7 @@ export function DictionaryToolbar({
       <div
         className={isCompact ? 'block sticky top-0 z-10 py-2 bg-bg-page' : 'hidden'}
       >
-        <div className="flex items-center gap-3 px-3.5 py-2 bg-bg-card rounded-[10px] border border-border-default shadow-toolbar">
+        <div className="flex items-center gap-3 px-3.5 py-2 bg-island shadow-island rounded-[10px]">
           <Search size={16} className="text-text-tertiary shrink-0" />
           <input
             type="text"

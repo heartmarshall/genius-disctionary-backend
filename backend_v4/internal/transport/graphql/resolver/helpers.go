@@ -2,13 +2,30 @@ package resolver
 
 import (
 	"encoding/base64"
+	"time"
 
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
 )
 
-// encodeCursor encodes an ID string into a base64 cursor.
-func encodeCursor(id string) string {
-	return base64.StdEncoding.EncodeToString([]byte(id))
+// encodeCursor encodes a sort value and entry ID into a base64 cursor
+// using the "sortValue|entryID" format expected by the repository.
+func encodeCursor(sortValue, entryID string) string {
+	raw := sortValue + "|" + entryID
+	return base64.StdEncoding.EncodeToString([]byte(raw))
+}
+
+// cursorFromEntry builds a cursor for the given entry and sort column.
+func cursorFromEntry(e domain.Entry, sortBy string) string {
+	var sortValue string
+	switch sortBy {
+	case "text":
+		sortValue = e.TextNormalized
+	case "updated_at":
+		sortValue = e.UpdatedAt.Format(time.RFC3339Nano)
+	default:
+		sortValue = e.CreatedAt.Format(time.RFC3339Nano)
+	}
+	return encodeCursor(sortValue, e.ID.String())
 }
 
 func toSensePointers(senses []domain.Sense) []*domain.Sense {

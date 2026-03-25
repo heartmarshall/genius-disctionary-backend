@@ -134,6 +134,53 @@ export interface DictionaryConnection {
   totalCount: number
 }
 
+// ─── Reference Catalog Types ──────────────────────────────────────────────
+
+export interface RefTranslation {
+  id: UUID
+  text: string
+  sourceSlug: string
+}
+
+export interface RefExample {
+  id: UUID
+  sentence: string
+  translation?: string
+  sourceSlug: string
+}
+
+export interface RefSense {
+  id: UUID
+  definition?: string
+  partOfSpeech?: PartOfSpeech
+  cefrLevel?: string
+  notes?: string
+  sourceSlug: string
+  position: number
+  translations: RefTranslation[]
+  examples: RefExample[]
+}
+
+export interface RefPronunciation {
+  id: UUID
+  transcription: string
+  audioUrl?: string
+  region?: string
+}
+
+export interface RefEntry {
+  id: UUID
+  text: string
+  textNormalized: string
+  frequencyRank?: number
+  cefrLevel?: string
+  isCoreLexicon: boolean
+  senses: RefSense[]
+  pronunciations: RefPronunciation[]
+}
+
+// ─── Filter Types ─────────────────────────────────────────────────────────
+
 export interface DictionaryFilterInput {
   search?: string
   topicId?: UUID

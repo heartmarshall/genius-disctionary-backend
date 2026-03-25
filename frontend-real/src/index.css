@@ -4,51 +4,66 @@
 
 @layer base {
   :root {
-    /* Layer 1 — Interface (cool blue-gray) */
-    --bg-page: #D8DCE5;
-    --bg-card: #ffffff;
-    --surface-secondary: #EDF0F5;
-    --surface-footer: #E4E7ED;
-    --surface-disabled: #E4E7ED;
-    --border-default: #C6CBD6;
-    --border-subtle: #D8DCE5;
-    --text-primary: #14161E;
-    --text-secondary: #4A5068;
-    --text-tertiary: #788094;
-    --text-disabled: #A4AAB8;
-    --text-on-accent: #ffffff;
+    /*
+     * Dark warm palette — matched to reference design
+     * Hierarchy: bg-page < island < bg-card < surface-secondary
+     */
+    --bg-page: #161412;
+    --bg-card: #2c2a26;
+    --surface-secondary: #33302b;
+    --surface-footer: #2c2a26;
+    --surface-disabled: #33302b;
+    --border-default: rgba(255,255,255,0.06);
+    --border-subtle: rgba(255,255,255,0.04);
+    --text-primary: #e4ddd2;
+    --text-secondary: #b8b0a4;
+    --text-tertiary: #7e786e;
+    --text-disabled: #555048;
+    --text-on-accent: #161412;
 
-    /* Layer 2 — Poppy (danger/red) */
-    --poppy: #B06068;
-    --poppy-hover: #9A4F56;
-    --poppy-light: #F4E8EA;
-    --poppy-fg: #B06068;
+    /* Island — word group containers */
+    --island: #272420;
+    --island-shadow: 0 2px 12px rgba(0,0,0,0.28), 0 0 0 1px rgba(255,255,255,0.06);
 
-    /* Layer 2 — Goldenrod (warning/orange) */
-    --goldenrod: #9E7E4A;
-    --goldenrod-hover: #8A6D3E;
-    --goldenrod-light: #F2ECE0;
-    --goldenrod-fg: #9E7E4A;
+    /* Card — expanded word detail */
+    --card-head: #2c2a26;
+    --card-body: #232120;
+    --card-shadow: 0 12px 50px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.06);
 
-    /* Layer 2 — Cornflower (accent/blue) */
-    --cornflower: #5872A8;
-    --cornflower-hover: #4A6190;
-    --cornflower-light: #E8ECF4;
-    --cornflower-fg: #5872A8;
+    /* Sidebar */
+    --sidebar-bg: #1c1a17;
 
-    /* Layer 2 — Thyme (success/green) */
-    --thyme: #4D8A6F;
-    --thyme-hover: #3E7560;
-    --thyme-light: #E4EFE9;
-    --thyme-fg: #4D8A6F;
+    /* Poppy (danger/warm red) */
+    --poppy: #c48b7a;
+    --poppy-hover: #b07a6a;
+    --poppy-light: rgba(196,139,122,0.08);
+    --poppy-fg: #c48b7a;
 
-    /* Layer 3 — Content sources */
-    --source-book: #7E6DA0;
-    --source-book-light: #EDEAF4;
-    --source-screen: #4E8585;
-    --source-screen-light: #E4EEEE;
-    --source-music: #8a6482;
-    --source-music-light: #f3ecf1;
+    /* Goldenrod (warning/amber) */
+    --goldenrod: #c4ab6e;
+    --goldenrod-hover: #b09a5e;
+    --goldenrod-light: rgba(196,171,110,0.08);
+    --goldenrod-fg: #c4ab6e;
+
+    /* Cornflower (accent/blue) */
+    --cornflower: #7b9ec7;
+    --cornflower-hover: #6b8eb7;
+    --cornflower-light: rgba(123,158,199,0.08);
+    --cornflower-fg: #7b9ec7;
+
+    /* Thyme (success/green) */
+    --thyme: #8aaa7e;
+    --thyme-hover: #7a9a6e;
+    --thyme-light: rgba(138,170,126,0.08);
+    --thyme-fg: #8aaa7e;
+
+    /* Content sources */
+    --source-book: #a68eb8;
+    --source-book-light: rgba(166,142,184,0.08);
+    --source-screen: #6a9e9e;
+    --source-screen-light: rgba(106,158,158,0.08);
+    --source-music: #b08aa8;
+    --source-music-light: rgba(176,138,168,0.08);
 
     /* shadcn/ui mappings */
     --background: var(--bg-page);
@@ -75,23 +90,33 @@
   }
 }
 
+@layer utilities {
+  /* Force these bg utilities — Tailwind may not generate them from CSS vars */
+  .bg-island { background-color: var(--island) !important; }
+  .bg-card-head { background-color: var(--card-head) !important; }
+  .bg-card-body { background-color: var(--card-body) !important; }
+  .bg-sidebar-bg { background-color: var(--sidebar-bg) !important; }
+  .shadow-island { box-shadow: var(--island-shadow) !important; }
+  .shadow-bento { box-shadow: var(--card-shadow) !important; }
+}
+
 @layer components {
-  /* Word row hover */
+  /* Word row hover — subtle bg shift within island */
   .dict-word-row {
-    transition: all 0.1s ease;
-    border-radius: 8px;
-    border: 1px solid transparent;
+    transition: background 0.15s ease;
+    border-radius: 10px;
   }
   .dict-word-row:hover {
-    background: var(--bg-card);
-    box-shadow: 0 1px 4px rgba(20, 22, 30, 0.06);
-    border-color: var(--border-default);
+    background: rgba(51, 48, 43, 0.5);
+  }
+  .dict-word-row:active {
+    transform: scale(0.995);
   }
 
   /* Progress track */
   .dict-progress-track {
     height: 3px;
-    background: var(--border-subtle);
+    background: var(--surface-secondary);
     border-radius: 2px;
     overflow: hidden;
   }
@@ -103,23 +128,23 @@
     transition: width 0.3s ease;
   }
 
-  /* Keyboard hint */
+  /* Keyboard hint badge */
   .dict-kbd {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     min-width: 20px;
     height: 20px;
-    padding: 0 4px;
-    font-size: 11px;
-    font-family: inherit;
-    border: 1px solid var(--border-default);
-    border-radius: 4px;
+    padding: 0 6px;
+    font-size: 10px;
+    font-family: var(--font-mono, monospace);
+    background: var(--surface-secondary);
+    border-radius: 6px;
     color: var(--text-tertiary);
     line-height: 1;
   }
 
-  /* Bento section label */
+  /* Section label */
   .dict-section-label {
     font-size: 10px;
     font-weight: 700;
@@ -132,22 +157,29 @@
     gap: 5px;
   }
 
-  /* Bento cell */
-  .dict-cell {
-    background: var(--surface-secondary);
-    border-radius: 10px;
-    padding: 14px 16px;
-    overflow: hidden;
-    min-width: 0;
-  }
-
   /* Card entrance */
-  @keyframes cardIn {
-    from { opacity: 0; transform: translateY(-6px); }
+  @keyframes cardPop {
+    from { opacity: 0; transform: translateY(-4px); }
     to { opacity: 1; transform: translateY(0); }
   }
-  .animate-card-in {
-    animation: cardIn 0.2s ease-out;
+  .animate-card-pop {
+    animation: cardPop 0.25s ease;
+  }
+
+  /* Shimmer for skeleton loading */
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .dict-shimmer {
+    background: linear-gradient(
+      90deg,
+      var(--surface-disabled) 25%,
+      var(--surface-secondary) 50%,
+      var(--surface-disabled) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.8s ease-in-out infinite;
   }
 }
 
@@ -167,10 +199,10 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: rgba(164, 170, 184, 0.25);
+    background: rgba(123, 158, 199, 0.12);
     border-radius: 3px;
   }
   ::selection {
-    background: rgba(88, 114, 168, 0.15);
+    background: rgba(123, 158, 199, 0.2);
   }
 }

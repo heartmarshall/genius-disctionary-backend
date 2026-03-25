@@ -93,7 +93,7 @@ export function Sidebar({ collapsed, onToggle, onClose }: SidebarProps) {
       <aside
         aria-label="Main navigation"
         className={cn(
-          'flex h-full flex-col overflow-hidden border-r border-border-default bg-surface-secondary transition-[width] duration-300 ease-in-out',
+          'flex h-full flex-col overflow-hidden border-r border-border-default bg-sidebar-bg transition-[width] duration-300 ease-in-out',
           collapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH_EXPANDED
         )}
       >

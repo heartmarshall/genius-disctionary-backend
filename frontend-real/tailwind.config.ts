@@ -24,7 +24,7 @@ export default {
         input: 'var(--input)',
         ring: 'var(--ring)',
 
-        /* Layer 1 — Interface */
+        /* Interface layers */
         'bg-page': 'var(--bg-page)',
         'bg-card': 'var(--bg-card)',
         'surface-secondary': 'var(--surface-secondary)',
@@ -64,16 +64,21 @@ export default {
         'source-book': { DEFAULT: 'var(--source-book)', light: 'var(--source-book-light)', fg: 'var(--source-book)' },
         'source-screen': { DEFAULT: 'var(--source-screen)', light: 'var(--source-screen-light)', fg: 'var(--source-screen)' },
         'source-music': { DEFAULT: 'var(--source-music)', light: 'var(--source-music-light)', fg: 'var(--source-music)' },
+        'island': 'var(--island)',
+        'sidebar-bg': 'var(--sidebar-bg)',
+        'card-head': 'var(--card-head)',
+        'card-body': 'var(--card-body)',
       },
       fontFamily: {
-        sans: ['"DM Sans"', 'system-ui', 'sans-serif'],
-        serif: ['"Source Serif 4"', 'Georgia', 'serif'],
+        sans: ['"Nunito"', 'system-ui', 'sans-serif'],
+        serif: ['"Lora"', 'Georgia', 'serif'],
         mono: ['"JetBrains Mono"', 'monospace'],
-        display: ['"Source Serif 4"', 'Georgia', 'serif'],
+        display: ['"Lora"', 'Georgia', 'serif'],
       },
       boxShadow: {
-        bento: '0 6px 28px rgba(20,22,30,0.10), 0 2px 6px rgba(20,22,30,0.06)',
-        toolbar: '0 2px 8px rgba(20,22,30,0.06)',
+        bento: 'var(--card-shadow)',
+        toolbar: '0 2px 8px rgba(0,0,0,0.15)',
+        island: 'var(--island-shadow)',
       },
     },
   },

@@ -40,17 +40,6 @@ export function useDictionary(filter: DictionaryFilterInput) {
           after: pageInfo.endCursor,
         },
       },
-      updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev
-        const existingIds = new Set(prev.dictionary.edges.map((e) => e.node.id))
-        const newEdges = fetchMoreResult.dictionary.edges.filter((e) => !existingIds.has(e.node.id))
-        return {
-          dictionary: {
-            ...fetchMoreResult.dictionary,
-            edges: [...prev.dictionary.edges, ...newEdges],
-          },
-        }
-      },
     })
   }
 

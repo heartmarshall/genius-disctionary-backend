@@ -171,6 +171,90 @@ export const CREATE_CARD = gql`
   }
 `
 
+export const SEARCH_CATALOG = gql`
+  query SearchCatalog($query: String!, $limit: Int) {
+    searchCatalog(query: $query, limit: $limit) {
+      id
+      text
+      textNormalized
+      cefrLevel
+      senses {
+        id
+        definition
+        partOfSpeech
+        translations {
+          id
+          text
+        }
+      }
+      pronunciations {
+        id
+        transcription
+      }
+    }
+  }
+`
+
+export const PREVIEW_REF_ENTRY = gql`
+  query PreviewRefEntry($text: String!) {
+    previewRefEntry(text: $text) {
+      id
+      text
+      textNormalized
+      frequencyRank
+      cefrLevel
+      isCoreLexicon
+      senses {
+        id
+        definition
+        partOfSpeech
+        cefrLevel
+        notes
+        sourceSlug
+        position
+        translations {
+          id
+          text
+          sourceSlug
+        }
+        examples {
+          id
+          sentence
+          translation
+          sourceSlug
+        }
+      }
+      pronunciations {
+        id
+        transcription
+        audioUrl
+        region
+      }
+    }
+  }
+`
+
+export const CREATE_ENTRY_FROM_CATALOG = gql`
+  mutation CreateEntryFromCatalog($input: CreateEntryFromCatalogInput!) {
+    createEntryFromCatalog(input: $input) {
+      entry {
+        id
+        text
+        senses {
+          id
+          definition
+          partOfSpeech
+          translations {
+            id
+            text
+          }
+        }
+        createdAt
+      }
+    }
+  }
+`
+
 export const DELETE_ENTRY = gql`
   mutation DeleteEntry($id: UUID!) {
     deleteEntry(id: $id) {

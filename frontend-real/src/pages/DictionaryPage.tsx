@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Plus } from 'lucide-react'
 import { DictionaryToolbar } from '@/components/dictionary/DictionaryToolbar'
 import { WordList } from '@/components/dictionary/WordList'
 import { WordDetailInline } from '@/components/dictionary/WordDetailInline'
+import { AddWordDialog } from '@/components/dictionary/AddWordDialog'
 import { useDictionary } from '@/hooks/useDictionary'
 import type { PartOfSpeech, EntrySortField, SortDirection, DictionaryFilterInput } from '@/types/dictionary'
 import { DEFAULT_DISPLAY } from '@/components/dictionary/DictionaryToolbar'
@@ -43,6 +45,9 @@ export function DictionaryPage() {
     setDisplayOptions(opts)
     try { localStorage.setItem('dict-display', JSON.stringify(opts)) } catch {}
   }
+
+  // Add word dialog
+  const [addWordOpen, setAddWordOpen] = useState(false)
 
   // Detail view state
   const [selectedWordId, setSelectedWordId] = useState<string | null>(null)
@@ -112,15 +117,18 @@ export function DictionaryPage() {
   }, [])
 
   const openWord = useCallback((id: string, switching: boolean) => {
+    // Capture viewport position of the word BEFORE state change
+    const el = document.querySelector(`[data-word-id="${id}"]`)
+    const viewportY = el ? el.getBoundingClientRect().top : 0
     pendingScrollFix.current = {
       mode: switching ? 'switch' : 'open-fresh',
       wordId: id,
-      viewportY: 0,
+      viewportY,
     }
     setSelectedWordId(id)
   }, [])
 
-  // After render: stabilize scroll or smooth-scroll to card
+  // After render: stabilize scroll position
   useEffect(() => {
     const fix = pendingScrollFix.current
     if (!fix) return
@@ -133,22 +141,30 @@ export function DictionaryPage() {
       const scroller = getScrollParent(el) as HTMLElement
       const scrollerRect = scroller.getBoundingClientRect()
       const elRect = el.getBoundingClientRect()
-      const margin = 20
-      const targetScrollTop = scroller.scrollTop + (elRect.top - scrollerRect.top) - margin
 
       if (fix.mode === 'close') {
+        // Closing: instantly snap so the row stays at its original viewport Y
         const delta = elRect.top - fix.viewportY
         if (Math.abs(delta) > 1) {
           scroller.scrollTop += delta
         }
       } else {
-        const isAboveViewport = elRect.top < scrollerRect.top + margin
-        const isBelowViewport = elRect.top > scrollerRect.bottom - margin
-        const notEnoughRoom = elRect.top > scrollerRect.bottom - 200
-        if (isAboveViewport || isBelowViewport || notEnoughRoom) {
-          const behavior = fix.mode === 'switch' ? 'instant' as const : 'smooth' as const
-          scroller.scrollTo({ top: targetScrollTop, behavior })
+        // Opening: only scroll if the card top is above viewport or there's
+        // not enough room below to see the card comfortably
+        const cardTop = elRect.top
+        const cardBottom = elRect.bottom
+        const viewportTop = scrollerRect.top
+        const viewportBottom = scrollerRect.bottom
+
+        const isAbove = cardTop < viewportTop + 10
+        const noRoom = cardBottom > viewportBottom + 100
+
+        if (isAbove || noRoom) {
+          // Scroll so card top sits 20px below the viewport top
+          const target = scroller.scrollTop + (cardTop - viewportTop) - 20
+          scroller.scrollTo({ top: target, behavior: fix.mode === 'switch' ? 'instant' : 'smooth' })
         }
+        // Otherwise: don't touch scroll at all — card is already visible
       }
     })
   }, [selectedWordId])
@@ -232,14 +248,24 @@ export function DictionaryPage() {
 
   return (
     <div className="min-h-full bg-bg-page">
-      <div className="max-w-[960px] mx-auto px-5 md:px-12 pt-10">
+      <div className="max-w-[960px] mx-auto px-5 md:px-10 pt-12">
       {/* Page header */}
       <div className="pb-0">
-        <div className="mb-6">
-          <h1 className="text-[30px] font-bold text-text-primary font-serif tracking-tight mb-2.5">
-            Dictionary
-          </h1>
-          <div className="flex items-center gap-3.5 text-[14px] text-text-tertiary">
+        <div className="mb-5">
+          <div className="flex items-center justify-between">
+            <h1 className="text-[34px] font-serif font-bold text-text-primary tracking-tight leading-none">
+              Dictionary
+            </h1>
+            <button
+              type="button"
+              onClick={() => setAddWordOpen(true)}
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-[10px] text-[13px] font-semibold bg-cornflower text-white hover:bg-cornflower-hover transition-colors duration-150"
+            >
+              <Plus size={16} />
+              Add word
+            </button>
+          </div>
+          <div className="flex items-center gap-2.5 text-[14px] text-text-tertiary mt-2">
             <span>
               <strong className="text-text-secondary font-semibold">{totalCount}</strong> words
             </span>
@@ -260,7 +286,7 @@ export function DictionaryPage() {
       </div>
 
       {/* Toolbar */}
-      <div className="mt-3">
+      <div className="mt-0">
         <DictionaryToolbar
           totalCount={totalCount}
           topicsCount={topics.length}
@@ -301,7 +327,7 @@ export function DictionaryPage() {
 
       {/* Word list */}
       {!error && (
-        <div className="mt-1">
+        <div className="mt-6">
           <WordList
             entries={entries}
             loading={loading}
@@ -374,6 +400,8 @@ export function DictionaryPage() {
         </div>
       )}
       </div>
+
+      <AddWordDialog open={addWordOpen} onOpenChange={setAddWordOpen} />
     </div>
   )
 }

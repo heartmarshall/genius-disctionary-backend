@@ -2,12 +2,30 @@ package dictionary
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/heartmarshall/myenglish-backend/internal/domain"
 	"github.com/heartmarshall/myenglish-backend/pkg/ctxutil"
 )
+
+// cursorFromEntry produces a base64-encoded cursor in "sortValue|entryID" format,
+// matching the format expected by the repository's decodeCursor.
+func cursorFromEntry(e domain.Entry, sortBy string) string {
+	var sortValue string
+	switch sortBy {
+	case "text":
+		sortValue = e.TextNormalized
+	case "updated_at":
+		sortValue = e.UpdatedAt.Format(time.RFC3339Nano)
+	default:
+		sortValue = e.CreatedAt.Format(time.RFC3339Nano)
+	}
+	raw := sortValue + "|" + e.ID.String()
+	return base64.StdEncoding.EncodeToString([]byte(raw))
+}
 
 // ---------------------------------------------------------------------------
 // 5. FindEntries
@@ -71,11 +89,11 @@ func (s *Service) FindEntries(ctx context.Context, input FindInput) (*FindResult
 		result.HasNextPage = hasNext
 
 		if len(entries) > 0 {
-			startID := entries[0].ID.String()
-			endID := entries[len(entries)-1].ID.String()
+			startCur := cursorFromEntry(entries[0], sortBy)
+			endCur := cursorFromEntry(entries[len(entries)-1], sortBy)
 			result.PageInfo = &PageInfo{
-				StartCursor: &startID,
-				EndCursor:   &endID,
+				StartCursor: &startCur,
+				EndCursor:   &endCur,
 			}
 		}
 	} else {
@@ -94,11 +112,11 @@ func (s *Service) FindEntries(ctx context.Context, input FindInput) (*FindResult
 		result.HasNextPage = offset+len(entries) < total
 
 		if len(entries) > 0 {
-			startID := entries[0].ID.String()
-			endID := entries[len(entries)-1].ID.String()
+			startCur := cursorFromEntry(entries[0], sortBy)
+			endCur := cursorFromEntry(entries[len(entries)-1], sortBy)
 			result.PageInfo = &PageInfo{
-				StartCursor: &startID,
-				EndCursor:   &endID,
+				StartCursor: &startCur,
+				EndCursor:   &endCur,
 			}
 		}
 	}

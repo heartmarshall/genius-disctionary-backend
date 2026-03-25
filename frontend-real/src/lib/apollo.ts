@@ -102,6 +102,7 @@ const cache = new InMemoryCache({
             return {
               ...incoming,
               edges: [...existing.edges, ...incoming.edges],
+              totalCount: incoming.totalCount || existing.totalCount,
             }
           },
         },
