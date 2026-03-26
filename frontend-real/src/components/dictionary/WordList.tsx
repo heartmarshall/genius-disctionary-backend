@@ -283,35 +283,6 @@ export function WordList({
 
     return (
       <div className="flex flex-col">
-        {/* Alphabet bubbles */}
-        <div className="flex gap-1 mb-5 flex-wrap">
-          {allLetters.map(l => {
-            const has = usedLetters.has(l)
-            return (
-              <span
-                key={l}
-                role={has ? 'button' : undefined}
-                onClick={has ? () => {
-                  const el = document.querySelector(`[data-letter="${l}"]`)
-                  el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                } : undefined}
-                className={`font-mono text-[11px] font-semibold w-[28px] h-[28px] rounded-full flex items-center justify-center transition-all duration-150 ${
-                  has ? 'hover:scale-125 hover:text-text-primary active:scale-110' : ''
-                }`}
-                style={{
-                  color: has ? 'var(--text-secondary)' : 'var(--text-disabled)',
-                  opacity: has ? 1 : 0.2,
-                  backgroundColor: has ? 'var(--island)' : 'transparent',
-                  boxShadow: has ? 'var(--island-shadow)' : 'none',
-                  cursor: has ? 'pointer' : 'default',
-                }}
-              >
-                {l}
-              </span>
-            )
-          })}
-        </div>
-
         {letterGroups.map(group => (
           <Island key={group.letter} label={group.letter} count={group.entries.length}>
             {group.entries.map(({ entry, globalIndex }) => (

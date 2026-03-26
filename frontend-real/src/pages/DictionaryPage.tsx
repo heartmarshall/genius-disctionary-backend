@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Plus } from 'lucide-react'
 import { DictionaryToolbar } from '@/components/dictionary/DictionaryToolbar'
@@ -10,18 +10,6 @@ import type { PartOfSpeech, EntrySortField, SortDirection, DictionaryFilterInput
 import { DEFAULT_DISPLAY } from '@/components/dictionary/DictionaryToolbar'
 import type { DisplayOptions } from '@/components/dictionary/DictionaryToolbar'
 
-/**
- * Find the scrollable ancestor (overflow-y: auto/scroll) for a given element.
- */
-function getScrollParent(el: Element): Element {
-  let parent = el.parentElement
-  while (parent) {
-    const style = getComputedStyle(parent)
-    if (style.overflowY === 'auto' || style.overflowY === 'scroll') return parent
-    parent = parent.parentElement
-  }
-  return document.documentElement
-}
 
 export function DictionaryPage() {
   const { t } = useTranslation('dictionary')
@@ -51,13 +39,7 @@ export function DictionaryPage() {
 
   // Detail view state
   const [selectedWordId, setSelectedWordId] = useState<string | null>(null)
-
-  // Scroll stabilization
-  const pendingScrollFix = useRef<{
-    mode: 'close' | 'open-fresh' | 'switch'
-    wordId: string
-    viewportY: number
-  } | null>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   // Debounce search
   useEffect(() => {
@@ -104,70 +86,13 @@ export function DictionaryPage() {
     setSortDir('ASC')
   }
 
-  const closeWord = useCallback((closingId: string) => {
-    const el = document.querySelector(`[data-word-id="${closingId}"]`)
-    if (el) {
-      pendingScrollFix.current = {
-        mode: 'close',
-        wordId: closingId,
-        viewportY: el.getBoundingClientRect().top,
-      }
-    }
+  const closeWord = useCallback((_closingId: string) => {
     setSelectedWordId(null)
   }, [])
 
-  const openWord = useCallback((id: string, switching: boolean) => {
-    // Capture viewport position of the word BEFORE state change
-    const el = document.querySelector(`[data-word-id="${id}"]`)
-    const viewportY = el ? el.getBoundingClientRect().top : 0
-    pendingScrollFix.current = {
-      mode: switching ? 'switch' : 'open-fresh',
-      wordId: id,
-      viewportY,
-    }
+  const openWord = useCallback((id: string, _switching: boolean) => {
     setSelectedWordId(id)
   }, [])
-
-  // After render: stabilize scroll position
-  useEffect(() => {
-    const fix = pendingScrollFix.current
-    if (!fix) return
-    pendingScrollFix.current = null
-
-    requestAnimationFrame(() => {
-      const el = document.querySelector(`[data-word-id="${fix.wordId}"]`)
-      if (!el) return
-
-      const scroller = getScrollParent(el) as HTMLElement
-      const scrollerRect = scroller.getBoundingClientRect()
-      const elRect = el.getBoundingClientRect()
-
-      if (fix.mode === 'close') {
-        // Closing: instantly snap so the row stays at its original viewport Y
-        const delta = elRect.top - fix.viewportY
-        if (Math.abs(delta) > 1) {
-          scroller.scrollTop += delta
-        }
-      } else {
-        // Opening: only scroll if the card top is above viewport or there's
-        // not enough room below to see the card comfortably
-        const cardTop = elRect.top
-        const cardBottom = elRect.bottom
-        const viewportTop = scrollerRect.top
-        const viewportBottom = scrollerRect.bottom
-
-        const isAbove = cardTop < viewportTop + 10
-        const noRoom = cardBottom > viewportBottom + 100
-
-        if (isAbove || noRoom) {
-          // Scroll so card top sits 20px below the viewport top
-          const target = scroller.scrollTop + (cardTop - viewportTop) - 20
-          scroller.scrollTo({ top: target, behavior: fix.mode === 'switch' ? 'instant' : 'smooth' })
-        }
-        // Otherwise: don't touch scroll at all — card is already visible
-      }
-    })
-  }, [selectedWordId])
 
   const handleWordClick = (id: string) => {
     if (selectedWordId === id) {
@@ -250,43 +175,33 @@ export function DictionaryPage() {
     <div className="min-h-full bg-bg-page">
       <div className="max-w-[960px] mx-auto px-5 md:px-10 pt-12">
       {/* Page header */}
-      <div className="pb-0">
-        <div className="mb-5">
-          <div className="flex items-center justify-between">
-            <h1 className="text-[34px] font-serif font-bold text-text-primary tracking-tight leading-none">
-              Dictionary
-            </h1>
-            <button
-              type="button"
-              onClick={() => setAddWordOpen(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-[10px] text-[13px] font-semibold bg-cornflower text-white hover:bg-cornflower-hover transition-colors duration-150"
-            >
-              <Plus size={16} />
-              Add word
-            </button>
-          </div>
-          <div className="flex items-center gap-2.5 text-[14px] text-text-tertiary mt-2">
-            <span>
-              <strong className="text-text-secondary font-semibold">{totalCount}</strong> words
-            </span>
+      <div className="flex items-baseline justify-between mb-5">
+        <div className="flex items-baseline gap-4">
+          <h1 className="text-[34px] font-serif font-bold text-text-primary tracking-tight leading-none">
+            Dictionary
+          </h1>
+          <div className="flex items-center gap-2 text-[13px] text-text-tertiary">
+            <span><strong className="text-text-secondary font-semibold">{totalCount}</strong> words</span>
             <span className="w-[3px] h-[3px] rounded-full bg-text-disabled" />
-            <span>
-              <strong className="text-text-secondary font-semibold">{nounCount}</strong> nouns
-            </span>
-            <span>
-              <strong className="text-text-secondary font-semibold">{adjCount}</strong> adj
-            </span>
+            <span><strong className="text-text-secondary font-semibold">{nounCount}</strong> nouns</span>
+            <span><strong className="text-text-secondary font-semibold">{adjCount}</strong> adj</span>
             <span className="w-[3px] h-[3px] rounded-full bg-text-disabled" />
             <span>{uniqueTopicsCount} topics</span>
-            {loading && (
-              <span className="animate-pulse text-text-disabled">loading...</span>
-            )}
+            {loading && <span className="animate-pulse text-text-disabled">loading...</span>}
           </div>
         </div>
+        <button
+          type="button"
+          onClick={() => setAddWordOpen(true)}
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-[10px] text-[13px] font-semibold bg-text-primary text-bg-page hover:opacity-85 transition-opacity duration-150"
+        >
+          <Plus size={15} />
+          Add word
+        </button>
       </div>
 
-      {/* Toolbar */}
-      <div className="mt-0">
+      {/* Toolbar + Alphabet — sticky on scroll */}
+      <div className="sticky top-0 z-10 bg-bg-page pb-2">
         <DictionaryToolbar
           totalCount={totalCount}
           topicsCount={topics.length}
@@ -305,100 +220,143 @@ export function DictionaryPage() {
           displayOptions={displayOptions}
           onDisplayOptionsChange={updateDisplayOptions}
         />
+
+        {/* Alphabet bar */}
+        {sortBy === 'TEXT' && sortDir === 'ASC' && entries.length > 0 && (() => {
+          const usedLetters = new Set(entries.map(e => e.text[0]?.toUpperCase()).filter(Boolean))
+          const allLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
+          return (
+            <div className="flex gap-1 mt-3 flex-wrap">
+              {allLetters.map(l => {
+                const has = usedLetters.has(l)
+                return (
+                  <span
+                    key={l}
+                    role={has ? 'button' : undefined}
+                    onClick={has ? () => {
+                      const el = scrollRef.current?.querySelector(`[data-letter="${l}"]`)
+                      el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                    } : undefined}
+                    className={`font-mono text-[11px] font-semibold w-[28px] h-[28px] rounded-full flex items-center justify-center transition-all duration-150 ${
+                      has ? 'hover:scale-125 hover:text-text-primary active:scale-110' : ''
+                    }`}
+                    style={{
+                      color: has ? 'var(--text-secondary)' : 'var(--text-disabled)',
+                      opacity: has ? 1 : 0.2,
+                      backgroundColor: has ? 'var(--island)' : 'transparent',
+                      boxShadow: has ? 'var(--island-shadow)' : 'none',
+                      cursor: has ? 'pointer' : 'default',
+                    }}
+                  >
+                    {l}
+                  </span>
+                )
+              })}
+            </div>
+          )
+        })()}
       </div>
 
-      {/* Error */}
-      {error && (
-        <div className="mt-4">
-          <div className="py-4 border-t border-border-subtle">
-            <p className="text-sm text-poppy">
-              {t('error.loadFailed')}
-            </p>
-            <button
-              type="button"
-              onClick={() => window.location.reload()}
-              className="mt-2 text-sm text-cornflower hover:underline"
-            >
-              {t('error.tryAgain')}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Word list */}
-      {!error && (
-        <div className="mt-6">
-          <WordList
-            entries={entries}
-            loading={loading}
-            selectedWordId={selectedWordId}
-            onWordClick={handleWordClick}
-            displayOptions={displayOptions}
-            sortedAlphabetically={sortBy === 'TEXT' && sortDir === 'ASC'}
-            renderDetail={(entry, index) => (
-              <WordDetailInline
-                key={entry.id}
-                wordId={entry.id}
-                index={index}
-                onClose={handleClose}
-              />
-            )}
-          />
-
-          {/* Empty state */}
-          {!loading && entries.length === 0 && (
-            <div className="py-16 text-center">
-              <p className="text-sm text-text-tertiary">
-                {hasActiveFilters ? 'No words match your current filters' : 'Your dictionary is empty'}
+      {/* Word list — contained scroll area */}
+      <div className="mt-6 mx-[-24px] relative">
+        {/* Fade edges */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-6 z-10" style={{ background: 'linear-gradient(to bottom, var(--bg-page), transparent)' }} />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-6 z-10" style={{ background: 'linear-gradient(to top, var(--bg-page), transparent)' }} />
+        <div ref={scrollRef} className="overflow-y-auto dict-scroll-subtle" style={{ maxHeight: 'calc(100vh - 280px)' }}>
+          <div className="px-[24px] py-4">
+          {/* Error */}
+          {error && (
+            <div className="p-5">
+              <p className="text-sm text-poppy">
+                {t('error.loadFailed')}
               </p>
-              {hasActiveFilters && (
-                <button
-                  type="button"
-                  onClick={clearAllFilters}
-                  className="mt-3 text-sm text-cornflower hover:underline"
-                >
-                  Clear all filters
-                </button>
-              )}
-            </div>
-          )}
-
-          {/* Load more */}
-          {!loading && entries.length > 0 && pageInfo?.hasNextPage && (
-            <div className="py-4 mt-3 border-t border-border-subtle">
-              <div className="flex items-center gap-3">
-                <div className="flex-1 dict-progress-track">
-                  <div
-                    className="dict-progress-fill"
-                    style={{ width: `${Math.round((entries.length / totalCount) * 100)}%` }}
-                  />
-                </div>
-                <span className="text-xs tabular-nums text-text-disabled shrink-0">
-                  {entries.length} of {totalCount}
-                </span>
-              </div>
               <button
                 type="button"
-                onClick={loadMore}
-                className="mt-2 w-full py-2 rounded-lg text-sm font-medium text-cornflower hover:bg-cornflower-light transition-colors duration-150"
+                onClick={() => window.location.reload()}
+                className="mt-2 text-sm text-cornflower hover:underline"
               >
-                Load more
+                {t('error.tryAgain')}
               </button>
             </div>
           )}
 
-          {/* EOF */}
-          {!loading && entries.length > 0 && !pageInfo?.hasNextPage && (
-            <div className="py-4 mt-3 border-t border-border-subtle">
-              <span className="text-xs text-text-disabled">
-                {totalCount} entries total
-              </span>
-            </div>
-          )}
+          {/* Word list */}
+          {!error && (
+            <>
+              <WordList
+                entries={entries}
+                loading={loading}
+                selectedWordId={selectedWordId}
+                onWordClick={handleWordClick}
+                displayOptions={displayOptions}
+                sortedAlphabetically={sortBy === 'TEXT' && sortDir === 'ASC'}
+                renderDetail={(entry, index) => (
+                  <WordDetailInline
+                    key={entry.id}
+                    wordId={entry.id}
+                    index={index}
+                    onClose={handleClose}
+                  />
+                )}
+              />
 
-          <div className="h-4" />
+              {/* Empty state */}
+              {!loading && entries.length === 0 && (
+                <div className="py-16 text-center">
+                  <p className="text-sm text-text-tertiary">
+                    {hasActiveFilters ? 'No words match your current filters' : 'Your dictionary is empty'}
+                  </p>
+                  {hasActiveFilters && (
+                    <button
+                      type="button"
+                      onClick={clearAllFilters}
+                      className="mt-3 text-sm text-cornflower hover:underline"
+                    >
+                      Clear all filters
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Load more */}
+              {!loading && entries.length > 0 && pageInfo?.hasNextPage && (
+                <div className="py-4 px-4 border-t border-border-subtle">
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 dict-progress-track">
+                      <div
+                        className="dict-progress-fill"
+                        style={{ width: `${Math.round((entries.length / totalCount) * 100)}%` }}
+                      />
+                    </div>
+                    <span className="text-xs tabular-nums text-text-disabled shrink-0">
+                      {entries.length} of {totalCount}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={loadMore}
+                    className="mt-2 w-full py-2 rounded-lg text-sm font-medium text-cornflower hover:bg-cornflower-light transition-colors duration-150"
+                  >
+                    Load more
+                  </button>
+                </div>
+              )}
+
+              {/* EOF */}
+              {!loading && entries.length > 0 && !pageInfo?.hasNextPage && (
+                <div className="py-3 px-4 border-t border-border-subtle">
+                  <span className="text-xs text-text-disabled">
+                    {totalCount} entries total
+                  </span>
+                </div>
+              )}
+            </>
+          )}
+          </div>
         </div>
-      )}
+      </div>
+
+      <div className="h-8" />
       </div>
 
       <AddWordDialog open={addWordOpen} onOpenChange={setAddWordOpen} />

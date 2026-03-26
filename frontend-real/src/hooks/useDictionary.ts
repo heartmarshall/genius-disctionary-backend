@@ -43,12 +43,15 @@ export function useDictionary(filter: DictionaryFilterInput) {
     })
   }
 
+  // Only show loading skeleton on initial load, not during fetchMore
+  const initialLoading = loading && !previousData
+
   return {
     entries,
     totalCount,
     pageInfo,
     topics: topicsData?.topics ?? [],
-    loading,
+    loading: initialLoading,
     error,
     loadMore,
   }

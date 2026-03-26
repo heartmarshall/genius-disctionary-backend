@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
@@ -393,6 +393,26 @@ function ProgressTab({ entry, stats, logs, onCreateCard, creating }: {
   )
 }
 
+// ─── Unfold animation ────────────────────────────────────────────────────────
+
+const ENTER = {
+  clipPath: 'inset(0 0% 0% 0% round 18px)',
+  scaleY: 1,
+  y: 0,
+}
+const INITIAL = {
+  clipPath: 'inset(0 1% 40% 1% round 18px)',
+  scaleY: 0.92,
+  y: -3,
+}
+const EXIT = {
+  clipPath: 'inset(0 1% 40% 1% round 18px)',
+  scaleY: 0.94,
+  y: -2,
+}
+const ENTER_TRANSITION = { duration: 0.2, ease: [0.22, 1, 0.36, 1] }
+const EXIT_TRANSITION = { duration: 0.15, ease: [0.4, 0, 0.7, 1] }
+
 // ─── Main component ──────────────────────────────────────────────────────────
 
 export function WordDetailInline({ wordId, index, onClose }: WordDetailInlineProps) {
@@ -405,6 +425,13 @@ export function WordDetailInline({ wordId, index, onClose }: WordDetailInlinePro
   })
   const [editWordId, setEditWordId] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<TabId>('word')
+  const [closing, setClosing] = useState(false)
+
+  const handleClose = useCallback(() => {
+    if (closing) return
+    setClosing(true)
+    setTimeout(() => onClose(), EXIT_TRANSITION.duration * 1000)
+  }, [closing, onClose])
 
   const primaryPos = entry?.senses[0]?.partOfSpeech
   const posLabel = primaryPos ? POS_LABEL[primaryPos] ?? primaryPos.toLowerCase() : ''
@@ -418,9 +445,10 @@ export function WordDetailInline({ wordId, index, onClose }: WordDetailInlinePro
   if (loading) {
     return (
       <motion.div
-        initial={{ opacity: 0, y: 8, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1], opacity: { duration: 0.15 } }}
+        initial={INITIAL}
+        animate={closing ? EXIT : ENTER}
+        transition={closing ? EXIT_TRANSITION : ENTER_TRANSITION}
+        style={{ transformOrigin: 'top center' }}
         className="rounded-[18px] overflow-hidden shadow-bento mx-[-24px] my-3"
       >
         <div className="bg-card-head p-7"><ContentSkeleton /></div>
@@ -445,13 +473,10 @@ export function WordDetailInline({ wordId, index, onClose }: WordDetailInlinePro
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{
-        duration: 0.35,
-        ease: [0.22, 1, 0.36, 1],
-        opacity: { duration: 0.2 },
-      }}
+      initial={INITIAL}
+      animate={closing ? EXIT : ENTER}
+      transition={closing ? EXIT_TRANSITION : ENTER_TRANSITION}
+      style={{ transformOrigin: 'top center' }}
       className="rounded-[18px] overflow-hidden shadow-bento mx-[-24px] my-3 relative z-[2]"
     >
       {/* ─── HEADER ─── card-head bg */}
@@ -459,7 +484,7 @@ export function WordDetailInline({ wordId, index, onClose }: WordDetailInlinePro
         <div className="flex justify-between items-start">
           <div className="flex items-baseline gap-3 min-w-0">
             <h2
-              onClick={onClose}
+              onClick={handleClose}
               className="text-[28px] font-serif font-bold text-text-primary tracking-tight leading-none cursor-pointer transition-colors duration-150 hover:text-cornflower"
             >
               {entry.text}
@@ -472,7 +497,7 @@ export function WordDetailInline({ wordId, index, onClose }: WordDetailInlinePro
           <div className="flex items-center gap-1 shrink-0 ml-4">
             <IconBtn onClick={() => setEditWordId(entry.id)} title="Edit"><Pencil size={15} /></IconBtn>
             <IconBtn onClick={() => requestDelete(entry)} title="Delete" danger><Trash2 size={15} /></IconBtn>
-            <IconBtn onClick={onClose} title="Close"><X size={16} /></IconBtn>
+            <IconBtn onClick={handleClose} title="Close"><X size={16} /></IconBtn>
           </div>
         </div>
 
@@ -528,7 +553,7 @@ export function WordDetailInline({ wordId, index, onClose }: WordDetailInlinePro
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={cancelDelete}>{t('delete.confirmCancel')}</AlertDialogCancel>
-            <AlertDialogAction className="bg-poppy text-white hover:bg-poppy/90" onClick={() => { confirmDelete(); onClose() }}>
+            <AlertDialogAction className="bg-poppy text-white hover:bg-poppy/90" onClick={() => { confirmDelete(); handleClose() }}>
               {t('delete.confirmDelete')}
             </AlertDialogAction>
           </AlertDialogFooter>

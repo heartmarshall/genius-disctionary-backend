@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Card Animation Approaches</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #191816;
+    color: #e4ddd2;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    padding: 40px 32px;
+  }
+  h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .subtitle { font-size: 14px; color: #7e786e; margin-bottom: 36px; }
+
+  .approaches {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 28px;
+  }
+
+  .approach {
+    background: #24221f;
+    border-radius: 16px;
+    padding: 24px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.2s;
+  }
+  .approach:hover { border-color: rgba(123,158,199,0.15); }
+  .approach.selected { border-color: #7b9ec7; }
+
+  .approach-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #7b9ec7;
+    margin-bottom: 8px;
+  }
+  .approach h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .approach p { font-size: 13px; color: #b8b0a4; line-height: 1.5; margin-bottom: 16px; }
+
+  /* Demo area */
+  .demo-area {
+    height: 220px;
+    background: #191816;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px;
+  }
+
+  .mock-row {
+    height: 28px;
+    background: #2c2a26;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    font-size: 11px;
+    color: #7e786e;
+    flex-shrink: 0;
+  }
+  .mock-row.active { color: #7b9ec7; }
+
+  .mock-card {
+    background: #2c2a26;
+    border-radius: 12px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .mock-card-head {
+    padding: 12px 14px 8px;
+  }
+  .mock-card-head .word { font-size: 16px; font-weight: 700; color: #e4ddd2; }
+  .mock-card-head .ipa { font-size: 10px; color: #555048; font-family: monospace; margin-left: 6px; }
+  .mock-card-body {
+    background: #24221f;
+    padding: 10px 14px;
+  }
+  .mock-def { font-size: 11px; color: #b8b0a4; }
+  .mock-card-footer {
+    background: #2c2a26;
+    padding: 6px 14px;
+    font-size: 9px;
+    color: #555048;
+    text-align: right;
+  }
+
+  .hint {
+    text-align: center;
+    font-size: 11px;
+    color: #555048;
+    margin-top: 10px;
+  }
+
+  /* ═══ APPROACH A: Elastic Spring ═══ */
+  .demo-a .mock-card {
+    transform-origin: top center;
+    animation: none;
+  }
+  .demo-a .mock-card.entering {
+    animation: springIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+  .demo-a .mock-card.exiting {
+    animation: springOut 0.28s cubic-bezier(0.4, 0, 0.7, 1) forwards;
+  }
+  @keyframes springIn {
+    0% { transform: scaleY(0.6) scaleX(0.97); opacity: 0; }
+    40% { opacity: 1; }
+    70% { transform: scaleY(1.02) scaleX(1.005); }
+    100% { transform: scaleY(1) scaleX(1); }
+  }
+  @keyframes springOut {
+    0% { transform: scaleY(1) scaleX(1); opacity: 1; }
+    100% { transform: scaleY(0.7) scaleX(0.98); opacity: 0; }
+  }
+
+  /* ═══ APPROACH B: Smooth Unfold (height + clip) ═══ */
+  .demo-b .mock-card {
+    transform-origin: top center;
+    animation: none;
+    overflow: hidden;
+  }
+  .demo-b .mock-card.entering {
+    animation: unfoldIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  .demo-b .mock-card.exiting {
+    animation: unfoldOut 0.3s cubic-bezier(0.4, 0, 0.7, 1) forwards;
+  }
+  @keyframes unfoldIn {
+    0% { max-height: 0; transform: translateY(-6px); clip-path: inset(0 4% 100% 4% round 12px); }
+    100% { max-height: 200px; transform: translateY(0); clip-path: inset(0 0 0 0 round 12px); }
+  }
+  @keyframes unfoldOut {
+    0% { max-height: 200px; transform: translateY(0); clip-path: inset(0 0 0 0 round 12px); }
+    100% { max-height: 0; transform: translateY(-4px); clip-path: inset(0 4% 100% 4% round 12px); }
+  }
+
+  /* ═══ APPROACH C: Scale + Blur Morph ═══ */
+  .demo-c .mock-card {
+    transform-origin: top center;
+    animation: none;
+  }
+  .demo-c .mock-card.entering {
+    animation: morphIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  .demo-c .mock-card.exiting {
+    animation: morphOut 0.25s cubic-bezier(0.4, 0, 0.7, 1) forwards;
+  }
+  @keyframes morphIn {
+    0% { transform: scale(0.92, 0.85) translateY(-8px); filter: blur(6px); opacity: 0.3; }
+    50% { filter: blur(0px); opacity: 1; }
+    75% { transform: scale(1.01, 1.01) translateY(1px); }
+    100% { transform: scale(1) translateY(0); filter: blur(0); opacity: 1; }
+  }
+  @keyframes morphOut {
+    0% { transform: scale(1) translateY(0); filter: blur(0); opacity: 1; }
+    60% { filter: blur(4px); }
+    100% { transform: scale(0.94, 0.88) translateY(-6px); filter: blur(8px); opacity: 0; }
+  }
+
+  .pros-list { margin-top: 12px; }
+  .pros-list li {
+    font-size: 11px;
+    color: #8aaa7e;
+    margin-bottom: 4px;
+    list-style: none;
+    padding-left: 14px;
+    position: relative;
+  }
+  .pros-list li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: #8aaa7e;
+    font-size: 10px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Анимация карточки: 3 подхода</h1>
+<p class="subtitle">Кликни на демо-область, чтобы увидеть вход → выход → вход. Выбери понравившийся вариант.</p>
+
+<div class="approaches">
+
+  <!-- A: Elastic Spring -->
+  <div class="approach" data-choice="a" onclick="toggleSelect(this)">
+    <div class="approach-label">Approach A</div>
+    <h3>Elastic Spring</h3>
+    <p>Карточка "пружинит" по вертикали — сжата, распрямляется с лёгким перелётом, при закрытии быстро сжимается обратно.</p>
+
+    <div class="demo-area demo-a" onclick="event.stopPropagation(); cycleDemo('a')">
+      <div class="mock-row">ephemeral</div>
+      <div class="mock-row active">serendipity</div>
+      <div class="mock-card" id="card-a" style="display:none">
+        <div class="mock-card-head"><span class="word">serendipity</span><span class="ipa">/ˌser.ənˈdɪp.ə.ti/</span></div>
+        <div class="mock-card-body"><div class="mock-def">the fact of finding interesting things by chance</div></div>
+        <div class="mock-card-footer">added 2024-03-15</div>
+      </div>
+      <div class="mock-row">ubiquitous</div>
+      <div class="mock-row">candid</div>
+    </div>
+    <div class="hint">← кликни на демо</div>
+
+    <ul class="pros-list">
+      <li>Тактильное, "физическое" ощущение</li>
+      <li>Быстрый выход без задержки</li>
+      <li>Простая реализация через framer-motion spring</li>
+    </ul>
+  </div>
+
+  <!-- B: Smooth Unfold -->
+  <div class="approach" data-choice="b" onclick="toggleSelect(this)">
+    <div class="approach-label">Approach B</div>
+    <h3>Smooth Unfold</h3>
+    <p>Карточка "разворачивается" от строки слова — clip-path расширяется из точки, создавая эффект раскрытия бумаги.</p>
+
+    <div class="demo-area demo-b" onclick="event.stopPropagation(); cycleDemo('b')">
+      <div class="mock-row">ephemeral</div>
+      <div class="mock-row active">serendipity</div>
+      <div class="mock-card" id="card-b" style="display:none">
+        <div class="mock-card-head"><span class="word">serendipity</span><span class="ipa">/ˌser.ənˈdɪp.ə.ti/</span></div>
+        <div class="mock-card-body"><div class="mock-def">the fact of finding interesting things by chance</div></div>
+        <div class="mock-card-footer">added 2024-03-15</div>
+      </div>
+      <div class="mock-row">ubiquitous</div>
+      <div class="mock-row">candid</div>
+    </div>
+    <div class="hint">← кликни на демо</div>
+
+    <ul class="pros-list">
+      <li>Органичное "раскрытие" из контекста</li>
+      <li>Элегантный, сдержанный стиль</li>
+      <li>Связь с позицией в списке</li>
+    </ul>
+  </div>
+
+  <!-- C: Scale + Blur Morph -->
+  <div class="approach" data-choice="c" onclick="toggleSelect(this)">
+    <div class="approach-label">Approach C</div>
+    <h3>Scale + Blur Morph</h3>
+    <p>Карточка "материализуется" с размытием — из blur + scale в чёткое состояние, как фокусировка камеры.</p>
+
+    <div class="demo-area demo-c" onclick="event.stopPropagation(); cycleDemo('c')">
+      <div class="mock-row">ephemeral</div>
+      <div class="mock-row active">serendipity</div>
+      <div class="mock-card" id="card-c" style="display:none">
+        <div class="mock-card-head"><span class="word">serendipity</span><span class="ipa">/ˌser.ənˈdɪp.ə.ti/</span></div>
+        <div class="mock-card-body"><div class="mock-def">the fact of finding interesting things by chance</div></div>
+        <div class="mock-card-footer">added 2024-03-15</div>
+      </div>
+      <div class="mock-row">ubiquitous</div>
+      <div class="mock-row">candid</div>
+    </div>
+    <div class="hint">← кликни на демо</div>
+
+    <ul class="pros-list">
+      <li>Кинематографический, premium-эффект</li>
+      <li>Blur скрывает "прыжок" контента</li>
+      <li>Уникальный — не встретишь в типовых UI</li>
+    </ul>
+  </div>
+
+</div>
+
+<script>
+  const states = { a: 'hidden', b: 'hidden', c: 'hidden' };
+
+  function cycleDemo(id) {
+    const card = document.getElementById('card-' + id);
+    if (states[id] === 'hidden') {
+      card.style.display = 'block';
+      card.className = 'mock-card entering';
+      states[id] = 'visible';
+      card.addEventListener('animationend', () => {
+        card.className = 'mock-card';
+      }, { once: true });
+    } else {
+      card.className = 'mock-card exiting';
+      states[id] = 'hidden';
+      card.addEventListener('animationend', () => {
+        card.style.display = 'none';
+        card.className = 'mock-card';
+      }, { once: true });
+    }
+  }
+
+  // Selection logic
+  function toggleSelect(el) {
+    document.querySelectorAll('.approach').forEach(a => a.classList.remove('selected'));
+    el.classList.add('selected');
+
+    // Report selection
+    if (window.reportSelection) {
+      window.reportSelection(el.dataset.choice, el.querySelector('h3')?.textContent);
+    }
+  }
+</script>
+</body>
+</html>
